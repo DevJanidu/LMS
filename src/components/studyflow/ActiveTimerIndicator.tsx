@@ -36,19 +36,20 @@ export default function ActiveTimerIndicator({ initial }: Props) {
   }, [elapsed, initial, now, timer]);
   if (!timer) return null;
   return (
-    <Link
-      href="/study"
-      className="flex flex-wrap items-center justify-center gap-2 rounded-xl bg-success-50 px-3 py-2 text-theme-xs font-medium text-success-700 dark:bg-success-500/10 dark:text-success-300"
+    <div
+      className={`sf-timer-dock ${timer.pausedAt ? "is-paused" : ""}`}
     >
-      <span aria-hidden="true">●</span>
-      {t(timer.pausedAt ? "pausedStudying" : "studying", {
+      <span aria-hidden="true" className="sf-live-dot" />
+      <Link href="/study">{t(timer.pausedAt ? "pausedStudying" : "studying", {
         subject:
           data.subjects.find((subject) => subject.id === timer.subjectId)
             ?.title ?? "",
-      })}
+      })}</Link>
       <span dir="ltr" className="tabular-nums">
         {clockTime(elapsed)}
       </span>
-    </Link>
+      {!timer.pausedAt && <button className="sf-dock-action" aria-label={t("redesign.pauseFocus")} onClick={() => updateWorkspace(initial,state => state.timer && !state.timer.pausedAt ? {...state,timer:{...state.timer,pausedAt:new Date().toISOString()}} : state)}>{t("pause")}</button>}
+      <Link href="/study" className="sf-dock-action">{t(timer.pausedAt ? "resume" : "finish")}</Link>
+    </div>
   );
 }

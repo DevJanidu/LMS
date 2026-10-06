@@ -19,6 +19,7 @@ import SessionTable from "@/components/study/SessionTable";
 import Resources from "@/components/resources/Resources";
 import TopicList from "./TopicList";
 import SubjectModal from "./SubjectModal";
+import SubjectOverview from "./SubjectOverview";
 interface Props {
   initial: Workspace;
   id: string;
@@ -34,7 +35,7 @@ export default function SubjectDetail({ initial, id }: Props) {
   const sessions = getSessions(data).filter(
     (session) => session.subjectId === id,
   );
-  const [tab, setTab] = useState("topics");
+  const [tab, setTab] = useState("overview");
   const [action, setAction] = useState<"delete" | "archive">();
   const editor = useModal();
   if (!subject)
@@ -52,93 +53,117 @@ export default function SubjectDetail({ initial, id }: Props) {
     );
   return (
     <>
-      <PageHeader
-        title={subject.title}
-        description={subject.description}
-        action={
-          <Link href={`/study?subject=${id}`} className={primaryLink}>
-            {t("startStudying")}
-          </Link>
-        }
-      />
-      <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
-        <div className="mb-3 flex flex-wrap justify-between gap-3 text-sm">
-          <span>
-            {subjectProgress(topics)}% ·{" "}
-            {t("topicCount", {
-              completed: topics.filter((topic) => topic.status === "completed")
-                .length,
-              total: topics.length,
-            })}
-          </span>
-          <span>
-            {duration(totalSeconds(sessions))}
-            {subject.targetDate &&
-              ` · ${t("targetDate")}: ${formatDate(subject.targetDate, data.user.timezone, locale)}`}
-          </span>
-        </div>
-        <ProgressBar
-          value={subjectProgress(topics)}
-          label={subject.title}
-          color={subject.color}
-        />
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Button variant="outline" size="sm" onClick={editor.openModal}>
-            {t("editSubject")}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAction("archive")}
-            disabled={
-              subject.status === "archived" &&
-              getSubjects(data).filter((item) => item.status === "active")
-                .length >= 50
-            }
-          >
-            {t(subject.status === "archived" ? "restore" : "archive")}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAction("delete")}
-          >
-            {t("delete")}
-          </Button>
-        </div>
-      </div>
       <div
-        className="mb-5 flex gap-1 border-b border-gray-200 dark:border-gray-800"
-        role="tablist"
-        aria-label={t("subjectSections")}
+        className={`sf-subject-workspace ${tab === "topics" ? "sf-subject-workspace-topics" : ""}`}
       >
-        {["topics", "resources", "sessions"].map((key) => (
-          <button
-            key={key}
-            id={`tab-${key}`}
-            role="tab"
-            aria-selected={tab === key}
-            aria-controls={`panel-${key}`}
-            onClick={() => setTab(key)}
-            className={`border-b-2 px-5 py-3 text-sm ${tab === key ? "border-brand-500 text-brand-600 dark:border-brand-400 dark:text-brand-300" : "border-transparent text-gray-500 dark:text-gray-400"}`}
+        <div className="sf-subject-main">
+          <PageHeader
+            title={subject.title}
+            description={subject.description}
+            action={
+              <Link
+                href={`/study?subject=${id}&topic=${topics.find((topic) => topic.status === "inProgress")?.id ?? topics.find((topic) => topic.status !== "completed")?.id ?? ""}`}
+                className={primaryLink}
+              >
+                {t("startStudying")}
+              </Link>
+            }
+          />
+          <div className="sf-panel mb-6 p-6">
+            <div className="mb-3 flex flex-wrap justify-between gap-3 text-sm">
+              <span>
+                {subjectProgress(topics)}% ·{" "}
+                {t("topicCount", {
+                  completed: topics.filter(
+                    (topic) => topic.status === "completed",
+                  ).length,
+                  total: topics.length,
+                })}
+              </span>
+              <span>
+                {duration(totalSeconds(sessions))}
+                {subject.targetDate &&
+                  ` · ${t("targetDate")}: ${formatDate(subject.targetDate, data.user.timezone, locale)}`}
+              </span>
+            </div>
+            <ProgressBar
+              value={subjectProgress(topics)}
+              label={subject.title}
+              color={subject.color}
+            />
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Button variant="outline" size="sm" onClick={editor.openModal}>
+                {t("editSubject")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAction("archive")}
+                disabled={
+                  subject.status === "archived" &&
+                  getSubjects(data).filter((item) => item.status === "active")
+                    .length >= 50
+                }
+              >
+                {t(subject.status === "archived" ? "restore" : "archive")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAction("delete")}
+              >
+                {t("delete")}
+              </Button>
+            </div>
+          </div>
+          <div
+            className="no-scrollbar mb-5 flex max-w-full gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-800"
+            role="tablist"
+            aria-label={t("subjectSections")}
           >
-            {t(key)}
-          </button>
-        ))}
-      </div>
-      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
-        {tab === "topics" && (
-          <ComponentCard title={t("topics")}>
-            <TopicList data={data} subjectId={id} />
-          </ComponentCard>
-        )}
-        {tab === "resources" && (
-          <Resources initial={initial} subjectId={id} embedded />
-        )}
-        {tab === "sessions" && (
-          <ComponentCard title={t("sessions")}>
-            <SessionTable sessions={sessions} data={data} />
-          </ComponentCard>
+            {["overview", "topics", "resources", "sessions"].map((key) => (
+              <button
+                key={key}
+                id={`tab-${key}`}
+                role="tab"
+                aria-selected={tab === key}
+                aria-controls={`panel-${key}`}
+                onClick={() => setTab(key)}
+                className={`border-b-2 px-5 py-3 text-sm ${tab === key ? "border-brand-500 text-brand-600 dark:border-brand-400 dark:text-brand-300" : "border-transparent text-gray-500 dark:text-gray-400"}`}
+              >
+                {t(key)}
+              </button>
+            ))}
+          </div>
+          <div
+            role="tabpanel"
+            id={`panel-${tab}`}
+            aria-labelledby={`tab-${tab}`}
+          >
+            {tab === "overview" && (
+              <SubjectOverview data={data} subjectId={id} />
+            )}
+            {tab === "topics" && (
+              <ComponentCard title={t("topics")}>
+                <TopicList data={data} subjectId={id} />
+              </ComponentCard>
+            )}
+            {tab === "resources" && (
+              <Resources initial={initial} subjectId={id} embedded />
+            )}
+            {tab === "sessions" && (
+              <ComponentCard title={t("sessions")}>
+                <SessionTable sessions={sessions} data={data} />
+              </ComponentCard>
+            )}
+          </div>
+        </div>
+        {tab !== "topics" && (
+          <aside className="sf-subject-topics" aria-label={t("topics")}>
+            <ComponentCard title={t("topics")}>
+              <TopicList data={data} subjectId={id} />
+            </ComponentCard>
+          </aside>
         )}
       </div>
       <SubjectModal

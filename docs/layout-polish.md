@@ -1,0 +1,11 @@
+# Layout and icon polish
+
+The SVG optimizer removed the icons' viewBox attributes. Paths designed for 24–25 units were then displayed in 20px CSS boxes without scaling, clipping their edges. Both Next.js bundlers now preserve viewBox, and shared SVGs use a consistent 24-unit coordinate system and 1.75-unit stroke. Navigation uses a 24px wrapper around a 20px icon, a 12px label gap, and 46px rows.
+
+The 72px header uses three grid columns with matching side tracks, centering search within the application content area. Actions share 40px icon controls; primary study actions are 44px. Tablet layouts reduce the study action to an icon. Mobile uses menu, brand, search, and profile; study remains accessible through bottom navigation, and notifications/theme remain accessible through the profile menu. Popovers support Escape, outside click, and explicit notification dismissal.
+
+Page containers have explicit standard, wide, and full variants. Dashboard, Subjects, Analytics, Library, and admin pages fill the available content width with shared responsive gutters. Settings, focus forms, and subject details retain reading/form constraints. The planner remains a full-viewport workspace. Shared panel padding, button sizes, input heights, resource preview columns, and dashboard proportions follow semantic spacing tokens. Scrollbar space is reserved to prevent header movement between routes.
+
+Validation: production build and TypeScript, lint, the 13 existing analytics/timer/recurrence tests, translation parity, browser layout checks on 15 major routes at 1920, 1440, 1280, 1024, 768 and 360px in light/dark themes, RTL checks, header/mobile interactions, and planner scheduling/duplication/drag checks. Authentication and onboarding also receive shared-control and overflow checks. Local screenshots and contact sheets are generated under the ignored `docs/screenshots/redesign/` directory.
+
+Run `node scripts/redesign-browser.mjs --polish` with the production preview on port 3100 for the complete polish audit. Use `--polish --interactions` for header/mobile and auth checks, or `--planner` for scheduling regression checks. The browser harness uses local Chrome and isolated temporary profiles.

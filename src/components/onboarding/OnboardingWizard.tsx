@@ -115,7 +115,7 @@ export default function OnboardingWizard({ initial, initialStep = 0 }: Props) {
     else setStep(step + 1);
   };
   return (
-    <div className="mx-auto w-full max-w-lg">
+    <div className="sf-onboarding mx-auto w-full max-w-lg">
       <p className="mb-3 text-theme-xs text-brand-600 dark:text-brand-300">
         {t("stepOf", { step: step + 1, total: 5 })}
       </p>

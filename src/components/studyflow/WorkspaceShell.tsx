@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useSidebar } from "@/context/SidebarContext";
-import { useTheme } from "@/context/ThemeContext";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
   GridIcon,
@@ -13,27 +12,20 @@ import {
   FileIcon,
   UserCircleIcon,
   GroupIcon,
-  ListIcon,
   CloseIcon,
-  BellIcon,
 } from "@/icons";
 import { APP_NAME } from "@/lib/constants";
 import { getResources, getSubjects, getTopics } from "@/lib/mock";
-import { getNotifications } from "@/lib/mock/notifications";
 import Badge from "@/components/ui/badge/Badge";
-import {
-  updateWorkspace,
-  useStorageError,
-  useNow,
-  useWorkspace,
-} from "@/lib/mock/store";
-import { formatDate } from "@/lib/time";
+import { useStorageError, useWorkspace } from "@/lib/mock/store";
 import type { Workspace } from "@/types";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
 import ActiveTimerIndicator from "./ActiveTimerIndicator";
 import Field from "./FormFields";
 import EmptyState from "./EmptyState";
+import FocusLauncher from "@/components/study/FocusLauncher";
+import WorkspaceHeader from "./WorkspaceHeader";
 interface Props {
   children: ReactNode;
   initial: Workspace;
@@ -56,7 +48,7 @@ const adminItems = [
   ["settings", "/admin/settings", UserCircleIcon],
 ] as const;
 export const primaryLink =
-  "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-medium text-white shadow-theme-xs transition hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-400";
+  "sf-button sf-primary-action inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 text-sm font-medium text-white shadow-theme-xs transition hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-400";
 /** Responsive learner/admin chrome with shared search and timer state. */
 export default function WorkspaceShell({
   children,
@@ -65,19 +57,21 @@ export default function WorkspaceShell({
 }: Props) {
   const t = useTranslations("studyflow");
   const path = usePathname();
-  const { isMobileOpen, toggleMobileSidebar } = useSidebar();
-  const { themeMode, setThemeMode } = useTheme();
+  const { isMobileOpen, toggleMobileSidebar, isExpanded } = useSidebar();
   const data = useWorkspace(initial);
   const storageError = useStorageError();
   const search = useModal();
   const openSearch = search.openModal;
   const [query, setQuery] = useState("");
   const sidebarRef = useRef<HTMLElement>(null);
-  const clock = useNow();
-  const notifications = getNotifications(
-    data,
-    clock || Date.parse(initial.user.lastActiveAt),
-  );
+  const pageWidth =
+    path === "/calendar"
+      ? "full"
+      : !admin && path === "/study"
+        ? "focus"
+        : !admin && path === "/settings"
+          ? "standard"
+          : "wide";
   useEffect(() => {
     if (!isMobileOpen) return;
     const previous = document.activeElement;
@@ -148,7 +142,9 @@ export default function WorkspaceShell({
     .filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
     .slice(0, 12);
   return (
-    <div className="min-h-dvh bg-gray-50 text-gray-800 dark:bg-gray-950 dark:text-gray-200">
+    <div
+      className={`sf-shell ${admin ? "sf-admin" : ""} ${!isExpanded ? "sf-collapsed" : ""} min-h-dvh bg-gray-50 text-gray-800 dark:bg-gray-950 dark:text-gray-200`}
+    >
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-99999 focus:rounded-lg focus:bg-brand-500 focus:p-3 focus:text-white"
@@ -165,17 +161,17 @@ export default function WorkspaceShell({
       <aside
         ref={sidebarRef}
         aria-label={t(admin ? "adminNavigation" : "learnerNavigation")}
-        className={`fixed inset-y-0 start-0 z-999 flex w-64 flex-col border-e border-gray-200 bg-white px-5 py-7 transition-transform lg:translate-x-0 dark:border-gray-800 dark:bg-gray-900 ${isMobileOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full lg:rtl:translate-x-0"}`}
+        className={`sf-sidebar fixed inset-y-0 start-0 z-999 flex w-64 flex-col border-e border-gray-200 bg-white px-5 py-7 transition-transform lg:translate-x-0 dark:border-gray-800 dark:bg-gray-900 ${isMobileOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full lg:rtl:translate-x-0"}`}
       >
-        <div className="mb-9 flex items-center justify-between">
+        <div className="sf-sidebar-brand-row mb-7 flex items-center justify-between">
           <Link
             href={admin ? "/admin" : "/dashboard"}
-            className="flex items-center gap-3 text-xl font-semibold"
+            className="sf-sidebar-brand flex items-center gap-3 text-xl font-semibold"
           >
-            <span className="flex size-10 items-center justify-center rounded-xl bg-brand-500 text-white dark:bg-brand-500">
-              <FolderIcon className="size-6" />
+            <span className="sf-brand-mark">
+              <FolderIcon className="size-5" />
             </span>
-            {APP_NAME}
+            <span className="sf-nav-label">{APP_NAME}</span>
           </Link>
           <button
             onClick={toggleMobileSidebar}
@@ -190,39 +186,52 @@ export default function WorkspaceShell({
             <Badge>{t("admin")}</Badge>
           </div>
         ) : (
-          <Link
-            href="/study"
-            className={`${primaryLink} mb-7`}
-            onClick={() => {
+          <FocusLauncher
+            initial={initial}
+            sidebar
+            className={`${primaryLink} sf-sidebar-cta mb-7`}
+            onOpen={() => {
               if (isMobileOpen) toggleMobileSidebar();
             }}
-          >
-            {t("startStudying")}
-          </Link>
+          />
         )}
-        <nav className="space-y-2">
+        <nav className="space-y-1">
           {(admin ? adminItems : learnerItems).map(([key, href, Icon]) => {
             const active =
               path === href ||
               (href !== "/admin" && path.startsWith(`${href}/`));
             return (
-              <Link
+              <div
                 key={href}
-                href={href}
-                aria-current={active ? "page" : undefined}
-                onClick={() => {
-                  if (isMobileOpen) toggleMobileSidebar();
-                }}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${active ? "bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"}`}
+                className={key === "settings" ? "sf-settings-group" : undefined}
               >
-                <Icon className="size-5" />
-                {t(key)}
-              </Link>
+                {admin && ["users", "analytics", "storage"].includes(key) && (
+                  <p className="sf-nav-group sf-nav-label">
+                    {t(
+                      `redesign.${key === "users" ? "management" : key === "analytics" ? "insights" : "system"}`,
+                    )}
+                  </p>
+                )}
+                <Link
+                  href={href}
+                  title={t(key)}
+                  aria-label={t(key)}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => {
+                    if (isMobileOpen) toggleMobileSidebar();
+                  }}
+                  className="sf-nav-item"
+                >
+                  <span className="sf-nav-icon">
+                    <Icon className="size-5" />
+                  </span>
+                  <span className="sf-nav-label">{t(key)}</span>
+                </Link>
+              </div>
             );
           })}
         </nav>
-        <div className="mt-auto space-y-4 pt-8">
-          {!admin && <ActiveTimerIndicator initial={initial} />}
+        <div className="sf-sidebar-bottom mt-auto space-y-4 pt-8">
           <p className="text-theme-xs leading-relaxed text-gray-400 dark:text-gray-500">
             {t("workspaceTagline")}
           </p>
@@ -244,138 +253,16 @@ export default function WorkspaceShell({
           )}
         </div>
       </aside>
-      <div className="lg:ms-64">
-        <header className="sticky top-0 z-99 border-b border-gray-200 bg-white/95 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/95">
-          <div className="flex flex-wrap items-center gap-3 px-4 py-4 sm:px-8">
-            <button
-              onClick={toggleMobileSidebar}
-              aria-label={t("openMenu")}
-              aria-expanded={isMobileOpen}
-              className="rounded-lg p-2 lg:hidden"
-            >
-              <ListIcon className="size-6" />
-            </button>
-            <button
-              onClick={search.openModal}
-              className="flex min-w-0 flex-1 items-center justify-between rounded-xl border border-gray-200 px-4 py-2.5 text-start text-sm text-gray-400 dark:border-gray-700 dark:text-gray-400"
-            >
-              <span className="truncate">{t("searchWorkspace")}</span>
-              <kbd className="ms-3 hidden rounded border border-gray-200 px-1.5 text-theme-xs sm:block dark:border-gray-700">
-                ⌘ K
-              </kbd>
-            </button>
-            {!admin && (
-              <Link
-                href="/study"
-                className={`${primaryLink} hidden! sm:inline-flex!`}
-              >
-                {t("startStudying")}
-              </Link>
-            )}
-            <button
-              onClick={() =>
-                setThemeMode(themeMode === "dark" ? "light" : "dark")
-              }
-              aria-label={t("toggleTheme")}
-              className="rounded-xl border border-gray-200 p-2.5 text-sm dark:border-gray-700"
-            >
-              {themeMode === "dark" ? "☀" : "☾"}
-            </button>
-            <details className="relative">
-              <summary
-                aria-label={t("notifications")}
-                className="cursor-pointer list-none rounded-xl border border-gray-200 p-2.5 dark:border-gray-700"
-              >
-                <BellIcon className="size-5" />
-              </summary>
-              <div className="absolute end-0 top-full mt-3 w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-700 dark:bg-gray-900">
-                <h2 className="mb-3 font-medium">{t("notifications")}</h2>
-                {data.user.reminders ? (
-                  notifications.map((item) => (
-                    <button
-                      key={item.id}
-                      className="mb-2 block w-full rounded-lg p-2 text-start text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
-                      onClick={() =>
-                        updateWorkspace(initial, (state) => ({
-                          ...state,
-                          notifications: [
-                            ...state.notifications.filter(
-                              (notification) => notification.id !== item.id,
-                            ),
-                            { ...item, readAt: new Date().toISOString() },
-                          ],
-                        }))
-                      }
-                    >
-                      <span className="block font-medium">
-                        {item.title}
-                        {!item.readAt && " ●"}
-                      </span>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {formatDate(
-                          item.scheduledFor,
-                          data.user.timezone,
-                          "en",
-                          true,
-                        )}
-                      </span>
-                    </button>
-                  ))
-                ) : (
-                  <p className="text-sm">{t("remindersOff")}</p>
-                )}
-                {data.user.reminders && !notifications.length && (
-                  <p className="text-sm">{t("noReminders")}</p>
-                )}
-              </div>
-            </details>
-            <details className="relative">
-              <summary className="flex cursor-pointer list-none items-center gap-2">
-                <span className="flex size-10 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">
-                  {admin
-                    ? "AD"
-                    : data.user.name
-                        .split(" ")
-                        .map((word) => word[0])
-                        .slice(0, 2)
-                        .join("")}
-                </span>
-                <span className="hidden text-sm xl:block">
-                  {admin ? t("admin") : data.user.name}
-                </span>
-              </summary>
-              <div className="absolute end-0 top-full mt-3 w-48 rounded-xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-700 dark:bg-gray-900">
-                <Link
-                  href={admin ? "/admin/settings" : "/settings"}
-                  className="block rounded-lg p-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  {t("profileSettings")}
-                </Link>
-                <Link
-                  href="/login"
-                  className="block rounded-lg p-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  {t("logout")}
-                </Link>
-              </div>
-            </details>
-          </div>
-          {!admin && (
-            <div className="px-4 pb-3 sm:px-8">
-              <Link
-                href="/study"
-                className={`${primaryLink} mb-3 w-full sm:hidden`}
-              >
-                {t("startStudying")}
-              </Link>
-              <ActiveTimerIndicator initial={initial} />
-            </div>
-          )}
-        </header>
+      <div className="sf-main-column lg:ms-64">
+        <WorkspaceHeader
+          initial={initial}
+          admin={admin}
+          onSearch={search.openModal}
+        />
         <main
           id="main-content"
           tabIndex={-1}
-          className="mx-auto max-w-7xl p-4 outline-none sm:p-8"
+          className={`sf-content sf-content-${pageWidth} outline-none`}
         >
           {storageError && (
             <p
@@ -385,12 +272,43 @@ export default function WorkspaceShell({
               {t("storageError")}
             </p>
           )}
-          {children}
+          <div key={path} className="sf-page-enter">
+            {children}
+          </div>
         </main>
         <footer className="px-4 py-8 text-center text-theme-xs text-gray-400 sm:px-8 dark:text-gray-500">
           {APP_NAME} · {t("footer")}
         </footer>
       </div>
+      {!admin && <ActiveTimerIndicator initial={initial} />}
+      {!admin && (
+        <nav className="sf-mobile-nav" aria-label={t("learnerNavigation")}>
+          {learnerItems.slice(0, 4).map(([key, href, Icon]) =>
+            key === "study" ? (
+              <FocusLauncher
+                key={key}
+                initial={initial}
+                mobile
+                active={path === "/study" || path.startsWith("/study/")}
+                className="sf-mobile-focus"
+              />
+            ) : (
+              <Link
+                key={href}
+                href={href}
+                aria-current={
+                  path === href || path.startsWith(`${href}/`)
+                    ? "page"
+                    : undefined
+                }
+              >
+                <Icon className="size-5" />
+                <span>{t(key)}</span>
+              </Link>
+            ),
+          )}
+        </nav>
+      )}
       <Modal
         isOpen={search.isOpen}
         onClose={search.closeModal}

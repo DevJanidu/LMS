@@ -24,6 +24,7 @@ import { primaryLink } from "@/components/studyflow/WorkspaceShell";
 import StudyChart from "./StudyChart";
 import HeatmapCalendar from "./HeatmapCalendar";
 import StreakBadge from "./StreakBadge";
+import LearningInsights from "./LearningInsights";
 interface Props {
   initial: Workspace;
 }
@@ -94,7 +95,7 @@ export default function Analytics({ initial }: Props) {
         title={t("analytics")}
         description={t("analyticsDescription")}
       />
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="sf-metric-strip mb-8 grid sm:grid-cols-3 xl:grid-cols-6">
         {tiles.map(([key, value]) => (
           <StatTile key={key} label={t(key)} value={value} />
         ))}
@@ -176,6 +177,7 @@ export default function Analytics({ initial }: Props) {
           </div>
         </ComponentCard>
       </div>
+      <LearningInsights data={data} weeklySeconds={periodSeconds(sessions,data.user.timezone,weekStart(today,data.user.weekStartDay),today)} />
     </>
   );
 }

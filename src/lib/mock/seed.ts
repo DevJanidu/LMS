@@ -7,8 +7,8 @@ export function createSeed(now = Date.now()): Workspace {
   const timestamp = new Date(now).toISOString();
   const user: User = {
     id: "learner-1",
-    name: "Amara Perera",
-    email: "amara@example.com",
+    name: "Hasmali Dihansi",
+    email: "Hasmali@example.com",
     role: "learner",
     timezone: "Asia/Colombo",
     learningContext: "selfStudy",

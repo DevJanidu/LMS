@@ -32,11 +32,11 @@ export default function StudyChart({
     },
     colors: ["#5265d6"],
     theme: { mode: theme },
-    grid: { borderColor: theme === "dark" ? "#1d2939" : "#e4e7ec" },
+    grid: { strokeDashArray: 4, borderColor: theme === "dark" ? "#1d2939" : "#e4e7ec" },
     xaxis: { categories: labels },
     dataLabels: { enabled: false },
     stroke: { width: type === "line" ? 3 : 0, curve: "smooth" },
-    plotOptions: { bar: { borderRadius: 5, columnWidth: "40%" } },
+    plotOptions: { bar: { borderRadius: 4, columnWidth: "32%" } },
     yaxis: { min: 0 },
     tooltip: { theme },
   };

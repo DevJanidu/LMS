@@ -86,7 +86,7 @@ export default function TopicList({ data, subjectId }: Props) {
     }));
   };
   return (
-    <div className="space-y-5">
+    <div className="sf-topic-list space-y-5">
       <form
         className="flex flex-wrap items-end gap-3"
         onSubmit={(event) => {
@@ -116,7 +116,7 @@ export default function TopicList({ data, subjectId }: Props) {
       {!topics.length && (
         <EmptyState title={t("noTopics")} description={t("noTopicsHelp")} />
       )}
-      <ul className="space-y-3">
+      <ul className="sf-roadmap space-y-3">
         {topics.map((topic, index) => (
           <li
             key={topic.id}
@@ -127,7 +127,7 @@ export default function TopicList({ data, subjectId }: Props) {
               if (dragged) reorder(dragged, topic.id);
               setDragged(undefined);
             }}
-            className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-700"
+            className={`sf-roadmap-step ${topic.status === "completed" ? "is-complete" : topics.find(item => item.status !== "completed")?.id === topic.id ? "is-current" : ""} flex flex-wrap items-center gap-3 p-4`}
           >
             <span
               aria-hidden="true"

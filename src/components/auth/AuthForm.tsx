@@ -31,7 +31,7 @@ export default function AuthForm({ initial, mode }: Props) {
         ? "forgotPassword"
         : "welcomeBack";
   return (
-    <div className="mx-auto w-full max-w-md">
+    <div className="sf-auth-form mx-auto w-full max-w-md">
       <PageHeader title={t(title)} description={t("authDescription")} />
       <form
         className="space-y-5"

@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { FileIcon, LinkIcon, PlayIcon } from "@/icons";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
@@ -51,16 +52,25 @@ export default function Resources({
   const [subject, setSubject] = useState(subjectId);
   const [topic, setTopic] = useState("");
   const [type, setType] = useState("");
+  const [sort, setSort] = useState("newest");
   const [editing, setEditing] = useState<Resource>();
   const [deleting, setDeleting] = useState<Resource>();
   const [opened, setOpened] = useState<Resource>();
-  const resources = getResources(data).filter(
-    (item) =>
-      (!subject || item.subjectId === subject) &&
-      (!topic || item.topicId === topic) &&
-      (!type || item.type === type) &&
-      item.title.toLowerCase().includes(query.toLowerCase()),
-  );
+  const resources = getResources(data)
+    .filter(
+      (item) =>
+        (!subject || item.subjectId === subject) &&
+        (!topic || item.topicId === topic) &&
+        (!type || item.type === type) &&
+        item.title.toLowerCase().includes(query.toLowerCase()),
+    )
+    .sort((a, b) =>
+      sort === "name"
+        ? a.title.localeCompare(b.title)
+        : sort === "oldest"
+          ? a.createdAt.localeCompare(b.createdAt)
+          : b.createdAt.localeCompare(a.createdAt),
+    );
   const addButton = (
     <Button
       onClick={() => {
@@ -82,7 +92,7 @@ export default function Resources({
           action={addButton}
         />
       )}
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="sf-filter-bar mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Field
           label={t("searchResources")}
           value={query}
@@ -130,8 +140,34 @@ export default function Resources({
           ))}
         </SelectField>
       </div>
+      <div className="sf-library-toolbar mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div
+          role="group"
+          aria-label={t("redesign.resourceTypes")}
+          className="sf-segments"
+        >
+          {["", "file", "video", "link", "note"].map((key) => (
+            <button
+              key={key}
+              aria-pressed={type === key}
+              onClick={() => setType(key)}
+            >
+              {t(key || "allTypes")}
+            </button>
+          ))}
+        </div>
+        <SelectField
+          label={t("redesign.librarySort")}
+          value={sort}
+          onChange={(event) => setSort(event.target.value)}
+        >
+          <option value="newest">{t("redesign.newest")}</option>
+          <option value="oldest">{t("redesign.oldest")}</option>
+          <option value="name">{t("name")}</option>
+        </SelectField>
+      </div>
       {resources.length ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="sf-library space-y-3">
           {resources.map((resource) => {
             const id =
               resource.type === "video" && resource.url
@@ -140,19 +176,27 @@ export default function Resources({
             return (
               <article
                 key={resource.id}
-                className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3"
+                className="sf-resource-row overflow-hidden"
               >
-                {id && (
-                  <Image
-                    src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`}
-                    alt={resource.title}
-                    width={480}
-                    height={270}
-                    unoptimized
-                    className="aspect-video w-full object-cover"
-                  />
-                )}
-                <div className="p-5">
+                <div className="sf-resource-preview">
+                  {id ? (
+                    <Image
+                      src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`}
+                      alt={resource.title}
+                      width={480}
+                      height={270}
+                      unoptimized
+                      className="sf-resource-image object-cover"
+                    />
+                  ) : resource.type === "link" ? (
+                    <LinkIcon className="size-5" />
+                  ) : resource.type === "video" ? (
+                    <PlayIcon className="size-5" />
+                  ) : (
+                    <FileIcon className="size-5" />
+                  )}
+                </div>
+                <div className="sf-resource-body p-5">
                   <span className="text-theme-xs font-medium text-brand-600 uppercase dark:text-brand-300">
                     {t(resource.type)}
                   </span>
@@ -167,7 +211,7 @@ export default function Resources({
                       ? ` · ${(resource.sizeBytes / 1024 / 1024).toFixed(1)} MB`
                       : ""}
                   </p>
-                  <div className="mt-5 flex gap-4 text-sm">
+                  <div className="sf-resource-actions flex gap-4 text-sm">
                     {resource.url && /^https?:\/\//i.test(resource.url) ? (
                       <a
                         href={resource.url}

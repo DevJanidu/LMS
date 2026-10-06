@@ -4,9 +4,10 @@ import { isRtl } from "@/i18n/languages";
 import { type Locale, routing } from "@/i18n/routing";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import { Outfit } from "next/font/google";
+import { Geist } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
+import "../workspace.css";
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/constants";
 export const metadata: Metadata = {
@@ -15,8 +16,9 @@ export const metadata: Metadata = {
     "Your personal study workspace. Organise subjects, plan your week and track your learning.",
 };
 
-const outfit = Outfit({
+const geist = Geist({
   subsets: ["latin"],
+  variable: "--font-geist",
 });
 
 export function generateStaticParams() {
@@ -40,7 +42,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={isRtl(locale as Locale) ? "rtl" : "ltr"}>
-      <body className={`${outfit.className} bg-gray-50 dark:bg-gray-900`}>
+      <body className={`${geist.className} ${geist.variable} bg-gray-50 dark:bg-gray-900`}>
         <NextIntlClientProvider>
           <ThemeProvider>
             <SidebarProvider>{children}</SidebarProvider>

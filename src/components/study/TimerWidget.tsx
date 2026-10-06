@@ -15,19 +15,23 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageHeader from "@/components/studyflow/PageHeader";
 import EmptyState from "@/components/studyflow/EmptyState";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
-import { TextField } from "@/components/studyflow/FormFields";
+import Field, { TextField } from "@/components/studyflow/FormFields";
 import { primaryLink } from "@/components/studyflow/WorkspaceShell";
 import StudySelectors from "./StudySelectors";
 interface Props {
   initial: Workspace;
   subject?: string;
   topic?: string;
+  embedded?: boolean;
+  onStarted?: () => void;
 }
 /** A single timestamp-based timer persisted by the mock adapter. */
 export default function TimerWidget({
   initial,
   subject = "",
   topic = "",
+  embedded = false,
+  onStarted,
 }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
@@ -35,6 +39,7 @@ export default function TimerWidget({
   const [subjectId, setSubjectId] = useState(subject);
   const [topicId, setTopicId] = useState(topic);
   const [message, setMessage] = useState("");
+  const [focusGoal, setFocusGoal] = useState("");
   const finish = useModal();
   const discard = useModal();
   const timer = data.timer;
@@ -71,7 +76,7 @@ export default function TimerWidget({
     });
   return (
     <>
-      <PageHeader
+      {!embedded && <PageHeader
         title={t("study")}
         description={t("studyDescription")}
         action={
@@ -82,8 +87,8 @@ export default function TimerWidget({
             {t("viewHistory")}
           </Link>
         }
-      />
-      <div className="mx-auto max-w-3xl">
+      />}
+      <div className={`sf-focus mx-auto max-w-3xl ${timer && !timer.pausedAt ? "is-focusing" : ""}`}>
         <ComponentCard
           title={
             timer
@@ -111,13 +116,14 @@ export default function TimerWidget({
               <output
                 aria-label={t("elapsedTime")}
                 dir="ltr"
-                className="block text-title-md font-semibold tracking-tight tabular-nums sm:text-title-xl"
+                className="sf-focus-clock block tabular-nums"
               >
                 {clockTime(elapsed)}
               </output>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {t(timer.pausedAt ? "paused" : "timerRunning")}
               </p>
+              {timer.focusGoal && <div className="sf-focus-goal"><p className="sf-eyebrow">{t("redesign.todayGoal")}</p><p className="mt-2 text-base">{timer.focusGoal}</p></div>}
               {checkpoint && (
                 <div
                   role="alert"
@@ -168,6 +174,7 @@ export default function TimerWidget({
                   return {
                     ...state,
                     timer: {
+                      focusGoal: focusGoal.trim() || undefined,
                       subjectId,
                       topicId: validTopic?.id,
                       startedAt: new Date().toISOString(),
@@ -176,6 +183,7 @@ export default function TimerWidget({
                     },
                   };
                 });
+                onStarted?.();
               }}
             >
               <StudySelectors
@@ -185,6 +193,7 @@ export default function TimerWidget({
                 onSubjectChange={setSubjectId}
                 onTopicChange={setTopicId}
               />
+              <Field label={t("redesign.focusGoal")} placeholder={t("redesign.focusGoalHint")} value={focusGoal} onChange={event => setFocusGoal(event.target.value)} maxLength={200} />
               <Button type="submit" disabled={!subjectId} className="w-full">
                 {t("start")}
               </Button>

@@ -22,11 +22,12 @@ export default function Subjects({ initial, add = false }: Props) {
   const modal = useModal(add);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("active");
+  const [sort, setSort] = useState("recent");
   const subjects = getSubjects(data).filter(
     (subject) =>
       subject.status === status &&
       subject.title.toLowerCase().includes(search.toLowerCase()),
-  );
+  ).sort((a,b) => sort === "name" ? a.title.localeCompare(b.title) : sort === "deadline" ? (a.targetDate ?? "9999").localeCompare(b.targetDate ?? "9999") : b.updatedAt.localeCompare(a.updatedAt));
   return (
     <>
       <PageHeader
@@ -34,7 +35,7 @@ export default function Subjects({ initial, add = false }: Props) {
         description={t("subjectsDescription")}
         action={<Button onClick={modal.openModal}>{t("addSubject")}</Button>}
       />
-      <div className="mb-6 grid gap-4 sm:grid-cols-2">
+      <div className="sf-filter-bar mb-6 grid gap-4 sm:grid-cols-3">
         <Field
           label={t("searchSubjects")}
           value={search}
@@ -48,9 +49,10 @@ export default function Subjects({ initial, add = false }: Props) {
           <option value="active">{t("active")}</option>
           <option value="archived">{t("archived")}</option>
         </SelectField>
+        <SelectField label={t("sortBy")} value={sort} onChange={e => setSort(e.target.value)}><option value="recent">{t("lastActive")}</option><option value="name">{t("name")}</option><option value="deadline">{t("deadline")}</option></SelectField>
       </div>
       {subjects.length ? (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="sf-subject-collection">
           {subjects.map((subject) => (
             <SubjectCard
               key={subject.id}

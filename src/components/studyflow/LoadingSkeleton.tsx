@@ -7,11 +7,11 @@ export default function LoadingSkeleton() {
     <div role="status" className="space-y-6">
       <span className="sr-only">{t("loading")}</span>
       <div className="h-10 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[0, 1, 2, 3].map((key) => (
+      <div className="grid gap-4 md:grid-cols-3">
+        {[0, 1, 2].map((key) => (
           <div
             key={key}
-            className="h-36 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800"
+            className="h-48 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800"
           />
         ))}
       </div>

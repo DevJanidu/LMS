@@ -14,7 +14,8 @@ export default function EmptyState({
 }: Props) {
   const Heading = headingLevel === 1 ? "h1" : "h2";
   return (
-    <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-900">
+    <div className="sf-empty px-6 py-12 text-center">
+      <div aria-hidden="true" className="sf-empty-mark"><span /><span /><span /></div>
       <Heading className="text-lg font-medium text-gray-800 dark:text-white">
         {title}
       </Heading>

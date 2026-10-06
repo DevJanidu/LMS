@@ -40,8 +40,8 @@ export default function Settings({ initial }: Props) {
         title={t("settings")}
         description={t("settingsDescription")}
       />
-      <div className="max-w-3xl space-y-6">
-        <ComponentCard title={t("profile")}>
+      <div className="sf-settings-layout"><nav className="sf-settings-nav" aria-label={t("settings")}>{["profile","preferences","notifications","dangerZone"].map(key=><a key={key} href={`#settings-${key}`}>{t(key)}</a>)}</nav><div className="min-w-0 space-y-6">
+        <section id="settings-profile"><ComponentCard title={t("profile")}>
           <form
             className="space-y-4"
             onSubmit={(event) => {
@@ -105,7 +105,7 @@ export default function Settings({ initial }: Props) {
             <Button type="submit">{t("saveProfile")}</Button>
           </form>
         </ComponentCard>
-        <ComponentCard title={t("preferences")}>
+        </section><section id="settings-preferences"><ComponentCard title={t("preferences")}>
           <SelectField
             label={t("theme")}
             value={themeMode}
@@ -154,7 +154,7 @@ export default function Settings({ initial }: Props) {
             <Button type="submit">{t("savePreferences")}</Button>
           </form>
         </ComponentCard>
-        <ComponentCard title={t("notifications")}>
+        </section><section id="settings-notifications"><ComponentCard title={t("notifications")}>
           <label className="flex items-center gap-3 text-sm">
             <input
               type="checkbox"
@@ -167,7 +167,7 @@ export default function Settings({ initial }: Props) {
             {t("remindersDescription")}
           </p>
         </ComponentCard>
-        <ComponentCard title={t("dangerZone")}>
+        </section><section id="settings-dangerZone"><ComponentCard title={t("dangerZone")}>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {t("exportHelp")}
           </p>
@@ -203,6 +203,7 @@ export default function Settings({ initial }: Props) {
             </Button>
           </div>
         </ComponentCard>
+        </section>
         {message && (
           <p
             role="status"
@@ -211,6 +212,7 @@ export default function Settings({ initial }: Props) {
             {message}
           </p>
         )}
+      </div>
       </div>
       <ConfirmDialog
         isOpen={deletion.isOpen}

@@ -19,6 +19,7 @@ interface Props {
   data: Workspace;
   occurrence?: BlockOccurrence;
   date: string;
+  startLocal?: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -27,14 +28,16 @@ export default function StudyBlockModal({
   data,
   occurrence,
   date,
+  startLocal,
   isOpen,
   onClose,
 }: Props) {
   const t = useTranslations("studyflow");
-  const block = occurrence?.block;
+  const block = occurrence?.block.id ? occurrence.block : undefined;
+  const source = occurrence?.block;
   const timezone = block?.timezone ?? data.user.timezone;
-  const [subject, setSubject] = useState(block?.subjectId ?? "");
-  const [topic, setTopic] = useState(block?.topicId ?? "");
+  const [subject, setSubject] = useState(source?.subjectId ?? "");
+  const [topic, setTopic] = useState(source?.topicId ?? "");
   const [repeat, setRepeat] = useState(block?.repeat ?? "once");
   const [weekdays, setWeekdays] = useState(block?.weekdays ?? []);
   const [scope, setScope] = useState("one");
@@ -190,7 +193,7 @@ export default function StudyBlockModal({
         <Field
           label={t("customTitle")}
           name="title"
-          defaultValue={block?.title}
+          defaultValue={source?.title}
         />
         <Field
           label={t("startLocal", { timezone })}
@@ -200,7 +203,7 @@ export default function StudyBlockModal({
           defaultValue={
             occurrence
               ? wallTime(occurrence.startsAt, timezone)
-              : `${date}T17:00`
+              : startLocal ?? `${date}T17:00`
           }
         />
         <Field
@@ -209,7 +212,7 @@ export default function StudyBlockModal({
           name="end"
           required
           defaultValue={
-            occurrence ? wallTime(occurrence.endsAt, timezone) : `${date}T18:00`
+            occurrence ? wallTime(occurrence.endsAt, timezone) : startLocal ? new Date(Date.parse(`${startLocal}:00Z`) + 3600000).toISOString().slice(0,16) : `${date}T18:00`
           }
         />
         <SelectField
