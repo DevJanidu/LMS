@@ -49,6 +49,8 @@ Optional blank values are ignored. Missing application configuration produces a 
 | `npm run test:e2e` | Playwright route/mobile checks; authenticated flow requires E2E_DATABASE_READY=1 |
 | `npm run db:generate` / `db:migrate` / `db:studio` | Generate SQL / apply migrations / inspect a development database |
 | `npm run db:seed` | Provision the environment-configured account |
+| `npm run check:connections` | Check live database/storage access, migrations and the seed account without printing secrets |
+| `npm run check:storage` | Verify private upload/copy/download/CORS and remove only temporary diagnostic files |
 
 Integration tests require a migrated, isolated Neon branch and are explicitly skipped otherwise. Playwright can use installed Edge with `PLAYWRIGHT_CHANNEL=msedge` on Windows. Use a separate APP_URL port if a dev server is already running; browser tests use an isolated build directory.
 
