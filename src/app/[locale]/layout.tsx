@@ -2,17 +2,18 @@ import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { isRtl } from "@/i18n/languages";
 import { type Locale, routing } from "@/i18n/routing";
-import "flatpickr/dist/flatpickr.css";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Outfit } from "next/font/google";
 import { notFound } from "next/navigation";
-import "simplebar-react/dist/simplebar.min.css";
-import "swiper/css/bundle";
 import "../globals.css";
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/constants";
-export const metadata: Metadata = { title: { default: APP_NAME, template: `%s | ${APP_NAME}` }, description: "Your personal study workspace. Organise subjects, plan your week and track your learning." };
+export const metadata: Metadata = {
+  title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
+  description:
+    "Your personal study workspace. Organise subjects, plan your week and track your learning.",
+};
 
 const outfit = Outfit({
   subsets: ["latin"],

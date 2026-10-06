@@ -1,12 +1,13 @@
 {
-  "name": "free-nextjs-admin-dashboard",
+  "name": "studyflow",
   "version": "2.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node scripts/test-analytics.mjs"
   },
   "dependencies": {
     "@fullcalendar/react": "^7.1.0",

@@ -1,51 +1,40 @@
-import { Link } from "@/i18n/navigation";
-
-interface BreadcrumbProps {
+"use client";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
+import { ArrowRightIcon } from "@/icons";
+interface Props {
   pageTitle: string;
 }
-
-const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
+/** A compact, localized trail within learner and admin workspaces. */
+export default function PageBreadCrumb({ pageTitle }: Props) {
+  const path = usePathname();
+  const t = useTranslations("studyflow");
+  const admin = path.startsWith("/admin");
+  if (
+    [
+      "/login",
+      "/register",
+      "/forgot-password",
+      "/reset-password",
+      "/terms",
+      "/privacy",
+    ].includes(path) ||
+    path.startsWith("/onboarding")
+  )
+    return null;
   return (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <h2
-        className="text-xl font-semibold text-gray-800 dark:text-white/90"
-        x-text="pageName"
-      >
-        {pageTitle}
-      </h2>
-      <nav>
-        <ol className="flex items-center gap-1.5">
-          <li>
-            <Link
-              className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-              href="/"
-            >
-              Home
-              <svg
-                className="stroke-current rtl:rotate-180"
-                width="17"
-                height="16"
-                viewBox="0 0 17 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
-                  stroke=""
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-          </li>
-          <li className="text-sm text-gray-800 dark:text-white/90">
-            {pageTitle}
-          </li>
-        </ol>
-      </nav>
-    </div>
+    <nav aria-label={t("breadcrumb")} className="mb-3">
+      <ol className="flex flex-wrap items-center gap-2 text-theme-xs text-gray-400 dark:text-gray-500">
+        <li>
+          <Link href={admin ? "/admin" : "/dashboard"}>
+            {t(admin ? "admin" : "dashboard")}
+          </Link>
+        </li>
+        <li aria-hidden="true">
+          <ArrowRightIcon className="size-3 rtl:rotate-180" />
+        </li>
+        <li aria-current="page">{pageTitle}</li>
+      </ol>
+    </nav>
   );
-};
-
-export default PageBreadcrumb;
+}
