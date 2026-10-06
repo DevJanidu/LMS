@@ -490,6 +490,7 @@
       "verifySubject": "Verifica tu correo de {appName}",
       "instructions": "Abre este enlace para continuar:",
       "ignore": "Si no lo solicitaste, ignora este correo."
-    }
+    },
+    "emailUnavailable": "El correo para restablecer contraseñas aún no está configurado. Contacta con el administrador."
   }
 }

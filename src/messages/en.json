@@ -490,6 +490,7 @@
       "verifySubject": "Verify your {appName} email",
       "instructions": "Open this link to continue:",
       "ignore": "If you did not request this, ignore this email."
-    }
+    },
+    "emailUnavailable": "Password-reset email is not configured yet. Please contact the platform administrator."
   }
 }

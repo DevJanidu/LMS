@@ -15,11 +15,11 @@ export async function authenticate(input: unknown) {
   const parsed = inputSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "invalidInput" };
   const v = parsed.data;
-  const auth = getAuth();
-  const requestHeaders = await headers();
-  const ip = requestHeaders.get("x-forwarded-for")?.split(",")[0].trim() ?? "local";
-  if (!(await allowRequest(`auth:${v.mode}:${ip}`, 10)) || !(await allowRequest(`account:${v.mode}:${v.email?.toLowerCase() ?? ip}`, 5))) return { ok: false as const, error: "tooManyRequests" };
   try {
+    const auth = getAuth();
+    const requestHeaders = await headers();
+    const ip = requestHeaders.get("x-forwarded-for")?.split(",")[0].trim() ?? "local";
+    if (!(await allowRequest(`auth:${v.mode}:${ip}`, 10)) || !(await allowRequest(`account:${v.mode}:${v.email?.toLowerCase() ?? ip}`, 5))) return { ok: false as const, error: "tooManyRequests" };
     if (v.mode === "register") {
       if (!v.email || !v.password || !v.name || !v.acceptedTerms) return { ok: false as const, error: "invalidInput" };
       if (v.dateOfBirth && v.dateOfBirth > new Date().toISOString().slice(0, 10)) return { ok: false as const, error: "invalidInput" };
@@ -37,6 +37,8 @@ export async function authenticate(input: unknown) {
     }
     if (v.mode === "forgot-password") {
       if (!v.email) return { ok: false as const, error: "invalidInput" };
+      const env = getEnv();
+      if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return { ok: false as const, error: "emailUnavailable" };
       await auth.api.requestPasswordReset({ headers: requestHeaders, body: { email: v.email.toLowerCase(), redirectTo: `${getEnv().APP_URL}/reset-password` } });
       return { ok: true as const, href: "" };
     }

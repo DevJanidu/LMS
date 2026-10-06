@@ -4,7 +4,7 @@
 
 The supplied connection was verified on 7 October 2026 (PostgreSQL 18.6). All five committed migrations were applied and the requested Super Admin was seeded without demo subjects or sessions. The existing private `uploads` bucket was verified with signed PUT/GET, HEAD, COPY, anonymous-read denial, tampered-signature rejection, local-origin CORS and cleanup. Credentials are stored only in gitignored `.env.local`; both OBJECT_STORAGE_* and AWS_* aliases are populated.
 
-Email setup was explicitly left pending. RESEND_API_KEY and EMAIL_FROM remain absent, so the application's strict configuration validation still prevents authenticated app startup/requests until these are provided. Production also requires Upstash Redis credentials. The independent connection/storage checks do not require email configuration.
+Email setup was explicitly left pending. RESEND_API_KEY and EMAIL_FROM can both remain absent: database access and email/password sign-in continue to work. Configure both variables together to enable account emails; password-reset requests show a clear unavailable message until then. Production still requires Upstash Redis credentials. The independent connection/storage checks do not require email configuration.
 
 Create independent development and production Neon branches. Use a sanitized, disposable test parent for CI; never put production learner content in PR previews. Each deployment must pair its database branch and storage branch. Migrations run via `npm run db:migrate` before deployment, not during app startup. Try migrations on a restored branch first.
 

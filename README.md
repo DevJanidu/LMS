@@ -28,7 +28,7 @@ The seed never resets an existing password or changes an existing account's role
 | --- | --- |
 | DATABASE_URL / DATABASE_URL_UNPOOLED | Pooled app connection / direct migration and seed connection |
 | AUTH_SECRET / APP_URL | Session signing secret, at least 32 characters / canonical origin |
-| RESEND_API_KEY / EMAIL_FROM | Account email transport and verified sender |
+| RESEND_API_KEY / EMAIL_FROM | Optional paired email configuration; required for password-reset/verification emails, not login |
 | GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET | Optional provider configuration; new-user Google consent UI is not shipped |
 | OBJECT_STORAGE_ENDPOINT / OBJECT_STORAGE_REGION / OBJECT_STORAGE_BUCKET | Actual branch storage endpoint, signing region and private bucket |
 | OBJECT_STORAGE_ACCESS_KEY_ID / OBJECT_STORAGE_SECRET_ACCESS_KEY | Branch-scoped S3 key pair |

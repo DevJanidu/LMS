@@ -490,6 +490,7 @@
       "verifySubject": "Bestätige deine E-Mail bei {appName}",
       "instructions": "Öffne diesen Link, um fortzufahren:",
       "ignore": "Falls du dies nicht angefordert hast, ignoriere diese E-Mail."
-    }
+    },
+    "emailUnavailable": "E-Mails zum Zurücksetzen des Passworts sind noch nicht eingerichtet. Kontaktiere die Administration."
   }
 }

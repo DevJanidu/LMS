@@ -5,8 +5,8 @@ const environmentSchema = z.object({
   DATABASE_URL_UNPOOLED: z.string().url(),
   AUTH_SECRET: z.string().min(32),
   APP_URL: z.string().url(),
-  RESEND_API_KEY: z.string().min(1),
-  EMAIL_FROM: z.string().min(1),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().min(1).optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   OBJECT_STORAGE_ENDPOINT: z.string().url(),
@@ -18,6 +18,9 @@ const environmentSchema = z.object({
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 }).superRefine((env, ctx) => {
+  if (Boolean(env.RESEND_API_KEY) !== Boolean(env.EMAIL_FROM)) {
+    ctx.addIssue({ code: "custom", path: ["RESEND_API_KEY"], message: "Set both email variables or leave both unset while email setup is pending." });
+  }
   if (Boolean(env.GOOGLE_CLIENT_ID) !== Boolean(env.GOOGLE_CLIENT_SECRET)) {
     ctx.addIssue({ code: "custom", path: ["GOOGLE_CLIENT_ID"], message: "Set both Google OAuth variables or neither." });
   }

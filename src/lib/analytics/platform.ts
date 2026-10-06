@@ -34,7 +34,7 @@ export async function platformAnalytics(timezone: string, firstDay: 0 | 1): Prom
       SELECT (started_at AT TIME ZONE ${timezone})::date::text AS day,
         count(distinct user_id)::text AS active, count(*)::text AS sessions, sum(duration_seconds)::text AS seconds
       FROM study_sessions WHERE status = 'valid' AND (started_at AT TIME ZONE ${timezone})::date >= ${from}::date
-      GROUP BY (started_at AT TIME ZONE ${timezone})::date
+      GROUP BY 1
     `),
     db.execute<{ day: string; total: string }>(sql`
       SELECT d::date::text AS day, count(u.id)::text AS total
