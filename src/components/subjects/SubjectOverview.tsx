@@ -1,9 +1,9 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { getResources, getSessions, getTopics } from "@/lib/mock";
+import { getResources, getSessions, getTopics } from "@/lib/workspace/queries";
 import { dailySeconds, localDay, shiftDay } from "@/lib/analytics";
-import { useNow } from "@/lib/mock/store";
+import { useNow } from "@/lib/workspace/store";
 import type { Workspace } from "@/types";
 import { primaryLink } from "@/components/studyflow/WorkspaceShell";
 import ComponentCard from "@/components/common/ComponentCard";
@@ -23,7 +23,7 @@ export default function SubjectOverview({ data, subjectId }: Props) {
   const next =
     topics.find((topic) => topic.status === "inProgress") ?? topics[0];
   const sessions = getSessions(data).filter((s) => s.subjectId === subjectId);
-  const totals = dailySeconds(sessions, data.user.timezone);
+  const totals = data.analytics?.subjectDaily[subjectId] ?? dailySeconds(sessions, data.user.timezone);
   const days = Array.from({ length: 7 }, (_, i) => shiftDay(today, i - 6));
   const resources = getResources(data).filter((r) => r.subjectId === subjectId);
   return (

@@ -1,6 +1,6 @@
 "use client";
 import type { EventDisplayInfo } from "@fullcalendar/react";
-import type { BlockOccurrence } from "@/lib/mock/schedule";
+import type { BlockOccurrence } from "@/lib/schedule";
 import type { Workspace } from "@/types";
 interface Props {
   info: EventDisplayInfo;

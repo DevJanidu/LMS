@@ -17,7 +17,7 @@ try {
       },
     }).outputText,
   );
-  const scheduleSource = readFileSync("src/lib/mock/schedule.ts", "utf8");
+  const scheduleSource = readFileSync("src/lib/schedule/index.ts", "utf8");
   writeFileSync(
     resolve(directory, "schedule.cjs"),
     ts

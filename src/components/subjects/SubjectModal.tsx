@@ -7,9 +7,9 @@ import Field, {
   SelectField,
   TextField,
 } from "@/components/studyflow/FormFields";
-import { newId, updateWorkspace } from "@/lib/mock/store";
+import { newId, updateWorkspace } from "@/lib/workspace/store";
 import type { Subject, SubjectColor, Workspace } from "@/types";
-import { getSubjects } from "@/lib/mock";
+import { getSubjects } from "@/lib/workspace/queries";
 interface Props {
   initial: Workspace;
   subject?: Subject;
@@ -25,6 +25,7 @@ export default function SubjectModal({
 }: Props) {
   const t = useTranslations("studyflow");
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
   return (
     <Modal
       isOpen={isOpen}
@@ -34,7 +35,7 @@ export default function SubjectModal({
       <form
         key={subject?.id ?? "new"}
         className="space-y-4"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
           const fields = new FormData(event.currentTarget);
           const title = String(fields.get("title")).trim();
@@ -43,7 +44,8 @@ export default function SubjectModal({
             return;
           }
           let accepted = false;
-          updateWorkspace(initial, (data) => {
+          setPending(true);
+          const saved = await updateWorkspace(initial, (data) => {
             if (
               !subject &&
               getSubjects(data).filter((item) => item.status === "active")
@@ -72,8 +74,10 @@ export default function SubjectModal({
                 : [...data.subjects, value],
             };
           });
-          if (accepted) onClose();
-          else setError(t("subjectLimit"));
+          setPending(false);
+          if (!accepted) setError(t("subjectLimit"));
+          else if (saved) onClose();
+          else setError(t("saveFailed"));
         }}
       >
         <Field
@@ -113,7 +117,7 @@ export default function SubjectModal({
             {error}
           </p>
         )}
-        <Button type="submit">{t("save")}</Button>
+        <Button type="submit" disabled={pending}>{t("save")}</Button>
       </form>
     </Modal>
   );

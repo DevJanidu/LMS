@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
+import { deleteMyAccount } from "@/app/[locale]/actions";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import { useModal } from "@/hooks/useModal";
-import { getResources, getSessions, getSubjects, getTopics } from "@/lib/mock";
-import { updateWorkspace, useWorkspace } from "@/lib/mock/store";
+import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import type { User, Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
 import ComponentCard from "@/components/common/ComponentCard";
@@ -15,7 +15,7 @@ import Field, { SelectField } from "@/components/studyflow/FormFields";
 interface Props {
   initial: Workspace;
 }
-/** Profile, study preferences and simulated account controls. */
+/** Profile, study preferences and account controls. */
 export default function Settings({ initial }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
@@ -24,15 +24,15 @@ export default function Settings({ initial }: Props) {
   const deletion = useModal();
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const save = (patch: Partial<User>) => {
-    updateWorkspace(initial, (state) => ({
+  const save = async (patch: Partial<User>) => {
+    const saved = await updateWorkspace(initial, (state) => ({
       ...state,
       user: { ...state.user, ...patch, updatedAt: new Date().toISOString() },
       users: state.users.map((user) =>
         user.id === state.user.id ? { ...user, ...patch } : user,
       ),
     }));
-    setMessage(t("settingsSaved"));
+    if (saved) { setMessage(t("settingsSaved")); setError(""); } else setError(t("saveFailed"));
   };
   return (
     <>
@@ -72,6 +72,7 @@ export default function Settings({ initial }: Props) {
             <Field
               label={t("email")}
               name="email"
+              readOnly
               type="email"
               required
               defaultValue={data.user.email}
@@ -174,27 +175,7 @@ export default function Settings({ initial }: Props) {
           <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"
-              onClick={() => {
-                const exported = {
-                  user: data.user,
-                  subjects: getSubjects(data),
-                  topics: getTopics(data),
-                  resources: getResources(data),
-                  sessions: getSessions(data),
-                  schedule: data.blocks.filter(
-                    (block) => block.userId === data.user.id,
-                  ),
-                };
-                const blob = new Blob([JSON.stringify(exported, null, 2)], {
-                  type: "application/json",
-                });
-                const url = URL.createObjectURL(blob);
-                const anchor = document.createElement("a");
-                anchor.href = url;
-                anchor.download = "studyflow-data.json";
-                anchor.click();
-                URL.revokeObjectURL(url);
-              }}
+              onClick={() => { const link = document.createElement("a"); link.href = "/api/export"; link.download = "studyflow-data.json"; link.click(); }}
             >
               {t("exportData")}
             </Button>
@@ -219,41 +200,9 @@ export default function Settings({ initial }: Props) {
         onClose={deletion.closeModal}
         title={t("deleteAccount")}
         description={t("deleteAccountWarning")}
-        onConfirm={() => {
-          updateWorkspace(initial, (state) => {
-            const ids = new Set(
-              getSubjects(state).map((subject) => subject.id),
-            );
-            return {
-              ...state,
-              user: {
-                ...state.user,
-                name: t("newLearner"),
-                email: "",
-                learningContext: undefined,
-                longestStreak: 0,
-              },
-              users: state.users.filter((user) => user.id !== state.user.id),
-              subjects: state.subjects.filter(
-                (subject) => !ids.has(subject.id),
-              ),
-              topics: state.topics.filter((topic) => !ids.has(topic.subjectId)),
-              sessions: state.sessions.filter(
-                (session) => session.userId !== state.user.id,
-              ),
-              resources: state.resources.filter(
-                (resource) => resource.userId !== state.user.id,
-              ),
-              blocks: state.blocks.filter(
-                (block) => block.userId !== state.user.id,
-              ),
-              notifications: state.notifications.filter(
-                (notification) => notification.userId !== state.user.id,
-              ),
-              timer: null,
-            };
-          });
-          router.push("/register");
+        onConfirm={async () => {
+          try { const result = await deleteMyAccount(); if (!result.ok) { setError(t(result.error)); return; } router.push("/register"); router.refresh(); }
+          catch { setError(t("saveFailed")); }
         }}
       />
     </>

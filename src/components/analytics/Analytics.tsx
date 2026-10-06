@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useWorkspace, useNow } from "@/lib/mock/store";
-import { getSessions, getSubjects, getTopics } from "@/lib/mock";
+import { useWorkspace, useNow } from "@/lib/workspace/store";
+import { getSessions, getSubjects, getTopics } from "@/lib/workspace/queries";
 import {
   dailySeconds,
   localDay,
@@ -37,8 +37,8 @@ export default function Analytics({ initial }: Props) {
   const now = clock || Date.parse(initial.user.lastActiveAt);
   const today = localDay(now, data.user.timezone);
   const sessions = getSessions(data);
-  const totals = dailySeconds(sessions, data.user.timezone);
-  const streak = streaks(
+  const totals = data.analytics?.daily ?? dailySeconds(sessions, data.user.timezone);
+  const streak = data.analytics ? { current: data.analytics.currentStreak, longest: data.analytics.longestStreak } : streaks(
     sessions,
     data.user.timezone,
     now,
@@ -55,7 +55,7 @@ export default function Analytics({ initial }: Props) {
     [
       "thisWeek",
       duration(
-        periodSeconds(
+        data.analytics?.weekSeconds ?? periodSeconds(
           sessions,
           data.user.timezone,
           weekStart(today, data.user.weekStartDay),
@@ -66,7 +66,7 @@ export default function Analytics({ initial }: Props) {
     [
       "thisMonth",
       duration(
-        periodSeconds(
+        data.analytics?.monthSeconds ?? periodSeconds(
           sessions,
           data.user.timezone,
           `${today.slice(0, 7)}-01`,
@@ -79,7 +79,7 @@ export default function Analytics({ initial }: Props) {
     [
       "topicsThisMonth",
       String(
-        getTopics(data).filter(
+        data.analytics?.topicsCompletedThisMonth ?? getTopics(data).filter(
           (topic) =>
             topic.completedAt &&
             localDay(topic.completedAt, data.user.timezone).startsWith(
@@ -152,7 +152,7 @@ export default function Analytics({ initial }: Props) {
                 (session) => session.subjectId === subject.id,
               );
               return Math.round(
-                (period === "allTime"
+                (data.analytics?.subjectSeconds[subject.id]?.[period as "week" | "month" | "allTime"] ?? (period === "allTime"
                   ? totalSeconds(selected)
                   : periodSeconds(
                       selected,
@@ -161,7 +161,7 @@ export default function Analytics({ initial }: Props) {
                         ? weekStart(today, data.user.weekStartDay)
                         : `${today.slice(0, 7)}-01`,
                       today,
-                    )) / 60,
+                    ))) / 60,
               );
             })}
             label={t("minutes")}
@@ -177,7 +177,7 @@ export default function Analytics({ initial }: Props) {
           </div>
         </ComponentCard>
       </div>
-      <LearningInsights data={data} weeklySeconds={periodSeconds(sessions,data.user.timezone,weekStart(today,data.user.weekStartDay),today)} />
+      <LearningInsights data={data} weeklySeconds={data.analytics?.weekSeconds ?? periodSeconds(sessions,data.user.timezone,weekStart(today,data.user.weekStartDay),today)} />
     </>
   );
 }

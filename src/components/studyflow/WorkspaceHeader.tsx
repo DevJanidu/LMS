@@ -1,4 +1,6 @@
 "use client";
+import { signOut } from "@/app/[locale]/auth-actions";
+import { useRouter } from "@/i18n/navigation";
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSidebar } from "@/context/SidebarContext";
@@ -15,8 +17,8 @@ import {
   SunIcon,
 } from "@/icons";
 import { APP_NAME } from "@/lib/constants";
-import { getNotifications } from "@/lib/mock/notifications";
-import { updateWorkspace, useNow, useWorkspace } from "@/lib/mock/store";
+import { getNotifications } from "@/lib/workspace/notifications";
+import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import { formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
 import FocusLauncher from "@/components/study/FocusLauncher";
@@ -27,17 +29,14 @@ interface Props {
   onSearch: () => void;
 }
 export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
+  const router = useRouter();
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const data = useWorkspace(initial);
   const { isMobileOpen, toggleMobileSidebar, isExpanded, toggleSidebar } =
     useSidebar();
   const { theme, toggleTheme } = useTheme();
-  const now = useNow();
-  const notifications = getNotifications(
-    data,
-    now || Date.parse(initial.user.lastActiveAt),
-  );
+  const notifications = getNotifications(data);
   const ThemeIcon = theme === "dark" ? SunIcon : MoonIcon;
   const notificationMenu = useRef<HTMLDetailsElement>(null);
   const profileMenu = useRef<HTMLDetailsElement>(null);
@@ -211,12 +210,12 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
               <Link href={admin ? "/admin/settings" : "/settings"}>
                 {t("profileSettings")}
               </Link>
-              <button onClick={toggleTheme}>
+              <button onClick={() => { const next = theme === "dark" ? "light" : "dark"; toggleTheme(); void updateWorkspace(initial, state => ({ ...state, user: { ...state.user, theme: next } })); }}>
                 <ThemeIcon />
                 {t("theme")}
                 <span className="text-muted ms-auto">{t(theme)}</span>
               </button>
-              <Link href="/login">{t("logout")}</Link>
+              <button onClick={async () => { await signOut(); router.push("/login"); router.refresh(); }}>{t("logout")}</button>
             </div>
           </details>
         </div>

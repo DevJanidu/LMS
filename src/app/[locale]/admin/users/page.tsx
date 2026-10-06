@@ -1,5 +1,6 @@
+import { requireAdmin } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/mock";
+import { getWorkspace } from "@/lib/services/workspace";
 import AdminUsers from "@/components/admin/AdminUsers";
 export default async function Page({
   params,
@@ -8,7 +9,8 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <AdminUsers initial={getWorkspace()} />;
+  await requireAdmin();
+  return <AdminUsers initial={await getWorkspace()} />;
 }
 
 export async function generateMetadata({

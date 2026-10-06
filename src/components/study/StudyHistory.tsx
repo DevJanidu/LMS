@@ -1,10 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { querySessions } from "@/app/[locale]/actions";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
-import { getSessions } from "@/lib/mock";
-import { updateWorkspace, useWorkspace } from "@/lib/mock/store";
-import { localDay } from "@/lib/analytics";
+import { runOperation, useWorkspace } from "@/lib/workspace/store";
 import type { StudySession, Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
 import ComponentCard from "@/components/common/ComponentCard";
@@ -28,15 +27,21 @@ export default function StudyHistory({ initial }: Props) {
   const [to, setTo] = useState("");
   const [editing, setEditing] = useState<StudySession>();
   const [deleting, setDeleting] = useState<StudySession>();
-  const sessions = getSessions(data).filter((session) => {
-    const day = localDay(session.startedAt, data.user.timezone);
-    return (
-      (!subject || session.subjectId === subject) &&
-      (!topic || session.topicId === topic) &&
-      (!from || day >= from) &&
-      (!to || day <= to)
-    );
-  });
+  const [page, setPage] = useState(1);
+  const [records, setRecords] = useState<{ total: number; rows: StudySession[] }>({ total: initial.sessions.length, rows: initial.sessions.slice(0, 20) });
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = async () => {
+      const result = await querySessions({ page, subjectId: subject || undefined, topicId: topic || undefined, from: from || undefined, to: to || undefined });
+      if (cancelled) return;
+      if (result.ok) { setRecords(result.data); setError(""); } else setError(t(result.error));
+    };
+    void refresh().catch(() => { if (!cancelled) setError(t("saveFailed")); });
+    return () => { cancelled = true; };
+  }, [page, subject, topic, from, to, data.sessions, t]);
+  const sessions = records.rows;
+  const pages = Math.max(1, Math.ceil(records.total / 20));
   return (
     <>
       <PageHeader
@@ -58,8 +63,8 @@ export default function StudyHistory({ initial }: Props) {
           data={data}
           subjectId={subject}
           topicId={topic}
-          onSubjectChange={setSubject}
-          onTopicChange={setTopic}
+          onSubjectChange={value => { setSubject(value); setPage(1); }}
+          onTopicChange={value => { setTopic(value); setPage(1); }}
           includeArchived
         />
         <div className="grid gap-4 sm:grid-cols-2">
@@ -67,13 +72,13 @@ export default function StudyHistory({ initial }: Props) {
             label={t("fromDate")}
             type="date"
             value={from}
-            onChange={(event) => setFrom(event.target.value)}
+            onChange={(event) => { setFrom(event.target.value); setPage(1); }}
           />
           <Field
             label={t("toDate")}
             type="date"
             value={to}
-            onChange={(event) => setTo(event.target.value)}
+            onChange={(event) => { setTo(event.target.value); setPage(1); }}
           />
         </div>
       </div>
@@ -88,6 +93,8 @@ export default function StudyHistory({ initial }: Props) {
           onDelete={setDeleting}
         />
       </ComponentCard>
+      {error && <p role="alert" className="text-error-600 dark:text-error-400">{error}</p>}
+      <div className="my-5 flex items-center justify-between gap-3"><span>{t("redesign.pageOf", { page, total: pages })}</span><div className="flex gap-2"><Button variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>{t("redesign.previous")}</Button><Button variant="outline" disabled={page >= pages} onClick={() => setPage(page + 1)}>{t("redesign.next")}</Button></div></div>
       {modal.isOpen && (
         <SessionModal
           key={editing?.id ?? "new"}
@@ -102,14 +109,11 @@ export default function StudyHistory({ initial }: Props) {
         onClose={() => setDeleting(undefined)}
         title={t("deleteSession")}
         description={t("deleteSessionWarning")}
-        onConfirm={() =>
-          updateWorkspace(initial, (state) => ({
-            ...state,
-            sessions: state.sessions.filter(
-              (session) => session.id !== deleting?.id,
-            ),
-          }))
-        }
+        onConfirm={async () => {
+          if (!deleting) return;
+          const result = await runOperation(initial, { kind: "delete", entity: "session", id: deleting.id });
+          if (!result.ok) setError(t(result.error));
+        }}
       />
     </>
   );

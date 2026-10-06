@@ -3,8 +3,8 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ArrowRightIcon } from "@/icons";
-import { useNow, useWorkspace } from "@/lib/mock/store";
-import { getSessions, getSubjects, getTopics } from "@/lib/mock";
+import { useNow, useWorkspace } from "@/lib/workspace/store";
+import { getSessions, getSubjects, getTopics } from "@/lib/workspace/queries";
 import {
   localDay,
   periodSeconds,
@@ -12,7 +12,7 @@ import {
   streaks,
   weekStart,
 } from "@/lib/analytics";
-import { getOccurrences } from "@/lib/mock/schedule";
+import { getOccurrences } from "@/lib/schedule";
 import { duration, formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
 import EmptyState from "@/components/studyflow/EmptyState";
@@ -31,25 +31,9 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
   const sessions = getSessions(data);
   const subjects = getSubjects(data).filter((s) => s.status === "active");
   const topics = getTopics(data);
-  const todaySeconds = periodSeconds(
-    sessions,
-    data.user.timezone,
-    today,
-    today,
-  );
-  const weekSeconds = periodSeconds(
-    sessions,
-    data.user.timezone,
-    weekStart(today, data.user.weekStartDay),
-    today,
-  );
-  const streak = streaks(
-    sessions,
-    data.user.timezone,
-    now,
-    data.settings.streakMinutes,
-    data.user.longestStreak,
-  );
+  const todaySeconds = data.analytics?.todaySeconds ?? periodSeconds(sessions, data.user.timezone, today, today);
+  const weekSeconds = data.analytics?.weekSeconds ?? periodSeconds(sessions, data.user.timezone, weekStart(today, data.user.weekStartDay), today);
+  const streak = data.analytics ? { current: data.analytics.currentStreak, longest: data.analytics.longestStreak } : streaks(sessions, data.user.timezone, now, data.settings.streakMinutes, data.user.longestStreak);
   const blocks = getOccurrences(
     data.blocks.filter((b) => b.userId === data.user.id),
     shiftDay(today, -1),
@@ -75,7 +59,7 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
         : hour >= 18 && hour < 21
           ? "evening"
           : "night";
-  const completed = topics.filter(
+  const completed = data.analytics?.topicsCompletedThisMonth ?? topics.filter(
     (topic) =>
       topic.completedAt &&
       localDay(topic.completedAt, data.user.timezone).startsWith(
@@ -187,6 +171,7 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
                   <SubjectCard
                     key={subject.id}
                     subject={subject}
+                    statistics={data.subjectStatistics?.[subject.id]}
                     topics={getTopics(data, subject.id)}
                     sessions={sessions.filter(
                       (s) => s.subjectId === subject.id,

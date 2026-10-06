@@ -1,0 +1,69 @@
+name: Backend checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+  database:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.NEON_PROJECT_ID != '' && vars.NEON_TEST_PARENT_BRANCH != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: neondatabase/create-branch-action@v6
+        id: branch
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          parent_branch: ${{ vars.NEON_TEST_PARENT_BRANCH }}
+          branch_name: ci-${{ github.run_id }}-${{ github.run_attempt }}
+      - run: npm run db:migrate
+        env:
+          DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
+      - run: npm run test:unit
+        env:
+          TEST_DATABASE_URL: ${{ steps.branch.outputs.db_url }}
+          TEST_DATABASE_ISOLATED: 'true'
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
+          AUTH_SECRET: github-ci-disposable-auth-secret-fixture-only
+          CRON_SECRET: github-ci-disposable-cron-secret-fixture-only
+          APP_URL: http://localhost:3000
+          RESEND_API_KEY: fixture-not-a-live-email-key
+          EMAIL_FROM: tests@example.com
+          OBJECT_STORAGE_ENDPOINT: https://storage.example.com
+          OBJECT_STORAGE_REGION: us-east-2
+          OBJECT_STORAGE_BUCKET: fixture
+          OBJECT_STORAGE_ACCESS_KEY_ID: fixture-key
+          OBJECT_STORAGE_SECRET_ACCESS_KEY: fixture-secret
+          E2E_DATABASE_READY: '1'
+      - uses: neondatabase/delete-branch-action@v3
+        if: always() && steps.branch.outputs.branch_id != ''
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          branch: ${{ steps.branch.outputs.branch_id }}

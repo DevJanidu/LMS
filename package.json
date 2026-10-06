@@ -7,50 +7,50 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node scripts/test-analytics.mjs"
+    "test": "node scripts/test-analytics.mjs && vitest run",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "node scripts/seed.mjs",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
+    "@aws-sdk/s3-request-presigner": "^3.1146.0",
     "@fullcalendar/react": "^7.1.0",
-    "@react-jvectormap/core": "^1.0.4",
-    "@react-jvectormap/world": "^1.1.2",
+    "@neondatabase/serverless": "^1.2.0",
+    "@node-rs/argon2": "^2.2.2",
     "@tailwindcss/postcss": "^4.3.3",
     "apexcharts": "^7.1.0",
+    "better-auth": "^1.7.7",
     "clsx": "^2.1.1",
-    "flatpickr": "^4.6.13",
+    "drizzle-orm": "^0.45.3",
     "next": "^16.3.4",
     "next-intl": "^4.14.2",
     "react": "^19.2.8",
     "react-apexcharts": "^2.1.1",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.2.8",
-    "react-dropzone": "^20.1.1",
-    "simplebar-react": "^3.3.2",
-    "swiper": "^14.2.0",
-    "tailwind-merge": "^2.6.0"
+    "resend": "^6.32.1",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/forms": "^0.5.11",
     "@types/node": "^20.19.25",
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.1",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.3.4",
     "postcss": "^8.5.6",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.1.17",
-    "typescript": "^5.9.3"
-  },
-  "overrides": {
-    "@react-jvectormap/core": {
-      "react": "^16.8.0 || ^17 || ^18 || ^19",
-      "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
-    },
-    "@react-jvectormap/world": {
-      "react": "^16.8.0 || ^17 || ^18 || ^19",
-      "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
-    }
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
   }
 }

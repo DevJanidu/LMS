@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { newId, updateWorkspace, useWorkspace } from "@/lib/mock/store";
+import { newId, updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import { formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
@@ -19,7 +19,7 @@ import {
 interface Props {
   initial: Workspace;
 }
-/** Adjustable mock platform limits and admin action history. */
+/** Adjustable platform limits and admin action history. */
 export default function AdminSettings({ initial }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
@@ -36,20 +36,21 @@ export default function AdminSettings({ initial }: Props) {
         <ComponentCard title={t("platformLimits")}>
           <form
             className="max-w-xl space-y-4"
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
               const fields = new FormData(event.currentTarget);
-              updateWorkspace(initial, (state) => ({
+              const saved = await updateWorkspace(initial, (state) => ({
                 ...state,
                 settings: {
                   streakMinutes: Number(fields.get("streak")),
                   maxFileSizeMB: Number(fields.get("file")),
                   storagePerUserMB: Number(fields.get("storage")),
+                  minimumAge: Number(fields.get("minimumAge")),
                 },
                 auditLogs: [
                   {
                     id: newId(),
-                    actorUserId: "admin-1",
+                    actorUserId: state.user.id,
                     action: "settingsChanged",
                     targetType: "settings",
                     targetId: "platform",
@@ -58,7 +59,7 @@ export default function AdminSettings({ initial }: Props) {
                   ...state.auditLogs,
                 ],
               }));
-              setMessage(t("settingsSaved"));
+              setMessage(t(saved ? "settingsSaved" : "saveFailed"));
             }}
           >
             <Field
@@ -89,6 +90,8 @@ export default function AdminSettings({ initial }: Props) {
               defaultValue={data.settings.storagePerUserMB}
             />
             <Button type="submit">{t("save")}</Button>
+            <Field label={t("minimumAge")} type="number" min={0} max={120} name="minimumAge" defaultValue={data.settings.minimumAge ?? 0} />
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("agePolicyHelp")}</p>
             {message && (
               <p
                 role="status"

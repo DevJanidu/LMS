@@ -124,11 +124,17 @@ export interface AuditLog {
   createdAt: string;
 }
 export interface AppSettings {
+  minimumAge?: number;
   streakMinutes: number;
   maxFileSizeMB: number;
   storagePerUserMB: number;
 }
 export interface Workspace {
+  scope?: string;
+  adminLearnerAnalytics?: import("@/lib/analytics/server").AnalyticsSummary;
+  analytics?: import("@/lib/analytics/server").AnalyticsSummary;
+  subjectStatistics?: Record<string, import("@/lib/services/subject-statistics").SubjectStatistics>;
+  platform?: import("@/lib/analytics/platform").PlatformSummary;
   user: User;
   users: User[];
   subjects: Subject[];

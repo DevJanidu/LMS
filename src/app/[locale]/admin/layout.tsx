@@ -1,6 +1,7 @@
+import { requireAdmin } from "@/lib/auth";
 import { setRequestLocale } from "next-intl/server";
 import WorkspaceShell from "@/components/studyflow/WorkspaceShell";
-import { getWorkspace } from "@/lib/mock";
+import { getWorkspace } from "@/lib/services/workspace";
 export default async function AdminLayout({
   children,
   params,
@@ -10,8 +11,9 @@ export default async function AdminLayout({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await requireAdmin();
   return (
-    <WorkspaceShell initial={getWorkspace()} admin>
+    <WorkspaceShell initial={await getWorkspace()} admin>
       {children}
     </WorkspaceShell>
   );

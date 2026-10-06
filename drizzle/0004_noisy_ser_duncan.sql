@@ -1,0 +1,2 @@
+ALTER TABLE "user_preferences" ADD COLUMN "highest_streak" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "user_preferences" ADD CONSTRAINT "preferences_highest_streak_nonnegative" CHECK ("user_preferences"."highest_streak" >= 0);

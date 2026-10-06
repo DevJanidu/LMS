@@ -1,5 +1,6 @@
+import { requireLearner } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/mock";
+import { getWorkspace } from "@/lib/services/workspace";
 import Resources from "@/components/resources/Resources";
 export default async function Page({
   params,
@@ -10,9 +11,10 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await requireLearner();
   const { add, search } = await searchParams;
   return (
-    <Resources initial={getWorkspace()} add={add === "1"} search={search} />
+    <Resources initial={await getWorkspace()} add={add === "1"} search={search} />
   );
 }
 

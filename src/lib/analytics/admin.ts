@@ -1,7 +1,8 @@
 import type { Workspace } from "@/types";
 import { dailySeconds, localDay, totalSeconds, weekStart } from "./index";
-/** Aggregate-only platform calculations for the mock admin screens. */
+/** Aggregate-only platform calculations for the admin screens. */
 export function adminMetrics(data: Workspace, now: number) {
+  if (data.platform) return { ...data.platform, dailyActive: (day: string) => data.platform!.activeByDay[day] ?? 0 };
   const today = localDay(now, data.user.timezone);
   const week = weekStart(today, data.user.weekStartDay);
   const month = `${today.slice(0, 7)}-01`;

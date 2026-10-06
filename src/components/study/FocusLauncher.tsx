@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
-import { useWorkspace } from "@/lib/mock/store";
+import { useWorkspace } from "@/lib/workspace/store";
 import { Link } from "@/i18n/navigation";
 import { Modal } from "@/components/ui/modal";
 import { TimeIcon } from "@/icons";

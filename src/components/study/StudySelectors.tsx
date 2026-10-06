@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { getSubjects, getTopics } from "@/lib/mock";
+import { getSubjects, getTopics } from "@/lib/workspace/queries";
 import type { Workspace } from "@/types";
 import { SelectField } from "@/components/studyflow/FormFields";
 interface Props {

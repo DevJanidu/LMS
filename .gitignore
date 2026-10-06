@@ -12,6 +12,7 @@
 
 # next.js
 /.next/
+/.next-playwright/
 /out/
 
 # production
@@ -27,6 +28,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
+.env.*
+!.env.example
 .env*.local
 
 # vercel
@@ -37,5 +41,8 @@ yarn-error.log*
 next-env.d.ts
 
 .analytics-tests/
+.seed-runtime-*/
+/playwright-report/
+/test-results/
 .browser-preview/
 /docs/screenshots/redesign/

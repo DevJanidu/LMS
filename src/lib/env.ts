@@ -1,0 +1,42 @@
+import { z } from "zod";
+
+const environmentSchema = z.object({
+  DATABASE_URL: z.string().url(),
+  DATABASE_URL_UNPOOLED: z.string().url(),
+  AUTH_SECRET: z.string().min(32),
+  APP_URL: z.string().url(),
+  RESEND_API_KEY: z.string().min(1),
+  EMAIL_FROM: z.string().min(1),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  OBJECT_STORAGE_ENDPOINT: z.string().url(),
+  OBJECT_STORAGE_REGION: z.string().min(1),
+  OBJECT_STORAGE_BUCKET: z.string().min(1),
+  OBJECT_STORAGE_ACCESS_KEY_ID: z.string().min(1),
+  OBJECT_STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
+  CRON_SECRET: z.string().min(32),
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+}).superRefine((env, ctx) => {
+  if (Boolean(env.GOOGLE_CLIENT_ID) !== Boolean(env.GOOGLE_CLIENT_SECRET)) {
+    ctx.addIssue({ code: "custom", path: ["GOOGLE_CLIENT_ID"], message: "Set both Google OAuth variables or neither." });
+  }
+});
+
+export type Environment = z.infer<typeof environmentSchema>;
+
+/** Validate server configuration without including secret values in errors. */
+export function validateEnvironment(input: Record<string, string | undefined>): Environment {
+  const normalized = Object.fromEntries(Object.entries(input).map(([key, value]) => [key, value === "" ? undefined : value]));
+  const result = environmentSchema.safeParse(normalized);
+  if (!result.success) {
+    throw new Error(`Invalid server configuration: ${result.error.issues.map(issue => `${issue.path.join(".")}: ${issue.message}`).join("; ")}`);
+  }
+  if (input.NODE_ENV === "production" && (!result.data.UPSTASH_REDIS_REST_URL || !result.data.UPSTASH_REDIS_REST_TOKEN)) throw new Error("Production requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.");
+  return result.data;
+}
+
+let validated: Environment | undefined;
+export function getEnv(): Environment {
+  return validated ??= validateEnvironment(process.env);
+}

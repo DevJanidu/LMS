@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { searchWorkspace } from "@/app/[locale]/actions";
+import { useTheme } from "@/context/ThemeContext";
 import { useSidebar } from "@/context/SidebarContext";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
@@ -15,9 +17,9 @@ import {
   CloseIcon,
 } from "@/icons";
 import { APP_NAME } from "@/lib/constants";
-import { getResources, getSubjects, getTopics } from "@/lib/mock";
+import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
 import Badge from "@/components/ui/badge/Badge";
-import { useStorageError, useWorkspace } from "@/lib/mock/store";
+import { useWorkspaceError, useWorkspace } from "@/lib/workspace/store";
 import type { Workspace } from "@/types";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
@@ -59,10 +61,28 @@ export default function WorkspaceShell({
   const path = usePathname();
   const { isMobileOpen, toggleMobileSidebar, isExpanded } = useSidebar();
   const data = useWorkspace(initial);
-  const storageError = useStorageError();
+  const { setThemeMode } = useTheme();
+  useEffect(() => { setThemeMode(data.user.theme); }, [data.user.theme, setThemeMode]);
+  const storageError = useWorkspaceError();
   const search = useModal();
   const openSearch = search.openModal;
   const [query, setQuery] = useState("");
+  const [serverHits, setServerHits] = useState<{ id: string; title: string; type: string; href: string }[]>([]);
+  useEffect(() => {
+    if (admin || !query.trim()) return;
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      void searchWorkspace(query).then(result => {
+        if (cancelled) return;
+        setServerHits([
+          ...result.subjects.map(row => ({ ...row, type: "subject", href: "/subjects/" + row.id })),
+          ...result.topics.map(row => ({ ...row, type: "topic", href: "/subjects/" + row.subjectId })),
+          ...result.resources.map(row => ({ ...row, type: "resource", href: "/resources?search=" + encodeURIComponent(row.title) })),
+        ].slice(0, 12));
+      }).catch(() => { if (!cancelled) setServerHits([]); });
+    }, 250);
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [admin, query, data.subjects, data.topics, data.resources]);
   const sidebarRef = useRef<HTMLElement>(null);
   const pageWidth =
     path === "/calendar"
@@ -110,7 +130,7 @@ export default function WorkspaceShell({
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   }, [openSearch]);
-  const hits = (
+  const hits = !admin && query.trim() ? serverHits : (
     admin
       ? data.users.map((user) => ({
           id: user.id,
@@ -235,22 +255,6 @@ export default function WorkspaceShell({
           <p className="text-theme-xs leading-relaxed text-gray-400 dark:text-gray-500">
             {t("workspaceTagline")}
           </p>
-          {admin && (
-            <Link
-              href="/dashboard"
-              className="block text-sm text-brand-600 dark:text-brand-300"
-            >
-              {t("backLearner")}
-            </Link>
-          )}
-          {process.env.NODE_ENV === "development" && (
-            <Link
-              href={admin ? "/dashboard" : "/admin"}
-              className="block text-theme-xs text-gray-500 dark:text-gray-400"
-            >
-              {t(admin ? "previewLearner" : "previewAdmin")}
-            </Link>
-          )}
         </div>
       </aside>
       <div className="sf-main-column lg:ms-64">
@@ -269,7 +273,7 @@ export default function WorkspaceShell({
               role="alert"
               className="mb-5 rounded-xl bg-warning-50 p-4 text-sm text-warning-700 dark:bg-warning-500/15 dark:text-warning-300"
             >
-              {t("storageError")}
+              {t(storageError)}
             </p>
           )}
           <div key={path} className="sf-page-enter">

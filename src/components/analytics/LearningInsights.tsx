@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { getSubjects, getTopics, getSessions } from "@/lib/mock";
+import { getSubjects, getTopics, getSessions } from "@/lib/workspace/queries";
 import { subjectProgress, weeklyGoalPercent } from "@/lib/analytics";
 import type { Workspace } from "@/types";
 import ProgressBar from "@/components/studyflow/ProgressBar";

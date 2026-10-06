@@ -1,6 +1,8 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { useWorkspace } from "@/lib/mock/store";
+import { useState } from "react";
+import Pagination from "@/components/studyflow/Pagination";
+import { useWorkspace } from "@/lib/workspace/store";
 import type { Workspace } from "@/types";
 import PageHeader from "@/components/studyflow/PageHeader";
 import StatTile from "@/components/studyflow/StatTile";
@@ -21,14 +23,17 @@ interface Props {
 export default function AdminStorage({ initial }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
-  const usage = data.users
+  const usage = data.platform ? data.platform.storageOwners.map(owner => ({ user: { id: owner.id, name: owner.name }, bytes: owner.bytes })) : data.users
     .map((user) => ({
       user,
-      bytes: data.resources
+      bytes: data.platform?.storageByUser[user.id] ?? data.resources
         .filter((resource) => resource.userId === user.id)
         .reduce((sum, resource) => sum + (resource.sizeBytes ?? 0), 0),
     }))
     .sort((a, b) => b.bytes - a.bytes);
+  const [page, setPage] = useState(1);
+  const pages = Math.max(1, Math.ceil(usage.length / 20));
+  const current = Math.min(page, pages);
   const cell = "px-4 py-4 text-start text-sm";
   return (
     <>
@@ -36,7 +41,7 @@ export default function AdminStorage({ initial }: Props) {
       <div className="mb-6 max-w-sm">
         <StatTile
           label={t("totalStorage")}
-          value={`${(usage.reduce((sum, entry) => sum + entry.bytes, 0) / 1024 / 1024).toFixed(1)} MB`}
+          value={`${((data.platform?.totalStorageBytes ?? usage.reduce((sum, entry) => sum + entry.bytes, 0)) / 1024 / 1024).toFixed(1)} MB`}
           detail={t("metadataOnly")}
         />
       </div>
@@ -54,7 +59,7 @@ export default function AdminStorage({ initial }: Props) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {usage.map(({ user, bytes }) => (
+              {usage.slice((current - 1) * 20, current * 20).map(({ user, bytes }) => (
                 <TableRow
                   key={user.id}
                   className="border-t border-gray-100 dark:border-gray-800"
@@ -82,6 +87,7 @@ export default function AdminStorage({ initial }: Props) {
           </Table>
         </div>
       </ComponentCard>
+      <Pagination page={current} pages={pages} onChange={setPage} />
     </>
   );
 }

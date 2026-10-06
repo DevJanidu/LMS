@@ -4,9 +4,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useModal } from "@/hooks/useModal";
 import { timerElapsed } from "@/lib/analytics";
-import { TIMER_LIMIT_SECONDS } from "@/lib/constants";
-import { getSubjects, getTopics } from "@/lib/mock";
-import { newId, updateWorkspace, useNow, useWorkspace } from "@/lib/mock/store";
+import { getSubjects } from "@/lib/workspace/queries";
+import { runOperation, useNow, useWorkspace } from "@/lib/workspace/store";
 import { clockTime } from "@/lib/time";
 import type { Workspace } from "@/types";
 import { Modal } from "@/components/ui/modal";
@@ -25,7 +24,7 @@ interface Props {
   embedded?: boolean;
   onStarted?: () => void;
 }
-/** A single timestamp-based timer persisted by the mock adapter. */
+/** A single timestamp-based timer persisted on the server. */
 export default function TimerWidget({
   initial,
   subject = "",
@@ -43,37 +42,11 @@ export default function TimerWidget({
   const finish = useModal();
   const discard = useModal();
   const timer = data.timer;
-  const elapsed = timer && now ? timerElapsed(timer, now) : 0;
+  const elapsed = timer && now ? Math.min(timerElapsed(timer, now), timer.confirmedUntilSeconds) : 0;
   const checkpoint = Boolean(timer && elapsed >= timer.confirmedUntilSeconds);
-  const pause = () =>
-    updateWorkspace(initial, (state) =>
-      state.timer && !state.timer.pausedAt
-        ? {
-            ...state,
-            timer: { ...state.timer, pausedAt: new Date().toISOString() },
-          }
-        : state,
-    );
-  const resume = () =>
-    updateWorkspace(initial, (state) => {
-      if (!state.timer?.pausedAt) return state;
-      const time = Date.now();
-      const current = timerElapsed(state.timer, time);
-      return {
-        ...state,
-        timer: {
-          ...state.timer,
-          pausedTotalSeconds:
-            state.timer.pausedTotalSeconds +
-            (time - Date.parse(state.timer.pausedAt)) / 1000,
-          pausedAt: undefined,
-          confirmedUntilSeconds:
-            current >= state.timer.confirmedUntilSeconds
-              ? current + TIMER_LIMIT_SECONDS
-              : state.timer.confirmedUntilSeconds,
-        },
-      };
-    });
+  const pause = () => runOperation(initial, { kind: "timer", value: { command: "pause" } });
+  const resume = () => runOperation(initial, { kind: "timer", value: { command: "resume" } });
+  const confirm = () => runOperation(initial, { kind: "timer", value: { command: "confirm" } });
   return (
     <>
       {!embedded && <PageHeader
@@ -131,7 +104,7 @@ export default function TimerWidget({
                 >
                   <p>{t("stillStudying")}</p>
                   <p className="mt-2">{t("timerCapped")}</p>
-                  <Button onClick={resume} className="mt-3">
+                  <Button onClick={confirm} className="mt-3">
                     {t("yesContinue")}
                   </Button>
                 </div>
@@ -144,8 +117,8 @@ export default function TimerWidget({
                   {t(timer.pausedAt ? "resume" : "pause")}
                 </Button>
                 <Button
-                  onClick={() => {
-                    pause();
+                  onClick={async () => {
+                    await pause();
                     finish.openModal();
                   }}
                 >
@@ -159,31 +132,10 @@ export default function TimerWidget({
           ) : (
             <form
               className="space-y-6"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setMessage("");
-                updateWorkspace(initial, (state) => {
-                  if (state.timer) return state;
-                  const selected = getSubjects(state).find(
-                    (item) => item.id === subjectId && item.status === "active",
-                  );
-                  if (!selected) return state;
-                  const validTopic = getTopics(state, subjectId).find(
-                    (item) => item.id === topicId,
-                  );
-                  return {
-                    ...state,
-                    timer: {
-                      focusGoal: focusGoal.trim() || undefined,
-                      subjectId,
-                      topicId: validTopic?.id,
-                      startedAt: new Date().toISOString(),
-                      pausedTotalSeconds: 0,
-                      confirmedUntilSeconds: TIMER_LIMIT_SECONDS,
-                    },
-                  };
-                });
-                onStarted?.();
+              onSubmit={async (event) => {
+                event.preventDefault(); setMessage("");
+                const result = await runOperation(initial, { kind: "timer", value: { command: "start", subjectId, topicId: topicId || undefined, focusGoal: focusGoal.trim() || undefined } });
+                if (result.ok) onStarted?.(); else setMessage(t(result.error));
               }}
             >
               <StudySelectors
@@ -219,44 +171,12 @@ export default function TimerWidget({
       >
         <form
           className="space-y-5"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            const note = String(
-              new FormData(event.currentTarget).get("note") ?? "",
-            );
-            let saved = false;
-            updateWorkspace(initial, (state) => {
-              if (!state.timer) return state;
-              const end = state.timer.pausedAt ?? new Date().toISOString();
-              const seconds = Math.min(
-                timerElapsed(state.timer, Date.parse(end)),
-                state.timer.confirmedUntilSeconds,
-              );
-              if (seconds < 60) return { ...state, timer: null };
-              saved = true;
-              return {
-                ...state,
-                timer: null,
-                sessions: [
-                  {
-                    id: newId(),
-                    userId: state.user.id,
-                    subjectId: state.timer.subjectId,
-                    topicId: state.timer.topicId,
-                    startedAt: state.timer.startedAt,
-                    endedAt: end,
-                    durationSeconds: seconds,
-                    status: "valid",
-                    note: note.trim() || undefined,
-                    source: "timer",
-                    createdAt: new Date().toISOString(),
-                  },
-                  ...state.sessions,
-                ],
-              };
-            });
-            setMessage(t(saved ? "sessionSaved" : "sessionTooShort"));
-            finish.closeModal();
+            const note = String(new FormData(event.currentTarget).get("note") ?? "");
+            const result = await runOperation(initial, { kind: "timer", value: { command: "finish", note: note.trim() || undefined } });
+            setMessage(t(result.ok ? result.timerResult === "saved" ? "sessionSaved" : "sessionTooShort" : result.error));
+            if (result.ok) finish.closeModal();
           }}
         >
           <TextField label={t("noteOptional")} name="note" />
@@ -269,7 +189,7 @@ export default function TimerWidget({
         title={t("discardTimer")}
         description={t("discardWarning")}
         onConfirm={() => {
-          updateWorkspace(initial, (state) => ({ ...state, timer: null }));
+          void runOperation(initial, { kind: "timer", value: { command: "discard" } });
           setMessage(t("timerDiscarded"));
         }}
       />

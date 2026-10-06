@@ -9,10 +9,10 @@ import Field, {
   TextField,
 } from "@/components/studyflow/FormFields";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
-import { getSubjects } from "@/lib/mock";
-import { newId, updateWorkspace } from "@/lib/mock/store";
+import { getSubjects } from "@/lib/workspace/queries";
+import { newId, updateWorkspace } from "@/lib/workspace/store";
 import { localDay, shiftDay, wallTime, zonedToUtc } from "@/lib/analytics";
-import { getOccurrences, type BlockOccurrence } from "@/lib/mock/schedule";
+import { getOccurrences, type BlockOccurrence } from "@/lib/schedule";
 import type { ScheduleBlock, SubjectColor, Workspace } from "@/types";
 import StudySelectors from "@/components/study/StudySelectors";
 interface Props {
@@ -44,8 +44,8 @@ export default function StudyBlockModal({
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [pending, setPending] = useState<ScheduleBlock>();
-  const apply = (value: ScheduleBlock | undefined, remove = false) => {
-    updateWorkspace(data, (state) => {
+  const apply = async (value: ScheduleBlock | undefined, remove = false) => {
+    const saved = await updateWorkspace(data, (state) => {
       if (!block)
         return value ? { ...state, blocks: [...state.blocks, value] } : state;
       const original = state.blocks.find((item) => item.id === block.id);
@@ -114,7 +114,8 @@ export default function StudyBlockModal({
             ),
       };
     });
-    onClose();
+    if (saved) onClose(); else setError(t("saveFailed"));
+    return saved;
   };
   return (
     <Modal

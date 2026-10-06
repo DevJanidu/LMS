@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { getTopics } from "@/lib/mock";
-import { newId, updateWorkspace } from "@/lib/mock/store";
+import { getTopics } from "@/lib/workspace/queries";
+import { newId, updateWorkspace, runOperation } from "@/lib/workspace/store";
 import type { Topic, Workspace } from "@/types";
 import { Modal } from "@/components/ui/modal";
 import { useModal } from "@/hooks/useModal";
@@ -37,7 +37,7 @@ export default function TopicList({ data, subjectId }: Props) {
           : topic,
       ),
     }));
-  const add = (text: string): boolean => {
+  const add = async (text: string): Promise<boolean> => {
     const titles = text
       .split(/\r?\n/)
       .map((line) => line.trim())
@@ -47,7 +47,7 @@ export default function TopicList({ data, subjectId }: Props) {
       setError(t("topicLimit"));
       return false;
     }
-    updateWorkspace(data, (state) => {
+    const saved = await updateWorkspace(data, (state) => {
       const now = new Date().toISOString();
       return {
         ...state,
@@ -65,9 +65,8 @@ export default function TopicList({ data, subjectId }: Props) {
         ],
       };
     });
-    setTitle("");
-    setError("");
-    return true;
+    if (!saved) { setError(t("saveFailed")); return false; }
+    setTitle(""); setError(""); return true;
   };
   const reorder = (from: string, to: string) => {
     const order = topics.map((topic) => topic.id);
@@ -89,7 +88,7 @@ export default function TopicList({ data, subjectId }: Props) {
     <div className="sf-topic-list space-y-5">
       <form
         className="flex flex-wrap items-end gap-3"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
           add(title);
         }}
@@ -207,9 +206,9 @@ export default function TopicList({ data, subjectId }: Props) {
       >
         <form
           className="space-y-4"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            if (add(String(new FormData(event.currentTarget).get("titles"))))
+            if (await add(String(new FormData(event.currentTarget).get("titles"))))
               bulk.closeModal();
           }}
         >
@@ -226,12 +225,12 @@ export default function TopicList({ data, subjectId }: Props) {
         <form
           key={editing?.id}
           className="space-y-4"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
             if (!editing) return;
             const fields = new FormData(event.currentTarget);
             const status = fields.get("status") as Topic["status"];
-            change(editing.id, {
+            const saved = await change(editing.id, {
               title: String(fields.get("title")).trim(),
               status,
               targetDate: String(fields.get("date")) || undefined,
@@ -240,7 +239,7 @@ export default function TopicList({ data, subjectId }: Props) {
                   ? (editing.completedAt ?? new Date().toISOString())
                   : undefined,
             });
-            editor.closeModal();
+            if (saved) editor.closeModal(); else setError(t("saveFailed"));
           }}
         >
           <Field
@@ -274,31 +273,11 @@ export default function TopicList({ data, subjectId }: Props) {
         onClose={() => setDeleting(undefined)}
         title={t("deleteTopic")}
         description={t("deleteTopicWarning")}
-        onConfirm={() =>
-          updateWorkspace(data, (state) => ({
-            ...state,
-            topics: state.topics.filter((topic) => topic.id !== deleting?.id),
-            resources: state.resources.map((resource) =>
-              resource.topicId === deleting?.id
-                ? { ...resource, topicId: undefined }
-                : resource,
-            ),
-            sessions: state.sessions.map((session) =>
-              session.topicId === deleting?.id
-                ? { ...session, topicId: undefined }
-                : session,
-            ),
-            blocks: state.blocks.map((block) =>
-              block.topicId === deleting?.id
-                ? { ...block, topicId: undefined }
-                : block,
-            ),
-            timer:
-              state.timer && state.timer.topicId === deleting?.id
-                ? { ...state.timer, topicId: undefined }
-                : state.timer,
-          }))
-        }
+        onConfirm={async () => {
+          if (!deleting) return false;
+          const result = await runOperation(data, { kind: "delete", entity: "topic", id: deleting.id });
+          return result.ok;
+        }}
       />
     </div>
   );

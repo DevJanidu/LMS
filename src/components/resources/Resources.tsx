@@ -2,10 +2,11 @@
 import Image from "next/image";
 import { FileIcon, LinkIcon, PlayIcon } from "@/icons";
 import { useState } from "react";
+import Pagination from "@/components/studyflow/Pagination";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
-import { getResources, getSubjects, getTopics } from "@/lib/mock";
-import { updateWorkspace, useWorkspace } from "@/lib/mock/store";
+import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
+import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import type { Resource, Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
 import { Modal } from "@/components/ui/modal";
@@ -81,6 +82,9 @@ export default function Resources({
       {t("addResource")}
     </Button>
   );
+  const [page, setPage] = useState(1);
+  const pages = Math.max(1, Math.ceil(resources.length / 20));
+  const current = Math.min(page, pages);
   return (
     <>
       {embedded ? (
@@ -168,7 +172,7 @@ export default function Resources({
       </div>
       {resources.length ? (
         <div className="sf-library space-y-3">
-          {resources.map((resource) => {
+          {resources.slice((current - 1) * 20, current * 20).map((resource) => {
             const id =
               resource.type === "video" && resource.url
                 ? youtubeId(resource.url)
@@ -212,7 +216,7 @@ export default function Resources({
                       : ""}
                   </p>
                   <div className="sf-resource-actions flex gap-4 text-sm">
-                    {resource.url && /^https?:\/\//i.test(resource.url) ? (
+                    {resource.type === "file" ? (<a href={`/api/files/${resource.id}`} target="_blank" rel="noopener noreferrer" className="text-brand-600 dark:text-brand-300">{t("open")}</a>) : resource.url && /^https?:\/\//i.test(resource.url) ? (
                       <a
                         href={resource.url}
                         target="_blank"
@@ -260,6 +264,7 @@ export default function Resources({
           action={addButton}
         />
       )}{" "}
+      <Pagination page={current} pages={pages} onChange={setPage} />
       {modal.isOpen && (
         <ResourceModal
           key={editing?.id ?? "new"}
@@ -276,7 +281,7 @@ export default function Resources({
         title={opened?.title}
       >
         {opened?.type === "file" ? (
-          <p className="text-sm">{t("fileMockNotice")}</p>
+          <a href={`/api/files/${opened.id}`} target="_blank" rel="noopener noreferrer">{t("open")}</a>
         ) : (
           <NotePreview text={opened?.textContent ?? ""} />
         )}

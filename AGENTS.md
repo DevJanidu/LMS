@@ -113,3 +113,13 @@ src/
 - Don't hardcode hex colors or pixel values in `className` — use the `@theme` tokens.
 - Don't create a `tailwind.config` — Tailwind v4 is configured through `globals.css`.
 - Don't import `react-apexcharts`, `FullCalendar`, or `Swiper` statically — always use `next/dynamic` with `ssr: false` (unless already wrapped in a client-only boundary — confirm the existing pattern in that feature folder first).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

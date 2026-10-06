@@ -2,24 +2,22 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
-import { updateWorkspace, useWorkspace } from "@/lib/mock/store";
-import { getSubjects } from "@/lib/mock";
-import type { Workspace } from "@/types";
+import { authenticate } from "@/app/[locale]/auth-actions";
 import { APP_NAME } from "@/lib/constants";
 import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
 import Field from "@/components/studyflow/FormFields";
 interface Props {
-  initial: Workspace;
+  token?: string;
   mode: "login" | "register" | "forgot-password" | "reset-password";
 }
-/** UI-only account flow; passwords are never persisted or sent. */
-export default function AuthForm({ initial, mode }: Props) {
-  const data = useWorkspace(initial);
+/** Account forms submit only to the authenticated server API. */
+export default function AuthForm({ token, mode }: Props) {
   const t = useTranslations("studyflow");
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
   const register = mode === "register";
   const reset = mode === "reset-password";
   const forgot = mode === "forgot-password";
@@ -35,66 +33,18 @@ export default function AuthForm({ initial, mode }: Props) {
       <PageHeader title={t(title)} description={t("authDescription")} />
       <form
         className="space-y-5"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
           const fields = new FormData(event.currentTarget);
-          if (reset && fields.get("password") !== fields.get("confirmation")) {
-            setError(t("passwordMismatch"));
-            return;
-          }
-          if (register) {
-            const name = String(fields.get("name")).trim();
-            if (!name) {
-              setError(t("nameRequired"));
-              return;
-            }
-            updateWorkspace(initial, (state) => {
-              const subjectIds = new Set(
-                getSubjects(state).map((subject) => subject.id),
-              );
-              const user = {
-                ...state.user,
-                name,
-                email: String(fields.get("email")),
-                longestStreak: 0,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              };
-              return {
-                ...state,
-                user,
-                users: [
-                  ...state.users.filter((item) => item.id !== user.id),
-                  user,
-                ],
-                subjects: state.subjects.filter(
-                  (subject) => !subjectIds.has(subject.id),
-                ),
-                topics: state.topics.filter(
-                  (topic) => !subjectIds.has(topic.subjectId),
-                ),
-                resources: state.resources.filter(
-                  (resource) => resource.userId !== user.id,
-                ),
-                sessions: state.sessions.filter(
-                  (session) => session.userId !== user.id,
-                ),
-                blocks: state.blocks.filter(
-                  (block) => block.userId !== user.id,
-                ),
-                notifications: state.notifications.filter(
-                  (item) => item.userId !== user.id,
-                ),
-                timer: null,
-              };
-            });
-            router.push("/onboarding");
-          } else if (forgot || reset) {
-            setError("");
-            setMessage(t(forgot ? "resetEmailMock" : "passwordResetMock"));
-          } else if (data.user.status === "inactive")
-            setError(t("accountInactive"));
-          else router.push("/dashboard");
+          if (reset && fields.get("password") !== fields.get("confirmation")) { setError(t("passwordMismatch")); return; }
+          setPending(true); setError("");
+          try {
+            const result = await authenticate({ mode, token, email: reset ? undefined : String(fields.get("email")), name: register ? String(fields.get("name")) : undefined, password: forgot ? undefined : String(fields.get("password")), acceptedTerms: fields.get("terms") === "on", dateOfBirth: fields.get("dob") || undefined });
+            if (!result.ok) setError(t(result.error));
+            else if (result.href) { router.push(result.href); router.refresh(); }
+            else setMessage(t("resetEmailSent"));
+          } catch { setError(t("authenticationFailed")); }
+          finally { setPending(false); }
         }}
       >
         {register && (
@@ -174,7 +124,7 @@ export default function AuthForm({ initial, mode }: Props) {
             {message}
           </p>
         )}
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" disabled={pending}>
           {t(
             register
               ? "signUp"
@@ -213,16 +163,14 @@ export default function AuthForm({ initial, mode }: Props) {
         )}
         {(forgot || reset) && (
           <Link
-            href={forgot ? "/reset-password" : "/login"}
+            href="/login"
             className="block text-center text-sm text-brand-600 dark:text-brand-300"
           >
-            {t(forgot ? "previewReset" : "backLogin")}
+            {t("backLogin")}
           </Link>
         )}
       </form>
-      <p className="mt-7 text-center text-theme-xs text-gray-400 dark:text-gray-500">
-        {t("authMockNotice")}
-      </p>
+
     </div>
   );
 }

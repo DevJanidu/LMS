@@ -2,7 +2,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Workspace } from "@/types";
-import type { BlockOccurrence } from "@/lib/mock/schedule";
+import type { BlockOccurrence } from "@/lib/schedule";
 import { duration } from "@/lib/time";
 import { primaryLink } from "@/components/studyflow/WorkspaceShell";
 interface Props { data: Workspace; today: string; blocks: BlockOccurrence[]; next?: BlockOccurrence }

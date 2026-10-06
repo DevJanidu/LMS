@@ -6,7 +6,7 @@ import Button from "@/components/ui/button/Button";
 import { primaryLink } from "@/components/studyflow/WorkspaceShell";
 import { duration, formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
-import type { BlockOccurrence } from "@/lib/mock/schedule";
+import type { BlockOccurrence } from "@/lib/schedule";
 interface Props { data: Workspace; occurrence: BlockOccurrence; isOpen: boolean; onClose: () => void; onEdit: () => void; onDuplicate: () => void }
 export default function StudyBlockDetails({data,occurrence,isOpen,onClose,onEdit,onDuplicate}: Props) {
   const t = useTranslations("studyflow"); const locale = useLocale();

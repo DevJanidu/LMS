@@ -1,18 +1,19 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
-import { newId, updateWorkspace } from "@/lib/mock/store";
+import { newId, updateWorkspace } from "@/lib/workspace/store";
 import type { User, Workspace } from "@/types";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 interface Props {
   data: Workspace;
   user: User;
 }
-/** Confirm account state changes and append a mock audit record. */
+/** Confirm account state changes and record an audited status change. */
 export default function UserStatusAction({ data, user }: Props) {
   const t = useTranslations("studyflow");
   const modal = useModal();
   const action = user.status === "active" ? "deactivate" : "reactivate";
+  if (user.role === "admin") return null;
   return (
     <>
       <button
@@ -47,7 +48,7 @@ export default function UserStatusAction({ data, user }: Props) {
             auditLogs: [
               {
                 id: newId(),
-                actorUserId: "admin-1",
+                actorUserId: state.user.id,
                 action,
                 targetType: "user",
                 targetId: user.id,

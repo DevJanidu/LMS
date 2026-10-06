@@ -5,11 +5,11 @@ import { subjectProgress, totalSeconds } from "@/lib/analytics";
 import { duration, formatDate } from "@/lib/time";
 import type { StudySession, Subject, Topic } from "@/types";
 import ProgressBar, { accentClasses } from "@/components/studyflow/ProgressBar";
-interface Props { subject: Subject; topics: Topic[]; sessions: StudySession[]; timezone: string; compact?: boolean }
-export default function SubjectCard({subject, topics, sessions, timezone, compact = false}: Props) {
+interface Props { subject: Subject; topics: Topic[]; sessions: StudySession[]; timezone: string; compact?: boolean; statistics?: { progress: number; completed: number; total: number; seconds: number } }
+export default function SubjectCard({subject, topics, sessions, timezone, compact = false, statistics}: Props) {
   const t = useTranslations("studyflow");
   const locale = useLocale();
-  const progress = subjectProgress(topics);
+  const progress = statistics?.progress ?? subjectProgress(topics);
   const ordered = [...topics].sort((a,b) => a.sortOrder-b.sortOrder);
   const next = ordered.find(topic => topic.status === "inProgress") ?? ordered.find(topic => topic.status !== "completed");
   return <article className="sf-subject">
@@ -17,7 +17,7 @@ export default function SubjectCard({subject, topics, sessions, timezone, compac
     <div><div className="sf-subject-progress mb-2"><strong>{progress}<span className="text-base text-muted">%</span></strong><span className="text-xs text-muted">{t("topicCount", {completed: topics.filter(topic => topic.status === "completed").length, total: topics.length})}</span></div><ProgressBar value={progress} label={subject.title} color={subject.color} /></div>
     <div className="sf-subject-next"><span className="sf-eyebrow">{t(next ? "redesign.upNext" : topics.length ? "completed" : "topics")}</span><p>{next?.title ?? t(topics.length ? "redesign.allComplete" : "noTopicsHelp")}</p></div>
     {!compact && subject.targetDate && <p className="text-xs text-muted">{t("targetDate")}: {formatDate(subject.targetDate, timezone, locale)}</p>}
-    <div className="sf-subject-footer"><span>{duration(totalSeconds(sessions))} · {t("studyTime")}</span><Link href={subject.status === "archived" ? `/subjects/${subject.id}` : `/study?subject=${subject.id}&topic=${next?.id ?? ""}`}>{t("continue")} <span aria-hidden="true">↗</span></Link></div>
+    <div className="sf-subject-footer"><span>{duration(statistics?.seconds ?? totalSeconds(sessions))} · {t("studyTime")}</span><Link href={subject.status === "archived" ? `/subjects/${subject.id}` : `/study?subject=${subject.id}&topic=${next?.id ?? ""}`}>{t("continue")} <span aria-hidden="true">↗</span></Link></div>
     {!compact && sessions[0] && <p className="text-xs text-muted">{t("lastActive")}: {formatDate(sessions[0].startedAt, timezone, locale)}</p>}
   </article>;
 }

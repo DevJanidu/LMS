@@ -1,5 +1,4 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/mock";
 import AuthForm from "@/components/auth/AuthForm";
 export default async function Page({
   params,
@@ -8,7 +7,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <AuthForm initial={getWorkspace()} mode="forgot-password" />;
+  return <AuthForm mode="forgot-password" />;
 }
 
 export async function generateMetadata({

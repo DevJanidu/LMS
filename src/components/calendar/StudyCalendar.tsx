@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { queryBlocks } from "@/app/[locale]/actions";
 import { useEffect, useRef, useState } from "react";
 import type { CalendarRef } from "@fullcalendar/react";
 import { useLocale, useTranslations } from "next-intl";
@@ -8,10 +9,10 @@ import timeGridPlugin from "@fullcalendar/react/timegrid";
 import interactionPlugin from "@fullcalendar/react/interaction";
 import themePlugin from "@fullcalendar/react/themes/classic";
 import { useModal } from "@/hooks/useModal";
-import { getSubjects, getTopics } from "@/lib/mock";
-import { updateWorkspace, useNow, useWorkspace } from "@/lib/mock/store";
+import { getSubjects, getTopics } from "@/lib/workspace/queries";
+import { updateWorkspace, useNow, useWorkspace } from "@/lib/workspace/store";
 import { localDay, shiftDay, wallTime, zonedToUtc } from "@/lib/analytics";
-import { getOccurrences, type BlockOccurrence } from "@/lib/mock/schedule";
+import { getOccurrences, type BlockOccurrence } from "@/lib/schedule";
 import type { Workspace } from "@/types";
 import PlannerToolbar, { type PlannerView } from "./PlannerToolbar";
 import PlannerEvent from "./PlannerEvent";
@@ -58,7 +59,16 @@ export default function StudyCalendar({ initial, add = false }: Props) {
     return () => media.removeEventListener("change", sync);
   }, []);
   const blocks = data.blocks.filter((b) => b.userId === data.user.id);
-  const occurrences = getOccurrences(blocks, range.from, range.to);
+  const [serverOccurrences, setServerOccurrences] = useState<BlockOccurrence[]>();
+  useEffect(() => {
+    let cancelled = false;
+    void queryBlocks(range).then(result => {
+      if (cancelled) return;
+      if (result.ok) setServerOccurrences(result.data); else setMessage(t(result.error));
+    }).catch(() => { if (!cancelled) setMessage(t("saveFailed")); });
+    return () => { cancelled = true; };
+  }, [range, data.blocks, t]);
+  const occurrences = serverOccurrences ?? getOccurrences(blocks, range.from, range.to);
   const deadlines = [
     ...getSubjects(data)
       .filter((s) => s.targetDate)

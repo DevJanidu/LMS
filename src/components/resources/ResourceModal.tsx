@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { createUpload, finishUpload } from "@/app/[locale]/file-actions";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/modal";
 import Button from "@/components/ui/button/Button";
@@ -7,8 +8,8 @@ import Field, {
   SelectField,
   TextField,
 } from "@/components/studyflow/FormFields";
-import { getResources } from "@/lib/mock";
-import { newId, updateWorkspace } from "@/lib/mock/store";
+import { getResources } from "@/lib/workspace/queries";
+import { newId, runOperation, reloadWorkspace } from "@/lib/workspace/store";
 import type { Resource, Workspace } from "@/types";
 import StudySelectors from "@/components/study/StudySelectors";
 interface Props {
@@ -18,7 +19,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
-/** Resource metadata form; selected files never leave this browser. */
+/** Resource metadata form; files upload directly into private storage. */
 export default function ResourceModal({
   data,
   resource,
@@ -39,7 +40,7 @@ export default function ResourceModal({
     >
       <form
         className="space-y-4"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
           const fields = new FormData(event.currentTarget);
           const title = String(fields.get("title")).trim();
@@ -68,7 +69,7 @@ export default function ResourceModal({
             }
             if (
               file &&
-              !/\.(pdf|png|jpe?g|docx?|pptx?|xlsx?|txt)$/i.test(file.name)
+              !/\.(pdf|png|jpe?g|docx|pptx|xlsx|txt)$/i.test(file.name)
             ) {
               setError(t("invalidFileType"));
               return;
@@ -104,14 +105,24 @@ export default function ResourceModal({
               type === "file" ? (file?.type ?? resource?.mimeType) : undefined,
             createdAt: resource?.createdAt ?? new Date().toISOString(),
           };
-          updateWorkspace(data, (state) => ({
-            ...state,
-            resources: resource
-              ? state.resources.map((item) =>
-                  item.id === resource.id ? value : item,
-                )
-              : [...state.resources, value],
-          }));
+          if (type === "file" && file) {
+            try {
+              const upload = await createUpload({ subjectId: subject, topicId: topic || undefined, title, name: file.name, mimeType: file.type, sizeBytes: file.size });
+              if (!upload.ok) { setError(t(upload.error)); return; }
+              const sent = await fetch(upload.data.url, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
+              if (!sent.ok) { setError(t("uploadFailed")); return; }
+              const confirmed = await finishUpload(upload.data.id);
+              if (!confirmed.ok) { setError(t(confirmed.error)); return; }
+              if (resource) {
+                const removed = await runOperation(data, { kind: "delete", entity: "resource", id: resource.id });
+                if (!removed.ok) { setError(t(removed.error)); return; }
+              }
+              await reloadWorkspace();
+            } catch { setError(t("uploadFailed")); return; }
+          } else {
+            const saved = await runOperation(data, { kind: "resource", value });
+            if (!saved.ok) { setError(t(saved.error)); return; }
+          }
           onClose();
         }}
       >
@@ -163,13 +174,10 @@ export default function ResourceModal({
               label={t("file")}
               name="file"
               type="file"
-              accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"
+              accept=".pdf,.png,.jpg,.jpeg,.docx,.pptx,.xlsx,.txt"
             />
             <p className="text-theme-xs text-gray-500 dark:text-gray-400">
               {t("fileLimit", { limit: data.settings.maxFileSizeMB })}
-            </p>
-            <p className="text-theme-xs text-gray-500 dark:text-gray-400">
-              {t("fileMockNotice")}
             </p>
           </>
         )}

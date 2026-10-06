@@ -1,5 +1,6 @@
+import { requireLearner } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/mock";
+import { getWorkspace } from "@/lib/services/workspace";
 import TimerWidget from "@/components/study/TimerWidget";
 export default async function Page({
   params,
@@ -10,9 +11,10 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await requireLearner();
   const { subject, topic } = await searchParams;
   return (
-    <TimerWidget initial={getWorkspace()} subject={subject} topic={topic} />
+    <TimerWidget initial={await getWorkspace()} subject={subject} topic={topic} />
   );
 }
 

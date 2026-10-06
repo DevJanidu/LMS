@@ -1,6 +1,9 @@
+import { requireAdmin } from "@/lib/auth";
 import { setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/mock";
+import { loadWorkspace } from "@/lib/services/workspace";
 import AdminUserDetail from "@/components/admin/AdminUserDetail";
+import { uuidSchema } from "@/lib/validation";
+import { notFound } from "next/navigation";
 export default async function Page({
   params,
 }: {
@@ -8,5 +11,9 @@ export default async function Page({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  return <AdminUserDetail initial={getWorkspace()} id={id} />;
+  const admin = await requireAdmin();
+  if (!uuidSchema.safeParse(id).success) notFound();
+  const data = await loadWorkspace(admin.id, { adminTargetId: id });
+  if (!data.users.some(user => user.id === id)) notFound();
+  return <AdminUserDetail initial={data} id={id} />;
 }

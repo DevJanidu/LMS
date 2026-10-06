@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useModal } from "@/hooks/useModal";
-import { getSessions, getSubjects, getTopics } from "@/lib/mock";
-import { updateWorkspace, useWorkspace } from "@/lib/mock/store";
+import { getSessions, getSubjects, getTopics } from "@/lib/workspace/queries";
+import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import { subjectProgress, totalSeconds } from "@/lib/analytics";
 import { duration, formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
@@ -81,7 +81,7 @@ export default function SubjectDetail({ initial, id }: Props) {
                 })}
               </span>
               <span>
-                {duration(totalSeconds(sessions))}
+                {duration(data.subjectStatistics?.[id]?.seconds ?? totalSeconds(sessions))}
                 {subject.targetDate &&
                   ` · ${t("targetDate")}: ${formatDate(subject.targetDate, data.user.timezone, locale)}`}
               </span>
@@ -185,8 +185,8 @@ export default function SubjectDetail({ initial, id }: Props) {
         description={t(
           action === "delete" ? "deleteSubjectWarning" : "archiveWarning",
         )}
-        onConfirm={() => {
-          updateWorkspace(initial, (state) =>
+        onConfirm={async () => {
+          const saved = await updateWorkspace(initial, (state) =>
             action === "delete"
               ? {
                   ...state,
@@ -214,7 +214,8 @@ export default function SubjectDetail({ initial, id }: Props) {
                   ),
                 },
           );
-          if (action === "delete") router.push("/subjects");
+          if (saved && action === "delete") router.push("/subjects");
+          return saved;
         }}
       />
     </>

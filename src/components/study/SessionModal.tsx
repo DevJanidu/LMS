@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/modal";
 import Button from "@/components/ui/button/Button";
 import Field, { TextField } from "@/components/studyflow/FormFields";
-import { newId, updateWorkspace } from "@/lib/mock/store";
+import { newId, runOperation } from "@/lib/workspace/store";
 import { wallTime, zonedToUtc } from "@/lib/analytics";
 import type { StudySession, Workspace } from "@/types";
 import StudySelectors from "./StudySelectors";
@@ -25,6 +25,7 @@ export default function SessionModal({
   const [subjectId, setSubjectId] = useState(session?.subjectId ?? "");
   const [topicId, setTopicId] = useState(session?.topicId ?? "");
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
   return (
     <Modal
       isOpen={isOpen}
@@ -33,7 +34,7 @@ export default function SessionModal({
     >
       <form
         className="space-y-4"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
           const fields = new FormData(event.currentTarget);
           const minutes = Number(fields.get("minutes"));
@@ -64,15 +65,10 @@ export default function SessionModal({
             source: session?.source ?? "manual",
             createdAt: session?.createdAt ?? new Date().toISOString(),
           };
-          updateWorkspace(data, (state) => ({
-            ...state,
-            sessions: session
-              ? state.sessions.map((item) =>
-                  item.id === session.id ? value : item,
-                )
-              : [...state.sessions, value],
-          }));
-          onClose();
+          setPending(true);
+          const result = await runOperation(data, { kind: "session", value });
+          setPending(false);
+          if (result.ok) onClose(); else setError(t(result.error));
         }}
       >
         <StudySelectors
@@ -115,7 +111,7 @@ export default function SessionModal({
             {error}
           </p>
         )}
-        <Button type="submit" disabled={!subjectId}>
+        <Button type="submit" disabled={!subjectId || pending}>
           {t("saveSession")}
         </Button>
       </form>

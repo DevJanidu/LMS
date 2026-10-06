@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useWorkspace, useNow } from "@/lib/mock/store";
-import { getLearnerStatistics } from "@/lib/mock";
+import { useWorkspace, useNow } from "@/lib/workspace/store";
+import { getLearnerStatistics } from "@/lib/workspace/queries";
 import {
   dailySeconds,
   localDay,
@@ -40,8 +40,8 @@ export default function AdminUserDetail({ initial, id }: Props) {
     now || Date.parse(initial.user.lastActiveAt),
     user.timezone,
   );
-  const totals = dailySeconds(sessions, user.timezone);
-  const streak = streaks(
+  const totals = data.adminLearnerAnalytics?.daily ?? dailySeconds(sessions, user.timezone);
+  const streak = data.adminLearnerAnalytics ? { current: data.adminLearnerAnalytics.currentStreak, longest: data.adminLearnerAnalytics.longestStreak } : streaks(
     sessions,
     user.timezone,
     now || Date.parse(initial.user.lastActiveAt),
@@ -66,9 +66,9 @@ export default function AdminUserDetail({ initial, id }: Props) {
       <div className="sf-metric-strip mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
           label={t("studyTime")}
-          value={duration(totalSeconds(sessions))}
+          value={duration(data.adminLearnerAnalytics?.totalSeconds ?? totalSeconds(sessions))}
         />
-        <StatTile label={t("sessions")} value={sessions.length} />
+        <StatTile label={t("sessions")} value={data.adminLearnerAnalytics?.sessionCount ?? sessions.length} />
         <StatTile
           label={t("currentStreak")}
           value={t("streakDays", { days: streak.current })}
@@ -94,7 +94,7 @@ export default function AdminUserDetail({ initial, id }: Props) {
               Math.round(
                 (period === "day"
                   ? (totals[day] ?? 0)
-                  : periodSeconds(
+                  : data.adminLearnerAnalytics ? Object.entries(totals).filter(([date]) => date >= day && date <= shiftDay(day, 6)).reduce((sum, [, seconds]) => sum + seconds, 0) : periodSeconds(
                       sessions,
                       user.timezone,
                       day,
@@ -107,14 +107,14 @@ export default function AdminUserDetail({ initial, id }: Props) {
         </ComponentCard>
         <ComponentCard title={t("subjectProgress")}>
           {subjects.length ? (
-            subjects.map((subject) => (
+            subjects.map((subject, index) => (
               <div key={subject.id}>
                 <div className="mb-2 flex justify-between gap-3 text-sm">
-                  <span>{subject.title}</span>
+                  <span>{t("privateSubject", { number: index + 1 })}</span>
                   <span>
                     {progress[subject.id]}% ·{" "}
                     {t("sessionCount", {
-                      count: sessions.filter(
+                      count: data.subjectStatistics?.[subject.id]?.sessions ?? sessions.filter(
                         (session) => session.subjectId === subject.id,
                       ).length,
                     })}
@@ -122,7 +122,7 @@ export default function AdminUserDetail({ initial, id }: Props) {
                 </div>
                 <ProgressBar
                   value={progress[subject.id]}
-                  label={subject.title}
+                  label={t("privateSubject", { number: index + 1 })}
                   color={subject.color}
                 />
               </div>

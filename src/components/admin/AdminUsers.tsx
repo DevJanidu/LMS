@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useNow, useWorkspace } from "@/lib/mock/store";
-import { getSessions } from "@/lib/mock";
+import { useNow, useWorkspace } from "@/lib/workspace/store";
+import { getSessions } from "@/lib/workspace/queries";
 import { totalSeconds } from "@/lib/analytics";
+import { csvCell } from "@/lib/csv";
 import { duration, formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
 import PageHeader from "@/components/studyflow/PageHeader";
@@ -96,7 +97,7 @@ export default function AdminUsers({ initial }: Props) {
               const csv = rows
                 .map((row) =>
                   row
-                    .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+                    .map(csvCell)
                     .join(","),
                 )
                 .join("\r\n");

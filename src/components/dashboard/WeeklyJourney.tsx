@@ -1,7 +1,7 @@
 "use client";
 import { useLocale, useTranslations } from "next-intl";
 import { dailySeconds, shiftDay, weekStart, weeklyGoalPercent } from "@/lib/analytics";
-import { getSessions } from "@/lib/mock";
+import { getSessions } from "@/lib/workspace/queries";
 import { duration } from "@/lib/time";
 import type { Workspace } from "@/types";
 import ProgressBar from "@/components/studyflow/ProgressBar";
@@ -9,7 +9,7 @@ interface Props { data: Workspace; today: string; seconds: number }
 export default function WeeklyJourney({data, today, seconds}: Props) {
   const t = useTranslations("studyflow");
   const locale = useLocale();
-  const totals = dailySeconds(getSessions(data), data.user.timezone);
+  const totals = data.analytics?.daily ?? dailySeconds(getSessions(data), data.user.timezone);
   const start = weekStart(today, data.user.weekStartDay);
   const percent = weeklyGoalPercent(seconds / 60, data.user.weeklyTargetMinutes);
   const minutes = new Intl.NumberFormat(locale, { style: "unit", unit: "minute", unitDisplay: "narrow" });

@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
+import { completeOnboarding } from "@/app/[locale]/actions";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { newId, updateWorkspace, useWorkspace } from "@/lib/mock/store";
+import { newId, updateWorkspace, useWorkspace, flushWorkspace } from "@/lib/workspace/store";
 import type { Topic, Workspace } from "@/types";
 import { APP_NAME } from "@/lib/constants";
-import { getSubjects } from "@/lib/mock";
+import { getSubjects } from "@/lib/workspace/queries";
 import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
 import ProgressBar from "@/components/studyflow/ProgressBar";
@@ -38,7 +39,7 @@ export default function OnboardingWizard({ initial, initialStep = 0 }: Props) {
     "firstTopics",
     "weeklyGoal",
   ];
-  const next = (skip: boolean) => {
+  const next = async (skip: boolean) => {
     setError("");
     if (!skip) {
       if (step === 1)
@@ -111,7 +112,8 @@ export default function OnboardingWizard({ initial, initialStep = 0 }: Props) {
           user: { ...state.user, weeklyTargetMinutes: Math.round(hours * 60) },
         }));
     }
-    if (step === 4) router.push("/dashboard");
+    if (!(await flushWorkspace())) { setError(t("saveFailed")); return; }
+    if (step === 4) { const result = await completeOnboarding(); if (!result.ok) { setError(t(result.error)); return; } router.push("/dashboard"); router.refresh(); }
     else setStep(step + 1);
   };
   return (
