@@ -49,5 +49,5 @@ export function getLanguage(locale: Locale): Language {
 }
 
 export function isRtl(locale: Locale): boolean {
-  return getLanguage(locale).dir === "rtl";
+  return locale === "ar";
 }

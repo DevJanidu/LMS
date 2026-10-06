@@ -10,6 +10,9 @@ import { notFound } from "next/navigation";
 import "simplebar-react/dist/simplebar.min.css";
 import "swiper/css/bundle";
 import "../globals.css";
+import type { Metadata } from "next";
+import { APP_NAME } from "@/lib/constants";
+export const metadata: Metadata = { title: { default: APP_NAME, template: `%s | ${APP_NAME}` }, description: "Your personal study workspace. Organise subjects, plan your week and track your learning." };
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -36,7 +39,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={isRtl(locale as Locale) ? "rtl" : "ltr"}>
-      <body className={`${outfit.className} dark:bg-gray-900`}>
+      <body className={`${outfit.className} bg-gray-50 dark:bg-gray-900`}>
         <NextIntlClientProvider>
           <ThemeProvider>
             <SidebarProvider>{children}</SidebarProvider>

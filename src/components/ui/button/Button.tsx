@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 
 interface ButtonProps {
+  type?: "button" | "submit" | "reset";
+  "aria-label"?: string;
   children: ReactNode; // Button text or content
   size?: "sm" | "md"; // Button size
   variant?: "primary" | "outline"; // Button variant
@@ -20,6 +22,8 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   className = "",
   disabled = false,
+  type = "button",
+  "aria-label": ariaLabel,
 }) => {
   // Size Classes
   const sizeClasses = {
@@ -37,6 +41,8 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
+      type={type}
+      aria-label={ariaLabel}
       className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition ${className} ${
         sizeClasses[size]
       } ${variantClasses[variant]} ${
