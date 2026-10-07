@@ -6,6 +6,7 @@ import { nextCookies } from "better-auth/next-js";
 import { hash, verify } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getDb } from "@/lib/db";
@@ -52,7 +53,10 @@ function createAuth() {
       session: { create: { before: async (session) => {
         const [user] = await getDb().select({ status: schema.users.status }).from(schema.users).where(eq(schema.users.id, session.userId));
         if (!user || user.status !== "active") throw new APIError("FORBIDDEN", { message: "Account unavailable." });
-        await getDb().update(schema.users).set({ lastActiveAt: new Date() }).where(eq(schema.users.id, session.userId));
+        after(async () => {
+          try { await getDb().update(schema.users).set({ lastActiveAt: new Date() }).where(eq(schema.users.id, session.userId)); }
+          catch { console.warn(JSON.stringify({ event: "last_active_update_failed" })); }
+        });
         return { data: session };
       } } },
     },

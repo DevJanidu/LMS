@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useActionState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authenticate } from "@/app/[locale]/auth-actions";
@@ -9,18 +9,23 @@ import PageHeader from "@/components/studyflow/PageHeader";
 import Field from "@/components/studyflow/FormFields";
 interface Props {
   token?: string;
+  returnTo?: string;
   mode: "login" | "register" | "forgot-password" | "reset-password";
 }
 /** Account forms submit only to the authenticated server API. */
-export default function AuthForm({ token, mode }: Props) {
+export default function AuthForm({ token, mode, returnTo }: Props) {
   const t = useTranslations("studyflow");
   const router = useRouter();
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [pending, setPending] = useState(false);
   const register = mode === "register";
   const reset = mode === "reset-password";
   const forgot = mode === "forgot-password";
+  const [result, submit, pending] = useActionState(async (_previous: Awaited<ReturnType<typeof authenticate>> | undefined, fields: FormData) => {
+    if (reset && fields.get("password") !== fields.get("confirmation")) return { ok: false as const, error: "passwordMismatch" };
+    return authenticate({ mode, token, returnTo, email: reset ? undefined : String(fields.get("email")), name: register ? String(fields.get("name")) : undefined, password: forgot ? undefined : String(fields.get("password")), acceptedTerms: fields.get("terms") === "on", dateOfBirth: fields.get("dob") || undefined });
+  }, undefined);
+  const error = result && !result.ok ? t(result.error) : "";
+  const message = result?.ok ? t("resetEmailSent") : "";
+  useEffect(() => { if (mode === "login") router.prefetch("/dashboard"); }, [mode, router]);
   const title = register
     ? "createAccount"
     : reset
@@ -33,19 +38,8 @@ export default function AuthForm({ token, mode }: Props) {
       <PageHeader title={t(title)} description={t("authDescription")} />
       <form
         className="space-y-5"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          const fields = new FormData(event.currentTarget);
-          if (reset && fields.get("password") !== fields.get("confirmation")) { setError(t("passwordMismatch")); return; }
-          setPending(true); setError("");
-          try {
-            const result = await authenticate({ mode, token, email: reset ? undefined : String(fields.get("email")), name: register ? String(fields.get("name")) : undefined, password: forgot ? undefined : String(fields.get("password")), acceptedTerms: fields.get("terms") === "on", dateOfBirth: fields.get("dob") || undefined });
-            if (!result.ok) setError(t(result.error));
-            else if (result.href) { router.push(result.href); router.refresh(); }
-            else setMessage(t("resetEmailSent"));
-          } catch { setError(t("authenticationFailed")); }
-          finally { setPending(false); }
-        }}
+        action={submit}
+        aria-busy={pending}
       >
         {register && (
           <Field label={t("name")} name="name" required autoComplete="name" />
@@ -125,7 +119,7 @@ export default function AuthForm({ token, mode }: Props) {
           </p>
         )}
         <Button type="submit" className="w-full" disabled={pending}>
-          {t(
+          {pending ? t("loading") : t(
             register
               ? "signUp"
               : reset
@@ -146,7 +140,7 @@ export default function AuthForm({ token, mode }: Props) {
               })}{" "}
               <Link
                 href={register ? "/login" : "/register"}
-                className="text-brand-600 dark:text-brand-300"
+                className="text-brand-600 underline dark:text-brand-300"
               >
                 {t(register ? "signIn" : "signUp")}
               </Link>
