@@ -1,25 +1,44 @@
 import "server-only";
 import { Redis } from "@upstash/redis";
+import { createHash } from "node:crypto";
 import { getEnv } from "@/lib/env";
 import { localDay, shiftDay, zonedToUtc } from "@/lib/analytics";
 
 export type UserCacheScope = "analytics" | "subjects" | "calendar";
-interface Envelope<T> { version: 1; value: T }
+interface Envelope<T> { version: 2; value: T }
 interface Counts { hit: number; miss: number; bypass: number; error: number }
 const counts: Record<string, Counts> = {};
 const inFlight = new Map<string, Promise<unknown>>();
 let redis: Redis | undefined;
 let warned = false;
+let connected = false;
 let unavailableUntil = 0;
 
-export function cachePrefix() { return `lms:v1:${getEnv().CACHE_NAMESPACE}`; }
+function trace(kind: "HIT" | "MISS" | "SET" | "BYPASS", key: string, family: string) {
+  if (process.env.NODE_ENV !== "development") return;
+  const owner = key.match(/:u:([a-f0-9-]{36}):/i)?.[1];
+  const label = owner ? `${family}:${createHash("sha256").update(owner).digest("hex").slice(0, 8)}` : family;
+  console.info(`[cache] ${kind} ${label}`);
+}
+
+function markConnected() {
+  if (!connected) { connected = true; console.info("[cache] Upstash connected"); }
+}
+
+function branchNamespace() {
+  const env = getEnv(), endpoint = new URL(env.DATABASE_URL);
+  const branch = createHash("sha256").update(endpoint.hostname + endpoint.pathname).digest("hex").slice(0, 12);
+  return `${env.CACHE_NAMESPACE}:${branch}`;
+}
+export function cachePrefix() { return `lms:v2:${branchNamespace()}`; }
+export function rateLimitPrefix() { return `lms:security:v1:${branchNamespace()}`; }
 export function getRedis(): Redis | undefined {
   const env = getEnv();
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
-    if (!warned && process.env.NODE_ENV === "development") { warned = true; console.warn(JSON.stringify({ event: "redis_unconfigured", cache: "disabled", limiter: "development_memory" })); }
+    if (!warned && process.env.NODE_ENV === "development") { warned = true; console.warn("[cache] DISABLED: Upstash variables absent; using database reads"); }
     return undefined;
   }
-  return redis ??= new Redis({ url: env.UPSTASH_REDIS_REST_URL, token: env.UPSTASH_REDIS_REST_TOKEN, retry: false, signal: () => AbortSignal.timeout(250) });
+  return redis ??= new Redis({ url: env.UPSTASH_REDIS_REST_URL, token: env.UPSTASH_REDIS_REST_TOKEN, retry: false, signal: () => AbortSignal.timeout(1500) });
 }
 function record(family: string, kind: keyof Counts) {
   const row = counts[family] ??= { hit: 0, miss: 0, bypass: 0, error: 0 };
@@ -30,7 +49,7 @@ function record(family: string, kind: keyof Counts) {
 export function cacheCounts(): Record<string, Counts> { return structuredClone(counts); }
 function failed(family: string) {
   record(family, "error");
-  if (unavailableUntil <= Date.now()) console.warn(JSON.stringify({ event: "cache_unavailable", family }));
+  if (unavailableUntil <= Date.now()) console.warn(`[cache] DISABLED: Redis request failed (${family}); using database reads`);
   unavailableUntil = Date.now() + 5000;
 }
 function checkKey(key: string) {
@@ -41,12 +60,13 @@ function checkKey(key: string) {
 export async function cached<T>(key: string, ttlSeconds: number, fetcher: () => Promise<T>, family = "summary"): Promise<T> {
   checkKey(key);
   const client = getRedis();
-  if (!client || unavailableUntil > Date.now()) { record(family, "bypass"); return fetcher(); }
+  if (!client || unavailableUntil > Date.now()) { record(family, "bypass"); trace("BYPASS", key, family); return fetcher(); }
   let stored: Envelope<T> | null;
-  try { stored = await client.get<Envelope<T>>(key); }
+  try { stored = await client.get<Envelope<T>>(key); markConnected(); }
   catch { failed(family); return fetcher(); }
-  if (stored?.version === 1) { record(family, "hit"); return stored.value; }
+  if (stored?.version === 2) { record(family, "hit"); trace("HIT", key, family); return stored.value; }
   record(family, "miss");
+  trace("MISS", key, family);
   const existing = inFlight.get(key);
   if (existing) return existing as Promise<T>;
   const task = (async () => {
@@ -54,11 +74,19 @@ export async function cached<T>(key: string, ttlSeconds: number, fetcher: () => 
     let locked = false;
     try { locked = (await client.set(lockKey, token, { nx: true, ex: 10 })) === "OK"; }
     catch { failed(family); }
+    if (!locked && unavailableUntil <= Date.now()) {
+      // Wait briefly for the lock holder rather than stampeding the aggregate.
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        try { const filled = await client.get<Envelope<T>>(key); if (filled?.version === 2) { record(family, "hit"); return filled.value; } }
+        catch { failed(family); break; }
+      }
+    }
     try {
       // A losing instance reads fresh DB data without publishing over the lock owner.
       const value = await fetcher();
       if (locked && unavailableUntil <= Date.now()) {
-        try { await client.set(key, { version: 1, value }, { ex: Math.max(1, Math.floor(ttlSeconds)) }); }
+        try { await client.set(key, { version: 2, value }, { ex: Math.max(1, Math.floor(ttlSeconds)) }); trace("SET", key, family); }
         catch { failed(family); }
       }
       return value;
