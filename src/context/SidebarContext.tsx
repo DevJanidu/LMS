@@ -25,10 +25,11 @@ export const useSidebar = () => {
   return context;
 };
 
-export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
+export const SidebarProvider: React.FC<{ children: React.ReactNode; initialExpanded?: boolean }> = ({
   children,
+  initialExpanded = true,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -53,7 +54,10 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const toggleSidebar = () => {
-    setIsExpanded((prev) => !prev);
+    setIsExpanded((prev) => {
+      document.cookie = `sf-sidebar=${prev ? "collapsed" : "expanded"}; Path=/; Max-Age=31536000; SameSite=Lax`;
+      return !prev;
+    });
   };
 
   const toggleMobileSidebar = () => {

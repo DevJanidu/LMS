@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { searchWorkspace } from "@/app/[locale]/actions";
-import { useTheme } from "@/context/ThemeContext";
 import { useSidebar } from "@/context/SidebarContext";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
@@ -60,8 +59,6 @@ export default function WorkspaceShell({
   const path = usePathname();
   const { isMobileOpen, toggleMobileSidebar, isExpanded } = useSidebar();
   const data = useWorkspace(initial);
-  const { setThemeMode } = useTheme();
-  useEffect(() => { setThemeMode(data.user.theme); }, [data.user.theme, setThemeMode]);
   const storageError = useWorkspaceError();
   const search = useModal();
   const openSearch = search.openModal;

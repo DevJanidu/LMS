@@ -3,8 +3,8 @@ import { redirect } from "@/i18n/navigation";
 import { setRequestLocale } from "next-intl/server";
 import WorkspaceShell from "@/components/studyflow/WorkspaceShell";
 import { getShellWorkspace } from "@/lib/services/workspace";
-import { Suspense } from "react";
-import WorkspaceShellLoading from "@/components/studyflow/WorkspaceShellLoading";
+import { SidebarProvider } from "@/context/SidebarContext";
+import { cookies } from "next/headers";
 
 async function AuthorizedShell({
   children,
@@ -17,12 +17,13 @@ async function AuthorizedShell({
   setRequestLocale(locale);
   const user = await requireLearner();
   if (!user.onboardingCompletedAt) redirect({ href: "/onboarding", locale });
-  return <WorkspaceShell initial={await getShellWorkspace()}>{children}</WorkspaceShell>;
+  const [initial, cookieStore] = await Promise.all([getShellWorkspace(), cookies()]);
+  return <SidebarProvider initialExpanded={cookieStore.get("sf-sidebar")?.value !== "collapsed"}><WorkspaceShell initial={initial}>{children}</WorkspaceShell></SidebarProvider>;
 }
 
 export default function LearnerLayout(props: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  return <Suspense fallback={<WorkspaceShellLoading />}><AuthorizedShell {...props} /></Suspense>;
+  return <AuthorizedShell {...props} />;
 }

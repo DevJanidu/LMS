@@ -1,4 +1,3 @@
-import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { isRtl } from "@/i18n/languages";
 import { type Locale, routing } from "@/i18n/routing";
@@ -41,11 +40,14 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} dir={isRtl(locale as Locale) ? "rtl" : "ltr"}>
+    <html suppressHydrationWarning lang={locale} dir={isRtl(locale as Locale) ? "rtl" : "ltr"}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var m=document.cookie.match(/(?:^|; )sf-theme=(dark|light|auto)(?:;|$)/);var v=m?m[1]:'light';var d=v==='dark'||(v==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.setAttribute('data-color-scheme',d?'dark':'light')})()` }} />
+      </head>
       <body className={`${geist.className} ${geist.variable} bg-gray-50 dark:bg-gray-900`}>
         <NextIntlClientProvider>
           <ThemeProvider>
-            <SidebarProvider>{children}</SidebarProvider>
+            {children}
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

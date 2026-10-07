@@ -38,11 +38,7 @@ function apply(mode: ThemeMode) {
   listeners.forEach((listener) => listener());
 }
 function setThemeMode(mode: ThemeMode) {
-  try {
-    localStorage.setItem("theme-mode", mode);
-  } catch {
-    /* The current tab still supports themes without storage. */
-  }
+  document.cookie = `sf-theme=${mode}; Path=/; Max-Age=31536000; SameSite=Lax`;
   apply(mode);
 }
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -54,15 +50,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     () => serverState,
   );
   useEffect(() => {
-    let mode = "light";
-    try {
-      mode =
-        localStorage.getItem("theme-mode") ??
-        localStorage.getItem("theme") ??
-        "light";
-    } catch {
-      /* Use the default theme. */
-    }
+    const mode = document.cookie.match(/(?:^|; )sf-theme=(dark|light|auto)(?:;|$)/)?.[1] ?? "light";
     apply(mode === "dark" || mode === "auto" ? mode : "light");
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const sync = () => {
