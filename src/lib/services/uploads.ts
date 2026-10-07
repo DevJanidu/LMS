@@ -15,7 +15,8 @@ export async function requestUpload(userId: string, value: z.infer<typeof upload
   const key = `users/${userId}/subjects/${value.subjectId}/pending/${crypto.randomUUID()}`;
   const id = crypto.randomUUID();
   await getDb().transaction(async tx => {
-    await tx.select({ id: s.users.id }).from(s.users).where(eq(s.users.id, userId)).for("update");
+    const [actor] = await tx.select({ status: s.users.status, role: s.users.role }).from(s.users).where(eq(s.users.id, userId)).for("update");
+    if (!actor || actor.status !== "active" || actor.role !== "learner") throw new DomainError("accountInactive");
     const [subject] = await tx.select({ id: s.subjects.id }).from(s.subjects).where(and(eq(s.subjects.id, value.subjectId), eq(s.subjects.userId, userId)));
     if (!subject) throw new DomainError("recordUnavailable");
     if (value.topicId) {
@@ -34,7 +35,8 @@ export async function confirmUpload(userId: string, id: string) {
   const [candidate] = await getDb().select().from(s.pendingUploads).where(and(eq(s.pendingUploads.id, id), eq(s.pendingUploads.userId, userId)));
   if (candidate) await getDb().insert(s.pendingObjectDeletions).values({ storageKey: `users/${userId}/subjects/${candidate.subjectId}/${id}` }).onConflictDoNothing();
   await getDb().transaction(async tx => {
-    await tx.select({ id: s.users.id }).from(s.users).where(eq(s.users.id, userId)).for("update");
+    const [actor] = await tx.select({ status: s.users.status, role: s.users.role }).from(s.users).where(eq(s.users.id, userId)).for("update");
+    if (!actor || actor.status !== "active" || actor.role !== "learner") throw new DomainError("accountInactive");
     const [upload] = await tx.select().from(s.pendingUploads).where(and(eq(s.pendingUploads.id, id), eq(s.pendingUploads.userId, userId))).for("update");
     if (!upload) {
       const [already] = await tx.select({ id: s.resources.id }).from(s.resources).where(and(eq(s.resources.id, id), eq(s.resources.userId, userId)));
