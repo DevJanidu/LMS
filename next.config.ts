@@ -18,6 +18,7 @@ const svgLoaderOptions = {
 };
 
 const nextConfig: NextConfig = {
+  experimental: { staleTimes: { dynamic: 30, static: 180 } },
   logging: { incomingRequests: false, serverFunctions: false, browserToTerminal: false },
   // Isolate browser-test builds from a developer's running server.
   distDir: process.env.PLAYWRIGHT_ISOLATED_BUILD === "1" ? ".next-playwright" : ".next",

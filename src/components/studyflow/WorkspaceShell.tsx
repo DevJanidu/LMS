@@ -230,6 +230,7 @@ export default function WorkspaceShell({
                 )}
                 <Link
                   href={href}
+                  prefetch
                   title={t(key)}
                   aria-label={t(key)}
                   aria-current={active ? "page" : undefined}
@@ -296,6 +297,7 @@ export default function WorkspaceShell({
               <Link
                 key={href}
                 href={href}
+                prefetch
                 aria-current={
                   path === href || path.startsWith(`${href}/`)
                     ? "page"
