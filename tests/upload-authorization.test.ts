@@ -2,6 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ actor: { status: "active", role: "learner" } as { status: string; role: string } | undefined, insert: vi.fn(), uploadUrl: vi.fn(), headObject: vi.fn() }));
 vi.mock("@/lib/services/workspace", () => ({ ownedSubject: async () => ({}), getSettings: async () => ({ maxFileSizeMB: 10, storagePerUserMB: 100 }) }));
+vi.mock("@/lib/cache", () => ({ invalidateUser: vi.fn() }));
 vi.mock("@/lib/storage", () => ({ uploadUrl: mocks.uploadUrl, headObject: mocks.headObject, copyObject: vi.fn() }));
 vi.mock("@/lib/db", () => ({ getDb: () => ({
   select: () => ({ from: () => ({ where: async () => [] }) }),

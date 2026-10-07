@@ -1,8 +1,10 @@
 import "server-only";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
+import { cachedUser } from "@/lib/cache";
 export interface SubjectStatistics { progress: number; completed: number; total: number; seconds: number; sessions: number }
-export async function subjectStatistics(userId: string, admin = false) {
+export async function subjectStatistics(userId: string, admin = false, uncached = false): Promise<Record<string, SubjectStatistics>> {
+  if (!admin && !uncached) return cachedUser(userId, "subjects", "progress", 60, () => subjectStatistics(userId, false, true));
   const result = await getDb().execute<{ id: string; completed: string; total: string; seconds: string; sessions: string }>(sql`
     WITH owned AS (SELECT id FROM subjects WHERE ${admin ? sql`true` : sql`user_id = ${userId}::uuid`}),
     topic_totals AS (

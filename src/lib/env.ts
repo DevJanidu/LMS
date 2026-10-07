@@ -17,6 +17,7 @@ const environmentSchema = z.object({
   CRON_SECRET: z.string().min(32),
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  CACHE_NAMESPACE: z.enum(["development", "preview", "production", "test"]).default("development"),
 }).superRefine((env, ctx) => {
   if (Boolean(env.RESEND_API_KEY) !== Boolean(env.EMAIL_FROM)) {
     ctx.addIssue({ code: "custom", path: ["RESEND_API_KEY"], message: "Set both email variables or leave both unset while email setup is pending." });
@@ -31,6 +32,7 @@ export type Environment = z.infer<typeof environmentSchema>;
 /** Validate server configuration without including secret values in errors. */
 export function validateEnvironment(input: Record<string, string | undefined>): Environment {
   const normalized = Object.fromEntries(Object.entries(input).map(([key, value]) => [key, value === "" ? undefined : value]));
+  normalized.CACHE_NAMESPACE ??= input.VERCEL_ENV;
   const result = environmentSchema.safeParse(normalized);
   if (!result.success) {
     throw new Error(`Invalid server configuration: ${result.error.issues.map(issue => `${issue.path.join(".")}: ${issue.message}`).join("; ")}`);

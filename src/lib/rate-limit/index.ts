@@ -1,20 +1,37 @@
 import "server-only";
 import { createHash } from "node:crypto";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 import { getEnv } from "@/lib/env";
-const local = new Map<string, { count: number; expires: number }>();
-/** Fixed-window counters use one atomic Redis script across Vercel instances. */
-export async function allowRequest(identifier: string, maximum = 5, seconds = 60): Promise<boolean> {
+import { getRedis, cachePrefix } from "@/lib/cache";
+const local = new Map<string, number[]>();
+const limiters = new Map<string, Ratelimit>();
+let securityRedis: Redis | undefined;
+function rateLimitRedis() {
   const env = getEnv();
-  const key = `studyflow:limit:${createHash("sha256").update(identifier).digest("hex")}:${Math.floor(Date.now() / (seconds * 1000))}`;
-  if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
-    const response = await fetch(env.UPSTASH_REDIS_REST_URL, { method: "POST", headers: { Authorization: `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(["EVAL", "local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n", 1, key, seconds]), cache: "no-store", signal: AbortSignal.timeout(5000) });
-    if (!response.ok) return false;
-    const result: { result?: unknown } = await response.json();
-    return typeof result.result === "number" && result.result <= maximum;
-  }
-  if (process.env.NODE_ENV === "production") return false;
-  for (const [name, row] of local) if (row.expires < Date.now()) local.delete(name);
-  const row = local.get(key) ?? { count: 0, expires: Date.now() + seconds * 1000 };
-  row.count++; local.set(key, row);
-  return row.count <= maximum;
+  if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) return getRedis();
+  // Security cannot fall back to DB. Its separate singleton allows a longer
+  // fail-closed deadline than optional cached data (250ms).
+  return securityRedis ??= new Redis({ url: env.UPSTASH_REDIS_REST_URL, token: env.UPSTASH_REDIS_REST_TOKEN, retry: false, signal: () => AbortSignal.timeout(1500) });
+}
+/** Sliding windows are independent of cached data and fail closed on Redis errors. */
+export async function allowRequest(identifier: string, maximum = 5, seconds = 60): Promise<boolean> {
+  const key = createHash("sha256").update(identifier).digest("hex");
+  try {
+    const redis = rateLimitRedis();
+    if (redis) {
+      const family = `${maximum}:${seconds}`;
+      let limiter = limiters.get(family);
+      if (!limiter) { limiter = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(maximum, `${seconds} s`), prefix: `${cachePrefix()}:limit:${family}`, timeout: 1500, ephemeralCache: false, analytics: false }); limiters.set(family, limiter); }
+      const result = await limiter.limit(key);
+      return result.success && result.reason !== "timeout";
+    }
+    if (process.env.NODE_ENV !== "development") return false;
+    const now = Date.now(), cutoff = now - seconds * 1000;
+    for (const [name, times] of local) if ((times.at(-1) ?? 0) <= cutoff) local.delete(name);
+    const times = (local.get(key) ?? []).filter(time => time > cutoff);
+    if (times.length >= maximum) return false;
+    times.push(now); local.set(key, times);
+    return true;
+  } catch { return false; }
 }

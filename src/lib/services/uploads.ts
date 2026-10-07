@@ -7,6 +7,7 @@ import { DomainError } from "./mutations";
 import { headObject, uploadUrl, copyObject } from "@/lib/storage";
 import { uploadSchema } from "@/lib/validation";
 import type { z } from "zod";
+import { invalidateUser } from "@/lib/cache";
 
 export async function requestUpload(userId: string, value: z.infer<typeof uploadSchema>) {
   await ownedSubject(userId, value.subjectId);
@@ -56,4 +57,5 @@ export async function confirmUpload(userId: string, id: string) {
     await tx.delete(s.pendingObjectDeletions).where(eq(s.pendingObjectDeletions.storageKey, finalKey));
     await tx.delete(s.pendingUploads).where(eq(s.pendingUploads.id, id));
   });
+  await invalidateUser(userId, ["subjects"]);
 }

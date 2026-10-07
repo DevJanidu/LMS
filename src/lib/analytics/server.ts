@@ -3,6 +3,7 @@ import { sql, and, eq, count } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { localDay, shiftDay, weekStart } from "./index";
+import { cachedUser, untilLocalMidnight } from "@/lib/cache";
 
 export interface AnalyticsSummary {
   sessionCount: number;
@@ -19,6 +20,9 @@ export interface AnalyticsSummary {
 }
 export async function learnerAnalytics(userId: string, timezone: string, firstDay: 0 | 1, thresholdMinutes: number, database?: Pick<ReturnType<typeof getDb>, "execute" | "select">, historicalLongest = 0): Promise<AnalyticsSummary> {
   const db = database ?? getDb(); const today = localDay(Date.now(), timezone), startWeek = weekStart(today, firstDay), startMonth = `${today.slice(0, 7)}-01`;
+  if (!database) return cachedUser(userId, "analytics", `${timezone}:${firstDay}:${thresholdMinutes}:${historicalLongest}:${today}`, Math.min(120, untilLocalMidnight(timezone)), () => learnerAnalytics(userId, timezone, firstDay, thresholdMinutes, db, historicalLongest));
+  const completedPromise = db.select({ count: count() }).from(s.topics).innerJoin(s.subjects, eq(s.topics.subjectId, s.subjects.id)).where(and(eq(s.subjects.userId, userId), eq(s.topics.archived, false), sql`(${s.topics.completedAt} AT TIME ZONE ${timezone})::date >= ${startMonth}::date`, sql`(${s.topics.completedAt} AT TIME ZONE ${timezone})::date <= ${today}::date`));
+  const totalPromise = db.select({ count: count() }).from(s.studySessions).where(and(eq(s.studySessions.userId, userId), eq(s.studySessions.status, "valid"), sql`${s.studySessions.durationSeconds} >= 60`));
   // Split each session at local midnights; AT TIME ZONE respects 23/25-hour days.
   // Paused time is distributed proportionally across its recorded UTC interval.
   const result = await db.execute<{ day: string; subject_id: string; seconds: string }>(sql`
@@ -55,7 +59,6 @@ export async function learnerAnalytics(userId: string, timezone: string, firstDa
   for (const day of valid) { run = previous && shiftDay(previous, 1) === day ? run + 1 : 1; longestStreak = Math.max(longestStreak, run); previous = day; }
   let cursor = daily[today] >= thresholdMinutes * 60 ? today : shiftDay(today, -1), currentStreak = 0;
   while (daily[cursor] >= thresholdMinutes * 60) { currentStreak++; cursor = shiftDay(cursor, -1); }
-  const [completed] = await db.select({ count: count() }).from(s.topics).innerJoin(s.subjects, eq(s.topics.subjectId, s.subjects.id)).where(and(eq(s.subjects.userId, userId), eq(s.topics.archived, false), sql`(${s.topics.completedAt} AT TIME ZONE ${timezone})::date >= ${startMonth}::date`, sql`(${s.topics.completedAt} AT TIME ZONE ${timezone})::date <= ${today}::date`));
-  const [sessionTotal] = await db.select({ count: count() }).from(s.studySessions).where(and(eq(s.studySessions.userId, userId), eq(s.studySessions.status, "valid"), sql`${s.studySessions.durationSeconds} >= 60`));
+  const [[completed], [sessionTotal]] = await Promise.all([completedPromise, totalPromise]);
   return { sessionCount: sessionTotal.count, subjectDaily, daily, todaySeconds, weekSeconds, monthSeconds, totalSeconds, currentStreak, longestStreak, topicsCompletedThisMonth: completed.count, subjectSeconds };
 }

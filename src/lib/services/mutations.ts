@@ -7,6 +7,7 @@ import { timerElapsed } from "@/lib/analytics";
 import { finishSnapshot } from "@/lib/timer";
 import { learnerAnalytics } from "@/lib/analytics/server";
 import { sql } from "drizzle-orm";
+import { invalidateUser, invalidateSettings } from "@/lib/cache";
 
 export class DomainError extends Error {}
 export async function mutate(userId: string, operations: Operation[]) {
@@ -180,6 +181,9 @@ export async function mutate(userId: string, operations: Operation[]) {
     await tx.update(s.users).set({ lastActiveAt: new Date() }).where(eq(s.users.id, userId));
     if (changesHistory) await preserveHighestStreak();
   });
+  await invalidateUser(userId, ["analytics", "subjects", "calendar"]);
+  if (operations.some(operation => operation.kind === "settings")) await invalidateSettings();
+  for (const operation of operations) if (operation.kind === "userStatus") await invalidateUser(operation.id, ["analytics", "subjects", "calendar"]);
   return { timerResult };
 }
 
@@ -188,6 +192,7 @@ export async function deleteAccount(userId: string) {
     await tx.select({ id: s.users.id }).from(s.users).where(eq(s.users.id, userId)).for("update");
     await tx.delete(s.users).where(eq(s.users.id, userId));
   });
+  await invalidateUser(userId, ["analytics", "subjects", "calendar"]);
 }
 /** Deliberate content inspection is outside the MVP. */
 export async function inspectLearnerContent(): Promise<never> { throw new DomainError("recordUnavailable"); }
