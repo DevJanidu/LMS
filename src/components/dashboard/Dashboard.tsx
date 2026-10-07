@@ -16,7 +16,7 @@ import { getOccurrences } from "@/lib/schedule";
 import { duration, formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
 import EmptyState from "@/components/studyflow/EmptyState";
-import { primaryLink } from "@/components/studyflow/WorkspaceShell";
+import { primaryLink } from "@/components/studyflow/styles";
 import SubjectCard from "@/components/subjects/SubjectCard";
 import WeeklyJourney from "./WeeklyJourney";
 import TodayPlan from "./TodayPlan";
@@ -163,7 +163,7 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
           <section className="min-w-0">
             <div className="sf-section-heading">
               <h2>{t("continueLearning")}</h2>
-              <Link href="/subjects">{t("redesign.allSubjects")} →</Link>
+              <Link href="/subjects">{t("redesign.allSubjects")} â†’</Link>
             </div>
             {ranked.length ? (
               <div className="sf-continue-grid">
@@ -223,7 +223,7 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
           <section className="sf-dashboard-recent">
             <div className="sf-section-heading">
               <h2>{t("recentSessions")}</h2>
-              <Link href="/study/history">{t("viewHistory")} →</Link>
+              <Link href="/study/history">{t("viewHistory")} â†’</Link>
             </div>
             {sessions.length ? (
               <ul className="sf-dashboard-session-list">

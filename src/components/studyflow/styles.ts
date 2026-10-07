@@ -1,0 +1,1 @@
+export const primaryLink = "sf-button sf-primary-action inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 text-sm font-medium text-white shadow-theme-xs transition hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-400";

@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { FileIcon, LinkIcon, PlayIcon } from "@/icons";
 import { useState } from "react";
+import { resourceDetail } from "@/app/[locale]/actions";
 import Pagination from "@/components/studyflow/Pagination";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
@@ -57,6 +58,20 @@ export default function Resources({
   const [editing, setEditing] = useState<Resource>();
   const [deleting, setDeleting] = useState<Resource>();
   const [opened, setOpened] = useState<Resource>();
+  const [loadingId, setLoadingId] = useState("");
+  const [error, setError] = useState("");
+  const openResource = async (resource: Resource, edit: boolean) => {
+    if (loadingId) return;
+    setLoadingId(resource.id); setError("");
+    try {
+      const detail = resource.type === "note" ? await resourceDetail(resource.id) : { ok: true as const, textContent: undefined };
+      if (!detail.ok) { setError(t(detail.error)); return; }
+      const value = { ...resource, textContent: detail.textContent };
+      if (edit) { setEditing(value); modal.openModal(); }
+      else { setOpened(value); preview.openModal(); }
+    } catch { setError(t("saveFailed")); }
+    finally { setLoadingId(""); }
+  };
   const resources = getResources(data)
     .filter(
       (item) =>
@@ -170,6 +185,7 @@ export default function Resources({
           <option value="name">{t("name")}</option>
         </SelectField>
       </div>
+      {error && <p role="alert" className="mb-4 text-sm text-error-600 dark:text-error-400">{error}</p>}
       {resources.length ? (
         <div className="sf-library space-y-3">
           {resources.slice((current - 1) * 20, current * 20).map((resource) => {
@@ -227,20 +243,16 @@ export default function Resources({
                       </a>
                     ) : (
                       <button
-                        onClick={() => {
-                          setOpened(resource);
-                          preview.openModal();
-                        }}
+                        disabled={Boolean(loadingId)}
+                        onClick={() => { void openResource(resource, false); }}
                         className="text-brand-600 dark:text-brand-300"
                       >
-                        {t("open")}
+                        {t(loadingId === resource.id ? "loading" : "open")}
                       </button>
                     )}
                     <button
-                      onClick={() => {
-                        setEditing(resource);
-                        modal.openModal();
-                      }}
+                      disabled={Boolean(loadingId)}
+                      onClick={() => { void openResource(resource, true); }}
                       className="text-gray-500 dark:text-gray-400"
                     >
                       {t("edit")}

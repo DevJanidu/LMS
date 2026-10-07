@@ -130,6 +130,7 @@ export interface AppSettings {
   storagePerUserMB: number;
 }
 export interface Workspace {
+  shellOnly?: boolean;
   scope?: string;
   adminLearnerAnalytics?: import("@/lib/analytics/server").AnalyticsSummary;
   analytics?: import("@/lib/analytics/server").AnalyticsSummary;

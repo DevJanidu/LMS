@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createUpload, finishUpload } from "@/app/[locale]/file-actions";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/modal";
@@ -32,6 +32,8 @@ export default function ResourceModal({
   const [subject, setSubject] = useState(resource?.subjectId ?? subjectId);
   const [topic, setTopic] = useState(resource?.topicId ?? "");
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+  const submitting = useRef(false);
   return (
     <Modal
       isOpen={isOpen}
@@ -42,6 +44,9 @@ export default function ResourceModal({
         className="space-y-4"
         onSubmit={async (event) => {
           event.preventDefault();
+          if (submitting.current) return;
+          submitting.current = true; setPending(true);
+          try {
           const fields = new FormData(event.currentTarget);
           const title = String(fields.get("title")).trim();
           const url = String(fields.get("url") ?? "").trim();
@@ -124,6 +129,7 @@ export default function ResourceModal({
             if (!saved.ok) { setError(t(saved.error)); return; }
           }
           onClose();
+          } finally { submitting.current = false; setPending(false); }
         }}
       >
         <Field
@@ -189,8 +195,8 @@ export default function ResourceModal({
             {error}
           </p>
         )}
-        <Button type="submit" disabled={!subject}>
-          {t("save")}
+        <Button type="submit" disabled={!subject || pending}>
+          {t(pending ? "loading" : "save")}
         </Button>
       </form>
     </Modal>

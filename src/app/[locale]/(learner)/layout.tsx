@@ -2,7 +2,7 @@ import { requireLearner } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { setRequestLocale } from "next-intl/server";
 import WorkspaceShell from "@/components/studyflow/WorkspaceShell";
-import { getWorkspace } from "@/lib/services/workspace";
+import { getShellWorkspace } from "@/lib/services/workspace";
 export default async function LearnerLayout({
   children,
   params,
@@ -14,5 +14,5 @@ export default async function LearnerLayout({
   setRequestLocale(locale);
   const user = await requireLearner();
   if (!user.onboardingCompletedAt) redirect({ href: "/onboarding", locale });
-  return <WorkspaceShell initial={await getWorkspace()}>{children}</WorkspaceShell>;
+  return <WorkspaceShell initial={await getShellWorkspace()}>{children}</WorkspaceShell>;
 }

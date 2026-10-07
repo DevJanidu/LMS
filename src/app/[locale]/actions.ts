@@ -4,23 +4,31 @@ import { z } from "zod";
 import { requireUser, requireLearner } from "@/lib/auth";
 import { operationsSchema } from "@/lib/validation/operations";
 import { mutate, deleteAccount, DomainError } from "@/lib/services/mutations";
-import { loadWorkspace, invalidateSettings } from "@/lib/services/workspace";
+import { loadWorkspace } from "@/lib/services/workspace";
 import { listSessions, sessionFilterSchema, getBlocksInRange, rangeSchema } from "@/lib/services/lists";
 
-export async function mutateWorkspace(input: unknown) {
+function workspaceOptions(scope: unknown, role: string) {
+  if (typeof scope === "string" && scope.startsWith("admin:")) {
+    const id = z.string().uuid().safeParse(scope.slice(6));
+    if (!id.success || role !== "super_admin") throw new DomainError("recordUnavailable");
+    return { adminTargetId: id.data };
+  }
+  return {};
+}
+export async function mutateWorkspace(input: unknown, scope?: unknown) {
   const user = await requireUser();
   const parsed = operationsSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "invalidInput" };
   try {
+    const options = workspaceOptions(scope, user.role);
     const result = await mutate(user.id, parsed.data);
-    if (parsed.data.some(operation => operation.kind === "settings")) invalidateSettings();
     revalidatePath("/", "layout");
-    return { ok: true as const, data: await loadWorkspace(user.id), ...result };
+    return { ok: true as const, data: await loadWorkspace(user.id, options), ...result };
   } catch (error) {
     return { ok: false as const, error: error instanceof DomainError ? error.message : "saveFailed" };
   }
 }
-export async function refreshWorkspace() { return loadWorkspace((await requireUser()).id); }
+export async function refreshWorkspace(scope?: unknown) { const user = await requireUser(); return loadWorkspace(user.id, workspaceOptions(scope, user.role)); }
 export async function querySessions(input: unknown) {
   const user = await requireLearner();
   const parsed = sessionFilterSchema.safeParse(input);
@@ -49,7 +57,9 @@ export async function completeOnboarding() {
 }
 export async function searchWorkspace(input: unknown) {
   const user = await requireLearner();
-  const query = z.string().trim().min(1).max(100).parse(input);
+  const parsed = z.string().trim().min(1).max(100).safeParse(input);
+  if (!parsed.success) return { subjects: [], topics: [], resources: [] };
+  const query = parsed.data;
   const { getDb } = await import("@/lib/db");
   const s = await import("@/lib/db/schema");
   const { and, eq, ilike } = await import("drizzle-orm");
@@ -62,4 +72,18 @@ export async function searchWorkspace(input: unknown) {
     db.select({ id: s.resources.id, title: s.resources.title }).from(s.resources).where(and(eq(s.resources.userId, user.id), ilike(s.resources.title, pattern))).limit(20),
   ]);
   return { subjects, topics, resources };
+}
+
+export async function resourceDetail(input: unknown) {
+  const user = await requireLearner();
+  const id = z.string().uuid().safeParse(input);
+  if (!id.success) return { ok: false as const, error: "invalidInput" };
+  const { getDb } = await import("@/lib/db");
+  const { resources } = await import("@/lib/db/schema");
+  const { and, eq } = await import("drizzle-orm");
+  try {
+    const [resource] = await getDb().select({ textContent: resources.textContent }).from(resources).where(and(eq(resources.id, id.data), eq(resources.userId, user.id)));
+    if (!resource) return { ok: false as const, error: "recordUnavailable" };
+    return { ok: true as const, textContent: resource.textContent ?? undefined };
+  } catch { return { ok: false as const, error: "saveFailed" }; }
 }

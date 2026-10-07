@@ -3,13 +3,14 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { mutateWorkspace, refreshWorkspace } from "@/app/[locale]/actions";
 import type { Workspace } from "@/types";
 import type { Operation } from "@/lib/validation/operations";
-import { operationsSchema } from "@/lib/validation/operations";
 let snapshot: Workspace | undefined;
 let error = "";
 let pending = 0;
 let queue: Promise<unknown> = Promise.resolve();
 let mounts = 0;
 let cleanupPoll: (() => void) | undefined;
+let revision = 0;
+let refreshing: Promise<void> | undefined;
 const listeners = new Set<() => void>();
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
 const emit = () => listeners.forEach(listener => listener());
@@ -52,12 +53,12 @@ function operations(before: Workspace, after: Workspace): unknown[] {
 }
 export function useWorkspace(initial: Workspace): Workspace {
   useEffect(() => {
-    if (!pending) { snapshot = initial; error = ""; emit(); }
+    if (!pending && (!initial.shellOnly || !snapshot || snapshot.user.id !== initial.user.id)) { revision++; snapshot = initial; error = ""; emit(); }
   }, [initial]);
   useEffect(() => {
     mounts++;
     if (!cleanupPoll) {
-      const refresh = async () => { if (!pending) { try { const next = await refreshWorkspace(); if (!pending) { snapshot = next; emit(); } } catch { error = "saveFailed"; emit(); } } };
+      const refresh = () => { if (!pending) void refreshSnapshot(); };
       const interval = setInterval(() => { void refresh(); }, 30000);
       window.addEventListener("focus", refresh);
       cleanupPoll = () => { clearInterval(interval); window.removeEventListener("focus", refresh); };
@@ -73,12 +74,11 @@ export function updateWorkspace(initial: Workspace, change: (data: Workspace) =>
   const after = change(before);
   const input = operations(before, after);
   if (!input.length) return Promise.resolve(true);
-  if (!operationsSchema.safeParse(input).success) { error = "invalidInput"; emit(); return Promise.resolve(false); }
-  snapshot = after; pending++; error = ""; emit();
+  revision++; snapshot = after; pending++; error = ""; emit();
   const task = queue.then(async () => {
     try {
-      const result = await mutateWorkspace(input);
-      if (!result.ok) { error = result.error; snapshot = await refreshWorkspace(); return false; }
+      const result = await mutateWorkspace(input, before.scope);
+      if (!result.ok) { error = result.error; snapshot = await refreshWorkspace(before.scope); return false; }
       if (pending === 1) snapshot = result.data;
       return true;
     } catch { error = "saveFailed"; snapshot = before; return false; }
@@ -88,12 +88,10 @@ export function updateWorkspace(initial: Workspace, change: (data: Workspace) =>
   return task;
 }
 export function runOperation(initial: Workspace, operation: Operation) {
-  const parsed = operationsSchema.safeParse([operation]);
-  if (!parsed.success) { error = "invalidInput"; emit(); return Promise.resolve({ ok: false as const, error }); }
   const task = queue.then(async () => {
-    pending++; error = ""; emit();
+    revision++; pending++; error = ""; emit();
     try {
-      const result = await mutateWorkspace(parsed.data);
+      const result = await mutateWorkspace([operation], initial.scope);
       if (result.ok) snapshot = result.data;
       else error = result.error;
       return result;
@@ -104,7 +102,16 @@ export function runOperation(initial: Workspace, operation: Operation) {
   return task;
 }
 export async function flushWorkspace() { await queue; return !error; }
-export async function reloadWorkspace() { await queue; snapshot = await refreshWorkspace(); emit(); }
+async function refreshSnapshot() {
+  if (refreshing) return refreshing;
+  const observed = revision, scope = snapshot?.scope;
+  refreshing = (async () => {
+    try { const next = await refreshWorkspace(scope); if (!pending && revision === observed) { snapshot = next; emit(); } }
+    catch { if (!pending && revision === observed) { error = "saveFailed"; emit(); } }
+  })();
+  try { await refreshing; } finally { refreshing = undefined; }
+}
+export async function reloadWorkspace() { await queue; await refreshSnapshot(); }
 export function newId(): string { return crypto.randomUUID(); }
 export function useNow(): number {
   const [now, setNow] = useState(0);

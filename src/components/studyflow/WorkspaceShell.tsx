@@ -49,8 +49,7 @@ const adminItems = [
   ["storage", "/admin/storage", FileIcon],
   ["settings", "/admin/settings", UserCircleIcon],
 ] as const;
-export const primaryLink =
-  "sf-button sf-primary-action inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 text-sm font-medium text-white shadow-theme-xs transition hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-400";
+import { primaryLink } from "./styles";
 /** Responsive learner/admin chrome with shared search and timer state. */
 export default function WorkspaceShell({
   children,

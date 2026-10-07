@@ -22,7 +22,7 @@ import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import { formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
 import FocusLauncher from "@/components/study/FocusLauncher";
-import { primaryLink } from "./WorkspaceShell";
+import { primaryLink } from "./styles";
 interface Props {
   initial: Workspace;
   admin: boolean;
@@ -96,7 +96,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
         >
           <SearchIcon />
           <span>{t("searchWorkspace")}</span>
-          <kbd aria-hidden="true">⌘ K</kbd>
+          <kbd aria-hidden="true">âŒ˜ K</kbd>
         </button>
         <div className="sf-header-actions">
           {!admin && (
@@ -215,7 +215,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
                 {t("theme")}
                 <span className="text-muted ms-auto">{t(theme)}</span>
               </button>
-              <button onClick={async () => { await signOut(); router.push("/login"); router.refresh(); }}>{t("logout")}</button>
+              <button onClick={async () => { await signOut(); router.replace("/login"); }}>{t("logout")}</button>
             </div>
           </details>
         </div>

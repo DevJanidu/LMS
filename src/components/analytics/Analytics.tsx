@@ -20,7 +20,7 @@ import PageHeader from "@/components/studyflow/PageHeader";
 import StatTile from "@/components/studyflow/StatTile";
 import EmptyState from "@/components/studyflow/EmptyState";
 import { SelectField } from "@/components/studyflow/FormFields";
-import { primaryLink } from "@/components/studyflow/WorkspaceShell";
+import { primaryLink } from "@/components/studyflow/styles";
 import StudyChart from "./StudyChart";
 import HeatmapCalendar from "./HeatmapCalendar";
 import StreakBadge from "./StreakBadge";
