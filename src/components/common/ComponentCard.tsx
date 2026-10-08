@@ -22,12 +22,12 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
       )}
     >
       {/* Card Header */}
-      <div className="sf-panel-heading px-6 py-5">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+      <div className="sf-panel-heading px-6 pt-6 pb-4">
+        <h3 className="text-h3 text-primary dark:text-primary">
           {title}
         </h3>
         {desc && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-body text-muted dark:text-secondary">
             {desc}
           </p>
         )}

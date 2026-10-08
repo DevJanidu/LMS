@@ -22,7 +22,7 @@ export default function ConfirmDialog({
   const [pending, setPending] = useState(false);
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
-      <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">
+      <p className="mb-6 text-body text-secondary dark:text-secondary">
         {description}
       </p>
       <div className="flex flex-wrap justify-end gap-3">

@@ -24,7 +24,7 @@ export default function PageBreadCrumb({ pageTitle }: Props) {
     return null;
   return (
     <nav aria-label={t("breadcrumb")} className="mb-3">
-      <ol className="flex flex-wrap items-center gap-2 text-theme-xs text-gray-400 dark:text-gray-500">
+      <ol className="flex flex-wrap items-center gap-2 text-small text-muted dark:text-muted">
         <li>
           <Link href={admin ? "/admin" : "/dashboard"}>
             {t(admin ? "admin" : "dashboard")}

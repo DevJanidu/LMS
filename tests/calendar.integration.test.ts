@@ -1,0 +1,84 @@
+import { afterAll, beforeAll, expect, it, vi } from "vitest";
+import { readFileSync, writeFileSync } from "node:fs";
+import { config } from "dotenv";
+import { and, eq, inArray } from "drizzle-orm";
+import type { CalendarCommand } from "@/lib/validation/calendar";
+vi.mock("next/server", () => ({ after: () => undefined }));
+vi.mock("next-intl/server", () => ({ getLocale: async () => "en" }));
+vi.mock("@/i18n/navigation", () => ({ redirect: () => { throw new Error("unauthorized"); } }));
+const enabled = process.env.RUN_CALENDAR_INTEGRATION === "true" && process.env.VERCEL_ENV !== "production";
+let fixture: { users: { id: string; email: string }[] };
+let db: ReturnType<typeof import("@/lib/db").getDb>;
+let schema: typeof import("@/lib/db/schema");
+let service: typeof import("@/lib/services/calendar");
+const ids: string[] = [], operations: string[] = [], measurements: unknown[] = [];
+beforeAll(async () => {
+  if (!enabled) return;
+  config({ path: ".env.local", quiet: true });
+  fixture = JSON.parse(readFileSync(".audit-local/fixtures.json", "utf8"));
+  if (fixture.users.some(u => !u.email.startsWith("audit-"))) throw new Error("Only isolated audit fixture accounts may be used.");
+  db = (await import("@/lib/db")).getDb(); schema = await import("@/lib/db/schema"); service = await import("@/lib/services/calendar");
+  const actors = await db.select({ id: schema.users.id, email: schema.users.email }).from(schema.users).where(inArray(schema.users.id, fixture.users.slice(0, 2).map(u => u.id)));
+  expect(actors).toHaveLength(2);
+  for (const actor of actors) expect(actor.email).toBe(fixture.users.find(u => u.id === actor.id)?.email);
+}, 60000);
+afterAll(async () => {
+  if (!enabled || !db || !fixture) return;
+  if (ids.length) await db.delete(schema.scheduleBlocks).where(and(inArray(schema.scheduleBlocks.id, ids), inArray(schema.scheduleBlocks.userId, fixture.users.slice(0, 2).map(u => u.id))));
+  if (operations.length) await db.delete(schema.calendarMutations).where(and(inArray(schema.calendarMutations.id, operations), inArray(schema.calendarMutations.userId, fixture.users.slice(0, 2).map(u => u.id))));
+  writeFileSync(".audit-local/calendar-service-after.json", JSON.stringify(measurements, null, 2));
+}, 60000);
+const operationId = () => { const id = crypto.randomUUID(); operations.push(id); return id; };
+const newId = () => { const id = crypto.randomUUID(); ids.push(id); return id; };
+it.skipIf(!enabled)("persists scoped recurrence edits, resizes, idempotent writes and protects ownership/concurrency", async () => {
+  const userId = fixture.users[0].id;
+  const value = { id: newId(), title: "Calendar integration fixture", startsAt: "2026-10-05T09:00:00.000Z", endsAt: "2026-10-05T10:00:00.000Z", timezone: "Europe/London", repeat: "weekly" as const, weekdays: [0, 1, 2, 3, 4, 5, 6], color: "brand" as const, exceptions: [] };
+  const mutation = { operationId: operationId(), command: { kind: "create" as const, value } };
+  const start = performance.now();
+  const [a, b] = await Promise.all([service.mutateCalendar(userId, mutation), service.mutateCalendar(userId, mutation)]);
+  expect(a).toEqual(b);
+  expect(await db.select().from(schema.scheduleBlocks).where(eq(schema.scheduleBlocks.id, value.id))).toHaveLength(1);
+  measurements.push({ operation: "create with duplicate concurrent retry", ms: Math.round(performance.now() - start) });
+  let block = a.blocks[0];
+  const send = async (command: CalendarCommand, owner = userId, version = block.updatedAt) => {
+    const t = performance.now(), result = await service.mutateCalendar(owner, { operationId: operationId(), command, expectedUpdatedAt: version });
+    measurements.push({ operation: command.kind, scope: command.kind === "create" ? "new" : command.scope, ms: Math.round(performance.now() - t) });
+    return result;
+  };
+  const moved = { kind: "move" as const, id: value.id, date: "2026-10-07", scope: "one" as const, startsAt: "2026-12-05T14:00:00.000Z", endsAt: "2026-12-05T16:00:00.000Z" };
+  block = (await send(moved)).blocks[0];
+  const restored = await service.getCalendarBlock(userId, value.id);
+  expect(restored.exceptions[0]).toMatchObject({ date: moved.date, startsAt: moved.startsAt, endsAt: moved.endsAt });
+  const { getScheduleBlocksInRange } = await import("@/lib/services/lists");
+  expect((await getScheduleBlocksInRange(userId, { from: "2026-12-05", to: "2026-12-06" })).find(b => b.id === value.id)?.exceptions[0].date).toBe(moved.date);
+  await expect(send({ kind: "delete", id: value.id, date: "2026-10-08", scope: "all" }, fixture.users[1].id)).rejects.toThrow("recordUnavailable");
+  const races = await Promise.allSettled([
+    send({ ...moved, date: "2026-10-10", startsAt: "2026-10-10T14:00:00.000Z", endsAt: "2026-10-10T15:00:00.000Z" }),
+    send({ ...moved, date: "2026-10-10", startsAt: "2026-10-10T16:00:00.000Z", endsAt: "2026-10-10T17:00:00.000Z" }),
+  ]);
+  expect(races.filter(r => r.status === "fulfilled")).toHaveLength(1);
+  expect(races.filter(r => r.status === "rejected")).toHaveLength(1);
+  const winner = races.find(r => r.status === "fulfilled")!;
+  if (winner.status === "fulfilled") block = winner.value.blocks[0];
+  const staleVersion = block.updatedAt;
+  block = (await send({ kind: "delete", id: value.id, date: "2026-10-09", scope: "one" })).blocks[0];
+  await expect(send(moved, userId, staleVersion)).rejects.toThrow("planner.conflict");
+  expect((await service.getCalendarBlock(userId, value.id)).exceptions.some(e => e.date === "2026-10-09" && e.cancelled)).toBe(true);
+  const futureId = newId();
+  const split = await send({ kind: "move", id: value.id, date: "2026-10-08", scope: "future", newSeriesId: futureId, startsAt: "2026-10-08T15:00:00.000Z", endsAt: "2026-10-08T16:00:00.000Z" });
+  expect((await service.getCalendarBlock(userId, value.id)).recurrenceUntil).toBe("2026-10-07");
+  block = split.blocks.find(b => b.id === futureId)!;
+  expect((await service.getCalendarBlock(userId, futureId)).exceptions.some(e => e.date === "2026-10-09" && e.cancelled)).toBe(true);
+  expect((await service.getCalendarBlock(userId, value.id)).exceptions.some(e => e.date === moved.date && e.startsAt === moved.startsAt)).toBe(true);
+  expect((await getScheduleBlocksInRange(userId, { from: "2026-12-05", to: "2026-12-06" })).some(b => b.id === value.id)).toBe(true);
+  block = (await send({ kind: "move", id: futureId, date: "2026-10-08", scope: "all", startsAt: "2026-10-08T16:00:00.000Z", endsAt: "2026-10-08T17:00:00.000Z" })).blocks[0];
+  expect((await service.getCalendarBlock(userId, futureId)).startsAt).toBe("2026-10-08T16:00:00.000Z");
+  block = (await send({ kind: "delete", id: futureId, date: "2026-10-10", scope: "future" })).blocks[0];
+  expect(block.recurrenceUntil).toBe("2026-10-09");
+  await send({ kind: "delete", id: futureId, date: "2026-10-08", scope: "all" });
+  await expect(service.getCalendarBlock(userId, futureId)).rejects.toThrow("recordUnavailable");
+  const [foreignSubject] = await db.select({ id: schema.subjects.id }).from(schema.subjects).where(eq(schema.subjects.userId, fixture.users[1].id)).limit(1);
+  const forbiddenId = newId();
+  await expect(send({ kind: "create", value: { ...value, id: forbiddenId, subjectId: foreignSubject.id } })).rejects.toThrow("recordUnavailable");
+  expect(await db.select().from(schema.scheduleBlocks).where(eq(schema.scheduleBlocks.id, forbiddenId))).toHaveLength(0);
+}, 180000);

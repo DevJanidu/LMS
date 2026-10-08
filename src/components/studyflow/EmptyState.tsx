@@ -16,11 +16,11 @@ export default function EmptyState({
   return (
     <div className="sf-empty px-6 py-12 text-center">
       <div aria-hidden="true" className="sf-empty-mark"><span /><span /><span /></div>
-      <Heading className="text-lg font-medium text-gray-800 dark:text-white">
+      <Heading className="text-h3 text-primary dark:text-primary">
         {title}
       </Heading>
       {description && (
-        <p className="mx-auto mt-2 max-w-md text-sm text-gray-600 dark:text-gray-400">
+        <p className="mx-auto mt-2 max-w-md text-body text-secondary dark:text-secondary">
           {description}
         </p>
       )}

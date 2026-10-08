@@ -56,7 +56,7 @@ export default function TimerWidget({
         action={
           <Link
             href="/study/history"
-            className="text-sm text-brand-600 dark:text-brand-300"
+            className="text-body text-brand-600 dark:text-brand-300"
           >
             {t("viewHistory")}
           </Link>
@@ -83,7 +83,7 @@ export default function TimerWidget({
             />
           ) : timer ? (
             <div className="space-y-6 text-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-body text-muted dark:text-secondary">
                 {data.topics.find((item) => item.id === timer.topicId)?.title ??
                   t("focusedTime")}
               </p>
@@ -94,14 +94,14 @@ export default function TimerWidget({
               >
                 {clockTime(elapsed)}
               </output>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-body text-muted dark:text-secondary">
                 {t(timer.pausedAt ? "paused" : "timerRunning")}
               </p>
-              {timer.focusGoal && <div className="sf-focus-goal"><p className="sf-eyebrow">{t("redesign.todayGoal")}</p><p className="mt-2 text-base">{timer.focusGoal}</p></div>}
+              {timer.focusGoal && <div className="sf-focus-goal"><p className="sf-eyebrow">{t("redesign.todayGoal")}</p><p className="mt-2 text-body">{timer.focusGoal}</p></div>}
               {checkpoint && (
                 <div
                   role="alert"
-                  className="rounded-xl bg-warning-50 p-4 text-sm text-warning-700 dark:bg-warning-500/15 dark:text-warning-300"
+                  className="rounded-xl bg-warning-50 p-4 text-body text-warning-700 dark:bg-warning-500/15 dark:text-warning-300"
                 >
                   <p>{t("stillStudying")}</p>
                   <p className="mt-2">{t("timerCapped")}</p>
@@ -152,7 +152,7 @@ export default function TimerWidget({
               <Button type="submit" disabled={!subjectId || pending} className="w-full">
                 {t("start")}
               </Button>
-              <p className="text-center text-theme-xs text-gray-400 dark:text-gray-500">
+              <p className="text-center text-small text-muted dark:text-muted">
                 {t("timerPersistence")}
               </p>
             </form>
@@ -160,7 +160,7 @@ export default function TimerWidget({
           {message && (
             <p
               role="status"
-              className="rounded-xl bg-brand-50 p-4 text-sm text-brand-700 dark:bg-brand-500/15 dark:text-brand-300"
+              className="rounded-xl bg-brand-50 p-4 text-body text-brand-700 dark:bg-brand-500/15 dark:text-brand-300"
             >
               {message}
             </p>

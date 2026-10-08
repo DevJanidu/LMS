@@ -61,16 +61,16 @@ export default function OnboardingWizard({ initial, initialStep = 0 }: Props) {
 
   return (
     <div className="sf-onboarding mx-auto w-full max-w-lg">
-      <p className="mb-3 text-theme-xs text-brand-600 dark:text-brand-300">{t("stepOf", { step: step + 1, total: 5 })}</p>
+      <p className="mb-3 text-small text-brand-600 dark:text-brand-300">{t("stepOf", { step: step + 1, total: 5 })}</p>
       <ProgressBar value={(step + 1) * 20} label={t("onboarding")} />
       <div className="mt-7"><PageHeader title={t(keys[step], { appName: APP_NAME })} description={t("onboardingDescription")} /></div>
       <form className="space-y-6" onSubmit={event => { event.preventDefault(); void next(false); }}>
-        {step === 0 && <p className="text-sm leading-relaxed text-gray-500 dark:text-gray-400">{t("welcomeHelp")}</p>}
+        {step === 0 && <p className="text-body text-muted dark:text-secondary">{t("welcomeHelp")}</p>}
         {step === 1 && <SelectField label={t("learningContext")} value={form.learningContext} onChange={event => update("learningContext", event.target.value as FormState["learningContext"])}>{["school", "university", "exam", "selfStudy", "other"].map(key => <option key={key} value={key}>{t(`contexts.${key}`)}</option>)}</SelectField>}
         {step === 2 && <><Field label={t("subjectTitle")} value={form.subjectTitle} onChange={event => update("subjectTitle", event.target.value)} maxLength={150} /><div className="flex flex-wrap gap-2">{["maths", "science", "english", "programming"].map(key => <Button type="button" key={key} variant="outline" size="sm" onClick={() => update("subjectTitle", t(`examples.${key}`))}>{t(`examples.${key}`)}</Button>)}</div></>}
-        {step === 3 && (form.subjectTitle.trim() ? <TextField label={t("onePerLine")} value={form.topics} onChange={event => update("topics", event.target.value)} /> : <p className="text-sm">{t("topicsLater")}</p>)}
+        {step === 3 && (form.subjectTitle.trim() ? <TextField label={t("onePerLine")} value={form.topics} onChange={event => update("topics", event.target.value)} /> : <p className="text-body">{t("topicsLater")}</p>)}
         {step === 4 && <Field label={t("weeklyGoalHours")} type="number" min={0} max={168} step={0.5} value={form.weeklyTargetHours} onChange={event => update("weeklyTargetHours", Number(event.target.value))} />}
-        {error && <p role="alert" className="text-sm text-error-600 dark:text-error-400">{error}</p>}
+        {error && <p role="alert" className="text-body text-error-600 dark:text-error-400">{error}</p>}
         <div className="flex gap-3">
           <Button type="submit" className="flex-1" disabled={pending}>{t(step === 4 ? "goDashboard" : "continue")}</Button>
           {step > 0 && <Button type="button" variant="outline" onClick={() => { setError(""); setStep(current => current - 1); }} disabled={pending}>{t("back")}</Button>}

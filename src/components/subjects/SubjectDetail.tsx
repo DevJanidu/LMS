@@ -70,7 +70,7 @@ export default function SubjectDetail({ initial, id }: Props) {
             }
           />
           <div className="sf-panel mb-6 p-6">
-            <div className="mb-3 flex flex-wrap justify-between gap-3 text-sm">
+            <div className="mb-3 flex flex-wrap justify-between gap-3 text-body">
               <span>
                 {subjectProgress(topics)}% ·{" "}
                 {t("topicCount", {
@@ -129,7 +129,7 @@ export default function SubjectDetail({ initial, id }: Props) {
                 aria-selected={tab === key}
                 aria-controls={`panel-${key}`}
                 onClick={() => setTab(key)}
-                className={`border-b-2 px-5 py-3 text-sm ${tab === key ? "border-brand-500 text-brand-600 dark:border-brand-400 dark:text-brand-300" : "border-transparent text-gray-500 dark:text-gray-400"}`}
+                className={`border-b-2 px-5 py-3 text-body ${tab === key ? "border-brand-500 text-brand-600 dark:border-brand-400 dark:text-brand-300" : "border-transparent text-muted dark:text-secondary"}`}
               >
                 {t(key)}
               </button>

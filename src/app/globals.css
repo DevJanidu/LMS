@@ -16,8 +16,6 @@ html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-th
   to { clip-path: circle(0px at var(--sf-theme-reveal-x) var(--sf-theme-reveal-y)); }
 }
 @theme {
-  --font-*: initial;
-  --font-outfit: var(--font-geist), Arial, sans-serif;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -29,22 +27,48 @@ html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-th
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
 
-  --text-title-2xl: 72px;
-  --text-title-2xl--line-height: 90px;
-  --text-title-xl: 60px;
-  --text-title-xl--line-height: 72px;
-  --text-title-lg: 48px;
-  --text-title-lg--line-height: 60px;
-  --text-title-md: 36px;
-  --text-title-md--line-height: 44px;
-  --text-title-sm: 30px;
-  --text-title-sm--line-height: 38px;
-  --text-theme-xl: 20px;
-  --text-theme-xl--line-height: 30px;
-  --text-theme-sm: 15px;
-  --text-theme-sm--line-height: 20px;
-  --text-theme-xs: 13px;
-  --text-theme-xs--line-height: 18px;
+  /* Single type scale: size, leading, weight and tracking travel together. */
+  --text-*: initial;
+  --text-display: 2rem;
+  --text-display--line-height: 2.5rem;
+  --text-display--font-weight: 600;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: 1.75rem;
+  --text-h1--line-height: 2.25rem;
+  --text-h1--font-weight: 600;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h2: 1.25rem;
+  --text-h2--line-height: 1.75rem;
+  --text-h2--font-weight: 600;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h3: 1rem;
+  --text-h3--line-height: 1.5rem;
+  --text-h3--font-weight: 600;
+  --text-h3--letter-spacing: -0.005em;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.375rem;
+  --text-body--font-weight: 400;
+  --text-body--letter-spacing: 0;
+  --text-body-strong: 0.875rem;
+  --text-body-strong--line-height: 1.375rem;
+  --text-body-strong--font-weight: 500;
+  --text-body-strong--letter-spacing: 0;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.25rem;
+  --text-small--font-weight: 400;
+  --text-small--letter-spacing: 0;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-caption--font-weight: 500;
+  --text-caption--letter-spacing: 0;
+  --text-overline: 0.6875rem;
+  --text-overline--line-height: 1rem;
+  --text-overline--font-weight: 600;
+  --text-overline--letter-spacing: 0.06em;
+  --text-stat: 1.75rem;
+  --text-stat--line-height: 2rem;
+  --text-stat--font-weight: 600;
+  --text-stat--letter-spacing: -0.02em;
 
   --color-current: currentColor;
   --color-transparent: transparent;
@@ -180,9 +204,27 @@ html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-th
   --z-index-999999: 999999;
 }
 
-@layer base { *, ::before, ::after { border-color: var(--border); } body { @apply font-outfit; background: var(--background); color: var(--text-primary); } button:not(:disabled), summary, select { cursor: pointer; } dialog:not([open]) { display: none; } }
+@layer base { *, ::before, ::after { border-color: var(--border); } body { background: var(--background); color: var(--text-primary); } button:not(:disabled), summary, select { cursor: pointer; } dialog:not([open]) { display: none; } }
 
 /* Reserve FullCalendar's time gutter before its measurement effect runs. */
 .planner-timetable [role="row"]:has(.planner-day-header) > :first-child,
 .planner-timetable [role="rowheader"],
 .planner-timetable :has(> .planner-time-label) { min-width: 3.5rem; }
+
+@layer base {
+  html, body {
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01", "tnum";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  html { font-size: 100%; }
+  body { @apply text-body; }
+  button, input, textarea, select, kbd, code, pre, [role="tooltip"] { font-family: inherit; }
+  strong, b, th { font-weight: 600; }
+}
+@utility text-overline { text-transform: uppercase; }
+@utility text-stat { font-variant-numeric: tabular-nums; font-feature-settings: "cv11", "ss01", "tnum"; }
+@media (max-width: 639px) {
+  :root { --text-display: 1.625rem; --text-h1: 1.5rem; }
+}

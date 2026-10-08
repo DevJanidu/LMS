@@ -206,7 +206,7 @@ export default function Resources({
           <option value="name">{t("name")}</option>
         </SelectField>
       </div>
-      {error && <p role="alert" className="mb-4 text-sm text-error-600 dark:text-error-400">{error}</p>}
+      {error && <p role="alert" className="mb-4 text-body text-error-600 dark:text-error-400">{error}</p>}
       {resources.length ? (
         <div aria-busy={loading} className="sf-library space-y-3">
           {resources.map((resource) => {
@@ -238,11 +238,11 @@ export default function Resources({
                   )}
                 </div>
                 <div className="sf-resource-body p-5">
-                  <span className="text-theme-xs font-medium text-brand-600 uppercase dark:text-brand-300">
+                  <span className="text-overline text-muted">
                     {t(resource.type)}
                   </span>
-                  <h2 className="mt-2 font-medium">{resource.title}</h2>
-                  <p className="mt-2 text-theme-xs text-gray-500 dark:text-gray-400">
+                  <h2 className="mt-2 text-h3">{resource.title}</h2>
+                  <p className="mt-2 text-small text-muted dark:text-secondary">
                     {
                       data.subjects.find(
                         (item) => item.id === resource.subjectId,
@@ -252,7 +252,7 @@ export default function Resources({
                       ? ` · ${(resource.sizeBytes / 1024 / 1024).toFixed(1)} MB`
                       : ""}
                   </p>
-                  <div className="sf-resource-actions flex gap-4 text-sm">
+                  <div className="sf-resource-actions flex gap-4 text-body">
                     {resource.type === "file" ? (<a href={`/api/files/${resource.id}`} target="_blank" rel="noopener noreferrer" className="text-brand-600 dark:text-brand-300">{t("open")}</a>) : resource.url && /^https?:\/\//i.test(resource.url) ? (
                       <a
                         href={resource.url}
@@ -274,7 +274,7 @@ export default function Resources({
                     <button
                       disabled={Boolean(loadingId)}
                       onClick={() => { void openResource(resource, true); }}
-                      className="text-gray-500 dark:text-gray-400"
+                      className="text-muted dark:text-secondary"
                     >
                       {t("edit")}
                     </button>

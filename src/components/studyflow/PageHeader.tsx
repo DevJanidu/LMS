@@ -11,11 +11,11 @@ export default function PageHeader({ title, description, action }: Props) {
     <header className="sf-page-header mb-8 flex flex-wrap items-center justify-between gap-4">
       <div>
         <PageBreadCrumb pageTitle={title} />
-        <h1 className="text-title-sm font-semibold tracking-tight text-gray-900 dark:text-white">
+        <h1 className="text-h1 text-primary dark:text-primary">
           {title}
         </h1>
         {description && (
-          <p className="mt-2 max-w-2xl text-base text-gray-500 dark:text-gray-400">
+          <p className="mt-2 max-w-2xl text-body text-muted dark:text-secondary">
             {description}
           </p>
         )}

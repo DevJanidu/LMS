@@ -182,7 +182,7 @@ export default function ResourceModal({
               type="file"
               accept=".pdf,.png,.jpg,.jpeg,.docx,.pptx,.xlsx,.txt"
             />
-            <p className="text-theme-xs text-gray-500 dark:text-gray-400">
+            <p className="text-small text-muted dark:text-secondary">
               {t("fileLimit", { limit: data.settings.maxFileSizeMB })}
             </p>
           </>
@@ -190,7 +190,7 @@ export default function ResourceModal({
         {error && (
           <p
             role="alert"
-            className="text-sm text-error-600 dark:text-error-400"
+            className="text-body text-error-600 dark:text-error-400"
           >
             {error}
           </p>

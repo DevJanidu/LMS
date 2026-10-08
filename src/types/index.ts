@@ -77,6 +77,7 @@ export interface ActiveTimer {
   confirmedUntilSeconds: number;
 }
 export interface ScheduleException {
+  overrides?: { subjectId?: string | null; topicId?: string | null; note?: string | null };
   date: string;
   cancelled: boolean;
   startsAt?: string;

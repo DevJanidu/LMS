@@ -32,6 +32,9 @@ export function getOccurrences(
         });
       continue;
     }
+    const startClock = wallTime(block.startsAt, block.timezone).slice(11);
+    const endClock = wallTime(block.endsAt, block.timezone).slice(11);
+    const exceptionDays = new Set(block.exceptions.map(item => item.date));
     for (let day = from; day <= to; day = shiftDay(day, 1)) {
       const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
       if (
@@ -40,10 +43,7 @@ export function getOccurrences(
         !block.weekdays.includes(weekday)
       )
         continue;
-      const exception = block.exceptions.find((item) => item.date === day);
-      if (exception) continue;
-      const startClock = wallTime(block.startsAt, block.timezone).slice(11);
-      const endClock = wallTime(block.endsAt, block.timezone).slice(11);
+      if (exceptionDays.has(day)) continue;
       result.push({
         block,
         date: day,
@@ -77,7 +77,8 @@ export function getOccurrences(
       const displayedDay = localDay(startsAt, block.timezone);
       if (displayedDay < from || displayedDay > to) continue;
       result.push({
-        block: { ...block, ...exception, id: block.id },
+        block: { ...block, ...Object.fromEntries(Object.entries(exception).filter(([, value]) => value !== undefined)),
+          ...Object.fromEntries(Object.entries(exception.overrides ?? {}).map(([key, value]) => [key, value ?? undefined])), id: block.id },
         date: exception.date,
         title: exception.title ?? block.title,
         startsAt,

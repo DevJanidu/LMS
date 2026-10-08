@@ -112,7 +112,7 @@ export default function SubjectModal({
         {error && (
           <p
             role="alert"
-            className="text-sm text-error-600 dark:text-error-400"
+            className="text-body text-error-600 dark:text-error-400"
           >
             {error}
           </p>

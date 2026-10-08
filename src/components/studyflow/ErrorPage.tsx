@@ -11,11 +11,11 @@ interface Props {
 export default function ErrorPage({ code }: Props) {
   const t = useTranslations("studyflow");
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 p-6 text-gray-800 dark:bg-gray-950 dark:text-gray-200">
-      <p className="mb-6 text-xl font-semibold text-brand-600 dark:text-brand-300">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 p-6 text-primary dark:bg-gray-950 dark:text-primary">
+      <p className="mb-6 text-h2 text-brand-600 dark:text-brand-300">
         {APP_NAME}
       </p>
-      <p className="mb-5 text-title-xl font-semibold text-gray-600 dark:text-gray-400">
+      <p className="mb-5 text-h1 text-secondary dark:text-secondary">
         {code}
       </p>
       <EmptyState

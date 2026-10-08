@@ -13,6 +13,7 @@ import Field, {
 } from "@/components/studyflow/FormFields";
 import EmptyState from "@/components/studyflow/EmptyState";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
+import { Checkbox } from "@/components/ui/Checkbox";
 interface Props {
   data: Workspace;
   subjectId: string;
@@ -109,7 +110,7 @@ export default function TopicList({ data, subjectId }: Props) {
         </Button>
       </form>
       {error && (
-        <p role="alert" className="text-sm text-error-600 dark:text-error-400">
+        <p role="alert" className="text-body text-error-600 dark:text-error-400">
           {error}
         </p>
       )}
@@ -131,20 +132,19 @@ export default function TopicList({ data, subjectId }: Props) {
           >
             <span
               aria-hidden="true"
-              className="cursor-grab text-gray-400 dark:text-gray-500"
+              className="cursor-grab text-muted dark:text-muted"
             >
               ⠿
             </span>
             <label className="flex min-w-0 flex-1 items-center gap-3">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={topic.status === "completed"}
-                className="size-4 accent-brand-500"
+                className="size-4"
                 aria-label={`${t("completed")}: ${topic.title}`}
-                onChange={(event) =>
+                onCheckedChange={(checked) =>
                   change(topic.id, {
-                    status: event.target.checked ? "completed" : "notStarted",
-                    completedAt: event.target.checked
+                    status: checked === true ? "completed" : "notStarted",
+                    completedAt: checked === true
                       ? new Date().toISOString()
                       : undefined,
                   })
@@ -153,14 +153,14 @@ export default function TopicList({ data, subjectId }: Props) {
               <span
                 className={
                   topic.status === "completed"
-                    ? "text-sm text-gray-400 line-through dark:text-gray-500"
-                    : "text-sm"
+                    ? "text-body text-muted line-through dark:text-muted"
+                    : "text-body"
                 }
               >
                 {topic.title}
               </span>
             </label>
-            <span className="text-theme-xs text-gray-500 dark:text-gray-400">
+            <span className="text-small text-muted dark:text-secondary">
               {t(topic.status)}
               {topic.targetDate && ` · ${topic.targetDate}`}
             </span>
@@ -169,7 +169,7 @@ export default function TopicList({ data, subjectId }: Props) {
                 disabled={pending || index === 0}
                 aria-label={t("moveUp", { title: topic.title })}
                 onClick={() => reorder(topic.id, topics[index - 1].id)}
-                className="rounded p-1 text-gray-500 disabled:opacity-30 dark:text-gray-400"
+                className="rounded p-1 text-muted disabled:opacity-30 dark:text-secondary"
               >
                 ↑
               </button>
@@ -177,7 +177,7 @@ export default function TopicList({ data, subjectId }: Props) {
                 disabled={pending || index === topics.length - 1}
                 aria-label={t("moveDown", { title: topic.title })}
                 onClick={() => reorder(topic.id, topics[index + 1].id)}
-                className="rounded p-1 text-gray-500 disabled:opacity-30 dark:text-gray-400"
+                className="rounded p-1 text-muted disabled:opacity-30 dark:text-secondary"
               >
                 ↓
               </button>
@@ -186,13 +186,13 @@ export default function TopicList({ data, subjectId }: Props) {
                   setEditing(topic);
                   editor.openModal();
                 }}
-                className="text-theme-xs text-brand-600 dark:text-brand-300"
+                className="text-small text-brand-600 dark:text-brand-300"
               >
                 {t("edit")}
               </button>
               <button
                 onClick={() => setDeleting(topic)}
-                className="text-theme-xs text-error-600 dark:text-error-400"
+                className="text-small text-error-600 dark:text-error-400"
               >
                 {t("delete")}
               </button>

@@ -30,6 +30,7 @@ export async function cleanupStorage() {
 }
 export async function retainData() {
   const db = getDb();
+  await db.delete(s.calendarMutations).where(lt(s.calendarMutations.createdAt, new Date(Date.now() - 30 * 86400000)));
   await db.delete(s.verifications).where(lt(s.verifications.expiresAt, new Date()));
   await db.delete(s.authSessions).where(lt(s.authSessions.expiresAt, new Date()));
   await db.delete(s.notifications).where(lt(s.notifications.createdAt, new Date(Date.now() - 90 * 86400000)));
@@ -51,7 +52,7 @@ export async function generateReminders() {
     if (prefs.find(row => row.userId === user.id)?.reminders === false) continue;
     const today = localDay(now, user.timezone), tomorrow = shiftDay(today, 1);
     const records: (typeof s.notifications.$inferInsert)[] = [];
-    const plans: ScheduleBlock[] = blocks.filter(row => row.userId === user.id).map(row => ({ id: row.id, userId: row.userId, subjectId: row.subjectId ?? undefined, topicId: row.topicId ?? undefined, title: row.title, startsAt: row.startsAt.toISOString(), endsAt: row.endsAt.toISOString(), repeat: row.recurrenceRule ? "weekly" : "once", weekdays: row.recurrenceRule?.weekdays ?? [], recurrenceUntil: row.recurrenceRule?.until, timezone: row.timezone, color: row.displayColor as SubjectColor, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(), exceptions: exceptions.filter(e => e.blockId === row.id).map(e => ({ date: e.date, cancelled: e.isCancelled, title: e.newTitle ?? undefined, note: e.newNote ?? undefined, color: (e.newColor ?? undefined) as SubjectColor | undefined, subjectId: e.newSubjectId ?? undefined, topicId: e.newTopicId ?? undefined, startsAt: e.newStartsAt?.toISOString(), endsAt: e.newEndsAt?.toISOString() })) }));
+    const plans: ScheduleBlock[] = blocks.filter(row => row.userId === user.id).map(row => ({ id: row.id, userId: row.userId, subjectId: row.subjectId ?? undefined, topicId: row.topicId ?? undefined, title: row.title, startsAt: row.startsAt.toISOString(), endsAt: row.endsAt.toISOString(), repeat: row.recurrenceRule ? "weekly" : "once", weekdays: row.recurrenceRule?.weekdays ?? [], recurrenceUntil: row.recurrenceRule?.until, timezone: row.timezone, color: row.displayColor as SubjectColor, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(), exceptions: exceptions.filter(e => e.blockId === row.id).map(e => ({ date: e.date, cancelled: e.isCancelled, overrides: e.overrides ?? undefined, title: e.newTitle ?? undefined, note: e.newNote ?? undefined, color: (e.newColor ?? undefined) as SubjectColor | undefined, subjectId: e.newSubjectId ?? undefined, topicId: e.newTopicId ?? undefined, startsAt: e.newStartsAt?.toISOString(), endsAt: e.newEndsAt?.toISOString() })) }));
     for (const occurrence of getOccurrences(plans, shiftDay(today, -1), tomorrow)) {
       if (Date.parse(occurrence.startsAt) < now || Date.parse(occurrence.startsAt) > now + 15 * 60000) continue;
       records.push({ userId: user.id, type: "block", title: occurrence.title, body: "", scheduledFor: new Date(occurrence.startsAt), deduplicationKey: `block:${occurrence.block.id}:${occurrence.date}` });

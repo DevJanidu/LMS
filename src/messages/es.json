@@ -68,6 +68,14 @@
     "noBlocksToday": "Your day is open",
     "scheduleStudy": "Programar estudio",
     "plannerDay": "Día",
+    "planner": {
+      "allSeries": "Todos los eventos de la serie",
+      "moveRecurring": "Mover horario de estudio recurrente",
+      "dropDelete": "Soltar para eliminar",
+      "retry": "Reintentar",
+      "loading": "Cargando eventos del calendario",
+      "conflict": "Este horario cambió en otro lugar. Revisa los valores actuales e inténtalo de nuevo."
+    },
     "upcomingDeadlines": "Upcoming deadlines",
     "noDeadlines": "No deadlines ahead. Learn at your own pace.",
     "continueLearning": "Continue where you left off",

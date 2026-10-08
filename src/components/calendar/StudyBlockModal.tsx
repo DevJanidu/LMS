@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Modal } from "@/components/ui/modal";
@@ -10,12 +10,15 @@ import Field, {
 } from "@/components/studyflow/FormFields";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 import { getSubjects } from "@/lib/workspace/queries";
-import { newId, updateWorkspace } from "@/lib/workspace/store";
+import { newId } from "@/lib/workspace/store";
+import type { CalendarCommand } from "@/lib/validation/calendar";
 import { localDay, shiftDay, wallTime, zonedToUtc } from "@/lib/analytics";
 import { getOccurrences, type BlockOccurrence } from "@/lib/schedule";
 import type { ScheduleBlock, SubjectColor, Workspace } from "@/types";
 import StudySelectors from "@/components/study/StudySelectors";
 import ScheduleDateTimeField from "./ScheduleDateTimeField";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { blockSchema } from "@/lib/validation";
 
 const addMinutes = (value: string, minutes: number) =>
   new Date(Date.parse(`${value}:00Z`) + minutes * 60_000).toISOString().slice(0, 16);
@@ -27,6 +30,7 @@ interface Props {
   startLocal?: string;
   isOpen: boolean;
   onClose: () => void;
+  onSave: (command: CalendarCommand) => Promise<boolean>;
 }
 /** Study/custom block editor with explicit recurring occurrence scope. */
 export default function StudyBlockModal({
@@ -36,7 +40,9 @@ export default function StudyBlockModal({
   startLocal,
   isOpen,
   onClose,
+  onSave,
 }: Props) {
+  const id = useId();
   const t = useTranslations("studyflow");
   const block = occurrence?.block.id ? occurrence.block : undefined;
   const source = occurrence?.block;
@@ -51,84 +57,22 @@ export default function StudyBlockModal({
   const [topic, setTopic] = useState(source?.topicId ?? "");
   const [startValue, setStartValue] = useState(initialStart);
   const [endValue, setEndValue] = useState(initialEnd);
-  const [repeat, setRepeat] = useState(block?.repeat ?? "once");
+  const [repeat, setRepeat] = useState<"once" | "weekly" | "daily">(block?.repeat ?? "once");
   const [weekdays, setWeekdays] = useState(block?.weekdays ?? []);
   const [scope, setScope] = useState("one");
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [pending, setPending] = useState<ScheduleBlock>();
-  const apply = async (value: ScheduleBlock | undefined, remove = false) => {
-    const saved = await updateWorkspace(data, (state) => {
-      if (!block)
-        return value ? { ...state, blocks: [...state.blocks, value] } : state;
-      const original = state.blocks.find((item) => item.id === block.id);
-      if (!original) return state;
-      if (original.repeat === "weekly" && occurrence) {
-        if (scope === "one") {
-          const exception = {
-            date: occurrence.date,
-            cancelled: remove,
-            startsAt: value?.startsAt,
-            endsAt: value?.endsAt,
-            title: value?.title,
-            subjectId: value?.subjectId,
-            topicId: value?.topicId,
-            note: value?.note,
-            color: value?.color,
-          };
-          return {
-            ...state,
-            blocks: state.blocks.map((item) =>
-              item.id === block.id
-                ? {
-                    ...item,
-                    exceptions: [
-                      ...item.exceptions.filter(
-                        (entry) => entry.date !== occurrence.date,
-                      ),
-                      exception,
-                    ],
-                  }
-                : item,
-            ),
-          };
-        }
-        const past = {
-          ...original,
-          recurrenceUntil: shiftDay(occurrence.date, -1),
-          exceptions: original.exceptions.filter(
-            (entry) => entry.date < occurrence.date,
-          ),
-        };
-        return {
-          ...state,
-          blocks: [
-            ...state.blocks.map((item) => (item.id === block.id ? past : item)),
-            ...(remove || !value
-              ? []
-              : [
-                  {
-                    ...value,
-                    id: newId(),
-                    exceptions: original.exceptions.filter(
-                      (entry) => entry.date > occurrence.date,
-                    ),
-                  },
-                ]),
-          ],
-        };
-      }
-      return {
-        ...state,
-        blocks: remove
-          ? state.blocks.filter((item) => item.id !== block.id)
-          : state.blocks.map((item) =>
-              item.id === block.id && value ? value : item,
-            ),
-      };
-    });
-    if (saved) onClose(); else setError(t("saveFailed"));
-    return saved;
+  const [submitting, setSubmitting] = useState(false);
+  const apply = (value: ScheduleBlock | undefined, remove = false) => {
+    if (submitting) return;
+    setSubmitting(true);
+    const target = { id: block?.id ?? "", date: occurrence?.date ?? date, scope: scope as "one" | "future" | "all", newSeriesId: newId() };
+    const command: CalendarCommand = remove ? { kind: "delete", ...target }
+      : block && value ? { kind: "edit", ...target, value }
+      : { kind: "create", value: value! };
+    void onSave(command);
+    onClose();
   };
   return (
     <Modal
@@ -151,7 +95,7 @@ export default function StudyBlockModal({
           if (
             !title ||
             Date.parse(endsAt) <= Date.parse(startsAt) ||
-            (repeat === "weekly" && !weekdays.length)
+            (repeat !== "once" && !weekdays.length)
           ) {
             setError(t("invalidBlock"));
             return;
@@ -165,7 +109,7 @@ export default function StudyBlockModal({
             title,
             startsAt,
             endsAt,
-            repeat,
+            repeat: repeat === "once" ? "once" : "weekly",
             weekdays,
             timezone,
             note: String(fields.get("note")) || undefined,
@@ -174,6 +118,7 @@ export default function StudyBlockModal({
             createdAt: block?.createdAt ?? timestamp,
             updatedAt: timestamp,
           };
+          if (!blockSchema.safeParse(value).success) { setError(t("invalidBlock")); return; }
           const day = localDay(startsAt, timezone);
           const candidates = getOccurrences([value], day, shiftDay(day, 35));
           const conflicts = getOccurrences(
@@ -202,7 +147,7 @@ export default function StudyBlockModal({
           onSubjectChange={setSubject}
           onTopicChange={setTopic}
         />
-        <p className="text-theme-xs text-gray-500 dark:text-gray-400">
+        <p className="text-small text-muted dark:text-secondary">
           {t("customBlockHelp")}
         </p>
         <Field
@@ -210,7 +155,7 @@ export default function StudyBlockModal({
           name="title"
           defaultValue={source?.title}
         />
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <ScheduleDateTimeField
             name="start"
             label={t("startLocal", { timezone })}
@@ -234,7 +179,7 @@ export default function StudyBlockModal({
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="me-1 text-xs font-medium text-gray-500 dark:text-gray-400">{t("duration")}</span>
+          <span className="me-1 text-caption text-muted dark:text-secondary">{t("duration")}</span>
           {[30, 60, 90, 120].map((minutes) => (
             <button
               key={minutes}
@@ -242,7 +187,7 @@ export default function StudyBlockModal({
               disabled={!Number.isFinite(Date.parse(`${startValue}:00Z`))}
               aria-pressed={(Date.parse(`${endValue}:00Z`) - Date.parse(`${startValue}:00Z`)) / 60_000 === minutes}
               onClick={() => setEndValue(addMinutes(startValue, minutes))}
-              className="rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-brand-400 hover:text-brand-600 aria-pressed:border-brand-500 aria-pressed:bg-brand-50 aria-pressed:text-brand-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-brand-400 dark:hover:text-brand-300 dark:aria-pressed:bg-brand-500/15 dark:aria-pressed:text-brand-300"
+              className="rounded-full border border-gray-300 bg-white px-3 py-2 text-caption text-secondary transition-colors hover:border-brand-400 hover:text-brand-600 aria-pressed:border-brand-500 aria-pressed:bg-brand-50 aria-pressed:text-brand-700 dark:border-gray-700 dark:bg-gray-900 dark:text-secondary dark:hover:border-brand-400 dark:hover:text-brand-300 dark:aria-pressed:bg-brand-500/15 dark:aria-pressed:text-brand-300"
             >
               {t("redesign.minutesValue", { count: minutes })}
             </button>
@@ -253,11 +198,12 @@ export default function StudyBlockModal({
             label={t("repeat")}
             value={repeat}
             onChange={(event) =>
-              setRepeat(event.target.value as "once" | "weekly")
+              { setRepeat(event.target.value as "once" | "weekly" | "daily"); if (event.target.value === "daily") setWeekdays([0, 1, 2, 3, 4, 5, 6]); }
             }
           >
             <option value="once">{t("oneTime")}</option>
             <option value="weekly">{t("weekly")}</option>
+            <option value="daily">{t("daily")}</option>
           </SelectField>
           <SelectField
             label={t("color")}
@@ -271,29 +217,33 @@ export default function StudyBlockModal({
             ))}
           </SelectField>
         </div>
-        {repeat === "weekly" && (
+        {repeat !== "once" && (
           <fieldset>
-            <legend className="mb-2 text-sm">{t("weekdays")}</legend>
-            <div className="flex flex-wrap gap-3">
-              {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-                <label
-                  key={day}
-                  className="flex items-center gap-1 text-theme-xs"
-                >
-                  <input
-                    type="checkbox"
-                    checked={weekdays.includes(day)}
-                    onChange={(event) =>
-                      setWeekdays(
-                        event.target.checked
-                          ? [...weekdays, day]
-                          : weekdays.filter((item) => item !== day),
-                      )
-                    }
-                  />
-                  {t(`weekdaysShort.d${day}`)}
-                </label>
-              ))}
+            <legend className="mb-2 text-body">{t("weekdays")}</legend>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              {[0, 1, 2, 3, 4, 5, 6].map((day) => {
+                const checked = weekdays.includes(day);
+                const labelId = `${id}-repeat-day-${day}`;
+                const toggle = () => { if (repeat === "daily" && checked) setRepeat("weekly"); setWeekdays(current => checked
+                  ? current.filter(item => item !== day)
+                  : [...current, day]); };
+                return (
+                  <div key={day} className="inline-flex min-h-8 items-center gap-2 text-small">
+                    <Checkbox
+                      id={labelId}
+                      checked={checked}
+                      aria-labelledby={`${labelId}-label`}
+                      className="!aspect-square !h-4 !min-h-0 !min-w-0 !w-4 shrink-0"
+                      onCheckedChange={(next) => { if (repeat === "daily" && next !== true) setRepeat("weekly"); setWeekdays(current => next === true
+                        ? current.includes(day) ? current : [...current, day]
+                        : current.filter(item => item !== day)); }}
+                    />
+                    <button id={`${labelId}-label`} type="button" onClick={toggle} aria-pressed={checked} className="text-start">
+                      {t(`weekdaysShort.d${day}`)}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </fieldset>
         )}
@@ -305,6 +255,7 @@ export default function StudyBlockModal({
           >
             <option value="one">{t("thisOne")}</option>
             <option value="future">{t("allFuture")}</option>
+            <option value="all">{t("planner.allSeries")}</option>
           </SelectField>
         )}
         <TextField
@@ -315,13 +266,13 @@ export default function StudyBlockModal({
         {error && (
           <p
             role="alert"
-            className="text-sm text-error-600 dark:text-error-400"
+            className="text-body text-error-600 dark:text-error-400"
           >
             {error}
           </p>
         )}
         <div className="flex flex-wrap gap-3">
-          <Button type="submit">{t("save")}</Button>
+          <Button type="submit" disabled={submitting}>{t("save")}</Button>
           {block && (
             <Button variant="outline" onClick={() => setDeleting(true)}>
               {t("delete")}
@@ -331,7 +282,7 @@ export default function StudyBlockModal({
             <Link
               href={`/study?subject=${subject}&topic=${topic}`}
               onClick={onClose}
-              className="inline-flex items-center px-3 text-sm text-brand-600 dark:text-brand-300"
+              className="inline-flex items-center px-3 text-body text-brand-600 dark:text-brand-300"
             >
               {t("startTimer")}
             </Link>

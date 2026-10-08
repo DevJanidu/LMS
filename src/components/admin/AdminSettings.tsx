@@ -25,7 +25,7 @@ export default function AdminSettings({ initial }: Props) {
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const [message, setMessage] = useState("");
-  const cell = "px-4 py-4 text-start text-sm whitespace-nowrap";
+  const cell = "px-4 py-4 text-start text-body whitespace-nowrap";
   return (
     <>
       <PageHeader
@@ -91,11 +91,11 @@ export default function AdminSettings({ initial }: Props) {
             />
             <Button type="submit">{t("save")}</Button>
             <Field label={t("minimumAge")} type="number" min={0} max={120} name="minimumAge" defaultValue={data.settings.minimumAge ?? 0} />
-            <p className="text-sm text-gray-500 dark:text-gray-400">{t("agePolicyHelp")}</p>
+            <p className="text-body text-muted dark:text-secondary">{t("agePolicyHelp")}</p>
             {message && (
               <p
                 role="status"
-                className="text-sm text-success-700 dark:text-success-300"
+                className="text-body text-success-700 dark:text-success-300"
               >
                 {message}
               </p>

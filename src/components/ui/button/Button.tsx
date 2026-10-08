@@ -27,23 +27,23 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   // Size Classes
   const sizeClasses = {
-    sm: "sf-button-small px-3 text-sm",
-    md: "sf-button-default px-4 text-sm",
+    sm: "sf-button-small px-3 text-body",
+    md: "sf-button-default px-4 text-body",
   };
 
   // Variant Classes
   const variantClasses = {
     primary:
-      "bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 dark:bg-brand-500 dark:hover:bg-brand-400 dark:disabled:bg-brand-800",
+      "sf-primary-action bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 dark:bg-brand-500 dark:hover:bg-brand-400 dark:disabled:bg-brand-800",
     outline:
-      "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/3 dark:hover:text-gray-300",
+      "bg-white text-secondary ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-secondary dark:ring-gray-700 dark:hover:bg-white/3 dark:hover:text-gray-300",
   };
 
   return (
     <button
       type={type}
       aria-label={ariaLabel}
-      className={`sf-button inline-flex items-center justify-center gap-2 rounded-lg font-medium transition ${className} ${
+      className={`sf-button inline-flex items-center justify-center gap-2 rounded-lg text-body-strong transition ${className} ${
         sizeClasses[size]
       } ${variantClasses[variant]} ${
         disabled ? "cursor-not-allowed opacity-50" : ""

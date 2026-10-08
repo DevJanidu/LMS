@@ -35,18 +35,18 @@ export default function NotePreview({ text }: Props) {
     }
     if (line.startsWith("# "))
       blocks.push(
-        <h3 key={index} className="text-lg font-semibold">
+        <h3 key={index} className="text-h3">
           {inline(line.slice(2))}
         </h3>,
       );
     else if (line.startsWith("## "))
       blocks.push(
-        <h4 key={index} className="font-semibold">
+        <h4 key={index} className="text-h3">
           {inline(line.slice(3))}
         </h4>,
       );
     else if (line.trim()) blocks.push(<p key={index}>{inline(line)}</p>);
     index++;
   }
-  return <div className="space-y-3 text-sm leading-relaxed">{blocks}</div>;
+  return <div className="space-y-3 text-body ">{blocks}</div>;
 }

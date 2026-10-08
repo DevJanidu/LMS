@@ -133,7 +133,7 @@ export async function mutate(userId: string, operations: Operation[]) {
           if (existing) await tx.update(s.scheduleBlocks).set(value).where(and(eq(s.scheduleBlocks.id, v.id), eq(s.scheduleBlocks.userId, userId)));
           else await tx.insert(s.scheduleBlocks).values({ ...value, id: v.id, userId });
           await tx.delete(s.scheduleExceptions).where(eq(s.scheduleExceptions.blockId, v.id));
-          if (v.exceptions.length) await tx.insert(s.scheduleExceptions).values(v.exceptions.map(e => ({ blockId: v.id, date: e.date, isCancelled: e.cancelled, newStartsAt: e.startsAt ? new Date(e.startsAt) : null, newEndsAt: e.endsAt ? new Date(e.endsAt) : null, newTitle: e.title ?? null, newNote: e.note ?? null, newColor: e.color ?? null, newSubjectId: e.subjectId ?? null, newTopicId: e.topicId ?? null })));
+          if (v.exceptions.length) await tx.insert(s.scheduleExceptions).values(v.exceptions.map(e => ({ blockId: v.id, date: e.date, overrides: e.overrides ?? null, isCancelled: e.cancelled, newStartsAt: e.startsAt ? new Date(e.startsAt) : null, newEndsAt: e.endsAt ? new Date(e.endsAt) : null, newTitle: e.title ?? null, newNote: e.note ?? null, newColor: e.color ?? null, newSubjectId: e.subjectId ?? null, newTopicId: e.topicId ?? null })));
           break;
         }
         case "delete": {

@@ -25,13 +25,26 @@ export function timerElapsed(timer: ActiveTimer, now: number): number {
     ),
   );
 }
+// Calendar recurrence repeatedly formats the same timezone. Reusing Intl
+// formatters avoids thousands of costly ICU initializations without changing conversion rules.
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
+function dateFormatter(timezone: string, kind: "day" | "clock" | "instant") {
+  const key = `${kind}:${timezone}`;
+  let formatter = dateFormatters.get(key);
+  if (!formatter) {
+    if (dateFormatters.size >= 128) dateFormatters.delete(dateFormatters.keys().next().value!);
+    formatter = new Intl.DateTimeFormat(kind === "clock" ? "en-GB" : "en-CA", {
+      timeZone: timezone,
+      ...(kind !== "clock" ? { year: "numeric", month: "2-digit", day: "2-digit" } as const : {}),
+      ...(kind !== "day" ? { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } as const : {}),
+      ...(kind === "instant" ? { second: "2-digit" } as const : {}),
+    });
+    dateFormatters.set(key, formatter);
+  }
+  return formatter;
+}
 export function localDay(instant: string | number, timezone: string): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date(instant));
+  const parts = dateFormatter(timezone, "day").formatToParts(new Date(instant));
   const part = (type: string) =>
     parts.find((item) => item.type === type)?.value ?? "";
   return `${part("year")}-${part("month")}-${part("day")}`;
@@ -46,16 +59,7 @@ export function zonedToUtc(wallTime: string, timezone: string): string {
   const target = Date.parse(`${wallTime}:00Z`);
   let candidate = target;
   for (let index = 0; index < 4; index++) {
-    const parts = new Intl.DateTimeFormat("en-CA", {
-      timeZone: timezone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hourCycle: "h23",
-    }).formatToParts(candidate);
+    const parts = dateFormatter(timezone, "instant").formatToParts(candidate);
     const p = (type: string) => parts.find((part) => part.type === type)?.value;
     const represented = Date.parse(
       `${p("year")}-${p("month")}-${p("day")}T${p("hour")}:${p("minute")}:${p("second")}Z`,
@@ -68,12 +72,7 @@ export function zonedToUtc(wallTime: string, timezone: string): string {
   return new Date(candidate).toISOString();
 }
 export function wallTime(instant: string, timezone: string): string {
-  const time = new Intl.DateTimeFormat("en-GB", {
-    timeZone: timezone,
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).format(new Date(instant));
+  const time = dateFormatter(timezone, "clock").format(new Date(instant));
   return `${localDay(instant, timezone)}T${time}`;
 }
 /** Split valid study time at local midnight so late sessions count on both days. */

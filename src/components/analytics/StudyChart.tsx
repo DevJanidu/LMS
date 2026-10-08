@@ -41,21 +41,21 @@ export default function StudyChart({
     tooltip: { theme },
   };
   return (
-    <div>
+    <div className="sf-chart">
       <ReactApexChart
         options={options}
         series={[{ name: label, data: values }]}
         type={type}
         height={260}
       />
-      <details className="mt-2 text-theme-xs text-gray-500 dark:text-gray-400">
+      <details className="mt-2 text-caption text-muted dark:text-secondary">
         <summary className="cursor-pointer">{t("viewChartData")}</summary>
         <table className="mt-3 w-full">
           <caption className="sr-only">{label}</caption>
           <tbody>
             {labels.map((text, index) => (
               <tr key={`${text}-${index}`}>
-                <th scope="row" className="py-1 text-start font-normal">
+                <th scope="row" className="py-1 text-start text-caption">
                   {text}
                 </th>
                 <td className="text-end">{values[index]}</td>

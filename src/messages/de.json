@@ -68,6 +68,14 @@
     "noBlocksToday": "Your day is open",
     "scheduleStudy": "Lernzeit planen",
     "plannerDay": "Tag",
+    "planner": {
+      "allSeries": "Alle Termine der Serie",
+      "moveRecurring": "Wiederkehrenden Lerntermin verschieben",
+      "dropDelete": "Zum Löschen ablegen",
+      "retry": "Erneut versuchen",
+      "loading": "Kalendertermine werden geladen",
+      "conflict": "Dieser Termin wurde an anderer Stelle geändert. Prüfe die aktuellen Werte und versuche es erneut."
+    },
     "upcomingDeadlines": "Upcoming deadlines",
     "noDeadlines": "No deadlines ahead. Learn at your own pace.",
     "continueLearning": "Continue where you left off",

@@ -38,11 +38,11 @@ export function Modal({
       onClick={(event) => {
         if (event.target === ref.current) onClose();
       }}
-      className={`fixed inset-0 m-auto w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 text-gray-800 shadow-theme-xl backdrop:bg-gray-950/60 sm:p-8 dark:border-gray-700 dark:bg-gray-900 dark:text-white ${size === "wide" ? "max-h-[calc(100dvh-2rem)] max-w-4xl" : "max-h-dvh max-w-lg"} ${className}`}
+      className={`fixed inset-0 m-auto w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 text-primary shadow-theme-xl backdrop:bg-gray-950/60 sm:p-8 dark:border-gray-700 dark:bg-gray-900 dark:text-primary ${size === "wide" ? "max-h-[calc(100dvh-2rem)] max-w-4xl" : "max-h-dvh max-w-lg"} ${className}`}
     >
       <h2
         id={id}
-        className={title ? "mb-6 pe-8 text-xl font-semibold" : "sr-only"}
+        className={title ? "mb-6 pe-8 text-h2" : "sr-only"}
       >
         {title ?? t("dialog")}
       </h2>
@@ -51,7 +51,7 @@ export function Modal({
           type="button"
           aria-label={t("close")}
           onClick={onClose}
-          className="absolute end-4 top-4 min-h-11 min-w-11 rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="absolute end-4 top-4 min-h-11 min-w-11 rounded-lg p-2 text-muted hover:bg-gray-100 dark:text-secondary dark:hover:bg-gray-800"
         >
           <CloseIcon className="size-5" />
         </button>

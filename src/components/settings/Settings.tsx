@@ -12,6 +12,8 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageHeader from "@/components/studyflow/PageHeader";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 import Field, { SelectField } from "@/components/studyflow/FormFields";
+import { Checkbox } from "@/components/ui/Checkbox";
+import ComboboxField from "@/components/form/ComboboxField";
 interface Props {
   initial: Workspace;
 }
@@ -40,7 +42,7 @@ export default function Settings({ initial }: Props) {
         title={t("settings")}
         description={t("settingsDescription")}
       />
-      <div className="sf-settings-layout"><nav className="sf-settings-nav" aria-label={t("settings")}>{["profile","preferences","notifications","dangerZone"].map(key=><a key={key} href={`#settings-${key}`}>{t(key)}</a>)}</nav><div className="min-w-0 space-y-6">
+      <div className="sf-settings-layout"><nav className="sf-settings-nav" aria-label={t("settings")}>{["profile","preferences","notifications","dangerZone"].map(key=><a key={key} href={`#settings-${key}`}>{t(key)}</a>)}</nav><div className="min-w-0 space-y-8">
         <section id="settings-profile"><ComponentCard title={t("profile")}>
           <form
             className="space-y-4"
@@ -77,28 +79,17 @@ export default function Settings({ initial }: Props) {
               required
               defaultValue={data.user.email}
             />
-            <Field
+            <ComboboxField
               label={t("timezone")}
               name="timezone"
               required
               defaultValue={data.user.timezone}
-              list="timezones"
+              options={["Asia/Colombo", "Asia/Singapore", "Europe/London", "America/New_York", "UTC"]}
             />
-            <datalist id="timezones">
-              {[
-                "Asia/Colombo",
-                "Asia/Singapore",
-                "Europe/London",
-                "America/New_York",
-                "UTC",
-              ].map((zone) => (
-                <option key={zone} value={zone} />
-              ))}
-            </datalist>
             {error && (
               <p
                 role="alert"
-                className="text-sm text-error-600 dark:text-error-400"
+                className="text-body text-error-600 dark:text-error-400"
               >
                 {error}
               </p>
@@ -156,20 +147,19 @@ export default function Settings({ initial }: Props) {
           </form>
         </ComponentCard>
         </section><section id="settings-notifications"><ComponentCard title={t("notifications")}>
-          <label className="flex items-center gap-3 text-sm">
-            <input
-              type="checkbox"
+          <label className="flex items-center gap-3 text-body">
+            <Checkbox
               checked={data.user.reminders}
-              onChange={(event) => save({ reminders: event.target.checked })}
+              onCheckedChange={(checked) => save({ reminders: checked === true })}
             />
             {t("inAppReminders")}
           </label>
-          <p className="text-theme-xs text-gray-500 dark:text-gray-400">
+          <p className="text-small text-muted dark:text-secondary">
             {t("remindersDescription")}
           </p>
         </ComponentCard>
         </section><section id="settings-dangerZone"><ComponentCard title={t("dangerZone")}>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-body text-muted dark:text-secondary">
             {t("exportHelp")}
           </p>
           <div className="flex flex-wrap gap-3">
@@ -188,7 +178,7 @@ export default function Settings({ initial }: Props) {
         {message && (
           <p
             role="status"
-            className="text-sm text-success-700 dark:text-success-300"
+            className="text-body text-success-700 dark:text-success-300"
           >
             {message}
           </p>

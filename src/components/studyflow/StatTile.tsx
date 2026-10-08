@@ -8,13 +8,13 @@ interface Props {
 /** A compact statistic without decorative charts. */
 export default function StatTile({ label, value, detail, children }: Props) {
   return (
-    <div className="sf-stat p-5">
-      <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="mt-3 text-title-sm font-medium text-gray-900 dark:text-white">
+    <div className="sf-stat p-6">
+      <p className="text-caption text-muted dark:text-secondary">{label}</p>
+      <p className="mt-2 text-stat text-primary dark:text-primary">
         {value}
       </p>
       {detail && (
-        <p className="mt-2 text-theme-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-caption text-muted dark:text-secondary">
           {detail}
         </p>
       )}

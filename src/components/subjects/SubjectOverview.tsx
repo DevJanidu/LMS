@@ -1,4 +1,6 @@
 "use client";
+import TextLink from "@/components/studyflow/TextLink";
+
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getResources, getSessions, getTopics } from "@/lib/workspace/queries";
@@ -29,7 +31,7 @@ export default function SubjectOverview({ data, subjectId }: Props) {
   return (
     <div className="sf-subject-overview">
       <ComponentCard title={t("redesign.upNext")}>
-        <h2 className="text-2xl font-medium tracking-tight">
+        <h2 className="text-h2">
           {next?.title ?? t("redesign.allComplete")}
         </h2>
         <Link
@@ -43,7 +45,7 @@ export default function SubjectOverview({ data, subjectId }: Props) {
             .filter((topic) => topic.id !== next?.id)
             .slice(0, 3)
             .map((topic, index) => (
-              <div key={topic.id} className="flex items-center gap-3 text-sm">
+              <div key={topic.id} className="flex items-center gap-3 text-body">
                 <span className="text-muted">
                   {String(index + 2).padStart(2, "0")}
                 </span>
@@ -63,25 +65,24 @@ export default function SubjectOverview({ data, subjectId }: Props) {
         <SessionTable data={data} sessions={sessions.slice(0, 3)} />
       </ComponentCard>
       <ComponentCard title={t("resources")}>
-        <p className="text-muted text-sm">
+        <p className="text-muted text-body">
           {t("redesign.savedResources", { count: data.resourceCounts?.[subjectId] ?? resources.length })}
         </p>
         {resources.slice(0, 4).map((resource) => (
           <Link
             key={resource.id}
             href={`/resources?search=${encodeURIComponent(resource.title)}`}
-            className="sf-agenda-item text-sm"
+            className="sf-agenda-item text-body"
           >
             <span className="text-muted">{t(resource.type)}</span>
             {resource.title}
           </Link>
         ))}
-        <Link
+        <TextLink
           href="/resources?add=1"
-          className="text-sm text-brand-600 dark:text-brand-300"
         >
-          {t("addResource")} →
-        </Link>
+          {t("addResource")}
+        </TextLink>
       </ComponentCard>
     </div>
   );

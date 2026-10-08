@@ -32,12 +32,6 @@ export const authSessions = pgTable("sessions", {
   token: text("token").notNull().unique(), expiresAt: time("expires_at").notNull(), ipAddress: text("ip_address"), userAgent: text("user_agent"),
   createdAt: created(), updatedAt: updated(),
 }, t => [index("sessions_user_idx").on(t.userId)]);
-export const usersRelations = relations(users, ({ many }) => ({
-  sessions: many(authSessions, { relationName: "session_userId" }),
-}));
-export const authSessionsRelations = relations(authSessions, ({ one }) => ({
-  user: one(users, { fields: [authSessions.userId], references: [users.id], relationName: "session_userId" }),
-}));
 export const accounts = pgTable("accounts", {
   id: id(), userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   accountId: text("account_id").notNull(), providerId: text("provider_id").notNull(), password: text("password"),
@@ -45,6 +39,16 @@ export const accounts = pgTable("accounts", {
   accessTokenExpiresAt: time("access_token_expires_at"), refreshTokenExpiresAt: time("refresh_token_expires_at"), scope: text("scope"),
   createdAt: created(), updatedAt: updated(),
 }, t => [index("accounts_user_idx").on(t.userId), unique("accounts_provider_identity_unique").on(t.providerId, t.accountId)]);
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(authSessions, { relationName: "session_userId" }),
+  accounts: many(accounts, { relationName: "account_userId" }),
+}));
+export const authSessionsRelations = relations(authSessions, ({ one }) => ({
+  user: one(users, { fields: [authSessions.userId], references: [users.id], relationName: "session_userId" }),
+}));
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, { fields: [accounts.userId], references: [users.id], relationName: "account_userId" }),
+}));
 export const verifications = pgTable("verifications", {
   id: id(), identifier: text("identifier").notNull(), value: text("value").notNull(), expiresAt: time("expires_at").notNull(), createdAt: created(), updatedAt: updated(),
 }, t => [index("verifications_identifier_idx").on(t.identifier)]);
@@ -94,6 +98,7 @@ export const scheduleBlocks = pgTable("schedule_blocks", {
   index("schedule_blocks_owner_start_idx").on(t.userId, t.startsAt), index("schedule_blocks_subject_idx").on(t.subjectId), index("schedule_blocks_topic_idx").on(t.topicId),
   check("block_end_after_start", sql`${t.endsAt} > ${t.startsAt}`), check("block_topic_requires_subject", sql`${t.topicId} IS NULL OR ${t.subjectId} IS NOT NULL`)]);
 export const scheduleExceptions = pgTable("schedule_exceptions", {
+  overrides: jsonb("overrides").$type<{ subjectId?: string | null; topicId?: string | null; note?: string | null }>(),
   id: id(), blockId: uuid("block_id").notNull().references(() => scheduleBlocks.id, { onDelete: "cascade" }), date: date("date").notNull(), isCancelled: boolean("is_cancelled").notNull().default(false),
   newStartsAt: time("new_starts_at"), newEndsAt: time("new_ends_at"),
   newTitle: text("new_title"), newNote: text("new_note"), newColor: text("new_color"),
@@ -102,6 +107,13 @@ export const scheduleExceptions = pgTable("schedule_exceptions", {
   foreignKey({ columns: [t.newTopicId, t.newSubjectId], foreignColumns: [topics.id, topics.subjectId] }).onDelete("cascade"),
   check("exception_topic_requires_subject", sql`${t.newTopicId} IS NULL OR ${t.newSubjectId} IS NOT NULL`),
   check("exception_end_after_start", sql`(${t.newStartsAt} IS NULL AND ${t.newEndsAt} IS NULL) OR (${t.newStartsAt} IS NOT NULL AND ${t.newEndsAt} IS NOT NULL AND ${t.newEndsAt} > ${t.newStartsAt})`)]);
+/** Committed responses make network retries safe, including deleted records. */
+export const calendarMutations = pgTable("calendar_mutations", {
+  id: uuid("id").primaryKey(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  result: jsonb("result").$type<import("@/lib/calendar/model").CalendarChange>(),
+  createdAt: created(),
+}, t => [index("calendar_mutations_created_idx").on(t.createdAt)]);
 export const notifications = pgTable("notifications", {
   id: id(), userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), type: text("type").notNull(), title: text("title").notNull(), body: text("body").notNull(),
   deduplicationKey: text("deduplication_key").notNull(), scheduledFor: time("scheduled_for").notNull(), readAt: time("read_at"), createdAt: created(),

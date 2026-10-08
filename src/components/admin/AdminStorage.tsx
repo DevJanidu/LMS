@@ -34,7 +34,7 @@ export default function AdminStorage({ initial }: Props) {
   const [page, setPage] = useState(1);
   const pages = Math.max(1, Math.ceil(usage.length / 20));
   const current = Math.min(page, pages);
-  const cell = "px-4 py-4 text-start text-sm";
+  const cell = "px-4 py-4 text-start text-body";
   return (
     <>
       <PageHeader title={t("storage")} description={t("storageDescription")} />

@@ -27,7 +27,7 @@ function createAuth() {
     appName: "StudyFlow", baseURL: env.APP_URL, secret: env.AUTH_SECRET,
     logger: { disabled: true },
     database: drizzleAdapter(getDb(), { provider: "pg", schema: { user: schema.users, session: schema.authSessions, account: schema.accounts, verification: schema.verifications, rateLimit: schema.rateLimits,
-      usersRelations: schema.usersRelations, authSessionsRelations: schema.authSessionsRelations } }),
+      usersRelations: schema.usersRelations, authSessionsRelations: schema.authSessionsRelations, accountsRelations: schema.accountsRelations } }),
     emailAndPassword: {
       enabled: true, minPasswordLength: 8, maxPasswordLength: 128,
       password: { hash: password => hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1 }), verify: ({ hash: digest, password }) => verify(digest, password) },

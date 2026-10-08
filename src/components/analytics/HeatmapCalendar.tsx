@@ -23,7 +23,7 @@ export default function HeatmapCalendar({
     days.push(day);
   return (
     <div>
-      <p className="mb-4 text-sm font-medium">
+      <p className="mb-4 text-body-strong">
         {new Intl.DateTimeFormat(locale, {
           month: "long",
           year: "numeric",
@@ -34,7 +34,7 @@ export default function HeatmapCalendar({
         {Array.from({ length: 7 }, (_, index) => (
           <div
             key={index}
-            className="text-center text-theme-xs text-gray-400 dark:text-gray-500"
+            className="text-center text-small text-muted dark:text-muted"
           >
             {t(`weekdaysShort.d${(weekStartDay + index) % 7}`)}
           </div>
@@ -50,14 +50,14 @@ export default function HeatmapCalendar({
               tabIndex={0}
               aria-label={`${day}: ${duration(seconds)}`}
               title={`${day}: ${duration(seconds)}`}
-              className={`flex aspect-square items-center justify-center rounded-lg text-theme-xs ${seconds >= 3600 ? "bg-brand-500 text-white dark:bg-brand-500" : seconds >= 600 ? "bg-brand-200 text-brand-800 dark:bg-brand-500/40 dark:text-white" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}`}
+              className={`flex aspect-square items-center justify-center rounded-lg text-small ${seconds >= 3600 ? "bg-brand-500 text-white dark:bg-brand-500" : seconds >= 600 ? "bg-brand-200 text-brand-800 dark:bg-brand-500/40 dark:text-primary" : "bg-gray-100 text-muted dark:bg-gray-800 dark:text-secondary"}`}
             >
               {Number(day.slice(-2))}
             </div>
           );
         })}
       </div>
-      <p className="mt-4 text-theme-xs text-gray-400 dark:text-gray-500">
+      <p className="mt-4 text-small text-muted dark:text-muted">
         {t("heatmapHelp")}
       </p>
     </div>

@@ -7,6 +7,7 @@ import { APP_NAME } from "@/lib/constants";
 import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
 import Field from "@/components/studyflow/FormFields";
+import { Checkbox } from "@/components/ui/Checkbox";
 interface Props {
   token?: string;
   returnTo?: string;
@@ -78,8 +79,8 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
         {register && (
           <>
             <Field label={t("dobOptional")} name="dob" type="date" />
-            <label className="flex items-start gap-3 text-sm">
-              <input type="checkbox" name="terms" required className="mt-1" />
+            <label className="flex items-start gap-3 text-body">
+              <Checkbox name="terms" required className="mt-1" />
               <span>
                 {t("acceptTerms")}{" "}
                 <Link
@@ -97,7 +98,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
                 </Link>
               </span>
             </label>
-            <p className="text-theme-xs leading-relaxed text-gray-500 dark:text-gray-400">
+            <p className="text-small text-muted dark:text-secondary">
               {t("adminDisclosure")}
             </p>
           </>
@@ -105,7 +106,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
         {error && (
           <p
             role="alert"
-            className="text-sm text-error-600 dark:text-error-400"
+            className="text-body text-error-600 dark:text-error-400"
           >
             {error}
           </p>
@@ -113,7 +114,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
         {message && (
           <p
             role="status"
-            className="text-sm text-success-700 dark:text-success-300"
+            className="text-body text-success-700 dark:text-success-300"
           >
             {message}
           </p>
@@ -134,7 +135,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
             <Button variant="outline" className="w-full" disabled>
               {t("googleComingSoon")}
             </Button>
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-center text-body text-muted dark:text-secondary">
               {t(register ? "alreadyAccount" : "needAccount", {
                 appName: APP_NAME,
               })}{" "}
@@ -150,7 +151,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
         {mode === "login" && (
           <Link
             href="/forgot-password"
-            className="block text-center text-sm text-brand-600 dark:text-brand-300"
+            className="block text-center text-body text-brand-600 dark:text-brand-300"
           >
             {t("forgotPassword")}
           </Link>
@@ -158,7 +159,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
         {(forgot || reset) && (
           <Link
             href="/login"
-            className="block text-center text-sm text-brand-600 dark:text-brand-300"
+            className="block text-center text-body text-brand-600 dark:text-brand-300"
           >
             {t("backLogin")}
           </Link>

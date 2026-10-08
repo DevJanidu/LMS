@@ -12,7 +12,7 @@ export default async function Page({
   return (
     <article className="w-full">
       <PageHeader title={t("terms")} description={t("legalDraft")} />
-      <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+      <p className="text-body text-secondary dark:text-gray-300">
         {t("termsBody", { appName: APP_NAME })}
       </p>
     </article>

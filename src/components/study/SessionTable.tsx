@@ -39,11 +39,11 @@ export default function SessionTable({
         }
       />
     );
-  const cell = "px-4 py-4 text-start text-sm";
+  const cell = "px-4 py-4 text-start text-body";
   return (
     <div className="overflow-x-auto">
       <Table>
-        <TableHeader className="border-b border-gray-200 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
+        <TableHeader className="border-b border-gray-200 bg-gray-50 text-muted dark:border-gray-800 dark:bg-gray-900 dark:text-secondary">
           <TableRow>
             {[
               "subject",
@@ -71,15 +71,15 @@ export default function SessionTable({
                   )?.title
                 }
               </TableCell>
-              <TableCell className={`${cell} text-gray-500 dark:text-gray-400`}>
+              <TableCell className={`${cell} text-muted dark:text-secondary`}>
                 {data.topics.find((topic) => topic.id === session.topicId)
                   ?.title ?? "—"}
               </TableCell>
-              <TableCell className={`${cell} font-medium whitespace-nowrap`}>
+              <TableCell className={`${cell} text-body-strong whitespace-nowrap`}>
                 {duration(session.durationSeconds)}
               </TableCell>
               <TableCell
-                className={`${cell} whitespace-nowrap text-gray-500 dark:text-gray-400`}
+                className={`${cell} whitespace-nowrap text-muted dark:text-secondary`}
               >
                 {formatDate(
                   session.startedAt,

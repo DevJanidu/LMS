@@ -106,7 +106,7 @@ export default function Analytics({ initial }: Props) {
           longest={streak.longest}
           minutes={data.settings.streakMinutes}
         />
-        <span className="ms-3 text-theme-xs text-gray-500 dark:text-gray-400">
+        <span className="ms-3 text-small text-muted dark:text-secondary">
           {t("streakRule", { minutes: data.settings.streakMinutes })}
         </span>
       </div>
@@ -123,7 +123,7 @@ export default function Analytics({ initial }: Props) {
           />
         </div>
       )}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <ComponentCard title={t("dailyStudyTime")}>
           <StudyChart
             labels={days.map((day) =>

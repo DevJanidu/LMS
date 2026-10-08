@@ -11,7 +11,7 @@ import PremiumSelect from "@/components/form/SelectField";
 import NumberInput from "@/components/form/NumberInput";
 import { DatePickerField, DateTimePickerField } from "@/components/form/DatePickerField";
 export const controlClass =
-  "w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-none transition duration-150 placeholder:text-gray-400 focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30";
+  "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-body text-primary shadow-theme-xs outline-none transition duration-150 placeholder:text-gray-400 focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15 dark:border-gray-700 dark:bg-gray-900 dark:text-primary dark:placeholder:text-white/30";
 type FieldProps = InputHTMLAttributes<HTMLInputElement> & { label: string };
 /** Template input and label with accessible association. */
 export default function Field({ label, type = "text", ...props }: FieldProps) {

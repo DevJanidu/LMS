@@ -3,7 +3,7 @@ import { isRtl } from "@/i18n/languages";
 import { type Locale, routing } from "@/i18n/routing";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import "../workspace.css";
@@ -15,11 +15,10 @@ export const metadata: Metadata = {
     "Your personal study workspace. Organise subjects, plan your week and track your learning.",
 };
 
-const geist = localFont({
-  src: "../../fonts/Geist-Variable.woff2",
-  weight: "100 900",
-  variable: "--font-geist",
-  display: "optional",
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
 });
 
 export function generateStaticParams() {
@@ -42,11 +41,11 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   return (
-    <html suppressHydrationWarning lang={locale} dir={isRtl(locale as Locale) ? "rtl" : "ltr"}>
+    <html className={inter.variable} suppressHydrationWarning lang={locale} dir={isRtl(locale as Locale) ? "rtl" : "ltr"}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `(function(){var m=document.cookie.match(/(?:^|; )sf-theme=(dark|light|auto)(?:;|$)/);var v=m?m[1]:'light';var d=v==='dark'||(v==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.setAttribute('data-color-scheme',d?'dark':'light')})()` }} />
       </head>
-      <body className={`${geist.className} ${geist.variable} bg-gray-50 dark:bg-gray-900`}>
+      <body className={"bg-gray-50 dark:bg-gray-900"}>
         <NextIntlClientProvider>
           <ThemeProvider>
             {children}

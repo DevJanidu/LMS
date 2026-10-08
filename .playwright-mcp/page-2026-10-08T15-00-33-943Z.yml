@@ -1,0 +1,34 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Learner navigation" [ref=e3]:
+      - link "StudyFlow" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+      - generic [ref=e14]: Start Studying
+      - navigation [ref=e15]:
+        - link "Home" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Subjects" [ref=e26] [cursor=pointer]:
+          - /url: /subjects
+        - link "Study" [ref=e32] [cursor=pointer]:
+          - /url: /study
+        - link "Study Planner" [ref=e39] [cursor=pointer]:
+          - /url: /calendar
+        - link "Analytics" [ref=e46] [cursor=pointer]:
+          - /url: /analytics
+        - link "Library" [ref=e53] [cursor=pointer]:
+          - /url: /resources
+      - generic [ref=e59]:
+        - link "Settings" [ref=e61] [cursor=pointer]:
+          - /url: /settings
+        - paragraph [ref=e68]: A little focus, a little progress. Every day.
+    - generic [ref=e69]:
+      - banner [ref=e70]:
+        - generic [ref=e71]:
+          - generic [ref=e77]:
+            - generic [ref=e81]: Search your workspace
+            - generic [aria-hidden] [ref=e82]: ⌘ K
+          - generic [aria-hidden] [ref=e84]: Start Studying
+      - main [ref=e90]:
+        - status "Loading your workspace…" [ref=e92]
+      - contentinfo [ref=e103]: StudyFlow · Make room for learning.
+  - button "Open Next.js Dev Tools" [ref=e109] [cursor=pointer]

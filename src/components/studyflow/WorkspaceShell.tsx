@@ -168,7 +168,7 @@ export default function WorkspaceShell({
     .slice(0, 12);
   return (
     <div
-      className={`sf-shell ${admin ? "sf-admin" : ""} ${!isExpanded ? "sf-collapsed" : ""} min-h-dvh bg-gray-50 text-gray-800 dark:bg-gray-950 dark:text-gray-200`}
+      className={`sf-shell ${admin ? "sf-admin" : ""} ${!isExpanded ? "sf-collapsed" : ""} min-h-dvh bg-gray-50 text-primary dark:bg-gray-950 dark:text-primary`}
     >
       <a
         href="#main-content"
@@ -191,7 +191,7 @@ export default function WorkspaceShell({
         <div className="sf-sidebar-brand-row mb-7 flex items-center justify-between">
           <Link
             href={admin ? "/admin" : "/dashboard"}
-            className="sf-sidebar-brand flex items-center gap-3 text-xl font-semibold"
+            className="sf-sidebar-brand flex items-center gap-3 text-h2"
           >
             <span className="sf-brand-mark">
               <FolderIcon className="size-5" />
@@ -272,7 +272,7 @@ export default function WorkspaceShell({
             </Link>
           </div>
           <div className="sf-sidebar-bottom">
-            <p className="text-theme-xs leading-relaxed text-gray-400 dark:text-gray-500">
+            <p className="text-small text-muted dark:text-muted">
               {t("workspaceTagline")}
             </p>
           </div>
@@ -292,7 +292,7 @@ export default function WorkspaceShell({
           {storageError && (
             <p
               role="alert"
-              className="mb-5 rounded-xl bg-warning-50 p-4 text-sm text-warning-700 dark:bg-warning-500/15 dark:text-warning-300"
+              className="mb-5 rounded-xl bg-warning-50 p-4 text-body text-warning-700 dark:bg-warning-500/15 dark:text-warning-300"
             >
               {t(storageError)}
             </p>
@@ -301,7 +301,7 @@ export default function WorkspaceShell({
             {children}
           </div>
         </main>
-        <footer className="px-4 py-8 text-center text-theme-xs text-gray-400 sm:px-8 dark:text-gray-500">
+        <footer className="px-4 py-8 text-center text-small text-muted sm:px-8 dark:text-muted">
           {APP_NAME} · {t("footer")}
         </footer>
       </div>
@@ -354,10 +354,10 @@ export default function WorkspaceShell({
               key={hit.id}
               href={hit.href}
               onClick={search.closeModal}
-              className="flex items-center justify-between gap-3 rounded-lg p-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex items-center justify-between gap-3 rounded-lg p-3 text-body hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <span>{hit.title}</span>
-              <span className="text-theme-xs text-gray-400 dark:text-gray-500">
+              <span className="text-small text-muted dark:text-muted">
                 {t(hit.type)}
               </span>
             </Link>

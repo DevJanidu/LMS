@@ -1,4 +1,6 @@
 "use client";
+import TextLink from "@/components/studyflow/TextLink";
+
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ArrowRightIcon } from "@/icons";
@@ -118,7 +120,7 @@ export default function Dashboard({ initial, section }: { initial: Workspace; se
           <section className="min-w-0">
             <div className="sf-section-heading">
               <h2>{t("continueLearning")}</h2>
-              <Link href="/subjects">{t("redesign.allSubjects")} →</Link>
+              <TextLink href="/subjects">{t("redesign.allSubjects")}</TextLink>
             </div>
             {ranked.length ? (
               <div className="sf-continue-grid">
@@ -172,13 +174,13 @@ export default function Dashboard({ initial, section }: { initial: Workspace; se
                 ))}
               </ul>
             ) : (
-              <p className="text-muted text-sm">{t("noDeadlines")}</p>
+              <p className="text-muted text-body">{t("noDeadlines")}</p>
             )}
           </section>
           <section className="sf-dashboard-recent">
             <div className="sf-section-heading">
               <h2>{t("recentSessions")}</h2>
-              <Link href="/study/history">{t("viewHistory")} →</Link>
+              <TextLink href="/study/history">{t("viewHistory")}</TextLink>
             </div>
             {sessions.length ? (
               <ul className="sf-dashboard-session-list">

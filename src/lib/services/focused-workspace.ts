@@ -82,14 +82,14 @@ export const subjectPageWorkspace = cache(async (account: Account): Promise<Work
 });
 
 /** Study controls need only active subject and topic choices plus the current timer. */
-export const studyPageWorkspace = cache(async (account: Account): Promise<Workspace> => {
+export const studyPageWorkspace = cache(async (account: Account, includePreferences = false): Promise<Workspace> => {
   const result = await timed("page.study", () => getDb().execute<{ subjects: Array<{
     id: string; title: string; description: string; displayColor: string; targetDate: string | null;
     status: "active" | "archived"; createdAt: string; updatedAt: string;
   }>; topics: SubjectRow["topics"]; timer: Array<{
     subjectId: string; topicId: string | null; startedAt: string; pausedAt: string | null;
     pausedTotalSeconds: number; confirmedUntilSeconds: number; focusGoal: string | null;
-  }> }>(sql`
+  }>; preferences: { weeklyTargetMinutes?: number; weekStartDay?: 0 | 1; highestStreak?: number; theme?: "light" | "dark" | "auto"; reminders?: boolean } }>(sql`
     SELECT
       (SELECT coalesce(jsonb_agg(jsonb_build_object('id', id, 'title', title,
         'description', description, 'displayColor', display_color, 'targetDate', target_date,
@@ -105,7 +105,10 @@ export const studyPageWorkspace = cache(async (account: Account): Promise<Worksp
         'topicId', topic_id, 'startedAt', started_at, 'pausedAt', paused_at,
         'pausedTotalSeconds', paused_total_seconds, 'confirmedUntilSeconds', confirmed_until_seconds,
         'focusGoal', focus_goal)), '[]'::jsonb)
-        FROM active_timers WHERE user_id = ${account.id}::uuid) AS timer
+        FROM active_timers WHERE user_id = ${account.id}::uuid) AS timer,
+      ${includePreferences ? sql`(SELECT coalesce(jsonb_build_object('weeklyTargetMinutes', weekly_target_minutes,
+        'weekStartDay', week_start_day, 'highestStreak', highest_streak, 'theme', theme, 'reminders', reminders), '{}'::jsonb)
+        FROM user_preferences WHERE user_id = ${account.id}::uuid)` : sql`'{}'::jsonb`} AS preferences
   `));
   const row = result.rows[0];
   const subjects: Subject[] = row.subjects.map(item => ({ id: item.id, userId: account.id, title: item.title,
@@ -119,11 +122,17 @@ export const studyPageWorkspace = cache(async (account: Account): Promise<Worksp
     completedAt: item.completedAt ? new Date(item.completedAt).toISOString() : undefined,
     createdAt: new Date(item.createdAt).toISOString(), updatedAt: new Date(item.updatedAt).toISOString() }));
   const timer = row.timer[0];
-  return focused(account, ["subjects", "topics", "timer"], { subjects, topics,
+  const workspace = focused(account, ["subjects", "topics", "timer"], { subjects, topics,
     timer: timer ? { subjectId: timer.subjectId, topicId: timer.topicId ?? undefined,
       startedAt: new Date(timer.startedAt).toISOString(), pausedAt: timer.pausedAt ? new Date(timer.pausedAt).toISOString() : undefined,
       pausedTotalSeconds: timer.pausedTotalSeconds, confirmedUntilSeconds: timer.confirmedUntilSeconds,
       focusGoal: timer.focusGoal ?? undefined } : null });
+  if (includePreferences && row.preferences) {
+    workspace.user = { ...workspace.user, weeklyTargetMinutes: row.preferences.weeklyTargetMinutes ?? workspace.user.weeklyTargetMinutes,
+      weekStartDay: row.preferences.weekStartDay ?? 1, longestStreak: row.preferences.highestStreak ?? 0,
+      theme: row.preferences.theme ?? "auto", reminders: row.preferences.reminders ?? true };
+  }
+  return workspace;
 });
 
 /** Library filters and upload limits in one round trip; the paginated rows load separately. */
@@ -170,13 +179,15 @@ export const resourcePageWorkspace = cache(async (account: Account): Promise<Wor
 
 export const calendarPageWorkspace = cache(async (account: Account): Promise<Workspace> => {
   const today = localDay(Date.now(), account.timezone);
-  const from = weekStart(today, 1);
-  const range = { from, to: shiftDay(from, 7) };
+  // An eight-day initial read covers either configured week start while choices
+  // and preferences are read in parallel. Subsequent API reads use exact view bounds.
+  const from = weekStart(today, 0);
+  const range = { from, to: shiftDay(from, 8) };
   const [choices, blocks] = await timed("page.calendar", () => Promise.all([
-    studyPageWorkspace(account), getScheduleBlocksInRange(account.id, range),
+    studyPageWorkspace(account, true), getScheduleBlocksInRange(account.id, range, account.timezone),
   ]));
-  return focused(account, ["subjects", "topics", "blocks", "timer"], {
-    subjects: choices.subjects, topics: choices.topics, blocks, timer: choices.timer,
+  return focused(account, ["user", "subjects", "topics", "blocks"], {
+    user: choices.user, subjects: choices.subjects, topics: choices.topics, blocks,
   });
 });
 

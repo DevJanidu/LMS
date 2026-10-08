@@ -68,6 +68,14 @@
     "noBlocksToday": "Your day is open",
     "scheduleStudy": "جدولة الدراسة",
     "plannerDay": "يوم",
+    "planner": {
+      "allSeries": "كل أحداث السلسلة",
+      "moveRecurring": "نقل موعد الدراسة المتكرر",
+      "dropDelete": "أفلت للحذف",
+      "retry": "إعادة المحاولة",
+      "loading": "جارٍ تحميل أحداث التقويم",
+      "conflict": "تم تغيير هذا الموعد في مكان آخر. راجع القيم الحالية وحاول مرة أخرى."
+    },
     "upcomingDeadlines": "Upcoming deadlines",
     "noDeadlines": "No deadlines ahead. Learn at your own pace.",
     "continueLearning": "Continue where you left off",

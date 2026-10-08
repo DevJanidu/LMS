@@ -18,7 +18,7 @@ export default function UserStatusAction({ data, user }: Props) {
     <>
       <button
         onClick={modal.openModal}
-        className="text-sm text-brand-600 dark:text-brand-300"
+        className="text-body text-brand-600 dark:text-brand-300"
       >
         {t(action)}
       </button>

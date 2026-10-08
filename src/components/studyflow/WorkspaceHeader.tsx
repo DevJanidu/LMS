@@ -159,7 +159,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
                       }))
                     }
                   >
-                    <span className="font-medium">
+                    <span className="text-body-strong">
                       {item.title}
                       {!item.readAt && (
                         <span aria-hidden="true" className="sf-unread-dot" />
