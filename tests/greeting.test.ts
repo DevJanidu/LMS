@@ -12,11 +12,11 @@ const expectedImages: Record<GreetingPeriod, string> = {
 };
 
 const expectedCopy: Record<GreetingPeriod, ReturnType<typeof getGreeting>> = {
-  morning: { greeting: "Good morning, Alex ☀️", tagline: "Hope your day starts well.", badge: "🐦 Early Bird" },
-  afternoon: { greeting: "Good afternoon, Alex 🌤️", tagline: "Keep up the great work.", badge: "🌤️ Day Champion" },
-  evening: { greeting: "Good evening, Alex 🌆", tagline: "Time to slow down a little.", badge: "⭐ Evening Star" },
-  night: { greeting: "Good night, Alex 🌙", tagline: "Winding down? Rest well.", badge: "🌙 Night Voyager" },
-  midnight: { greeting: "Still up, Alex? 🦉", tagline: "The night owls are out tonight.", badge: "🦉 Night Owl" },
+  morning: { greeting: "Good morning, Alex", tagline: "Hope your day starts well.", badge: "Early Bird" },
+  afternoon: { greeting: "Good afternoon, Alex", tagline: "Keep up the great work.", badge: "Day Champion" },
+  evening: { greeting: "Good evening, Alex", tagline: "Time to slow down a little.", badge: "Evening Star" },
+  night: { greeting: "Good night, Alex", tagline: "Winding down? Rest well.", badge: "Night Voyager" },
+  midnight: { greeting: "Still up, Alex?", tagline: "The night owls are out tonight.", badge: "Night Owl" },
 };
 
 const boundaries: Array<[number, number, GreetingPeriod]> = [
@@ -57,11 +57,11 @@ describe("local greeting period and image", () => {
 
   it("uses friend when the account name is empty", () => {
     expect(greetingName("  ")).toBe("friend");
-    expect(greetingName("  Alex Morgan  ")).toBe("Alex Morgan");
+    expect(greetingName("  Alex Morgan  ")).toBe("Alex");
     expect(getGreeting(" ", new Date(2026, 0, 15, 12))).toEqual({
-      greeting: "Good afternoon, friend 🌤️",
+      greeting: "Good afternoon, friend",
       tagline: "Keep up the great work.",
-      badge: "🌤️ Day Champion",
+      badge: "Day Champion",
     });
   });
 });

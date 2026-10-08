@@ -17,7 +17,7 @@ export function greetingPeriodForHour(hour: number): GreetingPeriod {
 }
 
 export function greetingName(name: string): string {
-  return name?.trim() || "friend";
+  return name?.trim().split(/\s+/)[0] || "friend";
 }
 
 /** Date#getHours reads the browser device's local time zone. */
@@ -30,10 +30,10 @@ export function getGreeting(name: string, date = new Date()) {
   const cleanName = greetingName(name);
   const period = greetingForDate(date).period;
   switch (period) {
-    case "morning": return { greeting: `Good morning, ${cleanName} ☀️`, tagline: "Hope your day starts well.", badge: "🐦 Early Bird" };
-    case "afternoon": return { greeting: `Good afternoon, ${cleanName} 🌤️`, tagline: "Keep up the great work.", badge: "🌤️ Day Champion" };
-    case "evening": return { greeting: `Good evening, ${cleanName} 🌆`, tagline: "Time to slow down a little.", badge: "⭐ Evening Star" };
-    case "night": return { greeting: `Good night, ${cleanName} 🌙`, tagline: "Winding down? Rest well.", badge: "🌙 Night Voyager" };
-    case "midnight": return { greeting: `Still up, ${cleanName}? 🦉`, tagline: "The night owls are out tonight.", badge: "🦉 Night Owl" };
+    case "morning": return { greeting: `Good morning, ${cleanName}`, tagline: "Hope your day starts well.", badge: "Early Bird" };
+    case "afternoon": return { greeting: `Good afternoon, ${cleanName}`, tagline: "Keep up the great work.", badge: "Day Champion" };
+    case "evening": return { greeting: `Good evening, ${cleanName}`, tagline: "Time to slow down a little.", badge: "Evening Star" };
+    case "night": return { greeting: `Good night, ${cleanName}`, tagline: "Winding down? Rest well.", badge: "Night Voyager" };
+    case "midnight": return { greeting: `Still up, ${cleanName}?`, tagline: "The night owls are out tonight.", badge: "Night Owl" };
   }
 }
