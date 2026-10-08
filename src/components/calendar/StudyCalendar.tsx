@@ -136,7 +136,13 @@ export default function StudyCalendar({ initial, add = false }: Props) {
       return;
     }
     if (occurrence.block.repeat === "weekly") setAction({ kind: "move", occurrence, startsAt, endsAt, revert });
-    else void state.store.mutate({ kind: "move", id: occurrence.block.id, date: occurrence.date, scope: "one", startsAt, endsAt }).then(saved => { if (saved) setMessage(t("redesign.scheduleMoved")); });
+    else void state.store.mutate({ kind: "move", id: occurrence.block.id, date: occurrence.date, scope: "one", startsAt, endsAt }).then(saved => {
+      // FullCalendar owns the dragged DOM position. The optimistic store can
+      // restore React state, but it cannot move that DOM node back after a
+      // failed save, so explicitly invoke its rollback callback as well.
+      if (saved) setMessage(t("redesign.scheduleMoved"));
+      else revert();
+    });
   };
   const month = new Intl.DateTimeFormat(locale, {
     month: "long",

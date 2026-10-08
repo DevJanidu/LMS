@@ -3,37 +3,37 @@
   "results": [
     {
       "run": 1,
-      "serverMs": 5781,
+      "serverMs": 8658,
       "queryCount": 15
     },
     {
       "run": 2,
-      "serverMs": 2033,
-      "queryCount": 15
+      "serverMs": 2332,
+      "queryCount": 12
     },
     {
       "run": 3,
-      "serverMs": 2414,
-      "queryCount": 15
+      "serverMs": 2287,
+      "queryCount": 12
     }
   ],
   "cache": {
     "settings": {
-      "hit": 0,
-      "miss": 0,
+      "hit": 2,
+      "miss": 1,
       "bypass": 0,
-      "error": 2
+      "error": 0
     },
     "analytics": {
-      "hit": 0,
-      "miss": 0,
-      "bypass": 3,
+      "hit": 2,
+      "miss": 1,
+      "bypass": 0,
       "error": 0
     },
     "subjects": {
-      "hit": 0,
-      "miss": 0,
-      "bypass": 3,
+      "hit": 2,
+      "miss": 1,
+      "bypass": 0,
       "error": 0
     }
   }
