@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { timerElapsed } from "@/lib/analytics";
-import { runOperation, useNow, useWorkspace } from "@/lib/workspace/store";
+import { runOperation, useNow, useWorkspace, useWorkspacePending } from "@/lib/workspace/store";
 import { clockTime } from "@/lib/time";
 import type { Workspace } from "@/types";
 interface Props {
@@ -14,6 +14,7 @@ export default function ActiveTimerIndicator({ initial }: Props) {
   const now = useNow();
   const t = useTranslations("studyflow");
   const timer = data.timer;
+  const pending = useWorkspacePending();
   const elapsed = timer && now ? Math.min(timerElapsed(timer, now), timer.confirmedUntilSeconds) : 0;
   if (!timer) return null;
   return (
@@ -21,6 +22,7 @@ export default function ActiveTimerIndicator({ initial }: Props) {
       className={`sf-timer-dock ${timer.pausedAt ? "is-paused" : ""}`}
     >
       <span aria-hidden="true" className="sf-live-dot" />
+      <span className="sr-only" role="status" aria-live="polite">{t(timer.pausedAt ? "pausedStudying" : "studying", { subject: data.subjects.find(subject => subject.id === timer.subjectId)?.title ?? "" })}</span>
       <Link href="/study">{t(timer.pausedAt ? "pausedStudying" : "studying", {
         subject:
           data.subjects.find((subject) => subject.id === timer.subjectId)
@@ -29,7 +31,7 @@ export default function ActiveTimerIndicator({ initial }: Props) {
       <span dir="ltr" className="tabular-nums">
         {clockTime(elapsed)}
       </span>
-      {!timer.pausedAt && <button className="sf-dock-action" aria-label={t("redesign.pauseFocus")} onClick={() => { void runOperation(initial, { kind: "timer", value: { command: "pause" } }); }}>{t("pause")}</button>}
+      {!timer.pausedAt && <button disabled={pending} className="sf-dock-action" aria-label={t("redesign.pauseFocus")} onClick={() => { void runOperation(initial, { kind: "timer", value: { command: "pause" } }); }}>{t("pause")}</button>}
       <Link href="/study" className="sf-dock-action">{t(timer.pausedAt ? "resume" : "finish")}</Link>
     </div>
   );

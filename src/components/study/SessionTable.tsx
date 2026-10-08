@@ -11,7 +11,7 @@ import { duration, formatDate } from "@/lib/time";
 import type { StudySession, Workspace } from "@/types";
 import EmptyState from "@/components/studyflow/EmptyState";
 import { Link } from "@/i18n/navigation";
-import { primaryLink } from "@/components/studyflow/WorkspaceShell";
+import { primaryLink } from "@/components/studyflow/styles";
 interface Props {
   sessions: StudySession[];
   data: Workspace;

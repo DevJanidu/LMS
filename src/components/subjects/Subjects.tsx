@@ -3,7 +3,7 @@ import { useState } from "react";
 import Pagination from "@/components/studyflow/Pagination";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
-import { getSessions, getSubjects, getTopics } from "@/lib/workspace/queries";
+import { getSubjects, getTopics } from "@/lib/workspace/queries";
 import { useWorkspace } from "@/lib/workspace/store";
 import type { Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
@@ -63,9 +63,6 @@ export default function Subjects({ initial, add = false }: Props) {
               subject={subject}
               statistics={data.subjectStatistics?.[subject.id]}
               topics={getTopics(data, subject.id)}
-              sessions={getSessions(data).filter(
-                (session) => session.subjectId === subject.id,
-              )}
               timezone={data.user.timezone}
             />
           ))}

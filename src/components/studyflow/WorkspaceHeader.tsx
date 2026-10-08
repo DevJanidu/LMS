@@ -4,7 +4,6 @@ import { useRouter } from "@/i18n/navigation";
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSidebar } from "@/context/SidebarContext";
-import { useTheme } from "@/context/ThemeContext";
 import { Link } from "@/i18n/navigation";
 import {
   BellIcon,
@@ -12,9 +11,7 @@ import {
   CloseIcon,
   FolderIcon,
   ListIcon,
-  MoonIcon,
   SearchIcon,
-  SunIcon,
 } from "@/icons";
 import { APP_NAME } from "@/lib/constants";
 import { getNotifications } from "@/lib/workspace/notifications";
@@ -22,6 +19,7 @@ import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import { formatDate } from "@/lib/time";
 import type { Workspace } from "@/types";
 import FocusLauncher from "@/components/study/FocusLauncher";
+import ThemeToggle from "./ThemeToggle";
 import { primaryLink } from "./styles";
 interface Props {
   initial: Workspace;
@@ -35,11 +33,28 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
   const data = useWorkspace(initial);
   const { isMobileOpen, toggleMobileSidebar, isExpanded, toggleSidebar } =
     useSidebar();
-  const { theme, toggleTheme } = useTheme();
   const notifications = getNotifications(data);
-  const ThemeIcon = theme === "dark" ? SunIcon : MoonIcon;
+  const themeSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const unsavedTheme = useRef<"light" | "dark" | null>(null);
+  const saveTheme = (next: "light" | "dark") => {
+    unsavedTheme.current = next;
+    if (themeSaveTimer.current) clearTimeout(themeSaveTimer.current);
+    themeSaveTimer.current = setTimeout(() => {
+      themeSaveTimer.current = null;
+      unsavedTheme.current = null;
+      void updateWorkspace(initial, state => ({ ...state, user: { ...state.user, theme: next } }));
+    }, 650);
+  };
   const notificationMenu = useRef<HTMLDetailsElement>(null);
   const profileMenu = useRef<HTMLDetailsElement>(null);
+  useEffect(() => () => {
+    if (themeSaveTimer.current) clearTimeout(themeSaveTimer.current);
+    if (unsavedTheme.current) {
+      const next = unsavedTheme.current;
+      void updateWorkspace(initial, state => ({ ...state, user: { ...state.user, theme: next } }));
+      unsavedTheme.current = null;
+    }
+  }, [initial]);
   useEffect(() => {
     const dismiss = (event: PointerEvent) => {
       if (!(event.target instanceof Node)) return;
@@ -96,7 +111,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
         >
           <SearchIcon />
           <span>{t("searchWorkspace")}</span>
-          <kbd aria-hidden="true">âŒ˜ K</kbd>
+          <kbd aria-hidden="true">⌘ K</kbd>
         </button>
         <div className="sf-header-actions">
           {!admin && (
@@ -105,13 +120,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
               className={`${primaryLink} sf-header-start`}
             />
           )}
-          <button
-            onClick={toggleTheme}
-            aria-label={t("toggleTheme")}
-            className="sf-icon-button sf-theme-control"
-          >
-            <ThemeIcon />
-          </button>
+          <ThemeToggle label={t("toggleTheme")} className="sf-icon-button sf-theme-control" onChange={saveTheme} />
           <details
             ref={notificationMenu}
             className="sf-notification-menu sf-header-dropdown"
@@ -133,7 +142,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
                   <CloseIcon />
                 </button>
               </div>
-              {data.user.reminders ? (
+              {data.shellPending ? <p>{t("loading")}</p> : data.user.reminders ? (
                 notifications.map((item) => (
                   <button
                     key={item.id}
@@ -169,7 +178,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
               ) : (
                 <p>{t("remindersOff")}</p>
               )}
-              {data.user.reminders && !notifications.length && (
+              {!data.shellPending && data.user.reminders && !notifications.length && (
                 <p>{t("noReminders")}</p>
               )}
             </div>
@@ -210,11 +219,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
               <Link href={admin ? "/admin/settings" : "/settings"}>
                 {t("profileSettings")}
               </Link>
-              <button onClick={() => { const next = theme === "dark" ? "light" : "dark"; toggleTheme(); void updateWorkspace(initial, state => ({ ...state, user: { ...state.user, theme: next } })); }}>
-                <ThemeIcon />
-                {t("theme")}
-                <span className="text-muted ms-auto">{t(theme)}</span>
-              </button>
+              <ThemeToggle label={t("toggleTheme")} onChange={saveTheme} stateLabels={{ light: t("light"), dark: t("dark") }}>{t("theme")}</ThemeToggle>
               <button onClick={async () => { await signOut(); router.replace("/login"); }}>{t("logout")}</button>
             </div>
           </details>

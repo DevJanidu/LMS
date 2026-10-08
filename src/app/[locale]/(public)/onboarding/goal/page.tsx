@@ -1,7 +1,5 @@
-import { requireLearner } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/services/workspace";
-import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
+import { redirect } from "@/i18n/navigation";
 export default async function Page({
   params,
 }: {
@@ -9,8 +7,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireLearner();
-  return <OnboardingWizard initial={await getWorkspace()} initialStep={4} />;
+  redirect({ href: "/onboarding", locale });
 }
 
 export async function generateMetadata({

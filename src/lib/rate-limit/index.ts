@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { getEnv } from "@/lib/env";
-import { getRedis, cachePrefix } from "@/lib/cache";
+import { getRedis, rateLimitPrefix } from "@/lib/cache";
 const local = new Map<string, number[]>();
 const limiters = new Map<string, Ratelimit>();
 let securityRedis: Redis | undefined;
@@ -22,7 +22,7 @@ export async function allowRequest(identifier: string, maximum = 5, seconds = 60
     if (redis) {
       const family = `${maximum}:${seconds}`;
       let limiter = limiters.get(family);
-      if (!limiter) { limiter = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(maximum, `${seconds} s`), prefix: `${cachePrefix()}:limit:${family}`, timeout: 1500, ephemeralCache: false, analytics: false }); limiters.set(family, limiter); }
+      if (!limiter) { limiter = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(maximum, `${seconds} s`), prefix: `${rateLimitPrefix()}:${family}`, timeout: 1500, ephemeralCache: false, analytics: false }); limiters.set(family, limiter); }
       const result = await limiter.limit(key);
       return result.success && result.reason !== "timeout";
     }

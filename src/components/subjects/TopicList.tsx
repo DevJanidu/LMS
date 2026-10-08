@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { getTopics } from "@/lib/workspace/queries";
-import { newId, updateWorkspace, runOperation } from "@/lib/workspace/store";
+import { newId, updateWorkspace, runOperation, useWorkspacePending } from "@/lib/workspace/store";
 import type { Topic, Workspace } from "@/types";
 import { Modal } from "@/components/ui/modal";
 import { useModal } from "@/hooks/useModal";
@@ -20,6 +20,7 @@ interface Props {
 /** Completion, bulk entry, editable topics and accessible reordering. */
 export default function TopicList({ data, subjectId }: Props) {
   const t = useTranslations("studyflow");
+  const pending = useWorkspacePending();
   const topics = getTopics(data, subjectId);
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
@@ -78,7 +79,7 @@ export default function TopicList({ data, subjectId }: Props) {
     updateWorkspace(data, (state) => ({
       ...state,
       topics: state.topics.map((topic) =>
-        topic.subjectId === subjectId
+        topic.subjectId === subjectId && !topic.archived
           ? { ...topic, sortOrder: order.indexOf(topic.id) }
           : topic,
       ),
@@ -102,8 +103,8 @@ export default function TopicList({ data, subjectId }: Props) {
             maxLength={150}
           />
         </div>
-        <Button type="submit">{t("addTopic")}</Button>
-        <Button variant="outline" onClick={bulk.openModal}>
+        <Button type="submit" disabled={pending}>{t("addTopic")}</Button>
+        <Button variant="outline" disabled={pending} onClick={bulk.openModal}>
           {t("bulkAdd")}
         </Button>
       </form>
@@ -165,7 +166,7 @@ export default function TopicList({ data, subjectId }: Props) {
             </span>
             <div className="flex gap-2">
               <button
-                disabled={index === 0}
+                disabled={pending || index === 0}
                 aria-label={t("moveUp", { title: topic.title })}
                 onClick={() => reorder(topic.id, topics[index - 1].id)}
                 className="rounded p-1 text-gray-500 disabled:opacity-30 dark:text-gray-400"
@@ -173,7 +174,7 @@ export default function TopicList({ data, subjectId }: Props) {
                 ↑
               </button>
               <button
-                disabled={index === topics.length - 1}
+                disabled={pending || index === topics.length - 1}
                 aria-label={t("moveDown", { title: topic.title })}
                 onClick={() => reorder(topic.id, topics[index + 1].id)}
                 className="rounded p-1 text-gray-500 disabled:opacity-30 dark:text-gray-400"
@@ -213,7 +214,7 @@ export default function TopicList({ data, subjectId }: Props) {
           }}
         >
           <TextField label={t("onePerLine")} name="titles" required />
-          <Button type="submit">{t("addTopics")}</Button>
+          <Button type="submit" disabled={pending}>{t("addTopics")}</Button>
           {error && <p role="alert">{error}</p>}
         </form>
       </Modal>

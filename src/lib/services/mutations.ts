@@ -1,10 +1,11 @@
 import "server-only";
-import { and, count, eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import type { Operation } from "@/lib/validation/operations";
 import { timerElapsed } from "@/lib/analytics";
 import { finishSnapshot } from "@/lib/timer";
+import { editedSessionInterval } from "@/lib/timer/session-edit";
 import { learnerAnalytics } from "@/lib/analytics/server";
 import { sql } from "drizzle-orm";
 import { invalidateUser, invalidateSettings } from "@/lib/cache";
@@ -26,16 +27,42 @@ export async function mutate(userId: string, operations: Operation[]) {
       await tx.insert(s.preferences).values({ userId, highestStreak: summary.longestStreak }).onConflictDoUpdate({ target: s.preferences.userId, set: { highestStreak: sql`greatest(${s.preferences.highestStreak}, ${summary.longestStreak})` } });
     };
     if (changesHistory) await preserveHighestStreak();
+    const topicIds = [...new Set(operations.flatMap(op => op.kind === "topic" ? [op.value.id] : []))];
+    const existingTopics = topicIds.length ? await tx.select({ id: s.topics.id, subjectId: s.topics.subjectId, completedAt: s.topics.completedAt }).from(s.topics).where(inArray(s.topics.id, topicIds)) : [];
+    const topicMetadata = new Map(existingTopics.map(row => [row.id, row]));
+    const subjectReads = new Map<string, Promise<{ id: string; status: "active" | "archived" } | undefined>>();
+    const topicReads = new Map<string, Promise<{ subjectId: string } | undefined>>();
+    const topicCounts = new Map<string, number>();
+    const pendingTopics = new Map<string, typeof s.topics.$inferInsert>();
+    const flushTopics = async () => {
+      if (!pendingTopics.size) return;
+      const rows = await tx.insert(s.topics).values([...pendingTopics.values()]).onConflictDoUpdate({ target: s.topics.id,
+        set: { title: sql`excluded.title`, description: sql`excluded.description`, status: sql`excluded.status`, targetDate: sql`excluded.target_date`, sortOrder: sql`excluded.sort_order`, archived: sql`excluded.archived`, completedAt: sql`excluded.completed_at`, updatedAt: sql`excluded.updated_at` },
+        // A different account may race to insert the same client-supplied UUID.
+        // Never update a conflicting row under a different subject.
+        setWhere: sql`${s.topics.subjectId} = excluded.subject_id`,
+      }).returning({ id: s.topics.id });
+      if (rows.length !== pendingTopics.size) throw new DomainError("recordUnavailable");
+      pendingTopics.clear();
+    };
     const ownSubject = async (subjectId: string, topicId?: string) => {
-      const [subject] = await tx.select().from(s.subjects).where(and(eq(s.subjects.id, subjectId), eq(s.subjects.userId, userId)));
+      let read = subjectReads.get(subjectId);
+      if (!read) { read = tx.select({ id: s.subjects.id, status: s.subjects.status }).from(s.subjects).where(and(eq(s.subjects.id, subjectId), eq(s.subjects.userId, userId))).then(rows => rows[0]); subjectReads.set(subjectId, read); }
+      const subject = await read;
       if (!subject) throw new DomainError("recordUnavailable");
       if (topicId) {
-        const [topic] = await tx.select().from(s.topics).where(and(eq(s.topics.id, topicId), eq(s.topics.subjectId, subjectId)));
-        if (!topic) throw new DomainError("recordUnavailable");
+        const topic = topicMetadata.get(topicId);
+        if (!topic) {
+          let readTopic = topicReads.get(topicId);
+          if (!readTopic) { readTopic = tx.select({ subjectId: s.topics.subjectId }).from(s.topics).where(eq(s.topics.id, topicId)).then(rows => rows[0]); topicReads.set(topicId, readTopic); }
+          const value = await readTopic;
+          if (!value || value.subjectId !== subjectId) throw new DomainError("recordUnavailable");
+        } else if (topic.subjectId !== subjectId) throw new DomainError("recordUnavailable");
       }
       return subject;
     };
     for (const operation of operations) {
+      if (operation.kind !== "topic") await flushTopics();
       const now = new Date();
       if (["settings", "userStatus"].includes(operation.kind)) {
         if (actor.role !== "super_admin") throw new DomainError("recordUnavailable");
@@ -52,21 +79,24 @@ export async function mutate(userId: string, operations: Operation[]) {
           const value = { title: v.title, description: v.description, displayColor: v.color, targetDate: v.targetDate ?? null, status: v.status, updatedAt: now };
           if (existing) await tx.update(s.subjects).set(value).where(and(eq(s.subjects.id, v.id), eq(s.subjects.userId, userId)));
           else await tx.insert(s.subjects).values({ ...value, id: v.id, userId });
+          subjectReads.delete(v.id);
           break;
         }
         case "topic": {
           const v = operation.value;
           await ownSubject(v.subjectId);
-          const [existing] = await tx.select().from(s.topics).where(eq(s.topics.id, v.id));
+          const existing = topicMetadata.get(v.id);
           if (existing) { await ownSubject(existing.subjectId); if (existing.subjectId !== v.subjectId) throw new DomainError("recordUnavailable"); }
           else {
-            const [total] = await tx.select({ count: count() }).from(s.topics).where(eq(s.topics.subjectId, v.subjectId));
-            if (total.count >= 200) throw new DomainError("topicLimit");
+            let total = topicCounts.get(v.subjectId);
+            if (total === undefined) { const [row] = await tx.select({ count: count() }).from(s.topics).where(eq(s.topics.subjectId, v.subjectId)); total = row.count; }
+            if (total >= 200) throw new DomainError("topicLimit");
+            topicCounts.set(v.subjectId, total + 1);
           }
           const status = v.status === "notStarted" ? "not_started" : v.status === "inProgress" ? "in_progress" : "completed";
           const value = { subjectId: v.subjectId, title: v.title, description: v.description ?? null, status: status as "not_started" | "in_progress" | "completed", targetDate: v.targetDate ?? null, sortOrder: v.sortOrder, archived: v.archived ?? false, completedAt: status === "completed" ? existing?.completedAt ?? now : null, updatedAt: now };
-          if (existing) await tx.update(s.topics).set(value).where(eq(s.topics.id, v.id));
-          else await tx.insert(s.topics).values({ ...value, id: v.id });
+          pendingTopics.set(v.id, { ...value, id: v.id });
+          topicMetadata.set(v.id, { id: v.id, subjectId: v.subjectId, completedAt: value.completedAt });
           break;
         }
         case "resource": {
@@ -86,9 +116,9 @@ export async function mutate(userId: string, operations: Operation[]) {
           await ownSubject(v.subjectId, v.topicId);
           const [existing] = await tx.select().from(s.studySessions).where(eq(s.studySessions.id, v.id));
           if (existing && existing.userId !== userId) throw new DomainError("recordUnavailable");
-          const durationSeconds = Math.floor((Date.parse(v.endedAt) - Date.parse(v.startedAt)) / 1000);
+          const { durationSeconds, source } = editedSessionInterval(existing, v.startedAt, v.endedAt);
           if (durationSeconds < 60) throw new DomainError("sessionTooShort");
-          const value = { subjectId: v.subjectId, topicId: v.topicId ?? null, startedAt: new Date(v.startedAt), endedAt: new Date(v.endedAt), durationSeconds, note: v.note ?? null, source: "manual" as const, status: "valid" as const };
+          const value = { subjectId: v.subjectId, topicId: v.topicId ?? null, startedAt: new Date(v.startedAt), endedAt: new Date(v.endedAt), durationSeconds, note: v.note ?? null, source, status: "valid" as const };
           if (existing) await tx.update(s.studySessions).set(value).where(and(eq(s.studySessions.id, v.id), eq(s.studySessions.userId, userId)));
           else await tx.insert(s.studySessions).values({ ...value, id: v.id, userId });
           break;
@@ -119,10 +149,13 @@ export async function mutate(userId: string, operations: Operation[]) {
             await tx.update(s.pendingUploads).set({ topicId: null }).where(and(eq(s.pendingUploads.topicId, operation.id), eq(s.pendingUploads.userId, userId)));
             await tx.update(s.scheduleExceptions).set({ newTopicId: null }).where(eq(s.scheduleExceptions.newTopicId, operation.id));
             await tx.delete(s.topics).where(eq(s.topics.id, operation.id));
+            topicMetadata.delete(operation.id); topicReads.delete(operation.id);
+            if (topicCounts.has(row.subjectId)) topicCounts.set(row.subjectId, topicCounts.get(row.subjectId)! - 1);
           } else {
             const table = { subject: s.subjects, resource: s.resources, session: s.studySessions, block: s.scheduleBlocks }[operation.entity];
             const rows = await tx.delete(table).where(and(eq(table.id, operation.id), eq(table.userId, userId))).returning({ id: table.id });
             if (!rows.length) throw new DomainError("recordUnavailable");
+            if (operation.entity === "subject") { subjectReads.delete(operation.id); topicCounts.delete(operation.id); for (const [id, topic] of topicMetadata) if (topic.subjectId === operation.id) topicMetadata.delete(id); topicReads.clear(); }
           }
           break;
         }
@@ -178,7 +211,10 @@ export async function mutate(userId: string, operations: Operation[]) {
         }
       }
     }
-    await tx.update(s.users).set({ lastActiveAt: new Date() }).where(eq(s.users.id, userId));
+    await flushTopics();
+    // The live account revision also fences cache entries if Redis invalidation
+    // fails on one instance. Existing updated_at advances at least one millisecond.
+    await tx.update(s.users).set({ lastActiveAt: new Date(), updatedAt: sql`greatest(${s.users.updatedAt} + interval '1 millisecond', clock_timestamp())` }).where(eq(s.users.id, userId));
     if (changesHistory) await preserveHighestStreak();
   });
   await invalidateUser(userId, ["analytics", "subjects", "calendar"]);
@@ -189,7 +225,8 @@ export async function mutate(userId: string, operations: Operation[]) {
 
 export async function deleteAccount(userId: string) {
   await getDb().transaction(async tx => {
-    await tx.select({ id: s.users.id }).from(s.users).where(eq(s.users.id, userId)).for("update");
+    const [actor] = await tx.select({ status: s.users.status, role: s.users.role }).from(s.users).where(eq(s.users.id, userId)).for("update");
+    if (!actor || actor.status !== "active" || actor.role !== "learner") throw new DomainError("accountInactive");
     await tx.delete(s.users).where(eq(s.users.id, userId));
   });
   await invalidateUser(userId, ["analytics", "subjects", "calendar"]);

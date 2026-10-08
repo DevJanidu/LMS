@@ -5,7 +5,7 @@ import { getResources, getSessions, getTopics } from "@/lib/workspace/queries";
 import { dailySeconds, localDay, shiftDay } from "@/lib/analytics";
 import { useNow } from "@/lib/workspace/store";
 import type { Workspace } from "@/types";
-import { primaryLink } from "@/components/studyflow/WorkspaceShell";
+import { primaryLink } from "@/components/studyflow/styles";
 import ComponentCard from "@/components/common/ComponentCard";
 import StudyChart from "@/components/analytics/StudyChart";
 import SessionTable from "@/components/study/SessionTable";
@@ -64,7 +64,7 @@ export default function SubjectOverview({ data, subjectId }: Props) {
       </ComponentCard>
       <ComponentCard title={t("resources")}>
         <p className="text-muted text-sm">
-          {t("redesign.savedResources", { count: resources.length })}
+          {t("redesign.savedResources", { count: data.resourceCounts?.[subjectId] ?? resources.length })}
         </p>
         {resources.slice(0, 4).map((resource) => (
           <Link

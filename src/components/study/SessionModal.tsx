@@ -38,10 +38,10 @@ export default function SessionModal({
           event.preventDefault();
           const fields = new FormData(event.currentTarget);
           const minutes = Number(fields.get("minutes"));
-          const startedAt = zonedToUtc(
-            String(fields.get("start")),
-            data.user.timezone,
-          );
+          const enteredStart = String(fields.get("start"));
+          let startedAt: string;
+          try { startedAt = session && enteredStart === wallTime(session.startedAt, data.user.timezone) ? session.startedAt : zonedToUtc(enteredStart, data.user.timezone); }
+          catch { setError(t("invalidSession")); return; }
           const end = Date.parse(startedAt) + minutes * 60000;
           if (
             !Number.isFinite(minutes) ||
@@ -58,7 +58,7 @@ export default function SessionModal({
             subjectId,
             topicId: topicId || undefined,
             startedAt,
-            endedAt: new Date(end).toISOString(),
+            endedAt: session && startedAt === session.startedAt && Math.round(minutes * 60) === session.durationSeconds ? session.endedAt : new Date(end).toISOString(),
             durationSeconds: Math.round(minutes * 60),
             status: "valid",
             note: String(fields.get("note")) || undefined,
@@ -94,6 +94,7 @@ export default function SessionModal({
           label={t("minutes")}
           name="minutes"
           type="number"
+          step="any"
           min={1}
           required
           defaultValue={session ? session.durationSeconds / 60 : 30}

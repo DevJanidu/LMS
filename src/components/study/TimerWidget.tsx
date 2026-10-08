@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useModal } from "@/hooks/useModal";
 import { timerElapsed } from "@/lib/analytics";
 import { getSubjects } from "@/lib/workspace/queries";
-import { runOperation, useNow, useWorkspace } from "@/lib/workspace/store";
+import { runOperation, useNow, useWorkspace, useWorkspacePending } from "@/lib/workspace/store";
 import { clockTime } from "@/lib/time";
 import type { Workspace } from "@/types";
 import { Modal } from "@/components/ui/modal";
@@ -15,7 +15,7 @@ import PageHeader from "@/components/studyflow/PageHeader";
 import EmptyState from "@/components/studyflow/EmptyState";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 import Field, { TextField } from "@/components/studyflow/FormFields";
-import { primaryLink } from "@/components/studyflow/WorkspaceShell";
+import { primaryLink } from "@/components/studyflow/styles";
 import StudySelectors from "./StudySelectors";
 interface Props {
   initial: Workspace;
@@ -33,6 +33,7 @@ export default function TimerWidget({
   onStarted,
 }: Props) {
   const data = useWorkspace(initial);
+  const pending = useWorkspacePending();
   const t = useTranslations("studyflow");
   const now = useNow();
   const [subjectId, setSubjectId] = useState(subject);
@@ -104,7 +105,7 @@ export default function TimerWidget({
                 >
                   <p>{t("stillStudying")}</p>
                   <p className="mt-2">{t("timerCapped")}</p>
-                  <Button onClick={confirm} className="mt-3">
+                  <Button disabled={pending} onClick={confirm} className="mt-3">
                     {t("yesContinue")}
                   </Button>
                 </div>
@@ -112,19 +113,21 @@ export default function TimerWidget({
               <div className="flex flex-wrap justify-center gap-3">
                 <Button
                   variant="outline"
+                  disabled={pending}
                   onClick={timer.pausedAt ? resume : pause}
                 >
                   {t(timer.pausedAt ? "resume" : "pause")}
                 </Button>
                 <Button
+                  disabled={pending}
                   onClick={async () => {
-                    await pause();
-                    finish.openModal();
+                    const result = await pause();
+                    if (result.ok) finish.openModal(); else setMessage(t(result.error));
                   }}
                 >
                   {t("finish")}
                 </Button>
-                <Button variant="outline" onClick={discard.openModal}>
+                <Button disabled={pending} variant="outline" onClick={discard.openModal}>
                   {t("discard")}
                 </Button>
               </div>
@@ -146,7 +149,7 @@ export default function TimerWidget({
                 onTopicChange={setTopicId}
               />
               <Field label={t("redesign.focusGoal")} placeholder={t("redesign.focusGoalHint")} value={focusGoal} onChange={event => setFocusGoal(event.target.value)} maxLength={200} />
-              <Button type="submit" disabled={!subjectId} className="w-full">
+              <Button type="submit" disabled={!subjectId || pending} className="w-full">
                 {t("start")}
               </Button>
               <p className="text-center text-theme-xs text-gray-400 dark:text-gray-500">
@@ -180,7 +183,7 @@ export default function TimerWidget({
           }}
         >
           <TextField label={t("noteOptional")} name="note" />
-          <Button type="submit">{t("saveSession")}</Button>
+          <Button type="submit" disabled={pending}>{t(pending ? "loading" : "saveSession")}</Button>
         </form>
       </Modal>
       <ConfirmDialog

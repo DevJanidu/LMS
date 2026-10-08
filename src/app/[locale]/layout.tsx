@@ -3,7 +3,7 @@ import { isRtl } from "@/i18n/languages";
 import { type Locale, routing } from "@/i18n/routing";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import { Geist } from "next/font/google";
+import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import "../workspace.css";
@@ -15,9 +15,11 @@ export const metadata: Metadata = {
     "Your personal study workspace. Organise subjects, plan your week and track your learning.",
 };
 
-const geist = Geist({
-  subsets: ["latin"],
+const geist = localFont({
+  src: "../../fonts/Geist-Variable.woff2",
+  weight: "100 900",
   variable: "--font-geist",
+  display: "optional",
 });
 
 export function generateStaticParams() {

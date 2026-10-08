@@ -1,0 +1,1352 @@
+[
+  {
+    "route": "/login",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"register\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"login\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            ".mb-5"
+          ],
+          [
+            ".mt-2"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            ".mb-5"
+          ],
+          [
+            ".mt-2"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"register\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"login\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            ".mb-5"
+          ],
+          [
+            ".mt-2"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            ".mb-5"
+          ],
+          [
+            ".mt-2"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"register\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"login\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            ".mb-5"
+          ],
+          [
+            ".mt-2"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            ".mb-5"
+          ],
+          [
+            ".mt-2"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"register\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"login\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            ".mb-5"
+          ],
+          [
+            ".mt-2"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".sf-eyebrow"
+          ],
+          [
+            "span:nth-child(7)"
+          ],
+          [
+            ".mb-5"
+          ],
+          [
+            ".mt-2"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"register\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"login\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".mb-5"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".mb-5"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"register\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"login\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".mb-5"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".mb-5"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"register\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"login\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".mb-5"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".mb-5"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"register\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "selectors": [
+          [
+            "a[href$=\"login\"]"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".mb-5"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            ".mb-5"
+          ],
+          [
+            "footer"
+          ]
+        ]
+      }
+    ]
+  }
+]

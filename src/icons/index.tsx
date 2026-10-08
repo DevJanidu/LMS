@@ -16,3 +16,6 @@ export { default as MoonIcon } from "./moon.svg";
 export { default as ChevronDownIcon } from "./chevron-down.svg";
 export { default as LinkIcon } from "./link.svg";
 export { default as PlayIcon } from "./play.svg";
+export { default as StartPlayIcon } from "./play-lucide.svg";
+export { default as TimerIcon } from "./timer.svg";
+export { default as SettingsIcon } from "./settings.svg";

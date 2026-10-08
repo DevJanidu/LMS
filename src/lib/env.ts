@@ -18,6 +18,10 @@ const environmentSchema = z.object({
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   CACHE_NAMESPACE: z.enum(["development", "preview", "production", "test"]).default("development"),
+  SEED_USER_EMAIL: z.email().optional(),
+  SEED_USER_PASSWORD: z.string().min(8).max(128).optional(),
+  SEED_USER_NAME: z.string().trim().min(1).optional(),
+  SEED_USER_ROLE: z.enum(["learner", "super_admin"]).optional(),
 }).superRefine((env, ctx) => {
   if (Boolean(env.RESEND_API_KEY) !== Boolean(env.EMAIL_FROM)) {
     ctx.addIssue({ code: "custom", path: ["RESEND_API_KEY"], message: "Set both email variables or leave both unset while email setup is pending." });

@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { bigint, boolean, check, date, foreignKey, index, integer, jsonb, pgEnum, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 
 const time = (name: string) => timestamp(name, { withTimezone: true });
@@ -32,6 +32,12 @@ export const authSessions = pgTable("sessions", {
   token: text("token").notNull().unique(), expiresAt: time("expires_at").notNull(), ipAddress: text("ip_address"), userAgent: text("user_agent"),
   createdAt: created(), updatedAt: updated(),
 }, t => [index("sessions_user_idx").on(t.userId)]);
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(authSessions, { relationName: "session_userId" }),
+}));
+export const authSessionsRelations = relations(authSessions, ({ one }) => ({
+  user: one(users, { fields: [authSessions.userId], references: [users.id], relationName: "session_userId" }),
+}));
 export const accounts = pgTable("accounts", {
   id: id(), userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   accountId: text("account_id").notNull(), providerId: text("provider_id").notNull(), password: text("password"),

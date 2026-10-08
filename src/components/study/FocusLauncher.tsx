@@ -4,7 +4,7 @@ import { useModal } from "@/hooks/useModal";
 import { useWorkspace } from "@/lib/workspace/store";
 import { Link } from "@/i18n/navigation";
 import { Modal } from "@/components/ui/modal";
-import { TimeIcon } from "@/icons";
+import { StartPlayIcon, TimerIcon } from "@/icons";
 import type { Workspace } from "@/types";
 import TimerWidget from "./TimerWidget";
 interface Props {
@@ -26,15 +26,21 @@ export default function FocusLauncher({
   const t = useTranslations("studyflow");
   const modal = useModal();
   const data = useWorkspace(initial);
+  const Icon = mobile ? TimerIcon : StartPlayIcon;
   const content = (
     <>
       <span className="sf-nav-icon">
-        <TimeIcon className="size-5 shrink-0" />
+        <Icon className="size-5 shrink-0" />
       </span>
       <span className={sidebar ? "sf-nav-label" : ""}>
         {t(mobile ? "study" : "startStudying")}
       </span>
     </>
+  );
+  if (data.shellPending) return (
+    <button disabled className={className} aria-label={t("startStudying")} aria-current={active ? "page" : undefined}>
+      {content}
+    </button>
   );
   return (
     <>

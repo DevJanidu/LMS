@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { queryAdminUsers } from "@/app/[locale]/actions";
+import type { AdminUserPage } from "@/lib/services/admin-users";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useNow, useWorkspace } from "@/lib/workspace/store";
+import { useWorkspace } from "@/lib/workspace/store";
 import { getSessions } from "@/lib/workspace/queries";
 import { totalSeconds } from "@/lib/analytics";
 import { csvCell } from "@/lib/csv";
@@ -23,49 +25,39 @@ import Badge from "@/components/ui/badge/Badge";
 import Button from "@/components/ui/button/Button";
 interface Props {
   initial: Workspace;
+  initialPage: AdminUserPage;
 }
 /** Search and sort learner accounts without accessing private study content. */
-export default function AdminUsers({ initial }: Props) {
+export default function AdminUsers({ initial, initialPage }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const [query, setQuery] = useState("");
-  const clock = useNow();
-  const now = clock || Date.parse(initial.user.lastActiveAt);
   const [status, setStatus] = useState("");
   const [activity, setActivity] = useState("");
   const [joined, setJoined] = useState("");
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("name");
   const [direction, setDirection] = useState("asc");
-  const users = data.users
-    .filter((user) => {
-      const studied = getSessions(data,user.id).some(session => Date.parse(session.startedAt) >= now - 7*86400000 && Date.parse(session.startedAt) <= now);
-      return (!status || user.status === status) && (!joined || Date.parse(user.createdAt) >= now-Number(joined)*86400000) && (!activity || (activity === 'recent' ? studied : !studied)) && (user.name+' '+user.email).toLowerCase().includes(query.toLowerCase());
-    })
-    .sort((a, b) => {
-      const diff =
-        sort === "studyTime"
-          ? totalSeconds(getSessions(data, a.id)) -
-            totalSeconds(getSessions(data, b.id))
-          : String(
-              a[
-                sort as
-                  "name" | "email" | "createdAt" | "lastActiveAt" | "status"
-              ],
-            ).localeCompare(
-              String(
-                b[
-                  sort as
-                    "name" | "email" | "createdAt" | "lastActiveAt" | "status"
-                ],
-              ),
-            );
-      return direction === "asc" ? diff : -diff;
-    });
-  const pages = Math.max(1,Math.ceil(users.length/10));
+  const [records, setRecords] = useState(initialPage);
+  const [error, setError] = useState("");
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      void queryAdminUsers({ page, search: query, status: status || undefined, activity: activity || undefined, joined: joined || undefined, sort, direction }).then(result => {
+        if (cancelled) return;
+        if (result.ok) { setRecords(result.data); setError(""); } else setError(t(result.error));
+      }).catch(() => { if (!cancelled) setError(t("saveFailed")); });
+    }, query ? 250 : 0);
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [page, query, status, activity, joined, sort, direction, data.users, t]);
+  const users = records.rows.map(row => row.user);
+  const secondsFor = (id: string) => records.rows.find(row => row.user.id === id)?.seconds ?? totalSeconds(getSessions(data, id));
+  const pages = Math.max(1,Math.ceil(records.total/20));
   const currentPage = Math.min(page,pages);
-  const visible = users.slice((currentPage-1)*10,currentPage*10);
+  const visible = users;
   const cell = "px-4 py-4 text-start text-sm whitespace-nowrap";
   return (
     <>
@@ -90,7 +82,7 @@ export default function AdminUsers({ initial }: Props) {
                   user.email,
                   user.createdAt,
                   user.lastActiveAt,
-                  duration(totalSeconds(getSessions(data, user.id))),
+                  duration(secondsFor(user.id)),
                   t(user.status),
                 ]),
               ];
@@ -119,12 +111,12 @@ export default function AdminUsers({ initial }: Props) {
         <Field
           label={t("searchUsers")}
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => { setQuery(event.target.value); setPage(1); }}
         />
         <SelectField
           label={t("sortBy")}
           value={sort}
-          onChange={(event) => setSort(event.target.value)}
+          onChange={(event) => { setSort(event.target.value); setPage(1); }}
         >
           {[
             ["name", "name"],
@@ -142,7 +134,7 @@ export default function AdminUsers({ initial }: Props) {
         <SelectField
           label={t("sortOrder")}
           value={direction}
-          onChange={(event) => setDirection(event.target.value)}
+          onChange={(event) => { setDirection(event.target.value); setPage(1); }}
         >
           <option value="asc">{t("ascending")}</option>
           <option value="desc">{t("descending")}</option>
@@ -151,6 +143,7 @@ export default function AdminUsers({ initial }: Props) {
         <SelectField label={t("redesign.activityFilter")} value={activity} onChange={event=>{setActivity(event.target.value);setPage(1);}}><option value="">{t("redesign.allActivity")}</option><option value="recent">{t("redesign.studiedWeek")}</option><option value="none">{t("redesign.noRecentStudy")}</option></SelectField>
         <SelectField label={t("redesign.joinedFilter")} value={joined} onChange={event=>{setJoined(event.target.value);setPage(1);}}><option value="">{t("redesign.joinedAny")}</option><option value="30">{t("redesign.joined30")}</option><option value="90">{t("redesign.joined90")}</option></SelectField>
       </div>
+      {error && <p role="alert" className="mb-4 text-error-600 dark:text-error-400">{error}</p>}
       {users.length ? (
         <>
         <div className="space-y-3 sm:hidden">
@@ -165,7 +158,7 @@ export default function AdminUsers({ initial }: Props) {
               </div>
               <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-gray-200 pt-4 text-xs dark:border-gray-800">
                 <div><dt className="text-muted">{t("lastActive")}</dt><dd className="mt-1">{formatDate(user.lastActiveAt, data.user.timezone, locale)}</dd></div>
-                <div><dt className="text-muted">{t("studyTime")}</dt><dd className="mt-1">{duration(totalSeconds(getSessions(data, user.id)))}</dd></div>
+                <div><dt className="text-muted">{t("studyTime")}</dt><dd className="mt-1">{duration(secondsFor(user.id))}</dd></div>
               </dl>
               <div className="mt-4"><UserStatusAction data={data} user={user} /></div>
             </article>
@@ -214,7 +207,7 @@ export default function AdminUsers({ initial }: Props) {
                     {formatDate(user.lastActiveAt, data.user.timezone, locale)}
                   </TableCell>
                   <TableCell className={cell}>
-                    {duration(totalSeconds(getSessions(data, user.id)))}
+                    {duration(secondsFor(user.id))}
                   </TableCell>
                   <TableCell className={cell}>
                     <Badge

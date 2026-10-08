@@ -34,7 +34,7 @@ export default function Analytics({ initial }: Props) {
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const clock = useNow();
-  const now = clock || Date.parse(initial.user.lastActiveAt);
+  const now = clock || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt);
   const today = localDay(now, data.user.timezone);
   const sessions = getSessions(data);
   const totals = data.analytics?.daily ?? dailySeconds(sessions, data.user.timezone);
@@ -110,7 +110,7 @@ export default function Analytics({ initial }: Props) {
           {t("streakRule", { minutes: data.settings.streakMinutes })}
         </span>
       </div>
-      {!sessions.length && (
+      {(data.analytics?.sessionCount ?? sessions.length) === 0 && (
         <div className="mb-6">
           <EmptyState
             title={t("noAnalytics")}

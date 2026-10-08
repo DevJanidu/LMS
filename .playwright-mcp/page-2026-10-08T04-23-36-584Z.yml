@@ -1,0 +1,52 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - banner [ref=f2e3]:
+      - link "StudyFlow" [ref=f2e4] [cursor=pointer]:
+        - /url: /dashboard
+    - main [ref=f2e5]:
+      - complementary [ref=f2e6]:
+        - paragraph [ref=f2e7]: Learn → Focus → Progress → Master
+        - heading "A little focus. A world of possibility." [level=1] [ref=f2e8]
+        - paragraph [ref=f2e9]: Bring everything you are learning into one personal space. Make a plan, find your focus, and see how far you can go.
+        - generic [aria-hidden] [ref=f2e10]:
+          - generic [ref=f2e11]: "01"
+          - generic [ref=f2e13]: "02"
+          - generic [ref=f2e15]: "03"
+          - generic [ref=f2e17]: "04"
+      - generic [ref=f2e19]:
+        - complementary "Learner navigation" [ref=f2e20]:
+          - link "StudyFlow" [ref=f2e22] [cursor=pointer]:
+            - /url: /dashboard
+          - generic [ref=f2e31]: Start Studying
+          - navigation [ref=f2e32]:
+            - link "Home" [ref=f2e34] [cursor=pointer]:
+              - /url: /dashboard
+            - link "Subjects" [ref=f2e43] [cursor=pointer]:
+              - /url: /subjects
+            - link "Study" [ref=f2e49] [cursor=pointer]:
+              - /url: /study
+            - link "Study Planner" [ref=f2e56] [cursor=pointer]:
+              - /url: /calendar
+            - link "Analytics" [ref=f2e63] [cursor=pointer]:
+              - /url: /analytics
+            - link "Library" [ref=f2e70] [cursor=pointer]:
+              - /url: /resources
+          - generic [ref=f2e76]:
+            - link "Settings" [ref=f2e78] [cursor=pointer]:
+              - /url: /settings
+            - paragraph [ref=f2e85]: A little focus, a little progress. Every day.
+        - generic [ref=f2e86]:
+          - generic [ref=f2e88]:
+            - generic [ref=f2e93]:
+              - generic [ref=f2e97]: Search your workspace
+              - generic [aria-hidden] [ref=f2e98]: ⌘ K
+            - generic [ref=f2e99]:
+              - generic [aria-hidden] [ref=f2e100]: Start Studying
+              - button "Toggle light and dark mode" [ref=f2e101] [cursor=pointer]
+          - main [ref=f2e110]:
+            - status [ref=f2e112]:
+              - generic [ref=f2e113]: Loading your workspace…
+          - generic [ref=f2e120]: StudyFlow · Make room for learning.
+    - contentinfo [ref=f2e121]: StudyFlow · Make room for learning.
+  - button "Open Next.js Dev Tools" [ref=f2e127] [cursor=pointer]
+  - alert [ref=f2e131]

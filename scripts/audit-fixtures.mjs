@@ -1,11 +1,10 @@
 // Explicitly acknowledged current/development branch; never resets existing data.
-import nextEnv from "@next/env";
+import { environment as env } from "./env-runtime.mjs";
 import { neon } from "@neondatabase/serverless";
 import { hash } from "@node-rs/argon2";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
-nextEnv.loadEnvConfig(process.cwd());
 if (process.env.VERCEL_ENV === "production" || !process.argv.includes("--acknowledge-current-test-database")) throw new Error("Explicit test-database acknowledgement is required. Production refused.");
-const sql = neon(process.env.DATABASE_URL_UNPOOLED);
+const sql = neon(env.DATABASE_URL_UNPOOLED);
 const path = ".audit-local/fixtures.json";
 mkdirSync(".audit-local", { recursive: true });
 try {

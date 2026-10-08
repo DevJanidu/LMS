@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ArrowRightIcon } from "@/icons";
@@ -21,12 +20,12 @@ import SubjectCard from "@/components/subjects/SubjectCard";
 import WeeklyJourney from "./WeeklyJourney";
 import TodayPlan from "./TodayPlan";
 
-export default function Dashboard({ initial }: { initial: Workspace }) {
+export default function Dashboard({ initial, section }: { initial: Workspace; section: "message" | "today" | "week" | "body" }) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const clock = useNow();
-  const now = clock || Date.parse(initial.user.lastActiveAt);
+  const now = clock || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt);
   const today = localDay(now, data.user.timezone);
   const sessions = getSessions(data);
   const subjects = getSubjects(data).filter((s) => s.status === "active");
@@ -42,23 +41,6 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
   const todaysBlocks = blocks.filter(
     (b) => localDay(b.startsAt, data.user.timezone) === today,
   );
-  const hour = Number(
-    new Intl.DateTimeFormat("en", {
-      hour: "numeric",
-      hourCycle: "h23",
-      timeZone: data.user.timezone,
-    }).format(now),
-  );
-  const greeting = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
-  // The existing live clock updates this when the learner's local period changes.
-  const backgroundPeriod =
-    hour >= 6 && hour < 12
-      ? "morning"
-      : hour >= 12 && hour < 18
-        ? "afternoon"
-        : hour >= 18 && hour < 21
-          ? "evening"
-          : "night";
   const completed = data.analytics?.topicsCompletedThisMonth ?? topics.filter(
     (topic) =>
       topic.completedAt &&
@@ -74,6 +56,21 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
         : streak.current > 0
           ? t("redesign.greetingStreak", { days: streak.current })
           : t("redesign.greetingReady");
+  if (section === "message") return <p className="sf-hero-message">{message}</p>;
+  if (section === "today") return (
+    <section className="sf-dashboard-today" aria-label={t("todayStudyTime")}>
+      <div className="sf-dashboard-today-summary">
+        <p className="sf-eyebrow">{t("todayStudyTime")}</p>
+        <p className="sf-dashboard-today-value">{duration(todaySeconds)}</p>
+        <p className="sf-dashboard-today-note">{t("everyMinute")}</p>
+      </div>
+      <dl className="sf-dashboard-milestones">
+        <div><dt>{t("currentStreak")}</dt><dd>{t("streakDays", { days: streak.current })}</dd></div>
+        <div><dt>{t("topicsThisMonth")}</dt><dd>{completed}</dd></div>
+      </dl>
+    </section>
+  );
+  if (section === "week") return <WeeklyJourney data={data} today={today} seconds={weekSeconds} />;
   const ranked = [...subjects]
     .sort((a, b) => {
       const latest = (id: string) =>
@@ -110,48 +107,6 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, 3);
   return (
-    <>
-      <header className="sf-hero sf-dashboard-hero">
-        <div className="sf-dashboard-greeting">
-          <Image
-            key={backgroundPeriod}
-            src={`/images/${backgroundPeriod}.png`}
-            alt=""
-            fill
-            sizes="(min-width: 1280px) 38vw, 100vw"
-            loading="eager"
-            className="sf-greeting-image"
-          />
-          <p className="sf-eyebrow">{t("redesign.personalWorkspace")}</p>
-          <h1>
-            {t(`redesign.${greeting}`, {
-              name: data.user.name.trim().split(" ")[0],
-            })}
-          </h1>
-          <p className="sf-hero-message">{message}</p>
-        </div>
-        <section
-          className="sf-dashboard-today"
-          aria-label={t("todayStudyTime")}
-        >
-          <div className="sf-dashboard-today-summary">
-            <p className="sf-eyebrow">{t("todayStudyTime")}</p>
-            <p className="sf-dashboard-today-value">{duration(todaySeconds)}</p>
-            <p className="sf-dashboard-today-note">{t("everyMinute")}</p>
-          </div>
-          <dl className="sf-dashboard-milestones">
-            <div>
-              <dt>{t("currentStreak")}</dt>
-              <dd>{t("streakDays", { days: streak.current })}</dd>
-            </div>
-            <div>
-              <dt>{t("topicsThisMonth")}</dt>
-              <dd>{completed}</dd>
-            </div>
-          </dl>
-        </section>
-        <WeeklyJourney data={data} today={today} seconds={weekSeconds} />
-      </header>
       <div className="sf-dashboard-body">
         <div className="sf-dashboard-learning">
           <TodayPlan
@@ -163,7 +118,7 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
           <section className="min-w-0">
             <div className="sf-section-heading">
               <h2>{t("continueLearning")}</h2>
-              <Link href="/subjects">{t("redesign.allSubjects")} â†’</Link>
+              <Link href="/subjects">{t("redesign.allSubjects")} →</Link>
             </div>
             {ranked.length ? (
               <div className="sf-continue-grid">
@@ -223,7 +178,7 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
           <section className="sf-dashboard-recent">
             <div className="sf-section-heading">
               <h2>{t("recentSessions")}</h2>
-              <Link href="/study/history">{t("viewHistory")} â†’</Link>
+              <Link href="/study/history">{t("viewHistory")} →</Link>
             </div>
             {sessions.length ? (
               <ul className="sf-dashboard-session-list">
@@ -273,6 +228,5 @@ export default function Dashboard({ initial }: { initial: Workspace }) {
           </section>
         </aside>
       </div>
-    </>
   );
 }

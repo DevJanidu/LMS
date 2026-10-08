@@ -1,1 +1,2 @@
-export { default } from "@/components/studyflow/LoadingSkeleton";
+import WorkspacePageLoading from "@/components/studyflow/WorkspacePageLoading";
+export default function Loading() { return <WorkspacePageLoading page="dashboard" />; }

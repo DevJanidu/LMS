@@ -1,0 +1,142 @@
+{
+  "conditions": "Local production build, Chrome, two fixture learners with 1095 sessions each, unthrottled. Video remains ignored locally. Not Lighthouse/4G results.",
+  "metrics": [
+    {
+      "route": "/dashboard",
+      "loginHeadingMs": 11750,
+      "hops": [
+        {
+          "method": "POST",
+          "path": "/login"
+        }
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "ttfbMs": 19,
+      "fcpMs": 2952,
+      "jsTransferBytes": 178025,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/subjects",
+      "ttfbMs": 19,
+      "fcpMs": 1716,
+      "jsTransferBytes": 171015,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/study",
+      "ttfbMs": 11,
+      "fcpMs": 1496,
+      "jsTransferBytes": 168318,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/study/history",
+      "ttfbMs": 13,
+      "fcpMs": 2696,
+      "jsTransferBytes": 170927,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/calendar",
+      "ttfbMs": 18,
+      "fcpMs": 2692,
+      "jsTransferBytes": 260386,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/analytics",
+      "ttfbMs": 13,
+      "fcpMs": 2964,
+      "jsTransferBytes": 442195,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/resources",
+      "ttfbMs": 13,
+      "fcpMs": 2696,
+      "jsTransferBytes": 177763,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/settings",
+      "ttfbMs": 12,
+      "fcpMs": 1492,
+      "jsTransferBytes": 170161,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin",
+      "loginHeadingMs": 8360,
+      "hops": [
+        {
+          "method": "POST",
+          "path": "/login"
+        }
+      ]
+    },
+    {
+      "route": "/admin",
+      "ttfbMs": 17,
+      "fcpMs": 1888,
+      "jsTransferBytes": 441717,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin/users",
+      "ttfbMs": 12,
+      "fcpMs": 1812,
+      "jsTransferBytes": 170954,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin/analytics",
+      "ttfbMs": 11,
+      "fcpMs": 1852,
+      "jsTransferBytes": 441249,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin/storage",
+      "ttfbMs": 15,
+      "fcpMs": 1808,
+      "jsTransferBytes": 169948,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin/settings",
+      "ttfbMs": 15,
+      "fcpMs": 4340,
+      "jsTransferBytes": 169638,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-store"
+    }
+  ]
+}

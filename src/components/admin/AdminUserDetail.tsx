@@ -37,14 +37,14 @@ export default function AdminUserDetail({ initial, id }: Props) {
   if (!stats) return <EmptyState headingLevel={1} title={t("userMissing")} />;
   const { user, sessions, subjects, progress } = stats;
   const today = localDay(
-    now || Date.parse(initial.user.lastActiveAt),
+    now || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt),
     user.timezone,
   );
   const totals = data.adminLearnerAnalytics?.daily ?? dailySeconds(sessions, user.timezone);
   const streak = data.adminLearnerAnalytics ? { current: data.adminLearnerAnalytics.currentStreak, longest: data.adminLearnerAnalytics.longestStreak } : streaks(
     sessions,
     user.timezone,
-    now || Date.parse(initial.user.lastActiveAt),
+    now || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt),
     data.settings.streakMinutes,
     user.longestStreak,
   );

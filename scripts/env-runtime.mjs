@@ -1,0 +1,10 @@
+import nextEnv from "@next/env";
+import ts from "typescript";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+nextEnv.loadEnvConfig(process.cwd());
+mkdirSync(".audit-local", { recursive: true });
+const path = resolve(".audit-local/env-runtime.mjs");
+writeFileSync(path, ts.transpileModule(readFileSync("src/lib/env.ts", "utf8"), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText);
+export const environment = (await import(pathToFileURL(path).href)).getEnv();

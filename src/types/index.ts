@@ -130,7 +130,13 @@ export interface AppSettings {
   storagePerUserMB: number;
 }
 export interface Workspace {
+  loadedAt?: string;
   shellOnly?: boolean;
+  shellPending?: boolean;
+  /** Fields populated by a focused page read; other fields belong to the shell or another page. */
+  pageFields?: ("user" | "subjects" | "topics" | "resources" | "sessions" | "blocks" | "analytics" | "subjectStatistics" | "storageBytes" | "resourceCounts" | "timer" | "settings")[];
+  resourceCounts?: Record<string, number>;
+  storageBytes?: number;
   scope?: string;
   adminLearnerAnalytics?: import("@/lib/analytics/server").AnalyticsSummary;
   analytics?: import("@/lib/analytics/server").AnalyticsSummary;

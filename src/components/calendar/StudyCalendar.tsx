@@ -1,4 +1,7 @@
 "use client";
+import "@fullcalendar/react/skeleton.css";
+import "@fullcalendar/react/themes/classic/theme.css";
+import "@fullcalendar/react/themes/classic/palette.css";
 import dynamic from "next/dynamic";
 import { queryBlocks } from "@/app/[locale]/actions";
 import { useEffect, useRef, useState } from "react";
@@ -10,8 +13,8 @@ import interactionPlugin from "@fullcalendar/react/interaction";
 import themePlugin from "@fullcalendar/react/themes/classic";
 import { useModal } from "@/hooks/useModal";
 import { getSubjects, getTopics } from "@/lib/workspace/queries";
-import { updateWorkspace, useNow, useWorkspace } from "@/lib/workspace/store";
-import { localDay, shiftDay, wallTime, zonedToUtc } from "@/lib/analytics";
+import { hydratePageFields, updateWorkspace, useNow, useWorkspace } from "@/lib/workspace/store";
+import { localDay, shiftDay, wallTime, weekStart, zonedToUtc } from "@/lib/analytics";
 import { getOccurrences, type BlockOccurrence } from "@/lib/schedule";
 import type { Workspace } from "@/types";
 import PlannerToolbar, { type PlannerView } from "./PlannerToolbar";
@@ -36,12 +39,11 @@ export default function StudyCalendar({ initial, add = false }: Props) {
   const details = useModal();
   const { theme } = useTheme();
   const clock = useNow();
-  const now = clock || Date.parse(initial.user.lastActiveAt);
+  const now = clock || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt);
   const today = localDay(now, data.user.timezone);
-  const [range, setRange] = useState({
-    from: shiftDay(today, -7),
-    to: shiftDay(today, 35),
-  });
+  const initialWeekStart = weekStart(today, 1);
+  const [range, setRange] = useState({ from: initialWeekStart, to: shiftDay(initialWeekStart, 7) });
+  const coveredRange = useRef({ from: initialWeekStart, to: shiftDay(initialWeekStart, 7) });
   const [selected, setSelected] = useState<BlockOccurrence>();
   const [date, setDate] = useState(today);
   const [slot, setSlot] = useState<string>();
@@ -59,16 +61,19 @@ export default function StudyCalendar({ initial, add = false }: Props) {
     return () => media.removeEventListener("change", sync);
   }, []);
   const blocks = data.blocks.filter((b) => b.userId === data.user.id);
-  const [serverOccurrences, setServerOccurrences] = useState<BlockOccurrence[]>();
   useEffect(() => {
+    if (range.from >= coveredRange.current.from && range.to <= coveredRange.current.to) return;
     let cancelled = false;
     void queryBlocks(range).then(result => {
       if (cancelled) return;
-      if (result.ok) setServerOccurrences(result.data); else setMessage(t(result.error));
+      if (result.ok) {
+        coveredRange.current = range;
+        hydratePageFields(initial, { blocks: [...new Map(result.data.map(item => [item.block.id, item.block])).values()] });
+      } else setMessage(t(result.error));
     }).catch(() => { if (!cancelled) setMessage(t("saveFailed")); });
     return () => { cancelled = true; };
-  }, [range, data.blocks, t]);
-  const occurrences = serverOccurrences ?? getOccurrences(blocks, range.from, range.to);
+  }, [range, data.blocks, initial, t]);
+  const occurrences = getOccurrences(blocks, range.from, range.to);
   const deadlines = [
     ...getSubjects(data)
       .filter((s) => s.targetDate)
@@ -270,10 +275,9 @@ export default function StudyCalendar({ initial, add = false }: Props) {
               ...deadlines,
             ]}
             datesSet={(info) => {
-              setRange({
-                from: info.startStr.slice(0, 10),
-                to: info.endStr.slice(0, 10),
-              });
+              const from = info.startStr.slice(0, 10);
+              const to = info.endStr.slice(0, 10);
+              setRange((current) => current.from === from && current.to === to ? current : { from, to });
               setView(info.view.type as PlannerView);
               const formatter = new Intl.DateTimeFormat(locale, {
                 month: "short",

@@ -15,6 +15,11 @@ import { localDay, shiftDay, wallTime, zonedToUtc } from "@/lib/analytics";
 import { getOccurrences, type BlockOccurrence } from "@/lib/schedule";
 import type { ScheduleBlock, SubjectColor, Workspace } from "@/types";
 import StudySelectors from "@/components/study/StudySelectors";
+import ScheduleDateTimeField from "./ScheduleDateTimeField";
+
+const addMinutes = (value: string, minutes: number) =>
+  new Date(Date.parse(`${value}:00Z`) + minutes * 60_000).toISOString().slice(0, 16);
+
 interface Props {
   data: Workspace;
   occurrence?: BlockOccurrence;
@@ -36,8 +41,16 @@ export default function StudyBlockModal({
   const block = occurrence?.block.id ? occurrence.block : undefined;
   const source = occurrence?.block;
   const timezone = block?.timezone ?? data.user.timezone;
+  const initialStart = occurrence
+    ? wallTime(occurrence.startsAt, timezone)
+    : startLocal ?? `${date}T17:00`;
+  const initialEnd = occurrence
+    ? wallTime(occurrence.endsAt, timezone)
+    : startLocal ? addMinutes(startLocal, 60) : `${date}T18:00`;
   const [subject, setSubject] = useState(source?.subjectId ?? "");
   const [topic, setTopic] = useState(source?.topicId ?? "");
+  const [startValue, setStartValue] = useState(initialStart);
+  const [endValue, setEndValue] = useState(initialEnd);
   const [repeat, setRepeat] = useState(block?.repeat ?? "once");
   const [weekdays, setWeekdays] = useState(block?.weekdays ?? []);
   const [scope, setScope] = useState("one");
@@ -122,6 +135,7 @@ export default function StudyBlockModal({
       isOpen={isOpen}
       onClose={onClose}
       title={t(block ? "editBlock" : "scheduleStudy")}
+      size="wide"
     >
       <form
         className="space-y-4"
@@ -196,36 +210,67 @@ export default function StudyBlockModal({
           name="title"
           defaultValue={source?.title}
         />
-        <Field
-          label={t("startLocal", { timezone })}
-          type="datetime-local"
-          name="start"
-          required
-          defaultValue={
-            occurrence
-              ? wallTime(occurrence.startsAt, timezone)
-              : startLocal ?? `${date}T17:00`
-          }
-        />
-        <Field
-          label={t("endLocal", { timezone })}
-          type="datetime-local"
-          name="end"
-          required
-          defaultValue={
-            occurrence ? wallTime(occurrence.endsAt, timezone) : startLocal ? new Date(Date.parse(`${startLocal}:00Z`) + 3600000).toISOString().slice(0,16) : `${date}T18:00`
-          }
-        />
-        <SelectField
-          label={t("repeat")}
-          value={repeat}
-          onChange={(event) =>
-            setRepeat(event.target.value as "once" | "weekly")
-          }
-        >
-          <option value="once">{t("oneTime")}</option>
-          <option value="weekly">{t("weekly")}</option>
-        </SelectField>
+        <div className="grid gap-4 md:grid-cols-2">
+          <ScheduleDateTimeField
+            name="start"
+            label={t("startLocal", { timezone })}
+            dateLabel={t("date")}
+            timeLabel={t("time")}
+            value={startValue}
+            onChange={(next) => {
+              setStartValue(next);
+              if (Date.parse(`${endValue}:00Z`) <= Date.parse(`${next}:00Z`)) {
+                setEndValue(addMinutes(next, 60));
+              }
+            }}
+          />
+          <ScheduleDateTimeField
+            name="end"
+            label={t("endLocal", { timezone })}
+            dateLabel={t("date")}
+            timeLabel={t("time")}
+            value={endValue}
+            onChange={setEndValue}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="me-1 text-xs font-medium text-gray-500 dark:text-gray-400">{t("duration")}</span>
+          {[30, 60, 90, 120].map((minutes) => (
+            <button
+              key={minutes}
+              type="button"
+              disabled={!Number.isFinite(Date.parse(`${startValue}:00Z`))}
+              aria-pressed={(Date.parse(`${endValue}:00Z`) - Date.parse(`${startValue}:00Z`)) / 60_000 === minutes}
+              onClick={() => setEndValue(addMinutes(startValue, minutes))}
+              className="rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-brand-400 hover:text-brand-600 aria-pressed:border-brand-500 aria-pressed:bg-brand-50 aria-pressed:text-brand-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-brand-400 dark:hover:text-brand-300 dark:aria-pressed:bg-brand-500/15 dark:aria-pressed:text-brand-300"
+            >
+              {t("redesign.minutesValue", { count: minutes })}
+            </button>
+          ))}
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SelectField
+            label={t("repeat")}
+            value={repeat}
+            onChange={(event) =>
+              setRepeat(event.target.value as "once" | "weekly")
+            }
+          >
+            <option value="once">{t("oneTime")}</option>
+            <option value="weekly">{t("weekly")}</option>
+          </SelectField>
+          <SelectField
+            label={t("color")}
+            name="color"
+            defaultValue={block?.color ?? "brand"}
+          >
+            {["brand", "success", "orange", "purple"].map((color) => (
+              <option key={color} value={color}>
+                {t(`colors.${color}`)}
+              </option>
+            ))}
+          </SelectField>
+        </div>
         {repeat === "weekly" && (
           <fieldset>
             <legend className="mb-2 text-sm">{t("weekdays")}</legend>
@@ -262,17 +307,6 @@ export default function StudyBlockModal({
             <option value="future">{t("allFuture")}</option>
           </SelectField>
         )}
-        <SelectField
-          label={t("color")}
-          name="color"
-          defaultValue={block?.color ?? "brand"}
-        >
-          {["brand", "success", "orange", "purple"].map((color) => (
-            <option key={color} value={color}>
-              {t(`colors.${color}`)}
-            </option>
-          ))}
-        </SelectField>
         <TextField
           label={t("noteOptional")}
           name="note"

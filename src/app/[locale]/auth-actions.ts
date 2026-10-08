@@ -23,7 +23,8 @@ export async function authenticate(input: unknown) {
     const auth = getAuth();
     const requestHeaders = await headers();
     const ip = requestHeaders.get("x-forwarded-for")?.split(",")[0].trim() ?? "local";
-    if (!(await allowRequest(`auth:${v.mode}:${ip}`, 10)) || !(await allowRequest(`account:${v.mode}:${v.email?.toLowerCase() ?? ip}`, 5))) return { ok: false as const, error: "tooManyRequests" };
+    const limits = await Promise.all([allowRequest(`auth:${v.mode}:${ip}`, 10), allowRequest(`account:${v.mode}:${v.email?.toLowerCase() ?? ip}`, 5)]);
+    if (limits.some(allowed => !allowed)) return { ok: false as const, error: "tooManyRequests" };
     if (v.mode === "register") {
       if (!v.email || !v.password || !v.name || !v.acceptedTerms) return { ok: false as const, error: "invalidInput" };
       if (v.dateOfBirth && v.dateOfBirth > new Date().toISOString().slice(0, 10)) return { ok: false as const, error: "invalidInput" };
@@ -36,8 +37,8 @@ export async function authenticate(input: unknown) {
     else if (v.mode === "login") {
       if (!v.email || !v.password) return { ok: false as const, error: "invalidInput" };
       const result = await auth.api.signInEmail({ headers: requestHeaders, body: { email: v.email.toLowerCase(), password: v.password } });
-      const [user] = await getDb().select({ role: users.role, onboardingCompletedAt: users.onboardingCompletedAt }).from(users).where(eq(users.id, result.user.id));
-      if (!user) return { ok: false as const, error: "authenticationFailed" };
+      const [user] = await getDb().select({ role: users.role, status: users.status, onboardingCompletedAt: users.onboardingCompletedAt }).from(users).where(eq(users.id, result.user.id));
+      if (!user || user.status !== "active") return { ok: false as const, error: "accountInactive" };
       destination = loginDestination(user.role, Boolean(user.onboardingCompletedAt), v.returnTo);
     }
     else if (v.mode === "forgot-password") {

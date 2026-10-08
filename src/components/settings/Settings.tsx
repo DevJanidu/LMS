@@ -201,7 +201,7 @@ export default function Settings({ initial }: Props) {
         title={t("deleteAccount")}
         description={t("deleteAccountWarning")}
         onConfirm={async () => {
-          try { const result = await deleteMyAccount(); if (!result.ok) { setError(t(result.error)); return; } router.push("/register"); router.refresh(); }
+          try { const result = await deleteMyAccount(); if (!result.ok) { setError(t(result.error)); return false; } router.replace("/register"); }
           catch { setError(t("saveFailed")); }
         }}
       />

@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ configured: true, limit: vi.fn() }));
 vi.mock("@/lib/env", () => ({ getEnv: () => ({ UPSTASH_REDIS_REST_URL: mocks.configured ? "https://redis.example.com" : undefined, UPSTASH_REDIS_REST_TOKEN: mocks.configured ? "test" : undefined }) }));
-vi.mock("@/lib/cache", () => ({ getRedis: () => undefined, cachePrefix: () => "lms:v1:test" }));
+vi.mock("@/lib/cache", () => ({ getRedis: () => undefined, rateLimitPrefix: () => "lms:security:v1:test" }));
 vi.mock("@upstash/redis", () => ({ Redis: class {} }));
 vi.mock("@upstash/ratelimit", () => ({ Ratelimit: class { static slidingWindow = vi.fn(); limit = mocks.limit; } }));
 beforeEach(() => { vi.resetModules(); vi.unstubAllEnvs(); mocks.configured = true; mocks.limit.mockReset(); });

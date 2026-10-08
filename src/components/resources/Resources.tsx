@@ -1,8 +1,9 @@
 "use client";
 import Image from "next/image";
 import { FileIcon, LinkIcon, PlayIcon } from "@/icons";
-import { useState } from "react";
-import { resourceDetail } from "@/app/[locale]/actions";
+import { useEffect, useRef, useState } from "react";
+import { queryResources, resourceDetail } from "@/app/[locale]/actions";
+import type { ResourcePage } from "@/lib/services/resources";
 import Pagination from "@/components/studyflow/Pagination";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
@@ -23,6 +24,7 @@ interface Props {
   embedded?: boolean;
   add?: boolean;
   search?: string;
+  initialPage?: ResourcePage;
 }
 function youtubeId(url: string): string | undefined {
   try {
@@ -45,6 +47,7 @@ export default function Resources({
   embedded = false,
   add = false,
   search = "",
+  initialPage,
 }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
@@ -72,7 +75,7 @@ export default function Resources({
     } catch { setError(t("saveFailed")); }
     finally { setLoadingId(""); }
   };
-  const resources = getResources(data)
+  const fallback = getResources(data)
     .filter(
       (item) =>
         (!subject || item.subjectId === subject) &&
@@ -98,7 +101,24 @@ export default function Resources({
     </Button>
   );
   const [page, setPage] = useState(1);
-  const pages = Math.max(1, Math.ceil(resources.length / 20));
+  const [records, setRecords] = useState<ResourcePage>(initialPage ?? { total: fallback.length, rows: fallback.slice(0, 20) });
+  const [loading, setLoading] = useState(false);
+  const lastQuery = useRef(initialPage ? JSON.stringify({ page: 1, query: search, subject: subjectId, topic: "", type: "", sort: "newest", revision: initial.user.updatedAt }) : "");
+  useEffect(() => {
+    const key = JSON.stringify({ page, query, subject, topic, type, sort, revision: data.user.updatedAt });
+    if (lastQuery.current === key) return;
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      setLoading(true);
+      void queryResources({ page, search: query, subjectId: subject || undefined, topicId: topic || undefined, type: type || undefined, sort }).then(result => {
+        if (cancelled) return;
+        if (result.ok) { lastQuery.current = key; setRecords(result.data); setError(""); } else setError(t(result.error));
+      }).catch(() => { if (!cancelled) setError(t("saveFailed")); }).finally(() => { if (!cancelled) setLoading(false); });
+    }, query ? 250 : 0);
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [page, query, subject, topic, type, sort, data.resources, data.user.updatedAt, t]);
+  const resources = records.rows;
+  const pages = Math.max(1, Math.ceil(records.total / 20));
   const current = Math.min(page, pages);
   return (
     <>
@@ -115,7 +135,7 @@ export default function Resources({
         <Field
           label={t("searchResources")}
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => { setQuery(event.target.value); setPage(1); }}
         />
         {!embedded && (
           <SelectField
@@ -124,6 +144,7 @@ export default function Resources({
             onChange={(event) => {
               setSubject(event.target.value);
               setTopic("");
+              setPage(1);
             }}
           >
             <option value="">{t("allSubjects")}</option>
@@ -137,7 +158,7 @@ export default function Resources({
         <SelectField
           label={t("topic")}
           value={topic}
-          onChange={(event) => setTopic(event.target.value)}
+          onChange={(event) => { setTopic(event.target.value); setPage(1); }}
         >
           <option value="">{t("allTopics")}</option>
           {getTopics(data, subject || undefined).map((item) => (
@@ -149,7 +170,7 @@ export default function Resources({
         <SelectField
           label={t("type")}
           value={type}
-          onChange={(event) => setType(event.target.value)}
+          onChange={(event) => { setType(event.target.value); setPage(1); }}
         >
           <option value="">{t("allTypes")}</option>
           {["file", "link", "video", "note"].map((key) => (
@@ -169,7 +190,7 @@ export default function Resources({
             <button
               key={key}
               aria-pressed={type === key}
-              onClick={() => setType(key)}
+              onClick={() => { setType(key); setPage(1); }}
             >
               {t(key || "allTypes")}
             </button>
@@ -178,7 +199,7 @@ export default function Resources({
         <SelectField
           label={t("redesign.librarySort")}
           value={sort}
-          onChange={(event) => setSort(event.target.value)}
+          onChange={(event) => { setSort(event.target.value); setPage(1); }}
         >
           <option value="newest">{t("redesign.newest")}</option>
           <option value="oldest">{t("redesign.oldest")}</option>
@@ -187,8 +208,8 @@ export default function Resources({
       </div>
       {error && <p role="alert" className="mb-4 text-sm text-error-600 dark:text-error-400">{error}</p>}
       {resources.length ? (
-        <div className="sf-library space-y-3">
-          {resources.slice((current - 1) * 20, current * 20).map((resource) => {
+        <div aria-busy={loading} className="sf-library space-y-3">
+          {resources.map((resource) => {
             const id =
               resource.type === "video" && resource.url
                 ? youtubeId(resource.url)

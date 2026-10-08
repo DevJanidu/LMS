@@ -1,6 +1,6 @@
 import { requireLearner } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/services/workspace";
+import { analyticsPageWorkspace } from "@/lib/services/focused-workspace";
 import Analytics from "@/components/analytics/Analytics";
 export default async function Page({
   params,
@@ -9,8 +9,8 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireLearner();
-  return <Analytics initial={await getWorkspace()} />;
+  const user = await requireLearner();
+  return <Analytics initial={await analyticsPageWorkspace(user)} />;
 }
 
 export async function generateMetadata({

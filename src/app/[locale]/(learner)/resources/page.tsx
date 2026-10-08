@@ -1,7 +1,9 @@
 import { requireLearner } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/services/workspace";
+import { resourcePageWorkspace } from "@/lib/services/focused-workspace";
 import Resources from "@/components/resources/Resources";
+import { listResources, resourceFilterSchema } from "@/lib/services/resources";
+import { timed } from "@/lib/perf";
 export default async function Page({
   params,
   searchParams,
@@ -11,11 +13,11 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireLearner();
+  const user = await requireLearner();
   const { add, search } = await searchParams;
-  return (
-    <Resources initial={await getWorkspace()} add={add === "1"} search={search} />
-  );
+  const [workspace, initialPage] = await Promise.all([resourcePageWorkspace(user),
+    timed("page.resources.list", () => listResources(user.id, resourceFilterSchema.parse({ search: search?.slice(0, 100) })))]);
+  return <Resources initial={workspace} initialPage={initialPage} add={add === "1"} search={search?.slice(0, 100)} />;
 }
 
 export async function generateMetadata({

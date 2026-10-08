@@ -14,7 +14,7 @@ import PageHeader from "@/components/studyflow/PageHeader";
 import ProgressBar from "@/components/studyflow/ProgressBar";
 import EmptyState from "@/components/studyflow/EmptyState";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
-import { primaryLink } from "@/components/studyflow/WorkspaceShell";
+import { primaryLink } from "@/components/studyflow/styles";
 import SessionTable from "@/components/study/SessionTable";
 import Resources from "@/components/resources/Resources";
 import TopicList from "./TopicList";

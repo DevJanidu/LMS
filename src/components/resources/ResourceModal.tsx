@@ -86,7 +86,7 @@ export default function ResourceModal({
               );
               return;
             }
-            const used = getResources(data)
+            const used = data.storageBytes !== undefined ? data.storageBytes - (resource?.sizeBytes ?? 0) : getResources(data)
               .filter((item) => item.id !== resource?.id)
               .reduce((sum, item) => sum + (item.sizeBytes ?? 0), 0);
             if (used + size > data.settings.storagePerUserMB * 1024 * 1024) {

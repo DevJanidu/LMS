@@ -3,6 +3,7 @@ import { Redis } from "@upstash/redis";
 import { createHash } from "node:crypto";
 import { getEnv } from "@/lib/env";
 import { localDay, shiftDay, zonedToUtc } from "@/lib/analytics";
+import { timed } from "@/lib/perf";
 
 export type UserCacheScope = "analytics" | "subjects" | "calendar";
 interface Envelope<T> { version: 2; value: T }
@@ -62,7 +63,7 @@ export async function cached<T>(key: string, ttlSeconds: number, fetcher: () => 
   const client = getRedis();
   if (!client || unavailableUntil > Date.now()) { record(family, "bypass"); trace("BYPASS", key, family); return fetcher(); }
   let stored: Envelope<T> | null;
-  try { stored = await client.get<Envelope<T>>(key); markConnected(); }
+  try { stored = await timed("redis.get", () => client.get<Envelope<T>>(key)); markConnected(); }
   catch { failed(family); return fetcher(); }
   if (stored?.version === 2) { record(family, "hit"); trace("HIT", key, family); return stored.value; }
   record(family, "miss");
@@ -109,7 +110,7 @@ export async function cachedUser<T>(userId: string, scope: UserCacheScope, suffi
   const client = getRedis();
   if (!client || unavailableUntil > Date.now()) { record(scope, "bypass"); return fetcher(); }
   let versions: unknown[];
-  try { versions = await client.mget(userGeneration(userId, scope), settingsGeneration()); }
+  try { versions = await timed("redis.generation", () => client.mget(userGeneration(userId, scope), settingsGeneration())); }
   catch { failed(scope); return fetcher(); }
   const generation = versions.map(value => value ?? "0").join(":");
   return cached(`${cachePrefix()}:u:${userId}:${scope}:${generation}:${encodeURIComponent(suffix)}`, ttl, fetcher, scope);

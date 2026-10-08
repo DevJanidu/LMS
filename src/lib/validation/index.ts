@@ -7,7 +7,7 @@ const optionalDate = z.iso.date().optional();
 export const timezoneSchema = z.string().refine(value => { try { new Intl.DateTimeFormat("en", { timeZone: value }); return true; } catch { return false; } });
 export const subjectSchema = z.object({ id: uuidSchema, title, description: z.string().max(10000), color, targetDate: optionalDate, status: z.enum(["active", "archived"]) });
 export const topicSchema = z.object({ id: uuidSchema, subjectId: uuidSchema, title, description: z.string().max(20000).optional(), status: z.enum(["notStarted", "inProgress", "completed"]), targetDate: optionalDate, sortOrder: z.number().int().min(0).max(199), archived: z.boolean().optional() });
-export const urlSchema = z.string().url().max(2048).refine(value => ["http:", "https:"].includes(new URL(value).protocol));
+export const urlSchema = z.string().url().max(2048).refine(value => URL.canParse(value) && ["http:", "https:"].includes(new URL(value).protocol));
 export const resourceSchema = z.object({ id: uuidSchema, subjectId: uuidSchema, topicId: optionalId, type: z.enum(["file", "link", "video", "note"]), title, url: urlSchema.optional(), textContent: z.string().max(100000).optional() }).superRefine((value, ctx) => {
   if ((value.type === "link" || value.type === "video") && !value.url) ctx.addIssue({ code: "custom", path: ["url"], message: "A valid HTTP or HTTPS URL is required." });
   if (value.type === "note" && !value.textContent?.trim()) ctx.addIssue({ code: "custom", path: ["textContent"], message: "Enter note text." });

@@ -41,6 +41,9 @@
     "tailwind-merge": "^2.6.0",
     "zod": "^4.6.5"
   },
+  "overrides": {
+    "esbuild": "0.28.2"
+  },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@next/bundle-analyzer": "^16.4.0",

@@ -1,0 +1,21 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "StudyFlow" [ref=e4] [cursor=pointer]:
+        - /url: /dashboard
+    - main [ref=e5]:
+      - complementary [ref=e6]:
+        - paragraph [ref=e7]: Learn → Focus → Progress → Master
+        - heading "A little focus. A world of possibility." [level=1] [ref=e8]
+        - paragraph [ref=e9]: Bring everything you are learning into one personal space. Make a plan, find your focus, and see how far you can go.
+        - generic [aria-hidden] [ref=e10]:
+          - generic [ref=e11]: "01"
+          - generic [ref=e13]: "02"
+          - generic [ref=e15]: "03"
+          - generic [ref=e17]: "04"
+      - generic [ref=e19]:
+        - button "Toggle light and dark mode" [ref=e20] [cursor=pointer]
+        - generic [ref=e23]: Theme preview
+    - contentinfo [ref=e24]: StudyFlow · Make room for learning.
+  - button "Open Next.js Dev Tools" [ref=e30] [cursor=pointer]
+  - alert [ref=e34]

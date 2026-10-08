@@ -1,0 +1,142 @@
+{
+  "conditions": "Local production build, Chrome, two fixture learners with 1095 sessions each, unthrottled. Video remains ignored locally. Not Lighthouse/4G results.",
+  "metrics": [
+    {
+      "route": "/dashboard",
+      "loginHeadingMs": 17441,
+      "hops": [
+        {
+          "method": "POST",
+          "path": "/login"
+        }
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "ttfbMs": 136,
+      "fcpMs": 9316,
+      "jsTransferBytes": 270894,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/subjects",
+      "ttfbMs": 13,
+      "fcpMs": 7864,
+      "jsTransferBytes": 263905,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/study",
+      "ttfbMs": 15,
+      "fcpMs": 7824,
+      "jsTransferBytes": 261208,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/study/history",
+      "ttfbMs": 13,
+      "fcpMs": 7936,
+      "jsTransferBytes": 263804,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/calendar",
+      "ttfbMs": 13,
+      "fcpMs": 6992,
+      "jsTransferBytes": 353268,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/analytics",
+      "ttfbMs": 13,
+      "fcpMs": 7164,
+      "jsTransferBytes": 535086,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/resources",
+      "ttfbMs": 12,
+      "fcpMs": 7748,
+      "jsTransferBytes": 270414,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/settings",
+      "ttfbMs": 11,
+      "fcpMs": 8060,
+      "jsTransferBytes": 263052,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/admin",
+      "loginHeadingMs": 15379,
+      "hops": [
+        {
+          "method": "POST",
+          "path": "/login"
+        }
+      ]
+    },
+    {
+      "route": "/admin",
+      "ttfbMs": 29,
+      "fcpMs": 5476,
+      "jsTransferBytes": 534607,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/admin/users",
+      "ttfbMs": 11,
+      "fcpMs": 5236,
+      "jsTransferBytes": 263844,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/admin/analytics",
+      "ttfbMs": 13,
+      "fcpMs": 5340,
+      "jsTransferBytes": 534090,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/admin/storage",
+      "ttfbMs": 11,
+      "fcpMs": 7612,
+      "jsTransferBytes": 262838,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "route": "/admin/settings",
+      "ttfbMs": 11,
+      "fcpMs": 5188,
+      "jsTransferBytes": 262528,
+      "overflow": false,
+      "heading": true,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+    }
+  ]
+}

@@ -16,7 +16,7 @@ export default function AdminAnalytics({initial}: {initial:Workspace}) {
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const clock = useNow();
-  const metrics = adminMetrics(data,clock || Date.parse(initial.user.lastActiveAt));
+  const metrics = adminMetrics(data,clock || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt));
   const [range,setRange] = useState(30);
   const days = Array.from({length:range},(_,i)=>shiftDay(metrics.today,i-range+1));
   const valid = data.sessions.filter(s=>s.status==="valid" && s.durationSeconds>=60);

@@ -16,7 +16,7 @@ interface ThemeContextType extends ThemeState {
   setThemeMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 }
-const serverState: ThemeState = { themeMode: "light", theme: "light" };
+const serverState: ThemeState = { themeMode: "auto", theme: "light" };
 let current = serverState;
 const listeners = new Set<() => void>();
 const subscribe = (listener: () => void) => {

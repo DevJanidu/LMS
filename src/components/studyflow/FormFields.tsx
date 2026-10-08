@@ -1,23 +1,28 @@
 "use client";
 import {
   useId,
+  type ComponentProps,
   type InputHTMLAttributes,
-  type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
-  type ReactNode,
 } from "react";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import PremiumSelect from "@/components/form/SelectField";
+import NumberInput from "@/components/form/NumberInput";
+import { DatePickerField, DateTimePickerField } from "@/components/form/DatePickerField";
 export const controlClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 focus:border-brand-400 focus:outline-none focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white";
+  "w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-none transition duration-150 placeholder:text-gray-400 focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30";
 type FieldProps = InputHTMLAttributes<HTMLInputElement> & { label: string };
 /** Template input and label with accessible association. */
-export default function Field({ label, ...props }: FieldProps) {
+export default function Field({ label, type = "text", ...props }: FieldProps) {
   const id = useId();
+  if (type === "date") return <DatePickerField {...props as ComponentProps<typeof DatePickerField>} id={id} label={label} />;
+  if (type === "datetime-local") return <DateTimePickerField {...props as ComponentProps<typeof DateTimePickerField>} id={id} label={label} />;
+  if (type === "number") return <NumberInput {...props} id={id} label={label} />;
   return (
     <div>
       <Label htmlFor={id}>{label}</Label>
-      <Input id={id} {...props} />
+      <Input id={id} type={type} {...props} />
     </div>
   );
 }
@@ -25,20 +30,13 @@ export function SelectField({
   label,
   children,
   ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & {
-  label: string;
-  children: ReactNode;
-}) {
-  const id = useId();
-  return (
-    <div>
-      <Label htmlFor={id}>{label}</Label>
-      <select id={id} className={controlClass} {...props}>
-        {children}
-      </select>
-    </div>
-  );
+}: ComponentProps<typeof PremiumSelect>) {
+  return <PremiumSelect label={label} {...props}>{children}</PremiumSelect>;
 }
+/*
+ * The textarea intentionally remains native: unlike option menus, its editing
+ * surface benefits from the browser's established keyboard and IME behavior.
+ */
 export function TextField({
   label,
   ...props

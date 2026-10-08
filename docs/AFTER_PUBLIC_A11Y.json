@@ -1,0 +1,590 @@
+[
+  {
+    "route": "/login",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/register",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/forgot-password",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/privacy",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/terms",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-404",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-500",
+    "width": 360,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/login",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/register",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/forgot-password",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/privacy",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/terms",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-404",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-500",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/login",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/privacy",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/terms",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-404",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/error-500",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": false,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "selectors": [
+          [
+            "span:nth-child(7)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/register",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/forgot-password",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/privacy",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/terms",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-404",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-500",
+    "width": 360,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/login",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/register",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/forgot-password",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/privacy",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/terms",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-404",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-500",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/login",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/register",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/forgot-password",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/privacy",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/terms",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-404",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-500",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/login",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/register",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/forgot-password",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/privacy",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/terms",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-404",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "route": "/error-500",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  }
+]

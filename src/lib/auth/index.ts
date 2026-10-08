@@ -16,6 +16,8 @@ import { sendAccountEmail } from "@/lib/email";
 import { z } from "zod";
 import { cache } from "react";
 import { ageInYears } from "@/lib/validation/age";
+import { safeReturnPath } from "./return-path";
+import { timed } from "@/lib/perf";
 
 const registrationSchema = z.object({ acceptedTerms: z.literal(true), name: z.string().trim().min(1).max(150), email: z.email(), dateOfBirth: z.iso.date().refine(value => value <= new Date().toISOString().slice(0, 10)).optional() });
 
@@ -24,7 +26,8 @@ function createAuth() {
   return betterAuth({
     appName: "StudyFlow", baseURL: env.APP_URL, secret: env.AUTH_SECRET,
     logger: { disabled: true },
-    database: drizzleAdapter(getDb(), { provider: "pg", schema: { user: schema.users, session: schema.authSessions, account: schema.accounts, verification: schema.verifications, rateLimit: schema.rateLimits } }),
+    database: drizzleAdapter(getDb(), { provider: "pg", schema: { user: schema.users, session: schema.authSessions, account: schema.accounts, verification: schema.verifications, rateLimit: schema.rateLimits,
+      usersRelations: schema.usersRelations, authSessionsRelations: schema.authSessionsRelations } }),
     emailAndPassword: {
       enabled: true, minPasswordLength: 8, maxPasswordLength: 128,
       password: { hash: password => hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1 }), verify: ({ hash: digest, password }) => verify(digest, password) },
@@ -37,10 +40,17 @@ function createAuth() {
       role: { type: "string", defaultValue: "learner", input: false },
       status: { type: "string", defaultValue: "active", input: false },
       acceptedTermsAt: { type: "date", input: false }, dateOfBirth: { type: "string", required: false },
+      timezone: { type: "string", input: false },
+      learningContext: { type: "string", required: false, input: false },
+      onboardingCompletedAt: { type: "date", required: false, input: false },
+      lastActiveAt: { type: "date", input: false },
     } },
     session: { expiresIn: 60 * 60 * 24 * 7, updateAge: 60 * 60 * 24, cookieCache: { enabled: false } },
-    advanced: { database: { generateId: () => crypto.randomUUID() }, useSecureCookies: process.env.NODE_ENV === "production", defaultCookieAttributes: { httpOnly: true, sameSite: "lax" } },
-    rateLimit: { enabled: true, storage: "database", window: 60, max: 20 },
+    advanced: { database: { generateId: () => crypto.randomUUID(), joins: true }, useSecureCookies: process.env.NODE_ENV === "production", defaultCookieAttributes: { httpOnly: true, sameSite: "lax" } },
+    // Both public entry points (auth route POST and authenticate Server Action)
+    // enforce fail-closed Upstash sliding windows before invoking Better Auth.
+    // A second database counter would add round trips to every credential request.
+    rateLimit: { enabled: false },
     databaseHooks: {
       user: { create: { before: async (user, context) => {
         const registration = registrationSchema.safeParse(context?.body);
@@ -66,13 +76,34 @@ function createAuth() {
 let instance: ReturnType<typeof createAuth> | undefined;
 export function getAuth() { return instance ??= createAuth(); }
 
-export const requireUser = cache(async () => {
+export const getCurrentUser = cache(async () => {
   const requestHeaders = await headers();
-  const session = await getAuth().api.getSession({ headers: requestHeaders });
-  if (!session) redirect({ href: "/login", locale: await getLocale() });
-  const [user] = await getDb().select().from(schema.users).where(eq(schema.users.id, session!.user.id));
-  if (!user || user.status !== "active") redirect({ href: "/login", locale: await getLocale() });
-  return user;
+  const session = await timed("auth.session", () => getAuth().api.getSession({ headers: requestHeaders })).catch(() => { throw new Error("Authentication service unavailable."); });
+  if (!session) return null;
+  const user = session.user;
+  if (user.status !== "active") return null;
+  // Cookie caching remains disabled, so Better Auth retrieves live session and
+  // account state on each request. Its user row already contains these fields.
+  return {
+    id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified,
+    image: user.image ?? null, role: user.role as "learner" | "super_admin",
+    status: user.status as "active", timezone: user.timezone,
+    learningContext: user.learningContext ?? null,
+    acceptedTermsAt: user.acceptedTermsAt ? new Date(user.acceptedTermsAt) : null,
+    dateOfBirth: user.dateOfBirth ?? null,
+    onboardingCompletedAt: user.onboardingCompletedAt ? new Date(user.onboardingCompletedAt) : null,
+    lastActiveAt: new Date(user.lastActiveAt), createdAt: new Date(user.createdAt),
+    updatedAt: new Date(user.updatedAt),
+  } satisfies typeof schema.users.$inferSelect;
+});
+export const requireUser = cache(async () => {
+  const user = await getCurrentUser();
+  if (!user) {
+    const requestHeaders = await headers();
+    const destination = safeReturnPath(requestHeaders.get("x-lms-return-to")) ?? "/dashboard";
+    redirect({ href: `/login?returnTo=${encodeURIComponent(destination)}`, locale: await getLocale() });
+  }
+  return user!;
 });
 export async function requireAdmin() {
   const user = await requireUser();

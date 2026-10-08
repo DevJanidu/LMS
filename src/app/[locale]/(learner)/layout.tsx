@@ -2,28 +2,35 @@ import { requireLearner } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { setRequestLocale } from "next-intl/server";
 import WorkspaceShell from "@/components/studyflow/WorkspaceShell";
-import { getShellWorkspace } from "@/lib/services/workspace";
+import { shellBaseWorkspace } from "@/lib/services/workspace";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { cookies } from "next/headers";
+import { Suspense } from "react";
+import WorkspaceShellLoading from "@/components/studyflow/WorkspaceShellLoading";
+import ShellDetails from "@/components/studyflow/ShellDetails";
 
 async function AuthorizedShell({
   children,
   params,
+  expanded,
 }: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
+  expanded: boolean;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const user = await requireLearner();
   if (!user.onboardingCompletedAt) redirect({ href: "/onboarding", locale });
-  const [initial, cookieStore] = await Promise.all([getShellWorkspace(), cookies()]);
-  return <SidebarProvider initialExpanded={cookieStore.get("sf-sidebar")?.value !== "collapsed"}><WorkspaceShell initial={initial}>{children}</WorkspaceShell></SidebarProvider>;
+  return <SidebarProvider initialExpanded={expanded}><WorkspaceShell initial={shellBaseWorkspace(user)} details={<Suspense fallback={null}><ShellDetails /></Suspense>}>{children}</WorkspaceShell></SidebarProvider>;
 }
 
-export default function LearnerLayout(props: {
+export default async function LearnerLayout(props: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  return <AuthorizedShell {...props} />;
+  const [{ locale }, cookieStore] = await Promise.all([props.params, cookies()]);
+  setRequestLocale(locale);
+  const expanded = cookieStore.get("sf-sidebar")?.value !== "collapsed";
+  return <Suspense fallback={<WorkspaceShellLoading expanded={expanded} />}><AuthorizedShell {...props} expanded={expanded} /></Suspense>;
 }

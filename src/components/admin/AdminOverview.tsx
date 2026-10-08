@@ -14,7 +14,7 @@ import AdminOperations from "./AdminOperations";
 export default function AdminOverview({initial}: {initial:Workspace}) {
   const data = useWorkspace(initial);
   const clock = useNow();
-  const now = clock || Date.parse(initial.user.lastActiveAt);
+  const now = clock || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt);
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const metrics = adminMetrics(data,now);

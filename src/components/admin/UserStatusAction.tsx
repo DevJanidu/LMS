@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
-import { newId, updateWorkspace } from "@/lib/workspace/store";
+import { runOperation } from "@/lib/workspace/store";
 import type { User, Workspace } from "@/types";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 interface Props {
@@ -27,37 +27,7 @@ export default function UserStatusAction({ data, user }: Props) {
         onClose={modal.closeModal}
         title={t(action)}
         description={t("userStatusWarning", { name: user.name })}
-        onConfirm={() =>
-          updateWorkspace(data, (state) => ({
-            ...state,
-            user:
-              state.user.id === user.id
-                ? {
-                    ...state.user,
-                    status: action === "deactivate" ? "inactive" : "active",
-                  }
-                : state.user,
-            users: state.users.map((item) =>
-              item.id === user.id
-                ? {
-                    ...item,
-                    status: action === "deactivate" ? "inactive" : "active",
-                  }
-                : item,
-            ),
-            auditLogs: [
-              {
-                id: newId(),
-                actorUserId: state.user.id,
-                action,
-                targetType: "user",
-                targetId: user.id,
-                createdAt: new Date().toISOString(),
-              },
-              ...state.auditLogs,
-            ],
-          }))
-        }
+        onConfirm={async () => (await runOperation(data, { kind: "userStatus", id: user.id, status: action === "deactivate" ? "inactive" : "active" })).ok}
       />
     </>
   );

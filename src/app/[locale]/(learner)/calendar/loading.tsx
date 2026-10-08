@@ -1,1 +1,1 @@
-export { default } from "@/components/studyflow/LoadingSkeleton";
+export { default } from "@/components/calendar/PlannerLoading";

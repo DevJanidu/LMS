@@ -1,0 +1,204 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - link "Skip to content" [ref=e4] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary "Learner navigation" [ref=e5]:
+      - link "StudyFlow" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+      - button "Start Studying" [ref=e12] [cursor=pointer]
+      - navigation [ref=e17]:
+        - link "Home" [ref=e19] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Subjects" [ref=e28] [cursor=pointer]:
+          - /url: /subjects
+        - link "Study" [ref=e34] [cursor=pointer]:
+          - /url: /study
+        - link "Study Planner" [ref=e41] [cursor=pointer]:
+          - /url: /calendar
+        - link "Analytics" [ref=e48] [cursor=pointer]:
+          - /url: /analytics
+        - link "Library" [ref=e55] [cursor=pointer]:
+          - /url: /resources
+      - generic [ref=e61]:
+        - link "Settings" [ref=e63] [cursor=pointer]:
+          - /url: /settings
+        - paragraph [ref=e70]: A little focus, a little progress. Every day.
+    - generic [ref=e71]:
+      - banner [ref=e72]:
+        - generic [ref=e73]:
+          - button "Collapse or expand navigation" [expanded] [ref=e75] [cursor=pointer]
+          - button "Search your workspace" [ref=e79] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e84]: ⌘ K
+          - generic [ref=e85]:
+            - button "Start Studying" [ref=e86] [cursor=pointer]
+            - button "Toggle light and dark mode" [ref=e88] [cursor=pointer]
+            - group [ref=e91]:
+              - generic "Notifications" [ref=e92] [cursor=pointer]
+            - group [ref=e95]:
+              - generic "Profile / Settings" [ref=e96] [cursor=pointer]:
+                - generic [ref=e97]: Af
+                - generic [ref=e98]: Audit
+      - main [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - img "Sunrise over misty hills" [ref=e105]
+              - paragraph [ref=e106]: Your learning space
+              - heading "Good morning, Audit fixture ☀️" [level=1] [ref=e107]
+              - paragraph [ref=e108]: Hope your day starts well.
+              - generic [ref=e109]: 🐦 Early Bird
+              - paragraph [ref=e110]: Your next chapter starts with a little focus. What will you learn today?
+            - region "Today's study time" [ref=e111]:
+              - generic [ref=e112]:
+                - paragraph [ref=e113]: Today's study time
+                - paragraph [ref=e114]: 0h 0m
+                - paragraph [ref=e115]: Every focused minute counts.
+              - generic [ref=e116]:
+                - generic [ref=e117]:
+                  - term [ref=e118]: Current streak
+                  - definition [ref=e119]: 0 days
+                - generic [ref=e120]:
+                  - term [ref=e121]: Topics completed this month
+                  - definition [ref=e122]: "21"
+            - generic [ref=e123]:
+              - paragraph [ref=e124]: This week
+              - generic [ref=e125]:
+                - 'generic "2026-10-05: 1h 30m" [ref=e126]':
+                  - generic [ref=e127]: M
+                  - generic [aria-hidden] [ref=e128]: ✓
+                  - generic [ref=e129]: 1h 30m
+                - 'generic "2026-10-06: 1h 30m" [ref=e130]':
+                  - generic [ref=e131]: T
+                  - generic [aria-hidden] [ref=e132]: ✓
+                  - generic [ref=e133]: 1h 30m
+                - 'generic "2026-10-07: 0h 0m" [ref=e134]':
+                  - generic [ref=e135]: W
+                  - generic [aria-hidden] [ref=e136]: "07"
+                  - generic [ref=e137]: —
+                - 'generic "2026-10-08: 0h 0m" [ref=e138]':
+                  - generic [ref=e139]: T
+                  - generic [aria-hidden] [ref=e140]: "08"
+                  - generic [ref=e141]: —
+                - 'generic "2026-10-09: 0h 0m" [ref=e142]':
+                  - generic [ref=e143]: F
+                  - generic [aria-hidden] [ref=e144]: "09"
+                  - generic [ref=e145]: —
+                - 'generic "2026-10-10: 0h 0m" [ref=e146]':
+                  - generic [ref=e147]: S
+                  - generic [aria-hidden] [ref=e148]: "10"
+                  - generic [ref=e149]: —
+                - 'generic "2026-10-11: 0h 0m" [ref=e150]':
+                  - generic [ref=e151]: S
+                  - generic [aria-hidden] [ref=e152]: "11"
+                  - generic [ref=e153]: —
+              - generic [ref=e154]:
+                - strong [ref=e155]: 3h 0m
+                - generic [ref=e156]: 25%
+              - progressbar "Weekly goal" [ref=e157]
+              - paragraph [ref=e159]: of 12h 0m · 25%
+          - generic [ref=e160]:
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - generic [ref=e163]:
+                  - generic [ref=e164]:
+                    - paragraph [ref=e165]: Today
+                    - paragraph [ref=e166]: Thursday, October 8
+                  - link "Study Planner →" [ref=e167] [cursor=pointer]:
+                    - /url: /calendar
+                - generic [ref=e168]:
+                  - generic [ref=e169]:
+                    - paragraph [ref=e170]: A little space to focus
+                    - heading "Make today a learning day." [level=3] [ref=e171]
+                    - paragraph [ref=e172]: Choose a subject. Take one small step forward.
+                  - link "Start Studying" [ref=e173] [cursor=pointer]:
+                    - /url: /study
+                    - text: Start Studying
+                    - generic [aria-hidden] [ref=e174]: ↗
+                - link "Schedule Study →" [ref=e175] [cursor=pointer]:
+                  - /url: /calendar?add=1
+              - generic [ref=e176]:
+                - generic [ref=e177]:
+                  - heading "Continue where you left off" [level=2] [ref=e178]
+                  - link "All subjects →" [ref=e179] [cursor=pointer]:
+                    - /url: /subjects
+                - generic [ref=e180]:
+                  - article [ref=e181]:
+                    - link "Audit subject 3" [ref=e182] [cursor=pointer]:
+                      - /url: /subjects/d467a696-51a0-46ad-9f91-68197073257b
+                    - generic [ref=e184]:
+                      - generic [ref=e185]:
+                        - strong [ref=e186]: 70%
+                        - generic [ref=e187]: 7/10 topics
+                      - progressbar "Audit subject 3" [ref=e188]
+                    - generic [ref=e190]:
+                      - text: Up next
+                      - paragraph [ref=e191]: Audit topic 8
+                    - generic [ref=e192]:
+                      - generic [ref=e193]: 182h 30m · Total study time
+                      - link "Continue" [ref=e194] [cursor=pointer]:
+                        - /url: /study?subject=d467a696-51a0-46ad-9f91-68197073257b&topic=c62ec315-1f8c-4cb1-9413-e7fc27d16ac2
+                        - text: Continue ↗
+                  - article [ref=e195]:
+                    - link "Audit subject 2" [ref=e196] [cursor=pointer]:
+                      - /url: /subjects/99c65a35-e650-47c8-9555-48a5307fe5c0
+                    - generic [ref=e198]:
+                      - generic [ref=e199]:
+                        - strong [ref=e200]: 70%
+                        - generic [ref=e201]: 7/10 topics
+                      - progressbar "Audit subject 2" [ref=e202]
+                    - generic [ref=e204]:
+                      - text: Up next
+                      - paragraph [ref=e205]: Audit topic 8
+                    - generic [ref=e206]:
+                      - generic [ref=e207]: 182h 30m · Total study time
+                      - link "Continue" [ref=e208] [cursor=pointer]:
+                        - /url: /study?subject=99c65a35-e650-47c8-9555-48a5307fe5c0&topic=ebbe5480-ca9c-428d-9429-2456531cb9d9
+                        - text: Continue ↗
+                  - article [ref=e209]:
+                    - link "Audit subject 1" [ref=e210] [cursor=pointer]:
+                      - /url: /subjects/61bf309e-63f5-491c-b716-59f0b6a45a2c
+                    - generic [ref=e212]:
+                      - generic [ref=e213]:
+                        - strong [ref=e214]: 70%
+                        - generic [ref=e215]: 7/10 topics
+                      - progressbar "Audit subject 1" [ref=e216]
+                    - generic [ref=e218]:
+                      - text: Up next
+                      - paragraph [ref=e219]: Audit topic 8
+                    - generic [ref=e220]:
+                      - generic [ref=e221]: 182h 30m · Total study time
+                      - link "Continue" [ref=e222] [cursor=pointer]:
+                        - /url: /study?subject=61bf309e-63f5-491c-b716-59f0b6a45a2c&topic=cbfc1816-f9a2-4221-9e9a-752212db1761
+                        - text: Continue ↗
+            - complementary [ref=e223]:
+              - generic [ref=e224]:
+                - heading "Upcoming deadlines" [level=2] [ref=e226]
+                - paragraph [ref=e227]: No deadlines ahead. Learn at your own pace.
+              - generic [ref=e228]:
+                - generic [ref=e229]:
+                  - heading "Recent study sessions" [level=2] [ref=e230]
+                  - link "View study history →" [ref=e231] [cursor=pointer]:
+                    - /url: /study/history
+                - list [ref=e232]:
+                  - listitem [ref=e233]:
+                    - generic [ref=e234]:
+                      - strong [ref=e235]: Audit subject 1
+                      - generic [ref=e236]: 0h 30m
+                    - time [ref=e237]: Oct 6, 11:30 AM
+                  - listitem [ref=e238]:
+                    - generic [ref=e239]:
+                      - strong [ref=e240]: Audit subject 2
+                      - generic [ref=e241]: 0h 30m
+                    - time [ref=e242]: Oct 6, 11:30 AM
+                  - listitem [ref=e243]:
+                    - generic [ref=e244]:
+                      - strong [ref=e245]: Audit subject 3
+                      - generic [ref=e246]: 0h 30m
+                    - time [ref=e247]: Oct 6, 11:30 AM
+                  - listitem [ref=e248]:
+                    - generic [ref=e249]:
+                      - strong [ref=e250]: Audit subject 1
+                      - generic [ref=e251]: 0h 30m
+                    - time [ref=e252]: Oct 5, 11:30 AM
+      - contentinfo [ref=e253]: StudyFlow · Make room for learning.

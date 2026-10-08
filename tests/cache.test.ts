@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ data: new Map<string, unknown>(), available: true, configured: true, admin: vi.fn(async () => ({})) }));
 vi.mock("@/lib/auth", () => ({ requireAdmin: mocks.admin }));
-vi.mock("@/lib/env", () => ({ getEnv: () => ({ CACHE_NAMESPACE: "test", UPSTASH_REDIS_REST_URL: mocks.configured ? "https://redis.example.com" : undefined, UPSTASH_REDIS_REST_TOKEN: mocks.configured ? "test-token" : undefined }) }));
+vi.mock("@/lib/env", () => ({ getEnv: () => ({ DATABASE_URL: "postgresql://fixture@database.example.com/app", CACHE_NAMESPACE: "test", UPSTASH_REDIS_REST_URL: mocks.configured ? "https://redis.example.com" : undefined, UPSTASH_REDIS_REST_TOKEN: mocks.configured ? "test-token" : undefined }) }));
 vi.mock("@upstash/redis", () => {
   const check = () => { if (!mocks.available) throw new Error("unreachable"); };
   return { Redis: class {

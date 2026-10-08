@@ -24,7 +24,7 @@ export default async function PublicLayout({
       <main className="sf-public-main mx-auto grid w-full max-w-7xl flex-1 items-center gap-12 px-5 py-10 lg:grid-cols-2">
         <aside className="sf-public-story"><p className="sf-eyebrow">{t("redesign.philosophy")}</p><h1>{t("redesign.authHeadline")}</h1><p>{t("redesign.authStory")}</p><div className="sf-learning-path" aria-hidden="true"><span>01</span><i /><span>02</span><i /><span>03</span><i /><span>04</span></div></aside><div className="sf-public-form">{children}</div>
       </main>
-      <footer className="p-6 text-center text-theme-xs text-gray-400 dark:text-gray-500">
+      <footer className="p-6 text-center text-theme-xs text-gray-600 dark:text-gray-400">
         {APP_NAME} · {t("footer")}
       </footer>
     </div>

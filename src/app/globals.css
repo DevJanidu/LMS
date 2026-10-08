@@ -1,8 +1,20 @@
 @import "tailwindcss";
-@import "@fullcalendar/react/skeleton.css";
-@import "@fullcalendar/react/themes/classic/theme.css";
-@import "@fullcalendar/react/themes/classic/palette.css";
 @custom-variant dark (&:is(.dark *));
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition { pointer-events: none; }
+::view-transition-old(root) { z-index: 999; }
+::view-transition-new(root) { z-index: 1; }
+html[data-sf-theme-reveal="dark"]::view-transition-old(root) { z-index: 1; }
+html[data-sf-theme-reveal="dark"]::view-transition-new(root) { z-index: 999; animation: sf-theme-expand 600ms ease-in-out both; will-change: clip-path; }
+html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-theme-collapse 600ms ease-in-out both; will-change: clip-path; }
+@keyframes sf-theme-expand {
+  from { clip-path: circle(0px at var(--sf-theme-reveal-x) var(--sf-theme-reveal-y)); }
+  to { clip-path: circle(var(--sf-theme-reveal-radius) at var(--sf-theme-reveal-x) var(--sf-theme-reveal-y)); }
+}
+@keyframes sf-theme-collapse {
+  from { clip-path: circle(var(--sf-theme-reveal-radius) at var(--sf-theme-reveal-x) var(--sf-theme-reveal-y)); }
+  to { clip-path: circle(0px at var(--sf-theme-reveal-x) var(--sf-theme-reveal-y)); }
+}
 @theme {
   --font-*: initial;
   --font-outfit: var(--font-geist), Arial, sans-serif;
@@ -169,3 +181,8 @@
 }
 
 @layer base { *, ::before, ::after { border-color: var(--border); } body { @apply font-outfit; background: var(--background); color: var(--text-primary); } button:not(:disabled), summary, select { cursor: pointer; } dialog:not([open]) { display: none; } }
+
+/* Reserve FullCalendar's time gutter before its measurement effect runs. */
+.planner-timetable [role="row"]:has(.planner-day-header) > :first-child,
+.planner-timetable [role="rowheader"],
+.planner-timetable :has(> .planner-time-label) { min-width: 3.5rem; }

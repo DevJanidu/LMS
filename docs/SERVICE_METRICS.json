@@ -1,0 +1,40 @@
+{
+  "conditions": "Current database, audit fixture only, service loader outside a React request; includes live actor read. Three sequential loads; not an HTTP/dashboard paint test.",
+  "results": [
+    {
+      "run": 1,
+      "serverMs": 5781,
+      "queryCount": 15
+    },
+    {
+      "run": 2,
+      "serverMs": 2033,
+      "queryCount": 15
+    },
+    {
+      "run": 3,
+      "serverMs": 2414,
+      "queryCount": 15
+    }
+  ],
+  "cache": {
+    "settings": {
+      "hit": 0,
+      "miss": 0,
+      "bypass": 0,
+      "error": 2
+    },
+    "analytics": {
+      "hit": 0,
+      "miss": 0,
+      "bypass": 3,
+      "error": 0
+    },
+    "subjects": {
+      "hit": 0,
+      "miss": 0,
+      "bypass": 3,
+      "error": 0
+    }
+  }
+}

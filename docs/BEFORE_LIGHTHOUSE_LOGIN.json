@@ -1,0 +1,16 @@
+{
+  "conditions": "Local production build; Lighthouse default mobile throttling. Provider roundtrip includes this machine's network, not deployed Vercel.",
+  "lighthouseVersion": "13.5.0",
+  "route": "/login",
+  "performance": 94,
+  "accessibility": 92,
+  "metrics": {
+    "first-contentful-paint": 912.5030999999999,
+    "largest-contentful-paint": 3066.0062,
+    "total-blocking-time": 72.75154999999995,
+    "speed-index": 912.5030999999999,
+    "cumulative-layout-shift": 0,
+    "server-response-time": 5,
+    "total-byte-weight": 375598
+  }
+}
