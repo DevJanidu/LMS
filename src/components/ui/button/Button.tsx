@@ -27,8 +27,8 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   // Size Classes
   const sizeClasses = {
-    sm: "sf-button-small px-3 text-body",
-    md: "sf-button-default px-4 text-body",
+    sm: "sf-button-small px-3 text-body-strong",
+    md: "sf-button-default px-4 text-body-strong",
   };
 
   // Variant Classes

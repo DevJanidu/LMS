@@ -220,10 +220,13 @@ html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-th
   }
   html { font-size: 100%; }
   body { @apply text-body; }
-  button, input, textarea, select, kbd, code, pre, [role="tooltip"] { font-family: inherit; }
+  h1 { @apply text-h1; }
+  h2 { @apply text-h2; }
+  h3, h4, h5, h6 { @apply text-h3; }
+  button, input, textarea, select, optgroup, option, kbd, code, pre, [role="tooltip"] { font-family: inherit; }
   strong, b, th { font-weight: 600; }
 }
-@utility text-overline { text-transform: uppercase; }
+@utility text-overline { text-transform: uppercase; color: var(--text-muted); }
 @utility text-stat { font-variant-numeric: tabular-nums; font-feature-settings: "cv11", "ss01", "tnum"; }
 @media (max-width: 639px) {
   :root { --text-display: 1.625rem; --text-h1: 1.5rem; }

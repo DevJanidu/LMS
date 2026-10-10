@@ -38,7 +38,7 @@ export default function AdminStorage({ initial }: Props) {
   return (
     <>
       <PageHeader title={t("storage")} description={t("storageDescription")} />
-      <div className="mb-6 max-w-sm">
+      <div className="mb-8 max-w-sm">
         <StatTile
           label={t("totalStorage")}
           value={`${((data.platform?.totalStorageBytes ?? usage.reduce((sum, entry) => sum + entry.bytes, 0)) / 1024 / 1024).toFixed(1)} MB`}

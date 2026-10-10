@@ -60,7 +60,7 @@ export default function AdminUserDetail({ initial, id }: Props) {
         description={`${user.email} · ${t(user.status)}`}
         action={<UserStatusAction data={data} user={user} />}
       />
-      <p className="mb-6 rounded-xl border border-brand-200 bg-brand-50 p-4 text-body text-brand-700 dark:border-brand-800 dark:bg-brand-500/10 dark:text-brand-300">
+      <p className="mb-8 rounded-xl border border-brand-200 bg-brand-50 p-4 text-body text-brand-700 dark:border-brand-800 dark:bg-brand-500/10 dark:text-brand-300">
         {t("redesign.privacyBoundary")}
       </p>
       <div className="sf-metric-strip mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -78,7 +78,7 @@ export default function AdminUserDetail({ initial, id }: Props) {
           value={t("streakDays", { days: streak.longest })}
         />
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <ComponentCard title={t("studyTime")}>
           <SelectField
             label={t("period")}

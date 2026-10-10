@@ -111,7 +111,7 @@ export default function AdminUsers({ initial, initialPage }: Props) {
           </Button>
         }
       />
-      <div className="sf-filter-bar mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="sf-filter-bar mb-8 grid gap-4 sm:grid-cols-3">
         <Field
           label={t("searchUsers")}
           value={query}

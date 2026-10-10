@@ -39,7 +39,7 @@ export default function Subjects({ initial, add = false }: Props) {
         description={t("subjectsDescription")}
         action={<Button onClick={modal.openModal}>{t("addSubject")}</Button>}
       />
-      <div className="sf-filter-bar mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="sf-filter-bar mb-8 grid gap-4 sm:grid-cols-3">
         <Field
           label={t("searchSubjects")}
           value={search}

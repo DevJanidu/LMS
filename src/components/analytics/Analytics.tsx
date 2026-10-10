@@ -100,7 +100,7 @@ export default function Analytics({ initial }: Props) {
           <StatTile key={key} label={t(key)} value={value} />
         ))}
       </div>
-      <div className="mb-6">
+      <div className="mb-8">
         <StreakBadge
           days={streak.current}
           longest={streak.longest}
@@ -111,7 +111,7 @@ export default function Analytics({ initial }: Props) {
         </span>
       </div>
       {(data.analytics?.sessionCount ?? sessions.length) === 0 && (
-        <div className="mb-6">
+        <div className="mb-8">
           <EmptyState
             title={t("noAnalytics")}
             description={t("noSessionsHelp")}

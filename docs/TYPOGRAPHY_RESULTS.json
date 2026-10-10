@@ -1,0 +1,8996 @@
+{
+  "generatedAt": "2026-10-10T09:20:44.286Z",
+  "baseURL": "http://localhost:3000",
+  "conditions": "Read-only Chrome audit with existing isolated fixtures. Screenshots remain ignored locally. Onboarding and reset-token flows reviewed in source; authenticated completed fixtures cannot visit those states.",
+  "results": [
+    {
+      "role": "learner",
+      "route": "/analytics",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/analytics",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/analytics",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/calendar",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "11px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/calendar",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "11px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/calendar",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "11px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/dashboard",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "11px",
+        "32px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "11px",
+          "14px",
+          "16px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "32px",
+      "hero": {
+        "gradient": "linear-gradient(90deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.72) 55%, rgba(15, 23, 42, 0.62))",
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ]
+      }
+    },
+    {
+      "role": "learner",
+      "route": "/dashboard",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "11px",
+        "32px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "11px",
+          "14px",
+          "16px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "32px",
+      "hero": {
+        "gradient": "linear-gradient(90deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.72) 55%, rgba(15, 23, 42, 0.62))",
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ]
+      }
+    },
+    {
+      "role": "learner",
+      "route": "/dashboard",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "11px",
+        "26px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "11px",
+          "14px",
+          "16px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "26px",
+      "hero": {
+        "gradient": "linear-gradient(90deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.72) 55%, rgba(15, 23, 42, 0.62))",
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ]
+      }
+    },
+    {
+      "role": "learner",
+      "route": "/settings",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/settings",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/settings",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study/history",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study/history",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study/history",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects/55c5f948-cc2b-4b64-90f2-68e88a2f6d70",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "14px"
+        ],
+        [
+          "16px",
+          "20px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects/55c5f948-cc2b-4b64-90f2-68e88a2f6d70",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "14px"
+        ],
+        [
+          "16px",
+          "20px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects/55c5f948-cc2b-4b64-90f2-68e88a2f6d70",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "14px"
+        ],
+        [
+          "16px",
+          "20px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/analytics",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/analytics",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/analytics",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/calendar",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "11px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/calendar",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "11px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/calendar",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "11px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/dashboard",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "11px",
+        "32px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "11px",
+          "14px",
+          "16px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "32px",
+      "hero": {
+        "gradient": "linear-gradient(90deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.72) 55%, rgba(15, 23, 42, 0.62))",
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ]
+      }
+    },
+    {
+      "role": "learner",
+      "route": "/dashboard",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "11px",
+        "32px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "11px",
+          "14px",
+          "16px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "32px",
+      "hero": {
+        "gradient": "linear-gradient(90deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.72) 55%, rgba(15, 23, 42, 0.62))",
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ]
+      }
+    },
+    {
+      "role": "learner",
+      "route": "/dashboard",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "11px",
+        "26px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "11px",
+          "14px",
+          "16px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "26px",
+      "hero": {
+        "gradient": "linear-gradient(90deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.72) 55%, rgba(15, 23, 42, 0.62))",
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ]
+      }
+    },
+    {
+      "role": "learner",
+      "route": "/settings",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/settings",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/settings",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study/history",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study/history",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study/history",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/study",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects/55c5f948-cc2b-4b64-90f2-68e88a2f6d70",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "14px"
+        ],
+        [
+          "16px",
+          "20px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects/55c5f948-cc2b-4b64-90f2-68e88a2f6d70",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "14px"
+        ],
+        [
+          "16px",
+          "20px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/subjects/55c5f948-cc2b-4b64-90f2-68e88a2f6d70",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "14px"
+        ],
+        [
+          "16px",
+          "20px",
+          "14px"
+        ],
+        [
+          "16px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/analytics",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/analytics",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/analytics",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/settings",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/settings",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/settings",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/storage",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/storage",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/storage",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/analytics",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/analytics",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/analytics",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "16px",
+          "12px",
+          "13px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/settings",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/settings",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/settings",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/storage",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/storage",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/storage",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ],
+        [
+          "14px",
+          "12px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-404",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "16px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-404",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "16px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-404",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "16px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-500",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "16px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-500",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "16px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-500",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "16px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/forgot-password",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/forgot-password",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/forgot-password",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/login",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/login",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/login",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/privacy",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/privacy",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/privacy",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/register",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/register",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/register",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/terms",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/terms",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/terms",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-404",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "16px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-404",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "16px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-404",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "16px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-500",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "16px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-500",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "16px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/error-500",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "16px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/forgot-password",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/forgot-password",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/forgot-password",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/login",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/login",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/login",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/privacy",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/privacy",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/privacy",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/register",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/register",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/register",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/terms",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/terms",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "28px",
+        "14px",
+        "12px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "public",
+      "route": "/terms",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "20px",
+        "11px",
+        "24px",
+        "14px",
+        "13px"
+      ],
+      "weights": [
+        "600",
+        "400"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/resources",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/resources",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/resources",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/resources",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/resources",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "learner",
+      "route": "/resources",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "13px",
+        "16px",
+        "24px",
+        "12px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "32px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "11px",
+          "14px",
+          "20px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "14px",
+          "13px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "32px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "32px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "11px",
+          "14px",
+          "20px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "14px",
+          "13px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "32px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "26px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(82, 101, 214)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "11px",
+          "14px",
+          "20px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "14px",
+          "13px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "26px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users/2d268815-c9ce-431a-8510-357b23304926",
+      "theme": "light",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users/2d268815-c9ce-431a-8510-357b23304926",
+      "theme": "light",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users/2d268815-c9ce-431a-8510-357b23304926",
+      "theme": "light",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "32px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "11px",
+          "14px",
+          "20px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "14px",
+          "13px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "32px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "32px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "11px",
+          "14px",
+          "20px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "14px",
+          "13px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "32px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "26px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        },
+        {
+          "size": "14px",
+          "weight": "500",
+          "color": "rgb(154, 166, 250)"
+        }
+      ],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "11px",
+          "14px",
+          "20px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "14px",
+          "13px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "26px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users/2d268815-c9ce-431a-8510-357b23304926",
+      "theme": "dark",
+      "width": 1280,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users/2d268815-c9ce-431a-8510-357b23304926",
+      "theme": "dark",
+      "width": 1920,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "12px",
+        "28px",
+        "16px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "28px",
+      "hero": null
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users/2d268815-c9ce-431a-8510-357b23304926",
+      "theme": "dark",
+      "width": 390,
+      "status": "PASS",
+      "failures": [],
+      "overflow": false,
+      "fonts": [
+        "Inter, \"Inter Fallback\""
+      ],
+      "sizes": [
+        "14px",
+        "20px",
+        "11px",
+        "13px",
+        "16px",
+        "24px",
+        "12px",
+        "28px"
+      ],
+      "weights": [
+        "400",
+        "600",
+        "500"
+      ],
+      "bad": [],
+      "links": [],
+      "cards": [
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "12px",
+          "28px"
+        ],
+        [
+          "16px",
+          "14px",
+          "12px"
+        ],
+        [
+          "16px",
+          "14px"
+        ]
+      ],
+      "nav": [
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        },
+        {
+          "height": 48,
+          "icon": 18
+        }
+      ],
+      "headingSize": "24px",
+      "hero": null
+    }
+  ],
+  "errors": []
+}

@@ -62,7 +62,7 @@ export default function Dashboard({ initial, section }: { initial: Workspace; se
   if (section === "today") return (
     <section className="sf-dashboard-today" aria-label={t("todayStudyTime")}>
       <div className="sf-dashboard-today-summary">
-        <p className="sf-eyebrow">{t("todayStudyTime")}</p>
+        <p className="text-caption text-muted">{t("todayStudyTime")}</p>
         <p className="sf-dashboard-today-value">{duration(todaySeconds)}</p>
         <p className="sf-dashboard-today-note">{t("everyMinute")}</p>
       </div>

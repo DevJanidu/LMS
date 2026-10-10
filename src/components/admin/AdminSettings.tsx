@@ -32,7 +32,7 @@ export default function AdminSettings({ initial }: Props) {
         title={t("adminSettings")}
         description={t("adminSettingsDescription")}
       />
-      <div className="space-y-6">
+      <div className="space-y-8">
         <ComponentCard title={t("platformLimits")}>
           <form
             className="max-w-xl space-y-4"

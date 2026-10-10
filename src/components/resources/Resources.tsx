@@ -145,7 +145,7 @@ export default function Resources({
           action={addButton}
         />
       )}
-      <div className="sf-filter-bar mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="sf-filter-bar mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Field
           label={t("searchResources")}
           value={query}
@@ -194,7 +194,7 @@ export default function Resources({
           ))}
         </SelectField>
       </div>
-      <div className="sf-library-toolbar mb-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="sf-library-toolbar mb-8 flex flex-wrap items-center justify-between gap-4">
         <div
           role="group"
           aria-label={t("redesign.resourceTypes")}
@@ -251,12 +251,12 @@ export default function Resources({
                     <FileIcon className="size-5" />
                   )}
                 </div>
-                <div className="sf-resource-body p-5">
-                  <span className="text-overline text-muted">
+                <div className="sf-resource-body p-6">
+                  <span className="text-caption text-muted">
                     {t(resource.type)}
                   </span>
                   <h2 className="mt-2 text-h3">{resource.title}</h2>
-                  <p className="mt-2 text-small text-muted dark:text-secondary">
+                  <p className="mt-2 text-caption text-muted dark:text-secondary">
                     {
                       data.subjects.find(
                         (item) => item.id === resource.subjectId,
@@ -266,7 +266,7 @@ export default function Resources({
                       ? ` · ${(resource.sizeBytes / 1024 / 1024).toFixed(1)} MB`
                       : ""}
                   </p>
-                  <div className="sf-resource-actions flex gap-4 text-body">
+                  <div className="sf-resource-actions flex gap-4 text-body-strong">
                     {resource.type === "file" ? (<a href={`/api/files/${resource.id}`} target="_blank" rel="noopener noreferrer" className="text-brand-600 dark:text-brand-300">{t("open")}</a>) : resource.url && /^https?:\/\//i.test(resource.url) ? (
                       <a
                         href={resource.url}
