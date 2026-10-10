@@ -13,8 +13,13 @@ it("accepts core application configuration while email setup is pending", () => 
   expect(env.EMAIL_FROM).toBeUndefined();
   expect(validateEnvironment({ ...core, RESEND_API_KEY: "", EMAIL_FROM: "" }).RESEND_API_KEY).toBeUndefined();
 });
-it("rejects incomplete email configuration and accepts a complete pair", () => {
+it("requires a sender for an API key and allows a prepared sender while setup is pending", () => {
   expect(() => validateEnvironment({ ...core, RESEND_API_KEY: "fixture-email-key" })).toThrow("Set both email variables");
-  expect(() => validateEnvironment({ ...core, EMAIL_FROM: "fixture@example.com" })).toThrow("Set both email variables");
+  expect(validateEnvironment({ ...core, EMAIL_FROM: "Acadence <hello@acadence.janidudev.com>" }).RESEND_API_KEY).toBeUndefined();
   expect(validateEnvironment({ ...core, RESEND_API_KEY: "fixture-email-key", EMAIL_FROM: "fixture@example.com" }).EMAIL_FROM).toBe("fixture@example.com");
+});
+it("rejects malformed senders and header injection", () => {
+  for (const sender of ["not-an-address", "Acadence <broken>", "hello@example.com\r\nBcc: other@example.com"]) {
+    expect(() => validateEnvironment({ ...core, EMAIL_FROM: sender })).toThrow("Use an email address");
+  }
 });

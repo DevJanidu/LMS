@@ -2,9 +2,13 @@
   "name": "studyflow",
   "version": "2.4.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:production": "node scripts/check-production.mjs --build",
     "start": "next start",
     "lint": "eslint .",
     "test": "node scripts/test-analytics.mjs && vitest run",
@@ -16,6 +20,8 @@
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
     "check:connections": "node scripts/check-connections.mjs",
+    "check:production": "node scripts/check-production.mjs",
+    "check:email": "node scripts/check-production.mjs --require-email --connections",
     "check:storage": "node scripts/check-storage.mjs"
   },
   "dependencies": {

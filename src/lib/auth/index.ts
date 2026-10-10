@@ -14,6 +14,7 @@ import { getDb } from "@/lib/db";
 import { getEnv } from "@/lib/env";
 import * as schema from "@/lib/db/schema";
 import { sendAccountEmail } from "@/lib/email";
+import { scheduleWelcomeEmail } from "@/lib/email/welcome";
 import { z } from "zod";
 import { cache } from "react";
 import { ageInYears } from "@/lib/validation/age";
@@ -60,7 +61,7 @@ function createAuth() {
         const minimumAge = (await getSettings()).minimumAge ?? 0;
         if (minimumAge > 0 && (!registration.data.dateOfBirth || ageInYears(registration.data.dateOfBirth) < minimumAge)) throw new APIError("BAD_REQUEST", { message: "Registration does not meet the configured age policy." });
         return { data: { ...user, name: registration.data.name, email: registration.data.email.toLowerCase(), dateOfBirth: registration.data.dateOfBirth, role: "learner", status: "active", acceptedTermsAt: new Date() } };
-      } } },
+      }, after: scheduleWelcomeEmail } },
       session: { create: { before: async (session) => {
         const [user] = await getDb().select({ status: schema.users.status }).from(schema.users).where(eq(schema.users.id, session.userId));
         if (!user || user.status !== "active") throw new APIError("FORBIDDEN", { message: "Account unavailable." });

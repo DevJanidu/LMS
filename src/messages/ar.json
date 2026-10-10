@@ -511,6 +511,11 @@
     "agePolicy": "Enter your date of birth and make sure your age meets the platform registration policy.",
     "privateSubject": "المادة {number}",
     "accountEmails": {
+      "welcomeSubject": "مرحبًا بك في {appName}!",
+      "welcomeGreeting": "مرحبًا {name}،",
+      "welcomeThanks": "شكرًا لانضمامك إلى {appName}! يسعدنا وجودك معنا.",
+      "welcomeGettingStarted": "ابدأ بتحديد أهدافك الدراسية وإضافة موادك والتخطيط لأول جلسة دراسة:",
+      "welcomeSignoff": "نتمنى لك دراسة ممتعة!\nفريق {appName}",
       "resetSubject": "إعادة تعيين كلمة مرور {appName}",
       "verifySubject": "تحقق من بريدك الإلكتروني في {appName}",
       "instructions": "افتح هذا الرابط للمتابعة:",

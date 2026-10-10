@@ -511,6 +511,11 @@
     "agePolicy": "Enter your date of birth and make sure your age meets the platform registration policy.",
     "privateSubject": "Fach {number}",
     "accountEmails": {
+      "welcomeSubject": "Willkommen bei {appName}!",
+      "welcomeGreeting": "Hallo {name},",
+      "welcomeThanks": "Danke, dass du dich bei {appName} angemeldet hast! Wir freuen uns, dass du dabei bist.",
+      "welcomeGettingStarted": "Lege zuerst deine Lernziele fest, füge deine Fächer hinzu und plane deine erste Lerneinheit:",
+      "welcomeSignoff": "Viel Freude beim Lernen!\nDein {appName}-Team",
       "resetSubject": "Setze dein {appName}-Passwort zurück",
       "verifySubject": "Bestätige deine E-Mail bei {appName}",
       "instructions": "Öffne diesen Link, um fortzufahren:",
