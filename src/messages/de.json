@@ -519,6 +519,7 @@
     "emailUnavailable": "E-Mails zum Zurücksetzen des Passworts sind noch nicht eingerichtet. Kontaktiere die Administration.",
     "savingChanges": "Änderungen werden gespeichert…",
     "changesSaved": "Änderungen gespeichert.",
+    "saveToast": "Speichern fehlgeschlagen. Prüfe deine Änderungen.",
     "saveUncertain": "Einige Änderungen wurden nicht bestätigt. Prüfe die gespeicherten Einträge vor einem erneuten Versuch; die Anfrage könnte den Server erreicht haben.",
     "reviewedChanges": "Ich habe meine Änderungen geprüft",
     "authenticationUnavailable": "Die Sitzungsprüfung ist vorübergehend nicht verfügbar. Bitte versuche es erneut.",

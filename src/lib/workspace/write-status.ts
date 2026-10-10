@@ -4,6 +4,16 @@ import { useEffect, useSyncExternalStore } from "react";
 type Outcome = "saved" | "failed" | "uncertain";
 const states = new Map<string, { pending: number; outcome?: Outcome }>();
 const listeners = new Set<() => void>();
+const failureListeners = new Map<string, Set<() => void>>();
+/** Notify the UI of a new failed confirmation, never a restored uncertainty flag. */
+export function subscribeWriteFailures(owner: string, listener: () => void) {
+  const subscribers = failureListeners.get(owner) ?? new Set<() => void>();
+  subscribers.add(listener); failureListeners.set(owner, subscribers);
+  return () => {
+    subscribers.delete(listener);
+    if (!subscribers.size) failureListeners.delete(owner);
+  };
+}
 const emit = () => listeners.forEach(listener => listener());
 const key = (owner: string) => `sf-unconfirmed:${owner}`;
 function remember(owner: string, value: boolean) {
@@ -20,6 +30,7 @@ export function beginWrite(owner: string) {
     finished = true; state.pending--;
     if (state.outcome !== "uncertain" && (state.outcome !== "failed" || outcome === "uncertain")) state.outcome = outcome;
     remember(owner, state.pending > 0 || state.outcome === "uncertain"); emit();
+    if (outcome !== "saved") failureListeners.get(owner)?.forEach(listener => listener());
   };
 }
 export function acknowledgeUncertainWrites(owner: string) {

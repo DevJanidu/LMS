@@ -19,7 +19,7 @@ import { APP_NAME } from "@/lib/constants";
 import BrandLogo from "./BrandLogo";
 import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
 import Badge from "@/components/ui/badge/Badge";
-import { useWorkspaceError, useWorkspace, useWorkspaceRetryable, retryWorkspaceMutation } from "@/lib/workspace/store";
+import { useWorkspace } from "@/lib/workspace/store";
 import type { Workspace } from "@/types";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
@@ -28,7 +28,7 @@ import Field from "./FormFields";
 import EmptyState from "./EmptyState";
 import FocusLauncher from "@/components/study/FocusLauncher";
 import WorkspaceHeader from "./WorkspaceHeader";
-import { useWriteStatus, acknowledgeUncertainWrites } from "@/lib/workspace/write-status";
+import SaveFeedback from "./SaveFeedback";
 interface Props {
   children: ReactNode;
   initial: Workspace;
@@ -61,9 +61,6 @@ export default function WorkspaceShell({
   const path = usePathname();
   const { isMobileOpen, toggleMobileSidebar, isExpanded } = useSidebar();
   const data = useWorkspace(initial);
-  const storageError = useWorkspaceError();
-  const retryable = useWorkspaceRetryable();
-  const writeStatus = useWriteStatus(initial.user.id);
   const search = useModal();
   const openSearch = search.openModal;
   const [query, setQuery] = useState("");
@@ -290,18 +287,6 @@ export default function WorkspaceShell({
           tabIndex={-1}
           className={`sf-content sf-content-${pageWidth} outline-none`}
         >
-          {(writeStatus === "saving" || writeStatus === "saved") && <p role="status" className="mb-3 text-small text-muted dark:text-muted">{t(writeStatus === "saving" ? "savingChanges" : "changesSaved")}</p>}
-          {writeStatus === "failed" && !storageError && <p role="alert" className="mb-3 text-body text-error-600 dark:text-error-400">{t("saveFailed")}</p>}
-          {writeStatus === "uncertain" && <p role="alert" className="mb-5 rounded-xl bg-warning-50 p-4 text-body text-warning-700 dark:bg-warning-500/15 dark:text-warning-300">{t("saveUncertain")} <button type="button" className="ms-3 underline" onClick={() => acknowledgeUncertainWrites(initial.user.id)}>{t("reviewedChanges")}</button></p>}
-          {storageError && storageError !== "saveUncertain" && (
-            <p
-              role="alert"
-              className="mb-5 rounded-xl bg-warning-50 p-4 text-body text-warning-700 dark:bg-warning-500/15 dark:text-warning-300"
-            >
-              {t(storageError)}
-              {retryable && <button type="button" className="ms-3 underline" onClick={() => { void retryWorkspaceMutation(); }}>{t("planner.retry")}</button>}
-            </p>
-          )}
           <div key={path} className="sf-page-enter">
             {children}
           </div>
@@ -310,6 +295,7 @@ export default function WorkspaceShell({
           {APP_NAME} · {t("footer")}
         </footer>
       </div>
+      <SaveFeedback owner={initial.user.id} />
       {!admin && <ActiveTimerIndicator initial={initial} />}
       {!admin && (
         <nav className="sf-mobile-nav" aria-label={t("learnerNavigation")}>

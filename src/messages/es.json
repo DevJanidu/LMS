@@ -519,6 +519,7 @@
     "emailUnavailable": "El correo para restablecer contraseñas aún no está configurado. Contacta con el administrador.",
     "savingChanges": "Guardando cambios…",
     "changesSaved": "Cambios guardados.",
+    "saveToast": "No se pudo guardar. Revisa tus cambios.",
     "saveUncertain": "Algunos cambios no se confirmaron. Revisa los registros guardados antes de intentarlo de nuevo; la solicitud podría haber llegado al servidor.",
     "reviewedChanges": "He revisado mis cambios",
     "authenticationUnavailable": "La verificación de la sesión no está disponible temporalmente. Inténtalo de nuevo.",

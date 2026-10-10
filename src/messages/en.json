@@ -519,6 +519,7 @@
     "emailUnavailable": "Password-reset email is not configured yet. Please contact the platform administrator.",
     "savingChanges": "Saving changes…",
     "changesSaved": "Changes saved.",
+    "saveToast": "Couldn't save. Check your changes.",
     "saveUncertain": "Some changes were not confirmed. Check the saved records before trying again; a request may still have reached the server.",
     "reviewedChanges": "I have reviewed my changes",
     "authenticationUnavailable": "Session verification is temporarily unavailable. Please try again.",
