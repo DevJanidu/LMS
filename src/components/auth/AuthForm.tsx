@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authenticate } from "@/app/[locale]/auth-actions";
 import { APP_NAME } from "@/lib/constants";
+import BrandLogo from "@/components/studyflow/BrandLogo";
 import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
 import Field from "@/components/studyflow/FormFields";
@@ -36,6 +37,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
         : "welcomeBack";
   return (
     <div className="sf-auth-form mx-auto w-full max-w-md">
+      {(mode === "login" || register) && <BrandLogo className="sf-auth-logo" />}
       <PageHeader title={t(title)} description={t("authDescription")} />
       <form
         className="space-y-5"

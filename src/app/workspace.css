@@ -104,6 +104,12 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); }
 .sf-sidebar-brand { padding-inline: var(--space-3); }
 .sf-brand-mark { display: flex; align-items: center; justify-content: center; width: var(--space-6); height: var(--space-6); flex-shrink: 0; border-radius: .4rem; background: var(--color-brand-500); color: var(--color-white); }
 .sf-brand-mark svg { width: var(--icon-md); height: var(--icon-md); }
+.sf-brand-logo { display: block; width: var(--space-16); max-width: 100%; }
+.sf-brand-logo img { width: 100%; height: auto; }
+.sf-sidebar-brand .sf-brand-logo { width: calc(var(--space-16) * 2.5); }
+.sf-auth-logo { width: calc(var(--space-16) * 3); margin: 0 auto var(--space-6); }
+.sf-brand-logo-mark { display: grid; place-items: start center; justify-content: center; width: var(--space-11); height: var(--space-8); overflow: hidden; }
+.sf-brand-logo-mark img { grid-area: 1 / 1; width: calc(var(--space-12) * 2); max-width: none; margin-block-start: calc(var(--space-2) * -1); }
 .sf-sidebar-cta { justify-content: flex-start; padding-inline: var(--space-3); gap: var(--space-3); }
 .sf-nav-item { @apply text-body-strong; position: relative; display: flex; align-items: center; gap: var(--space-3); height: var(--space-12); padding-inline: var(--space-3); border-radius: var(--radius-sm); color: var(--text-secondary);  }
 .sf-nav-item:hover { background: var(--surface-hover); color: var(--text-primary); }
@@ -347,6 +353,8 @@ dialog[open] { animation: page-enter var(--motion-fast) var(--ease-standard); ba
   .sf-collapsed .sf-sidebar .sf-nav-label, .sf-collapsed .sf-sidebar-bottom, .sf-collapsed .sf-sidebar > div:nth-child(2) { display: none; }
   .sf-collapsed .sf-nav-item { justify-content: center; padding-inline: 0; }
   .sf-collapsed .sf-sidebar-brand { padding: 0; justify-content: center; flex: 1; }
+  .sf-collapsed .sf-sidebar-brand .sf-brand-logo { display: grid; place-items: start center; justify-content: center; width: var(--space-11); height: var(--space-8); overflow: hidden; }
+  .sf-collapsed .sf-sidebar-brand .sf-brand-logo img { grid-area: 1 / 1; width: calc(var(--space-12) * 2); max-width: none; margin-block-start: calc(var(--space-2) * -1); }
   .sf-collapsed .sf-sidebar-cta { justify-content: center; }
   .sf-collapsed .sf-sidebar > a { padding-inline: 0; }
   .sf-home-grid { grid-template-columns: minmax(0, 2.2fr) minmax(17rem,1fr); }

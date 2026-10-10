@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { APP_NAME } from "@/lib/constants";
+import BrandLogo from "@/components/studyflow/BrandLogo";
 export default async function PublicLayout({
   children,
   params,
@@ -18,7 +19,7 @@ export default async function PublicLayout({
           href="/dashboard"
           className="text-h2 text-brand-600 dark:text-brand-300"
         >
-          {APP_NAME}
+          <BrandLogo variant="mark" />
         </Link>
       </header>
       <main className="sf-public-main mx-auto grid w-full max-w-7xl flex-1 items-center gap-12 px-5 py-10 lg:grid-cols-2">

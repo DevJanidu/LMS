@@ -10,11 +10,10 @@ import {
   ChevronDownIcon,
   CloseIcon,
   CommandIcon,
-  FolderIcon,
   ListIcon,
   SearchIcon,
 } from "@/icons";
-import { APP_NAME } from "@/lib/constants";
+import BrandLogo from "./BrandLogo";
 import { getNotifications } from "@/lib/workspace/notifications";
 import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import { formatDate } from "@/lib/time";
@@ -99,10 +98,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
             href={admin ? "/admin" : "/dashboard"}
             className="sf-mobile-brand"
           >
-            <span className="sf-brand-mark">
-              <FolderIcon />
-            </span>
-            <span>{APP_NAME}</span>
+            <BrandLogo variant="mark" />
           </Link>
         </div>
         <button

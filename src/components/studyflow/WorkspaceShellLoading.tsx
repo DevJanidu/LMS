@@ -8,6 +8,7 @@ import {
   StartPlayIcon, TimerIcon, SettingsIcon, CommandIcon,
 } from "@/icons";
 import { APP_NAME } from "@/lib/constants";
+import BrandLogo from "./BrandLogo";
 import PlannerLoading from "@/components/calendar/PlannerLoading";
 import LoadingSkeleton from "./LoadingSkeleton";
 import WorkspacePageLoading, { type WorkspacePage } from "./WorkspacePageLoading";
@@ -42,8 +43,7 @@ export default function WorkspaceShellLoading({ admin = false, expanded = true }
       <aside aria-label={t(admin ? "adminNavigation" : "learnerNavigation")} className="sf-sidebar fixed inset-y-0 start-0 z-999 flex w-64 flex-col border-e border-gray-200 bg-white px-5 py-7 -translate-x-full rtl:translate-x-full lg:translate-x-0 lg:rtl:translate-x-0 dark:border-gray-800 dark:bg-gray-900">
         <div className="sf-sidebar-brand-row mb-7 flex items-center justify-between">
           <Link href={admin ? "/admin" : "/dashboard"} className="sf-sidebar-brand flex items-center gap-3 text-h2">
-            <span className="sf-brand-mark"><FolderIcon className="size-5" /></span>
-            <span className="sf-nav-label">{APP_NAME}</span>
+            <BrandLogo />
           </Link>
         </div>
         {admin ? <div className="mb-5"><span className="sf-nav-label text-small">{t("admin")}</span></div> : (
@@ -66,7 +66,7 @@ export default function WorkspaceShellLoading({ admin = false, expanded = true }
       </aside>
       <div className="sf-main-column lg:ms-64">
         <header className="sf-topbar"><div className="sf-header-grid">
-          <div className="sf-header-left"><span className="sf-icon-button sf-desktop-menu"><ListIcon /></span><span className="sf-mobile-brand"><span className="sf-brand-mark"><FolderIcon /></span><span>{APP_NAME}</span></span></div>
+          <div className="sf-header-left"><span className="sf-icon-button sf-desktop-menu"><ListIcon /></span><span className="sf-mobile-brand"><BrandLogo variant="mark" /></span></div>
           <span className="sf-search"><SearchIcon /><span>{t("searchWorkspace")}</span><kbd aria-hidden="true" className="inline-flex items-center gap-1"><CommandIcon className="size-3" /> K</kbd></span>
           <div className="sf-header-actions">
             {!admin && <span className={`${primaryLink} sf-header-start`} aria-hidden="true">{t("startStudying")}</span>}

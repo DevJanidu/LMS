@@ -16,6 +16,7 @@ import {
   CloseIcon,
 } from "@/icons";
 import { APP_NAME } from "@/lib/constants";
+import BrandLogo from "./BrandLogo";
 import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
 import Badge from "@/components/ui/badge/Badge";
 import { useWorkspaceError, useWorkspace, useWorkspaceRetryable, retryWorkspaceMutation } from "@/lib/workspace/store";
@@ -196,10 +197,7 @@ export default function WorkspaceShell({
             href={admin ? "/admin" : "/dashboard"}
             className="sf-sidebar-brand flex items-center gap-3 text-h2"
           >
-            <span className="sf-brand-mark">
-              <FolderIcon className="size-5" />
-            </span>
-            <span className="sf-nav-label">{APP_NAME}</span>
+            <BrandLogo />
           </Link>
           <button
             onClick={toggleMobileSidebar}
