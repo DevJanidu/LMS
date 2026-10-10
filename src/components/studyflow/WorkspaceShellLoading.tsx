@@ -5,7 +5,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import {
   BellIcon, CalenderIcon, FileIcon, FolderIcon, GridIcon,
   GroupIcon, ListIcon, MoonIcon, PieChartIcon, SearchIcon,
-  StartPlayIcon, TimerIcon, SettingsIcon,
+  StartPlayIcon, TimerIcon, SettingsIcon, CommandIcon,
 } from "@/icons";
 import { APP_NAME } from "@/lib/constants";
 import PlannerLoading from "@/components/calendar/PlannerLoading";
@@ -67,7 +67,7 @@ export default function WorkspaceShellLoading({ admin = false, expanded = true }
       <div className="sf-main-column lg:ms-64">
         <header className="sf-topbar"><div className="sf-header-grid">
           <div className="sf-header-left"><span className="sf-icon-button sf-desktop-menu"><ListIcon /></span><span className="sf-mobile-brand"><span className="sf-brand-mark"><FolderIcon /></span><span>{APP_NAME}</span></span></div>
-          <span className="sf-search"><SearchIcon /><span>{t("searchWorkspace")}</span><kbd aria-hidden="true">⌘ K</kbd></span>
+          <span className="sf-search"><SearchIcon /><span>{t("searchWorkspace")}</span><kbd aria-hidden="true" className="inline-flex items-center gap-1"><CommandIcon className="size-3" /> K</kbd></span>
           <div className="sf-header-actions">
             {!admin && <span className={`${primaryLink} sf-header-start`} aria-hidden="true">{t("startStudying")}</span>}
             <span className="sf-icon-button sf-theme-control"><MoonIcon /></span>

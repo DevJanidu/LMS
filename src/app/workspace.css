@@ -12,8 +12,8 @@
   --primary-hover: #4353ba;
   --primary-soft: #ecedfb;
   --accent: #8ba8a0;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
   --text-muted: #64748b;
   --success: #257c63;
   --warning: #946419;
@@ -250,7 +250,7 @@ summary::-webkit-details-marker { display: none; }
 .sf-dashboard-session-heading strong { @apply text-body-strong; min-width: 0; overflow-wrap: anywhere;  }
 .sf-dashboard-session-heading > span { @apply text-small; flex-shrink: 0; color: var(--text-secondary); font-variant-numeric: tabular-nums;  }
 .sf-dashboard-session-list p { @apply text-small; margin-top: var(--space-1); color: var(--text-secondary);  }
-.sf-dashboard-session-list time { @apply text-caption; display: block; margin-top: var(--space-1); color: var(--text-muted);  }
+.sf-dashboard-session-list time { @apply text-small; display: block; margin-top: var(--space-1); color: var(--text-muted); }
 @media (min-width: 1024px) { .sf-dashboard-body { grid-template-columns: minmax(0,2.1fr) minmax(17rem,1fr); gap: var(--space-8); } .sf-dashboard-context { padding-top: var(--space-6); padding-inline-start: var(--space-6); border-inline-start: 1px solid var(--border); } }
 @media (min-width: 1280px) { .sf-dashboard-hero { grid-template-columns: minmax(0,1.3fr) minmax(12rem,.8fr) minmax(18rem,1fr); column-gap: var(--space-8); } .sf-dashboard-today { border-inline-start: 1px solid var(--border); padding-inline-start: var(--space-6); } .sf-dashboard-hero .sf-week { justify-self: end; } }
 @media (min-width: 1280px) { .sf-dashboard-today, .sf-dashboard-hero .sf-week { padding-block-start: var(--space-6); } }
@@ -282,7 +282,7 @@ summary::-webkit-details-marker { display: none; }
 .sf-subject:hover { transform: translateY(-1px); border-color: var(--border-strong); }
 .sf-subject-title { @apply text-h3;  }
 .sf-subject-progress { display: flex; align-items: baseline; gap: 0.75rem; }
-.sf-subject-progress strong { @apply text-h3;  }
+.sf-subject-progress strong { @apply text-stat; }
 .sf-subject-next { background: var(--surface-subtle); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
 .sf-subject-next p { @apply text-body-strong; margin-top: 0.25rem;  }
 .sf-subject-footer { @apply text-caption; margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; color: var(--text-muted);  }
@@ -474,25 +474,24 @@ dialog[open] { animation: page-enter var(--motion-fast) var(--ease-standard); ba
 .sf-dashboard-greeting .sf-greeting-tagline { @apply text-body; }
 .sf-greeting-badge { color: var(--color-white); background: rgb(15 23 42 / .8); }
 .sf-dashboard-milestones > div { gap: var(--space-2); }
-.sf-week, .sf-week-day, .sf-subject-progress, .sf-focus-clock, .sf-timer-dock, .sf-dashboard-today-value, .sf-dashboard-milestones dd, .planner-timetable, .planner-range, .sf-chart, table { font-variant-numeric: tabular-nums; font-feature-settings: "cv11", "ss01", "tnum"; }
+.sf-week-mark, .sf-week-day > span:last-child, .sf-subject-progress strong, .sf-focus-clock, .sf-timer-dock [dir=ltr], .sf-dashboard-today-value, .sf-dashboard-milestones dd, .planner-time-label, .planner-day-heading strong, .planner-event-time, .planner-range, time { font-variant-numeric: tabular-nums; }
 .sf-section-heading a, .sf-text-link, .sf-subject-footer a { @apply text-body-strong; color: var(--primary); }
 .sf-text-link { display: inline-flex; align-items: center; gap: var(--space-2); }
 .sf-text-link svg, .sf-section-heading a svg, .sf-subject-footer a svg { width: var(--icon-sm); height: var(--icon-sm); flex-shrink: 0; }
 .sf-section-heading { margin-bottom: var(--space-4); }
 .sf-stat, .sf-today, .sf-filter-bar, .sf-focus .sf-panel { padding: var(--space-6); }
 .sf-panel-heading { padding-top: var(--space-6); padding-bottom: var(--space-4); }
-/* Card helpers share caption size with metadata, keeping title/body/meta to three levels. */
-.sf-panel .text-small { @apply text-caption; }
 .sf-subject-collection, .sf-continue-grid { gap: var(--space-8); }
 .sf-settings-layout > div { gap: var(--space-8); }
 .sf-chart { min-width: 0; max-width: 100%; overflow-x: clip; }
 .sf-chart .apexcharts-canvas { max-width: 100%; }
-.sf-chart :is(.apexcharts-text, .apexcharts-tooltip, .apexcharts-tooltip-title, .apexcharts-xaxistooltip-text, .apexcharts-yaxistooltip-text, .apexcharts-legend-text) { font-family: inherit !important; font-variant-numeric: tabular-nums; }
+.sf-chart :is(.apexcharts-text, .apexcharts-tooltip, .apexcharts-tooltip-title, .apexcharts-xaxistooltip-text, .apexcharts-yaxistooltip-text, .apexcharts-legend-text) { font-family: inherit !important; }
+.sf-chart :is(.apexcharts-xaxis-label, .apexcharts-yaxis-label, .apexcharts-tooltip-text-y-value, td) { font-variant-numeric: tabular-nums; }
 .sf-chart .apexcharts-text { font-size: var(--text-caption) !important; font-weight: var(--text-caption--font-weight); fill: var(--text-muted); }
 .sf-chart :is(.apexcharts-tooltip, .apexcharts-tooltip-title) { @apply text-caption; color: var(--text-primary); }
 .sf-chart :is(.apexcharts-xaxistooltip-text, .apexcharts-yaxistooltip-text, .apexcharts-legend-text) { @apply text-caption; font-size: var(--text-caption) !important; }
 .sf-chart table td { @apply text-caption; }
 
 .sf-subject { @apply text-body; }
-.sf-subject .sf-subject-progress > span, .sf-subject .sf-subject-progress strong > span, .sf-subject > p, .sf-subject-footer > span { @apply text-caption; }
+.sf-subject .sf-subject-progress > span, .sf-subject .sf-subject-progress strong > span, .sf-subject-footer > span { @apply text-caption; }
 .sf-subject-footer a { @apply text-body-strong; }

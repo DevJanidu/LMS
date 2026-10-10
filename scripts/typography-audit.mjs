@@ -61,7 +61,7 @@ try {
             const fonts = [...new Set(entries.map(e => e.family))];
             const sizes = [...new Set(entries.map(e => e.size))];
             const weights = [...new Set(entries.map(e => e.weight))];
-            const bad = entries.filter(e => ![11,12,13,14,16,20,24,26,28,32].includes(parseFloat(e.size)) || !['400','500','600'].includes(e.weight) || !/inter/i.test(e.family) || (e.tracking !== 'normal' && parseFloat(e.tracking) < -0.02 * parseFloat(e.size) - 0.001));
+            const bad = entries.filter(e => ![12,13,14,15,18,24,26,32].includes(parseFloat(e.size)) || !['400','500','600'].includes(e.weight) || !/inter/i.test(e.family) || (e.tracking !== 'normal' && parseFloat(e.tracking) < -0.01 * parseFloat(e.size) - 0.001));
             const links = [...document.querySelectorAll('.sf-text-link')].filter(visible).map(el => { const s=getComputedStyle(el);return { size:s.fontSize,weight:s.fontWeight,color:s.color }; });
             const cards = [...document.querySelectorAll('.sf-subject,.sf-stat,.sf-panel,.sf-today,.sf-resource-row')].filter(visible).map(el => [...new Set([...el.querySelectorAll('*')].filter(node => visible(node) && ownText(node)).map(node => getComputedStyle(node).fontSize))]);
             const nav = [...document.querySelectorAll('.sf-sidebar .sf-nav-item')].filter(visible).map(el => ({ height:el.getBoundingClientRect().height, icon:el.querySelector('svg')?.getBoundingClientRect().width }));
@@ -73,7 +73,8 @@ try {
           if (measured.overflow) failures.push('horizontal overflow');
           if (measured.bad.length) failures.push('font/token violation');
           if (measured.links.some(link => link.size !== '14px' || link.weight !== '500')) failures.push('text-link inconsistency');
-          if (measured.cards.some(sizes => sizes.length > 3)) failures.push('more than three card sizes');
+          // The current scale specifies distinct stat, title, body, secondary and label roles.
+          // Retain card measurements without enforcing the previous three-size restriction.
           if (measured.nav.some(row => row.height !== 48 || row.icon !== 18)) failures.push('sidebar rhythm');
           if (route === '/dashboard' && measured.headingSize !== (width < 640 ? '26px' : '32px')) failures.push('display size');
           results.push({ role,route,theme,width,status:failures.length ? 'FAIL' : 'PASS',failures,...measured });

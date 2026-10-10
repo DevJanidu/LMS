@@ -32,25 +32,25 @@ html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-th
   --text-display: 2rem;
   --text-display--line-height: 2.5rem;
   --text-display--font-weight: 600;
-  --text-display--letter-spacing: -0.02em;
-  --text-h1: 1.75rem;
-  --text-h1--line-height: 2.25rem;
+  --text-display--letter-spacing: -0.01em;
+  --text-h1: 1.625rem;
+  --text-h1--line-height: 2.125rem;
   --text-h1--font-weight: 600;
-  --text-h1--letter-spacing: -0.015em;
-  --text-h2: 1.25rem;
-  --text-h2--line-height: 1.75rem;
+  --text-h1--letter-spacing: -0.01em;
+  --text-h2: 1.125rem;
+  --text-h2--line-height: 1.625rem;
   --text-h2--font-weight: 600;
-  --text-h2--letter-spacing: -0.01em;
-  --text-h3: 1rem;
-  --text-h3--line-height: 1.5rem;
+  --text-h2--letter-spacing: -0.005em;
+  --text-h3: 0.9375rem;
+  --text-h3--line-height: 1.375rem;
   --text-h3--font-weight: 600;
-  --text-h3--letter-spacing: -0.005em;
+  --text-h3--letter-spacing: 0;
   --text-body: 0.875rem;
   --text-body--line-height: 1.375rem;
   --text-body--font-weight: 400;
   --text-body--letter-spacing: 0;
   --text-body-strong: 0.875rem;
-  --text-body-strong--line-height: 1.375rem;
+  --text-body-strong--line-height: 1.25rem;
   --text-body-strong--font-weight: 500;
   --text-body-strong--letter-spacing: 0;
   --text-small: 0.8125rem;
@@ -61,14 +61,14 @@ html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-th
   --text-caption--line-height: 1rem;
   --text-caption--font-weight: 500;
   --text-caption--letter-spacing: 0;
-  --text-overline: 0.6875rem;
+  --text-overline: 0.75rem;
   --text-overline--line-height: 1rem;
-  --text-overline--font-weight: 600;
-  --text-overline--letter-spacing: 0.06em;
-  --text-stat: 1.75rem;
-  --text-stat--line-height: 2rem;
+  --text-overline--font-weight: 500;
+  --text-overline--letter-spacing: 0.05em;
+  --text-stat: 1.5rem;
+  --text-stat--line-height: 1.875rem;
   --text-stat--font-weight: 600;
-  --text-stat--letter-spacing: -0.02em;
+  --text-stat--letter-spacing: 0;
 
   --color-current: currentColor;
   --color-transparent: transparent;
@@ -213,21 +213,23 @@ html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-th
 
 @layer base {
   html, body {
-    font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01", "tnum";
+    font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-optical-sizing: auto;
   }
-  html { font-size: 100%; }
+  html { font-size: 100%; font-synthesis: none; }
   body { @apply text-body; }
   h1 { @apply text-h1; }
   h2 { @apply text-h2; }
   h3, h4, h5, h6 { @apply text-h3; }
-  button, input, textarea, select, optgroup, option, kbd, code, pre, [role="tooltip"] { font-family: inherit; }
-  strong, b, th { font-weight: 600; }
+  *, button, input, textarea, select, option, optgroup, kbd, code, pre, samp, [role="tooltip"] { font-family: inherit; }
+  strong, b, th { font-weight: 500; }
 }
 @utility text-overline { text-transform: uppercase; color: var(--text-muted); }
-@utility text-stat { font-variant-numeric: tabular-nums; font-feature-settings: "cv11", "ss01", "tnum"; }
+@utility text-stat { font-variant-numeric: tabular-nums; }
 @media (max-width: 639px) {
   :root { --text-display: 1.625rem; --text-h1: 1.5rem; }
 }

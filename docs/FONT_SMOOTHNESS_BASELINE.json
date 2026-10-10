@@ -1,0 +1,4402 @@
+{
+  "generatedAt": "2026-10-10T09:27:50.733Z",
+  "conditions": "Chrome on Windows, device scale factor 1, 100% visual viewport zoom. CSS.getPlatformFontsForNode is the CDP equivalent of DevTools Rendered Fonts; source fixture credentials and screenshots remain ignored.",
+  "results": [
+    {
+      "route": "/dashboard",
+      "theme": "light",
+      "width": 1280,
+      "status": "FAIL",
+      "entries": [
+        {
+          "tag": "A",
+          "class": "sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-99999 focus:rounded-lg focus:bg-brand-500 focus:p-3 focus:text-white",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "20px",
+          "weight": "600",
+          "lineHeight": "28px",
+          "tracking": "-0.2px",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-nav-label",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "text-small text-muted dark:text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "KBD",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "H2",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-avatar",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "BUTTON",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-muted ms-auto",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "BUTTON",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "sf-eyebrow",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "11px",
+          "weight": "600",
+          "lineHeight": "16px",
+          "tracking": "0.66px",
+          "variant": "normal"
+        },
+        {
+          "tag": "H1",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "32px",
+          "weight": "600",
+          "lineHeight": "40px",
+          "tracking": "-0.64px",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "sf-greeting-tagline",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-greeting-badge",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "11px",
+          "weight": "600",
+          "lineHeight": "16px",
+          "tracking": "0.66px",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "sf-hero-message",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "sf-dashboard-today-value",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "28px",
+          "weight": "600",
+          "lineHeight": "32px",
+          "tracking": "-0.56px",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "P",
+          "class": "sf-dashboard-today-note",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "DT",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "DD",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "28px",
+          "weight": "600",
+          "lineHeight": "32px",
+          "tracking": "-0.56px",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "DT",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "DD",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "28px",
+          "weight": "600",
+          "lineHeight": "32px",
+          "tracking": "-0.56px",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "P",
+          "class": "sf-eyebrow",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "11px",
+          "weight": "600",
+          "lineHeight": "16px",
+          "tracking": "0.66px",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-week-mark",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-week-mark",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-week-mark",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-week-mark",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-week-mark",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-week-mark",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "sf-week-mark",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "STRONG",
+          "class": "text-stat",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "28px",
+          "weight": "600",
+          "lineHeight": "32px",
+          "tracking": "-0.56px",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption tabular-nums text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "P",
+          "class": "mt-3 text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "P",
+          "class": "sf-eyebrow",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "11px",
+          "weight": "600",
+          "lineHeight": "16px",
+          "tracking": "0.66px",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "mt-1 text-body text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-text-link ",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "sf-eyebrow mb-2",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "11px",
+          "weight": "600",
+          "lineHeight": "16px",
+          "tracking": "0.66px",
+          "variant": "normal"
+        },
+        {
+          "tag": "H3",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "16px",
+          "weight": "600",
+          "lineHeight": "24px",
+          "tracking": "-0.08px",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "mt-2 text-body text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-button sf-primary-action inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 text-body-strong text-white shadow-theme-xs transition hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-400",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-text-link sf-agenda-item",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "H2",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "20px",
+          "weight": "600",
+          "lineHeight": "28px",
+          "tracking": "-0.2px",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-text-link ",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-subject-title flex items-center gap-3",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "16px",
+          "weight": "600",
+          "lineHeight": "24px",
+          "tracking": "-0.08px",
+          "variant": "normal"
+        },
+        {
+          "tag": "STRONG",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "16px",
+          "weight": "600",
+          "lineHeight": "24px",
+          "tracking": "-0.08px",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-text-link ",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-subject-title flex items-center gap-3",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "16px",
+          "weight": "600",
+          "lineHeight": "24px",
+          "tracking": "-0.08px",
+          "variant": "normal"
+        },
+        {
+          "tag": "STRONG",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "16px",
+          "weight": "600",
+          "lineHeight": "24px",
+          "tracking": "-0.08px",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-text-link ",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-subject-title flex items-center gap-3",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "16px",
+          "weight": "600",
+          "lineHeight": "24px",
+          "tracking": "-0.08px",
+          "variant": "normal"
+        },
+        {
+          "tag": "STRONG",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "16px",
+          "weight": "600",
+          "lineHeight": "24px",
+          "tracking": "-0.08px",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "SPAN",
+          "class": "text-caption text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-text-link ",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "H2",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "20px",
+          "weight": "600",
+          "lineHeight": "28px",
+          "tracking": "-0.2px",
+          "variant": "normal"
+        },
+        {
+          "tag": "P",
+          "class": "text-muted text-body",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "H2",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "20px",
+          "weight": "600",
+          "lineHeight": "28px",
+          "tracking": "-0.2px",
+          "variant": "normal"
+        },
+        {
+          "tag": "A",
+          "class": "sf-text-link ",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "STRONG",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "TIME",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "STRONG",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "TIME",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "STRONG",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "TIME",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "STRONG",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "14px",
+          "weight": "500",
+          "lineHeight": "22px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "SPAN",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "tabular-nums"
+        },
+        {
+          "tag": "TIME",
+          "class": "",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "12px",
+          "weight": "500",
+          "lineHeight": "16px",
+          "tracking": "normal",
+          "variant": "normal"
+        },
+        {
+          "tag": "FOOTER",
+          "class": "px-4 py-8 text-center text-small text-muted sm:px-8 dark:text-muted",
+          "family": "Inter, \"Inter Fallback\"",
+          "size": "13px",
+          "weight": "400",
+          "lineHeight": "20px",
+          "tracking": "normal",
+          "variant": "normal"
+        }
+      ],
+      "zoom": 1,
+      "dpr": 1,
+      "overflow": false,
+      "synthesis": "weight style small-caps",
+      "body": {
+        "family": "Inter, \"Inter Fallback\"",
+        "features": "\"cv11\", \"ss01\", \"tnum\"",
+        "opticalSizing": "auto",
+        "color": "rgb(15, 23, 42)"
+      },
+      "rendered": [
+        {
+          "index": 0,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 9
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 4
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 9
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 44
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 21
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            },
+            {
+              "familyName": "Cambria Math",
+              "postScriptName": "CambriaMath",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 13,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "index": 14,
+          "fonts": []
+        },
+        {
+          "index": 15,
+          "fonts": []
+        },
+        {
+          "index": 16,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "index": 17,
+          "fonts": []
+        },
+        {
+          "index": 18,
+          "fonts": []
+        },
+        {
+          "index": 19,
+          "fonts": []
+        },
+        {
+          "index": 20,
+          "fonts": []
+        },
+        {
+          "index": 21,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 19
+            }
+          ]
+        },
+        {
+          "index": 22,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 21
+            }
+          ]
+        },
+        {
+          "index": 23,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 23
+            }
+          ]
+        },
+        {
+          "index": 24,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 12
+            }
+          ]
+        },
+        {
+          "index": 25,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 71
+            }
+          ]
+        },
+        {
+          "index": 26,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 18
+            }
+          ]
+        },
+        {
+          "index": 27,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "index": 28,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 28
+            }
+          ]
+        },
+        {
+          "index": 29,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "index": 30,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "index": 31,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 25
+            }
+          ]
+        },
+        {
+          "index": 32,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "index": 33,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 9
+            }
+          ]
+        },
+        {
+          "index": 34,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 35,
+          "fonts": [
+            {
+              "familyName": "Segoe UI Symbol",
+              "postScriptName": "SegoeUISymbol",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 36,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "index": 37,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 38,
+          "fonts": [
+            {
+              "familyName": "Segoe UI Symbol",
+              "postScriptName": "SegoeUISymbol",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 39,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "index": 40,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 41,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "index": 42,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 43,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 44,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "index": 45,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 46,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 47,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "index": 48,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 49,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 50,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "index": 51,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 52,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 53,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "index": 54,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 55,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "index": 56,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 3
+            }
+          ]
+        },
+        {
+          "index": 57,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 58,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "index": 59,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 20
+            }
+          ]
+        },
+        {
+          "index": 60,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "index": 61,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 23
+            }
+          ]
+        },
+        {
+          "index": 62,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 26
+            }
+          ]
+        },
+        {
+          "index": 63,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 46
+            }
+          ]
+        },
+        {
+          "index": 64,
+          "fonts": [
+            {
+              "familyName": "Segoe UI Symbol",
+              "postScriptName": "SegoeUISymbol",
+              "isCustomFont": false,
+              "glyphCount": 1
+            },
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "index": 65,
+          "fonts": [
+            {
+              "familyName": "Segoe UI Symbol",
+              "postScriptName": "SegoeUISymbol",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 66,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "index": 67,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 27
+            }
+          ]
+        },
+        {
+          "index": 68,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 12
+            }
+          ]
+        },
+        {
+          "index": 69,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 70,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 3
+            }
+          ]
+        },
+        {
+          "index": 71,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 72,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 11
+            }
+          ]
+        },
+        {
+          "index": 73,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        },
+        {
+          "index": 74,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "index": 75,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 26
+            }
+          ]
+        },
+        {
+          "index": 76,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "index": 77,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 78,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 3
+            }
+          ]
+        },
+        {
+          "index": 79,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 80,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 11
+            }
+          ]
+        },
+        {
+          "index": 81,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        },
+        {
+          "index": 82,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "index": 83,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 26
+            }
+          ]
+        },
+        {
+          "index": 84,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "index": 85,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 86,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 3
+            }
+          ]
+        },
+        {
+          "index": 87,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "index": 88,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 11
+            }
+          ]
+        },
+        {
+          "index": 89,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        },
+        {
+          "index": 90,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "index": 91,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 26
+            }
+          ]
+        },
+        {
+          "index": 92,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "index": 93,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 18
+            }
+          ]
+        },
+        {
+          "index": 94,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 42
+            }
+          ]
+        },
+        {
+          "index": 95,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 21
+            }
+          ]
+        },
+        {
+          "index": 96,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 18
+            }
+          ]
+        },
+        {
+          "index": 97,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 98,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "index": 99,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 100,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 101,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "index": 102,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 103,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 104,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "index": 105,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 106,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 107,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "index": 108,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "index": 109,
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 35
+            }
+          ]
+        }
+      ],
+      "nonInter": [
+        {
+          "element": {
+            "tag": "A",
+            "class": "sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-99999 focus:rounded-lg focus:bg-brand-500 focus:p-3 focus:text-white",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "20px",
+            "weight": "600",
+            "lineHeight": "28px",
+            "tracking": "-0.2px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 9
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 4
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 9
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-nav-label",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "text-small text-muted dark:text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 44
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 21
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "KBD",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            },
+            {
+              "familyName": "Cambria Math",
+              "postScriptName": "CambriaMath",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-avatar",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "sf-eyebrow",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "11px",
+            "weight": "600",
+            "lineHeight": "16px",
+            "tracking": "0.66px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 19
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "H1",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "32px",
+            "weight": "600",
+            "lineHeight": "40px",
+            "tracking": "-0.64px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 21
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "sf-greeting-tagline",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 23
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-greeting-badge",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "11px",
+            "weight": "600",
+            "lineHeight": "16px",
+            "tracking": "0.66px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 12
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "sf-hero-message",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 71
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 18
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "sf-dashboard-today-value",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "28px",
+            "weight": "600",
+            "lineHeight": "32px",
+            "tracking": "-0.56px",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "sf-dashboard-today-note",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 28
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "DT",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "DD",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "28px",
+            "weight": "600",
+            "lineHeight": "32px",
+            "tracking": "-0.56px",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "DT",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 25
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "DD",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "28px",
+            "weight": "600",
+            "lineHeight": "32px",
+            "tracking": "-0.56px",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "sf-eyebrow",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "11px",
+            "weight": "600",
+            "lineHeight": "16px",
+            "tracking": "0.66px",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 9
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-week-mark",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Segoe UI Symbol",
+              "postScriptName": "SegoeUISymbol",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-week-mark",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Segoe UI Symbol",
+              "postScriptName": "SegoeUISymbol",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-week-mark",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-week-mark",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-week-mark",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-week-mark",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "sf-week-mark",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 2
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "STRONG",
+            "class": "text-stat",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "28px",
+            "weight": "600",
+            "lineHeight": "32px",
+            "tracking": "-0.56px",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption tabular-nums text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 3
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "mt-3 text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "sf-eyebrow",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "11px",
+            "weight": "600",
+            "lineHeight": "16px",
+            "tracking": "0.66px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "mt-1 text-body text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 20
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-text-link ",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "sf-eyebrow mb-2",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "11px",
+            "weight": "600",
+            "lineHeight": "16px",
+            "tracking": "0.66px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 23
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "H3",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "16px",
+            "weight": "600",
+            "lineHeight": "24px",
+            "tracking": "-0.08px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 26
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "mt-2 text-body text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 46
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-button sf-primary-action inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 text-body-strong text-white shadow-theme-xs transition hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-400",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Segoe UI Symbol",
+              "postScriptName": "SegoeUISymbol",
+              "isCustomFont": false,
+              "glyphCount": 1
+            },
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Segoe UI Symbol",
+              "postScriptName": "SegoeUISymbol",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-text-link sf-agenda-item",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 14
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "H2",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "20px",
+            "weight": "600",
+            "lineHeight": "28px",
+            "tracking": "-0.2px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 27
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-text-link ",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 12
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-subject-title flex items-center gap-3",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "16px",
+            "weight": "600",
+            "lineHeight": "24px",
+            "tracking": "-0.08px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "STRONG",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "16px",
+            "weight": "600",
+            "lineHeight": "24px",
+            "tracking": "-0.08px",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 3
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 11
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 26
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-text-link ",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-subject-title flex items-center gap-3",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "16px",
+            "weight": "600",
+            "lineHeight": "24px",
+            "tracking": "-0.08px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "STRONG",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "16px",
+            "weight": "600",
+            "lineHeight": "24px",
+            "tracking": "-0.08px",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 3
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 11
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 26
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-text-link ",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-subject-title flex items-center gap-3",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "16px",
+            "weight": "600",
+            "lineHeight": "24px",
+            "tracking": "-0.08px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "STRONG",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "16px",
+            "weight": "600",
+            "lineHeight": "24px",
+            "tracking": "-0.08px",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 3
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 11
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "text-caption text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 13
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 26
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-text-link ",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 8
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "H2",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "20px",
+            "weight": "600",
+            "lineHeight": "28px",
+            "tracking": "-0.2px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 18
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "P",
+            "class": "text-muted text-body",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 42
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "H2",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "20px",
+            "weight": "600",
+            "lineHeight": "28px",
+            "tracking": "-0.2px",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 21
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "A",
+            "class": "sf-text-link ",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 18
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "STRONG",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "TIME",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "STRONG",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "TIME",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "STRONG",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "TIME",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "STRONG",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "14px",
+            "weight": "500",
+            "lineHeight": "22px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "SPAN",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "tabular-nums"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 6
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "TIME",
+            "class": "",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "12px",
+            "weight": "500",
+            "lineHeight": "16px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 15
+            }
+          ]
+        },
+        {
+          "element": {
+            "tag": "FOOTER",
+            "class": "px-4 py-8 text-center text-small text-muted sm:px-8 dark:text-muted",
+            "family": "Inter, \"Inter Fallback\"",
+            "size": "13px",
+            "weight": "400",
+            "lineHeight": "20px",
+            "tracking": "normal",
+            "variant": "normal"
+          },
+          "fonts": [
+            {
+              "familyName": "Arial",
+              "postScriptName": "ArialMT",
+              "isCustomFont": false,
+              "glyphCount": 35
+            }
+          ]
+        }
+      ],
+      "badWeights": []
+    }
+  ],
+  "errors": []
+}

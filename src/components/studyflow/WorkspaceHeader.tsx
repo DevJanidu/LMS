@@ -9,6 +9,7 @@ import {
   BellIcon,
   ChevronDownIcon,
   CloseIcon,
+  CommandIcon,
   FolderIcon,
   ListIcon,
   SearchIcon,
@@ -111,7 +112,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
         >
           <SearchIcon />
           <span>{t("searchWorkspace")}</span>
-          <kbd aria-hidden="true">⌘ K</kbd>
+          <kbd aria-hidden="true" className="inline-flex items-center gap-1"><CommandIcon className="size-3" /> K</kbd>
         </button>
         <div className="sf-header-actions">
           {!admin && (
