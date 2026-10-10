@@ -17,6 +17,7 @@ export { default as ChevronDownIcon } from "./chevron-down.svg";
 export { default as CheckIcon } from "./check.svg";
 export { default as CommandIcon } from "./command.svg";
 export { default as TrashIcon } from "./trash.svg";
+export { default as EditIcon } from "./edit.svg";
 export { default as LinkIcon } from "./link.svg";
 export { default as PlayIcon } from "./play.svg";
 export { default as StartPlayIcon } from "./play-lucide.svg";

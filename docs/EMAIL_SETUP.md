@@ -13,7 +13,7 @@ The configured sender is `Acadence <hello@acadence.janidudev.com>`. This is a se
 
 Better Auth's new-user creation hook schedules a welcome email after persistence and the registration response. It covers registration through the Server Action and auth API, and is not called on ordinary logins. The message uses the request's language (English, Arabic, Spanish or German), the user's name, a thank-you message and the production onboarding link.
 
-Sending uses the existing `APP_NAME` (currently StudyFlow) for the subject and message, and the configured Acadence sender. The Resend request includes `welcome-user/<user-id>` as an idempotency key; Resend deduplicates that key for 24 hours. Failures are logged without addresses, secrets or provider error contents and do not fail registration. This is a best-effort background send, without a durable retry queue. See [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys).
+Sending uses `APP_NAME` (Acadence) for the subject and message, and the configured Acadence sender. The Resend request includes `welcome-user/<user-id>` as an idempotency key; Resend deduplicates that key for 24 hours. Failures are logged without addresses, secrets or provider error contents and do not fail registration. This is a best-effort background send, without a durable retry queue. See [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys).
 
 A prepared sender without an API key is allowed so the application can continue running during setup. Welcome sending stays disabled until both are supplied; password-reset requests continue to report email as unavailable. Invalid sender addresses and header injection are rejected by environment validation.
 

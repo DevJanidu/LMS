@@ -1,0 +1,53 @@
+[
+  {
+    "check": "subject rename from detail",
+    "ok": true
+  },
+  {
+    "check": "50 topic sidebar",
+    "count": 50,
+    "minHeight": 40,
+    "maxHeight": 40
+  },
+  {
+    "check": "wide topic panel uses three columns",
+    "ok": true
+  },
+  {
+    "check": "topics visible within desktop viewport",
+    "count": 50
+  },
+  {
+    "check": "mobile topic entry uses full available width",
+    "ok": true
+  },
+  {
+    "check": "mobile width",
+    "viewport": 390,
+    "document": 375
+  },
+  {
+    "check": "mobile topic rows have no horizontal overflow",
+    "ok": true
+  },
+  {
+    "check": "failed rename remains open with error",
+    "ok": true
+  },
+  {
+    "check": "subject rename from library persists",
+    "ok": true
+  },
+  {
+    "check": "failed delete remains open with error",
+    "ok": true
+  },
+  {
+    "check": "subject deletion",
+    "ok": true
+  },
+  {
+    "check": "subject and topic deletion persists",
+    "ok": true
+  }
+]

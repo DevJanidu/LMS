@@ -169,7 +169,7 @@ export default function Settings({ initial }: Props) {
           <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"
-              onClick={() => { const link = document.createElement("a"); link.href = "/api/export"; link.download = "studyflow-data.json"; link.click(); }}
+              onClick={() => { const link = document.createElement("a"); link.href = "/api/export"; link.download = "acadence-data.json"; link.click(); }}
             >
               {t("exportData")}
             </Button>

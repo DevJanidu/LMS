@@ -4,14 +4,15 @@ import Pagination from "@/components/studyflow/Pagination";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
 import { getSubjects, getTopics } from "@/lib/workspace/queries";
-import { useWorkspace } from "@/lib/workspace/store";
-import type { Workspace } from "@/types";
+import { useWorkspace, runOperation } from "@/lib/workspace/store";
+import type { Subject, Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
 import EmptyState from "@/components/studyflow/EmptyState";
 import Field, { SelectField } from "@/components/studyflow/FormFields";
 import SubjectCard from "./SubjectCard";
 import SubjectModal from "./SubjectModal";
+import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 interface Props {
   initial: Workspace;
   add?: boolean;
@@ -21,6 +22,9 @@ export default function Subjects({ initial, add = false }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
   const modal = useModal(add);
+  const [editing, setEditing] = useState<Subject>();
+  const [deleting, setDeleting] = useState<Subject>();
+  const addSubject = () => { setEditing(undefined); modal.openModal(); };
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("active");
   const [sort, setSort] = useState("recent");
@@ -37,7 +41,7 @@ export default function Subjects({ initial, add = false }: Props) {
       <PageHeader
         title={t("subjects")}
         description={t("subjectsDescription")}
-        action={<Button onClick={modal.openModal}>{t("addSubject")}</Button>}
+        action={<Button onClick={addSubject}>{t("addSubject")}</Button>}
       />
       <div className="sf-filter-bar mb-8 grid gap-4 sm:grid-cols-3">
         <Field
@@ -64,6 +68,8 @@ export default function Subjects({ initial, add = false }: Props) {
               statistics={data.subjectStatistics?.[subject.id]}
               topics={getTopics(data, subject.id)}
               timezone={data.user.timezone}
+              onEdit={() => { setEditing(subject); modal.openModal(); }}
+              onDelete={() => setDeleting(subject)}
             />
           ))}
         </div>
@@ -73,14 +79,27 @@ export default function Subjects({ initial, add = false }: Props) {
             search || status === "archived" ? t("noResults") : t("noSubjects")
           }
           description={t("noSubjectsHelp")}
-          action={<Button onClick={modal.openModal}>{t("addSubject")}</Button>}
+          action={<Button onClick={addSubject}>{t("addSubject")}</Button>}
         />
       )}
       <Pagination page={current} pages={pages} onChange={setPage} />
       <SubjectModal
         initial={initial}
+        subject={editing}
         isOpen={modal.isOpen}
         onClose={modal.closeModal}
+      />
+      <ConfirmDialog
+        background={false}
+        isOpen={Boolean(deleting)}
+        onClose={() => setDeleting(undefined)}
+        title={t("deleteSubject")}
+        description={t("deleteSubjectWarning")}
+        onConfirm={async () => {
+          if (!deleting) return false;
+          const result = await runOperation(initial, { kind: "delete", entity: "subject", id: deleting.id }, deleting);
+          return result.ok;
+        }}
       />
     </>
   );

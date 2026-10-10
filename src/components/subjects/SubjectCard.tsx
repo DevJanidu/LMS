@@ -8,8 +8,9 @@ import { duration, formatDate } from "@/lib/time";
 import { useUnconfirmedSubject } from "@/lib/workspace/store";
 import type { StudySession, Subject, Topic } from "@/types";
 import ProgressBar, { accentClasses } from "@/components/studyflow/ProgressBar";
-interface Props { subject: Subject; topics: Topic[]; sessions?: StudySession[]; timezone: string; compact?: boolean; statistics?: { progress: number; completed: number; total: number; seconds: number; lastStudiedAt?: string } }
-export default function SubjectCard({subject, topics, sessions = [], timezone, compact = false, statistics}: Props) {
+import Button from "@/components/ui/button/Button";
+interface Props { subject: Subject; topics: Topic[]; sessions?: StudySession[]; timezone: string; compact?: boolean; onEdit?: () => void; onDelete?: () => void; statistics?: { progress: number; completed: number; total: number; seconds: number; lastStudiedAt?: string } }
+export default function SubjectCard({subject, topics, sessions = [], timezone, compact = false, statistics, onEdit, onDelete}: Props) {
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const unconfirmed = useUnconfirmedSubject(subject.id);
@@ -23,5 +24,9 @@ export default function SubjectCard({subject, topics, sessions = [], timezone, c
     {!compact && subject.targetDate && <p className="text-small tabular-nums text-muted">{t("targetDate")}: {formatDate(subject.targetDate, timezone, locale)}</p>}
     <div className="sf-subject-footer"><span>{duration(statistics?.seconds ?? totalSeconds(sessions))} · {t("studyTime")}</span><TextLink prefetch={false} aria-disabled={unconfirmed || undefined} onClick={event => { if (unconfirmed) event.preventDefault(); }} href={subject.status === "archived" ? `/subjects/${subject.id}` : `/study?subject=${subject.id}&topic=${next?.id ?? ""}`}>{t("continue")}</TextLink></div>
     {!compact && (statistics?.lastStudiedAt ?? sessions[0]?.startedAt) && <p className="text-small tabular-nums text-muted">{t("lastActive")}: {formatDate(statistics?.lastStudiedAt ?? sessions[0].startedAt, timezone, locale)}</p>}
+    {(onEdit || onDelete) && <div className="flex flex-wrap gap-2 border-t border-gray-200 pt-3 dark:border-gray-800">
+      {onEdit && <Button variant="outline" size="sm" disabled={unconfirmed} onClick={onEdit}>{t("editSubject")}</Button>}
+      {onDelete && <Button variant="outline" size="sm" disabled={unconfirmed} onClick={onDelete}>{t("deleteSubject")}</Button>}
+    </div>}
   </article>;
 }

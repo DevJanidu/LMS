@@ -25,7 +25,7 @@ export default function ConfirmDialog({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(false);
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Modal isOpen={isOpen} onClose={pending ? () => {} : onClose} title={title}>
       <p className="mb-6 text-body text-secondary dark:text-secondary">
         {description}
       </p>
@@ -48,7 +48,7 @@ export default function ConfirmDialog({
               return;
             }
             setPending(true);
-            try { const saved = await onConfirm(); if (saved !== false) onClose(); }
+            try { const saved = await onConfirm(); if (saved === false) setError(true); else onClose(); }
             catch { setError(true); }
             finally { setPending(false); }
           }}

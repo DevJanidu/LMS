@@ -17,5 +17,5 @@ export async function GET() {
     db.select().from(s.notifications).where(eq(s.notifications.userId, user.id)),
     db.select().from(s.activeTimers).where(eq(s.activeTimers.userId, user.id)),
   ]);
-  return Response.json({ user, preferences: preferences[0] ?? null, subjects, topics, resources, sessions, schedule, exceptions, notifications, timer: timer[0] ?? null }, { headers: { "Content-Disposition": "attachment; filename=studyflow-data.json", "Cache-Control": "private, no-store" } });
+  return Response.json({ user, preferences: preferences[0] ?? null, subjects, topics, resources, sessions, schedule, exceptions, notifications, timer: timer[0] ?? null }, { headers: { "Content-Disposition": "attachment; filename=acadence-data.json", "Cache-Control": "private, no-store" } });
 }

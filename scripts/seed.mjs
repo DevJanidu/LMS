@@ -13,7 +13,7 @@ nextEnv.loadEnvConfig(process.cwd());
 if ((process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") && !process.argv.includes("--allow-production")) {
   throw new Error("Seed refused in production. Use --allow-production only for deliberate account provisioning.");
 }
-const parsed = z.object({ DATABASE_URL_UNPOOLED: z.string().url(), SEED_USER_EMAIL: z.email(), SEED_USER_PASSWORD: z.string().min(8).max(128), SEED_USER_NAME: z.string().trim().min(1).default("StudyFlow"), SEED_USER_ROLE: z.enum(["learner", "super_admin"]).default("super_admin") }).safeParse(process.env);
+const parsed = z.object({ DATABASE_URL_UNPOOLED: z.string().url(), SEED_USER_EMAIL: z.email(), SEED_USER_PASSWORD: z.string().min(8).max(128), SEED_USER_NAME: z.string().trim().min(1).default("Acadence"), SEED_USER_ROLE: z.enum(["learner", "super_admin"]).default("super_admin") }).safeParse(process.env);
 if (!parsed.success) throw new Error(`Missing or invalid seed configuration: ${parsed.error.issues.map(i => i.path.join(".")).join(", ")}`);
 const env = parsed.data;
 // Use the already-installed TypeScript compiler so the CLI also runs on Node 20.

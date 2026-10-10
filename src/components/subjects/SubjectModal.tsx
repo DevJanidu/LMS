@@ -35,11 +35,11 @@ export default function SubjectModal({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={pending ? () => {} : () => { setError(""); onClose(); }}
       title={t(subject ? "editSubject" : "addSubject")}
     >
       <form
-        key={subject?.id ?? "new"}
+        key={`${subject?.id ?? "new"}:${isOpen}`}
         className="space-y-4"
         onSubmit={async (event) => {
           event.preventDefault();
@@ -49,6 +49,8 @@ export default function SubjectModal({
             setError(t("titleRequired"));
             return;
           }
+          if (pending) return;
+          setError("");
           let accepted = false;
           setPending(true);
           const request = updateWorkspace(initial, (data) => {
@@ -80,11 +82,11 @@ export default function SubjectModal({
                 : [...data.subjects, value],
             };
           }, original.current);
-          if (accepted) { setPending(false); onClose(); }
           const saved = await request;
           setPending(false);
           if (!accepted) setError(t("subjectLimit"));
           else if (!saved) setError(t("saveFailed"));
+          else onClose();
         }}
       >
         <Field

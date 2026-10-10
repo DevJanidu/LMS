@@ -1,5 +1,5 @@
 @reference "./globals.css";
-/* StudyFlow: the learning path. Semantic colors are independently tuned per theme. */
+/* Acadence: the learning path. Semantic colors are independently tuned per theme. */
 :root {
   --background: #f3f5f8;
   --surface: #ffffff;
@@ -176,10 +176,6 @@ summary::-webkit-details-marker { display: none; }
 .sf-subject-overview { display: grid; grid-template-columns: minmax(0,1fr); gap: var(--space-6); }
 .sf-subject-topics { min-width: 0; }
 .sf-subject-topics .sf-topic-list > form > div { flex-basis: 100%; }
-.sf-subject-topics .sf-roadmap-step { display: grid; grid-template-columns: auto minmax(0,1fr); gap: var(--space-2) var(--space-3); padding: var(--space-3); }
-.sf-subject-topics .sf-roadmap-step > span:last-of-type { grid-column: 2; }
-.sf-subject-topics .sf-roadmap-step > div { grid-column: 2; flex-wrap: wrap; }
-.sf-subject-topics .sf-roadmap-step label > span { overflow-wrap: anywhere; }
 @container (min-width: 40rem) { .sf-subject-overview { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (min-width: 1280px) { .sf-subject-workspace { grid-template-columns: minmax(0,1fr) 24rem; } .sf-subject-workspace-topics { grid-template-columns: minmax(0,1fr); } .sf-subject-topics { position: sticky; top: calc(var(--header-height) + var(--space-8)); max-height: calc(100dvh - var(--header-height) - var(--space-16)); overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; } }
 .sf-page-header { align-items: flex-start; }
@@ -299,6 +295,17 @@ summary::-webkit-details-marker { display: none; }
 [dir=rtl] .sf-roadmap-step { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
 .sf-roadmap-step.is-complete { border-inline-start-color: var(--success); background: transparent; }
 .sf-roadmap-step.is-current { border-inline-start-color: var(--primary); background: var(--primary-soft); }
+.sf-topic-list { container-type: inline-size; }
+.sf-topic-list .sf-roadmap { display: grid; gap: var(--space-1); }
+.sf-topic-list .sf-roadmap-step { display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; align-items: center; gap: var(--space-2); min-block-size: var(--space-10); padding: var(--space-1) var(--space-2); }
+.sf-topic-status { max-inline-size: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sf-roadmap-step .sf-topic-actions button { display: grid; place-items: center; min-block-size: var(--space-6); min-inline-size: var(--space-6); padding: 0; }
+.sf-roadmap-step button[role=checkbox] { min-block-size: var(--space-4); }
+.sf-topic-list .sf-roadmap-step > label { min-block-size: var(--space-6); }
+@container (max-width: 30rem) { .sf-topic-status { display: none; } .sf-topic-list .sf-roadmap-step { grid-template-columns: auto minmax(0,1fr) auto; } .sf-topic-list > form > div { flex-basis: 100%; } }
+@container (min-width: 40rem) { .sf-subject-workspace-topics .sf-roadmap { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@container (min-width: 60rem) { .sf-subject-workspace-topics .sf-roadmap { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media (pointer: coarse) { .sf-roadmap-step .sf-topic-actions button { min-block-size: var(--space-8); min-inline-size: var(--space-8); } }
 .sf-roadmap-step input { width: 1.1rem; height: 1.1rem; }
 .sf-focus .sf-panel { padding: 1.25rem; border-radius: var(--radius-xl); }
 .sf-launcher .sf-focus .sf-panel { padding: 0; border: 0; box-shadow: none; }

@@ -1,4 +1,4 @@
-# StudyFlow
+# Acadence
 
 Personal LMS built with Next.js 16, React 19, Tailwind v4, next-intl, Neon Postgres, Drizzle, Better Auth with Argon2id, Resend and private Neon Object Storage. Learner content is private; administrators receive account information and study statistics.
 

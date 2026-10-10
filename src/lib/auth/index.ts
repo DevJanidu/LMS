@@ -20,13 +20,14 @@ import { cache } from "react";
 import { ageInYears } from "@/lib/validation/age";
 import { safeReturnPath } from "./return-path";
 import { timed } from "@/lib/perf";
+import { APP_NAME } from "@/lib/constants";
 
 const registrationSchema = z.object({ acceptedTerms: z.literal(true), name: z.string().trim().min(1).max(150), email: z.email(), dateOfBirth: z.iso.date().refine(value => value <= new Date().toISOString().slice(0, 10)).optional() });
 
 function createAuth() {
   const env = getEnv();
   return betterAuth({
-    appName: "StudyFlow", baseURL: env.APP_URL, secret: env.AUTH_SECRET,
+    appName: APP_NAME, baseURL: env.APP_URL, secret: env.AUTH_SECRET,
     logger: { disabled: true },
     database: drizzleAdapter(getDb(), { provider: "pg", schema: { user: schema.users, session: schema.authSessions, account: schema.accounts, verification: schema.verifications, rateLimit: schema.rateLimits,
       usersRelations: schema.usersRelations, authSessionsRelations: schema.authSessionsRelations, accountsRelations: schema.accountsRelations } }),

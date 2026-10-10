@@ -28,8 +28,8 @@ beforeEach(() => {
 it("sends a personalized welcome with the configured sender, production URL and idempotency key", async () => {
   await sendWelcomeEmail(user, "en");
   expect(mocked.send).toHaveBeenCalledWith(expect.objectContaining({
-    from: env.EMAIL_FROM, to: user.email, subject: "Welcome to StudyFlow!",
-    text: expect.stringContaining("Thanks for joining StudyFlow!"),
+    from: env.EMAIL_FROM, to: user.email, subject: "Welcome to Acadence!",
+    text: expect.stringContaining("Thanks for joining Acadence!"),
   }), { idempotencyKey: "welcome-user/fixture-user" });
   const text = mocked.send.mock.calls[0][0].text;
   expect(text).toContain("Hi Sam,");

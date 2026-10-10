@@ -13,7 +13,7 @@ import Field, {
 } from "@/components/studyflow/FormFields";
 import EmptyState from "@/components/studyflow/EmptyState";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
-import { Checkbox } from "@/components/ui/Checkbox";
+import TopicRow from "./TopicRow";
 interface Props {
   data: Workspace;
   subjectId: string;
@@ -22,6 +22,7 @@ interface Props {
 export default function TopicList({ data, subjectId }: Props) {
   const t = useTranslations("studyflow");
   const topics = getTopics(data, subjectId);
+  const currentTopicId = topics.find(topic => topic.status !== "completed")?.id;
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
   const [dragged, setDragged] = useState<string>();
@@ -119,87 +120,21 @@ export default function TopicList({ data, subjectId }: Props) {
       {!topics.length && (
         <EmptyState title={t("noTopics")} description={t("noTopicsHelp")} />
       )}
-      <ul className="sf-roadmap space-y-3">
+      <ul className="sf-roadmap">
         {topics.map((topic, index) => (
-          <li
+          <TopicRow
             key={topic.id}
-            draggable
-            onDragStart={() => setDragged(topic.id)}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={() => {
-              if (dragged) reorder(dragged, topic.id);
-              setDragged(undefined);
-            }}
-            className={`sf-roadmap-step ${topic.status === "completed" ? "is-complete" : topics.find(item => item.status !== "completed")?.id === topic.id ? "is-current" : ""} flex flex-wrap items-center gap-3 p-4`}
-          >
-            <span
-              aria-hidden="true"
-              className="cursor-grab text-muted dark:text-muted"
-            >
-              ⠿
-            </span>
-            <label className="flex min-w-0 flex-1 items-center gap-3">
-              <Checkbox
-                checked={topic.status === "completed"}
-                className="size-4"
-                aria-label={`${t("completed")}: ${topic.title}`}
-                onCheckedChange={(checked) =>
-                  change(topic.id, {
-                    status: checked === true ? "completed" : "notStarted",
-                    completedAt: checked === true
-                      ? new Date().toISOString()
-                      : undefined,
-                  })
-                }
-              />
-              <span
-                className={
-                  topic.status === "completed"
-                    ? "text-body text-muted line-through dark:text-muted"
-                    : "text-body"
-                }
-              >
-                {topic.title}
-              </span>
-            </label>
-            <span className="text-small text-muted dark:text-secondary">
-              {t(topic.status)}
-              {topic.targetDate && ` · ${topic.targetDate}`}
-            </span>
-            <div className="flex gap-2">
-              <button
-                disabled={index === 0}
-                aria-label={t("moveUp", { title: topic.title })}
-                onClick={() => reorder(topic.id, topics[index - 1].id)}
-                className="rounded p-1 text-muted disabled:opacity-30 dark:text-secondary"
-              >
-                ↑
-              </button>
-              <button
-                disabled={index === topics.length - 1}
-                aria-label={t("moveDown", { title: topic.title })}
-                onClick={() => reorder(topic.id, topics[index + 1].id)}
-                className="rounded p-1 text-muted disabled:opacity-30 dark:text-secondary"
-              >
-                ↓
-              </button>
-              <button
-                onClick={() => {
-                  setEditing(topic);
-                  editor.openModal();
-                }}
-                className="text-small text-brand-600 dark:text-brand-300"
-              >
-                {t("edit")}
-              </button>
-              <button
-                onClick={() => setDeleting(topic)}
-                className="text-small text-error-600 dark:text-error-400"
-              >
-                {t("delete")}
-              </button>
-            </div>
-          </li>
+            topic={topic}
+            current={currentTopicId === topic.id}
+            first={index === 0}
+            last={index === topics.length - 1}
+            onDrag={() => setDragged(topic.id)}
+            onDrop={() => { if (dragged) reorder(dragged, topic.id); setDragged(undefined); }}
+            onComplete={completed => { void change(topic.id, { status: completed ? "completed" : "notStarted", completedAt: completed ? new Date().toISOString() : undefined }); }}
+            onMove={direction => reorder(topic.id, topics[index + direction].id)}
+            onEdit={() => { setEditing(topic); editor.openModal(); }}
+            onDelete={() => setDeleting(topic)}
+          />
         ))}
       </ul>
       <Modal

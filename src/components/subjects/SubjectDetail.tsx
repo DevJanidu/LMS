@@ -30,13 +30,15 @@ export default function SubjectDetail({ initial, id }: Props) {
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const router = useRouter();
-  const subject = getSubjects(data).find((item) => item.id === id);
+  const [action, setAction] = useState<"delete" | "archive">();
+  // Keep the confirmation mounted while an optimistic delete is awaiting commit.
+  const subject = getSubjects(data).find((item) => item.id === id)
+    ?? (action === "delete" ? initial.subjects.find(item => item.id === id) : undefined);
   const topics = getTopics(data, id);
   const sessions = getSessions(data).filter(
     (session) => session.subjectId === id,
   );
   const [tab, setTab] = useState("overview");
-  const [action, setAction] = useState<"delete" | "archive">();
   const editor = useModal();
   if (!subject)
     return (
@@ -173,6 +175,7 @@ export default function SubjectDetail({ initial, id }: Props) {
         onClose={editor.closeModal}
       />
       <ConfirmDialog
+        background={false}
         isOpen={Boolean(action)}
         onClose={() => setAction(undefined)}
         title={t(
