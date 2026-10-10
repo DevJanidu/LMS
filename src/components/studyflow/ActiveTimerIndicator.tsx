@@ -14,7 +14,7 @@ export default function ActiveTimerIndicator({ initial }: Props) {
   const now = useNow();
   const t = useTranslations("studyflow");
   const timer = data.timer;
-  const pending = useWorkspacePending();
+  const pending = useWorkspacePending("timer");
   const elapsed = timer && now ? Math.min(timerElapsed(timer, now), timer.confirmedUntilSeconds) : 0;
   if (!timer) return null;
   return (

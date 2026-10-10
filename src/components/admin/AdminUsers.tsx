@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { queryAdminUsers } from "@/app/[locale]/actions";
+import { queryAdminUsers } from "@/lib/workspace/transport";
 import type { AdminUserPage } from "@/lib/services/admin-users";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useWorkspace } from "@/lib/workspace/store";
+import { useWorkspace, collectionRevision, useProjectedCollection } from "@/lib/workspace/store";
+import useQueryRefresh from "@/hooks/useQueryRefresh";
 import { getSessions } from "@/lib/workspace/queries";
 import { totalSeconds } from "@/lib/analytics";
 import { csvCell } from "@/lib/csv";
@@ -30,6 +31,7 @@ interface Props {
 /** Search and sort learner accounts without accessing private study content. */
 export default function AdminUsers({ initial, initialPage }: Props) {
   const data = useWorkspace(initial);
+  const sync = useQueryRefresh();
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const [query, setQuery] = useState("");
@@ -40,20 +42,22 @@ export default function AdminUsers({ initial, initialPage }: Props) {
   const [sort, setSort] = useState("name");
   const [direction, setDirection] = useState("asc");
   const [records, setRecords] = useState(initialPage);
+  const [observed, setObserved] = useState(0);
   const [error, setError] = useState("");
   const firstRender = useRef(true);
   useEffect(() => {
-    if (firstRender.current) { firstRender.current = false; return; }
+    if (firstRender.current) { firstRender.current = false; if (initial.user.updatedAt === data.user.updatedAt) return; }
     let cancelled = false;
     const timeout = setTimeout(() => {
-      void queryAdminUsers({ page, search: query, status: status || undefined, activity: activity || undefined, joined: joined || undefined, sort, direction }).then(result => {
+      const revision = collectionRevision();
+      void queryAdminUsers({ page, search: query, status: status || undefined, activity: activity || undefined, joined: joined || undefined, sort, direction }, data.user.id).then(result => {
         if (cancelled) return;
-        if (result.ok) { setRecords(result.data); setError(""); } else setError(t(result.error));
+        if (result.ok) { setRecords(result.data); setObserved(revision); setError(""); } else setError(t(result.error));
       }).catch(() => { if (!cancelled) setError(t("saveFailed")); });
     }, query ? 250 : 0);
     return () => { cancelled = true; clearTimeout(timeout); };
-  }, [page, query, status, activity, joined, sort, direction, data.users, t]);
-  const users = records.rows.map(row => row.user);
+  }, [page, query, status, activity, joined, sort, direction, data.users, data.user.id, data.user.updatedAt, initial.user.updatedAt, sync, t]);
+  const users = useProjectedCollection("users", records.rows.map(row => row.user), observed);
   const secondsFor = (id: string) => records.rows.find(row => row.user.id === id)?.seconds ?? totalSeconds(getSessions(data, id));
   const pages = Math.max(1,Math.ceil(records.total/20));
   const currentPage = Math.min(page,pages);

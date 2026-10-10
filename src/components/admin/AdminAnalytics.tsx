@@ -15,7 +15,7 @@ export default function AdminAnalytics({initial}: {initial:Workspace}) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
   const locale = useLocale();
-  const clock = useNow();
+  const clock = useNow(60000);
   const metrics = adminMetrics(data,clock || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt));
   const [range,setRange] = useState(30);
   const days = Array.from({length:range},(_,i)=>shiftDay(metrics.today,i-range+1));

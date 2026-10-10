@@ -33,7 +33,7 @@ export default function TimerWidget({
   onStarted,
 }: Props) {
   const data = useWorkspace(initial);
-  const pending = useWorkspacePending();
+  const pending = useWorkspacePending("timer");
   const t = useTranslations("studyflow");
   const now = useNow();
   const [subjectId, setSubjectId] = useState(subject);

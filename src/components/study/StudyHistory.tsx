@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { querySessions } from "@/app/[locale]/actions";
+import { querySessions } from "@/lib/workspace/transport";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
-import { runOperation, useWorkspace } from "@/lib/workspace/store";
+import useQueryRefresh from "@/hooks/useQueryRefresh";
+import { runOperation, useWorkspace, collectionRevision, useProjectedCollection } from "@/lib/workspace/store";
 import type { StudySession, Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
 import ComponentCard from "@/components/common/ComponentCard";
@@ -19,6 +20,7 @@ interface Props {
 /** Filterable study history with manual corrections. */
 export default function StudyHistory({ initial }: Props) {
   const data = useWorkspace(initial);
+  const sync = useQueryRefresh();
   const t = useTranslations("studyflow");
   const modal = useModal();
   const [subject, setSubject] = useState("");
@@ -30,17 +32,19 @@ export default function StudyHistory({ initial }: Props) {
   const [page, setPage] = useState(1);
   const [records, setRecords] = useState<{ total: number; rows: StudySession[] }>({ total: initial.sessions.length, rows: initial.sessions.slice(0, 20) });
   const [error, setError] = useState("");
+  const [observed, setObserved] = useState(0);
   useEffect(() => {
     let cancelled = false;
     const refresh = async () => {
-      const result = await querySessions({ page, subjectId: subject || undefined, topicId: topic || undefined, from: from || undefined, to: to || undefined });
+      const revision = collectionRevision();
+      const result = await querySessions({ page, subjectId: subject || undefined, topicId: topic || undefined, from: from || undefined, to: to || undefined }, data.user.id);
       if (cancelled) return;
-      if (result.ok) { setRecords(result.data); setError(""); } else setError(t(result.error));
+      if (result.ok) { setRecords(result.data); setObserved(revision); setError(""); } else setError(t(result.error));
     };
     void refresh().catch(() => { if (!cancelled) setError(t("saveFailed")); });
     return () => { cancelled = true; };
-  }, [page, subject, topic, from, to, data.sessions, t]);
-  const sessions = records.rows;
+  }, [page, subject, topic, from, to, data.sessions, data.user.updatedAt, data.user.id, sync, t]);
+  const sessions = useProjectedCollection("sessions", records.rows, observed).filter(row => (!subject || row.subjectId === subject) && (!topic || row.topicId === topic));
   const pages = Math.max(1, Math.ceil(records.total / 20));
   return (
     <>
@@ -111,7 +115,7 @@ export default function StudyHistory({ initial }: Props) {
         description={t("deleteSessionWarning")}
         onConfirm={async () => {
           if (!deleting) return;
-          const result = await runOperation(initial, { kind: "delete", entity: "session", id: deleting.id });
+          const result = await runOperation(initial, { kind: "delete", entity: "session", id: deleting.id }, deleting);
           if (!result.ok) setError(t(result.error));
         }}
       />

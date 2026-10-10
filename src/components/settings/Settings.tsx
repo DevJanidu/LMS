@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import { useModal } from "@/hooks/useModal";
-import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
+import { currentWorkspaceTheme, updateWorkspace, useWorkspace } from "@/lib/workspace/store";
 import type { User, Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
 import ComponentCard from "@/components/common/ComponentCard";
@@ -34,7 +34,11 @@ export default function Settings({ initial }: Props) {
         user.id === state.user.id ? { ...user, ...patch } : user,
       ),
     }));
-    if (saved) { setMessage(t("settingsSaved")); setError(""); } else setError(t("saveFailed"));
+    if (saved) { setMessage(t("settingsSaved")); setError(""); }
+    else {
+      if (patch.theme !== undefined) setThemeMode(currentWorkspaceTheme(initial));
+      setError(t("saveFailed"));
+    }
   };
   return (
     <>
@@ -186,13 +190,14 @@ export default function Settings({ initial }: Props) {
       </div>
       </div>
       <ConfirmDialog
+        background={false}
         isOpen={deletion.isOpen}
         onClose={deletion.closeModal}
         title={t("deleteAccount")}
         description={t("deleteAccountWarning")}
         onConfirm={async () => {
           try { const result = await deleteMyAccount(); if (!result.ok) { setError(t(result.error)); return false; } router.replace("/register"); }
-          catch { setError(t("saveFailed")); }
+          catch { setError(t("saveFailed")); return false; }
         }}
       />
     </>

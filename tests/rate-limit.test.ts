@@ -14,6 +14,22 @@ it("denies SDK fail-open timeout results and Redis exceptions", async () => {
   mocks.limit.mockResolvedValue({ success: true });
   expect(await allowRequest("login:test")).toBe(true);
 });
+it("separates infrastructure outages from actual rate limits", async () => {
+  const { requestLimit } = await import("@/lib/rate-limit");
+  mocks.limit.mockResolvedValue({ success: true, reason: "timeout" });
+  expect(await requestLimit("test")).toBe("unavailable");
+  mocks.limit.mockResolvedValue({ success: false, reason: "rateLimit" });
+  expect(await requestLimit("test")).toBe("limited");
+  mocks.limit.mockResolvedValue({ success: true });
+  expect(await requestLimit("test")).toBe("allowed");
+});
+it("retries only an unavailable security decision and honors a denial on retry", async () => {
+  const { requestLimit } = await import("@/lib/rate-limit");
+  mocks.limit.mockResolvedValueOnce({ success: true, reason: "timeout" }).mockResolvedValueOnce({ success: true });
+  expect(await requestLimit("recover")).toBe("allowed"); expect(mocks.limit).toHaveBeenCalledTimes(2);
+  mocks.limit.mockReset().mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ success: false });
+  expect(await requestLimit("deny")).toBe("limited"); expect(mocks.limit).toHaveBeenCalledTimes(2);
+});
 it("permits the memory fallback only in development", async () => {
   mocks.configured = false;
   const { allowRequest } = await import("@/lib/rate-limit");

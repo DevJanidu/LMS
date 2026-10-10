@@ -1,0 +1,1956 @@
+{
+  "generatedAt": "2026-10-10T08:58:18.186Z",
+  "sourceFiles": 216,
+  "routes": [
+    "src/app/api/auth/[...all]/route.ts",
+    "src/app/api/calendar/route.ts",
+    "src/app/api/cron/reminders/route.ts",
+    "src/app/api/cron/retention/route.ts",
+    "src/app/api/cron/storage/route.ts",
+    "src/app/api/cron/timers/route.ts",
+    "src/app/api/export/route.ts",
+    "src/app/api/files/[id]/route.ts",
+    "src/app/api/health/route.ts",
+    "src/app/api/workspace/query/route.ts",
+    "src/app/api/workspace/route.ts",
+    "src/app/[locale]/(learner)/analytics/page.tsx",
+    "src/app/[locale]/(learner)/calendar/page.tsx",
+    "src/app/[locale]/(learner)/dashboard/page.tsx",
+    "src/app/[locale]/(learner)/resources/page.tsx",
+    "src/app/[locale]/(learner)/settings/page.tsx",
+    "src/app/[locale]/(learner)/study/history/page.tsx",
+    "src/app/[locale]/(learner)/study/page.tsx",
+    "src/app/[locale]/(learner)/subjects/page.tsx",
+    "src/app/[locale]/(learner)/subjects/[id]/page.tsx",
+    "src/app/[locale]/(public)/error-404/page.tsx",
+    "src/app/[locale]/(public)/error-500/page.tsx",
+    "src/app/[locale]/(public)/forgot-password/page.tsx",
+    "src/app/[locale]/(public)/login/page.tsx",
+    "src/app/[locale]/(public)/onboarding/context/page.tsx",
+    "src/app/[locale]/(public)/onboarding/goal/page.tsx",
+    "src/app/[locale]/(public)/onboarding/page.tsx",
+    "src/app/[locale]/(public)/onboarding/subject/page.tsx",
+    "src/app/[locale]/(public)/onboarding/topics/page.tsx",
+    "src/app/[locale]/(public)/privacy/page.tsx",
+    "src/app/[locale]/(public)/register/page.tsx",
+    "src/app/[locale]/(public)/reset-password/page.tsx",
+    "src/app/[locale]/(public)/terms/page.tsx",
+    "src/app/[locale]/admin/analytics/page.tsx",
+    "src/app/[locale]/admin/page.tsx",
+    "src/app/[locale]/admin/settings/page.tsx",
+    "src/app/[locale]/admin/storage/page.tsx",
+    "src/app/[locale]/admin/users/page.tsx",
+    "src/app/[locale]/admin/users/[id]/page.tsx",
+    "src/app/[locale]/page.tsx"
+  ],
+  "modules": [
+    "admin",
+    "analytics",
+    "auth",
+    "calendar",
+    "common",
+    "dashboard",
+    "form",
+    "onboarding",
+    "resources",
+    "settings",
+    "study",
+    "studyflow",
+    "subjects",
+    "ui"
+  ],
+  "operationKinds": [
+    "subject",
+    "topic",
+    "resource",
+    "session",
+    "block",
+    "delete",
+    "profile",
+    "settings",
+    "userStatus",
+    "readNotification",
+    "timer"
+  ],
+  "entries": [
+    {
+      "file": "src/app/api/auth/[...all]/route.ts",
+      "exports": [
+        "GET",
+        "POST"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/calendar/route.ts",
+      "exports": [
+        "GET",
+        "POST"
+      ],
+      "writes": [
+        {
+          "call": "mutateCalendar",
+          "line": 50
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/cron/reminders/route.ts",
+      "exports": [
+        "GET"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/cron/retention/route.ts",
+      "exports": [
+        "GET"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/cron/storage/route.ts",
+      "exports": [
+        "GET"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/cron/timers/route.ts",
+      "exports": [
+        "GET"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/export/route.ts",
+      "exports": [
+        "GET"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/files/[id]/route.ts",
+      "exports": [
+        "GET"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/health/route.ts",
+      "exports": [
+        "GET"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/workspace/query/route.ts",
+      "exports": [
+        "GET"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/api/workspace/route.ts",
+      "exports": [
+        "POST",
+        "GET"
+      ],
+      "writes": [
+        {
+          "call": "mutate",
+          "line": 40
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/analytics/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/calendar/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/dashboard/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/resources/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/settings/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/study/history/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/study/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/[id]/page.tsx",
+      "exports": [
+        "Page"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/error-404/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/error-500/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/forgot-password/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/login/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/context/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/goal/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/subject/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/topics/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/privacy/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/register/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/reset-password/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/(public)/terms/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/actions.ts",
+      "exports": [
+        "querySessions",
+        "queryBlocks",
+        "deleteMyAccount",
+        "completeOnboarding",
+        "searchWorkspace",
+        "resourceDetail",
+        "queryResources",
+        "queryAdminUsers"
+      ],
+      "writes": [
+        {
+          "call": "deleteAccount",
+          "line": 16
+        },
+        {
+          "call": "getDb().transaction",
+          "line": 27
+        },
+        {
+          "call": "tx.insert",
+          "line": 35
+        },
+        {
+          "call": "tx.insert",
+          "line": 46
+        },
+        {
+          "call": "tx.insert",
+          "line": 49
+        },
+        {
+          "call": "tx.update",
+          "line": 50
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/admin/analytics/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/admin/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/admin/settings/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/admin/storage/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/admin/users/page.tsx",
+      "exports": [
+        "Page",
+        "generateMetadata"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/admin/users/[id]/page.tsx",
+      "exports": [
+        "Page"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/auth-actions.ts",
+      "exports": [
+        "authenticate",
+        "signOut"
+      ],
+      "writes": [
+        {
+          "call": "auth.api.signUpEmail",
+          "line": 36
+        },
+        {
+          "call": "auth.api.signInEmail",
+          "line": 41
+        },
+        {
+          "call": "auth.api.requestPasswordReset",
+          "line": 50
+        },
+        {
+          "call": "auth.api.resetPassword",
+          "line": 55
+        },
+        {
+          "call": "getAuth().api.signOut",
+          "line": 73
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/file-actions.ts",
+      "exports": [
+        "createUpload",
+        "finishUpload"
+      ],
+      "writes": [
+        {
+          "call": "requestUpload",
+          "line": 13
+        },
+        {
+          "call": "confirmUpload",
+          "line": 20
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/app/[locale]/page.tsx",
+      "exports": [
+        "Page"
+      ],
+      "writes": [],
+      "handlers": []
+    },
+    {
+      "file": "src/components/admin/AdminAnalytics.tsx",
+      "exports": [
+        "AdminAnalytics"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 31
+        }
+      ]
+    },
+    {
+      "file": "src/components/admin/AdminSettings.tsx",
+      "exports": [
+        "AdminSettings"
+      ],
+      "writes": [
+        {
+          "call": "updateWorkspace",
+          "line": 42
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onSubmit",
+          "line": 39
+        }
+      ]
+    },
+    {
+      "file": "src/components/admin/AdminStorage.tsx",
+      "exports": [
+        "AdminStorage"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 90
+        }
+      ]
+    },
+    {
+      "file": "src/components/admin/AdminUserDetail.tsx",
+      "exports": [
+        "AdminUserDetail"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 86
+        }
+      ]
+    },
+    {
+      "file": "src/components/admin/AdminUsers.tsx",
+      "exports": [
+        "AdminUsers"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 74
+        },
+        {
+          "event": "onChange",
+          "line": 118
+        },
+        {
+          "event": "onChange",
+          "line": 123
+        },
+        {
+          "event": "onChange",
+          "line": 141
+        },
+        {
+          "event": "onChange",
+          "line": 146
+        },
+        {
+          "event": "onChange",
+          "line": 147
+        },
+        {
+          "event": "onChange",
+          "line": 148
+        },
+        {
+          "event": "onClick",
+          "line": 234
+        },
+        {
+          "event": "onClick",
+          "line": 234
+        }
+      ]
+    },
+    {
+      "file": "src/components/admin/UserStatusAction.tsx",
+      "exports": [
+        "UserStatusAction"
+      ],
+      "writes": [
+        {
+          "call": "runOperation",
+          "line": 31
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 20
+        },
+        {
+          "event": "onConfirm",
+          "line": 31
+        }
+      ]
+    },
+    {
+      "file": "src/components/analytics/Analytics.tsx",
+      "exports": [
+        "Analytics"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 140
+        }
+      ]
+    },
+    {
+      "file": "src/components/auth/AuthForm.tsx",
+      "exports": [
+        "AuthForm"
+      ],
+      "writes": [
+        {
+          "call": "authenticate",
+          "line": 25
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/components/calendar/CalendarActionDialog.tsx",
+      "exports": [
+        "CalendarActionDialog"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 17
+        },
+        {
+          "event": "onClick",
+          "line": 21
+        },
+        {
+          "event": "onClick",
+          "line": 22
+        }
+      ]
+    },
+    {
+      "file": "src/components/calendar/PlannerToolbar.tsx",
+      "exports": [
+        "PlannerToolbar"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 32
+        },
+        {
+          "event": "onClick",
+          "line": 40
+        },
+        {
+          "event": "onClick",
+          "line": 47
+        },
+        {
+          "event": "onClick",
+          "line": 52
+        },
+        {
+          "event": "onClick",
+          "line": 78
+        }
+      ]
+    },
+    {
+      "file": "src/components/calendar/ScheduleDateTimeField.tsx",
+      "exports": [
+        "ScheduleDateTimeField"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 24
+        },
+        {
+          "event": "onChange",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "file": "src/components/calendar/StudyBlockDetails.tsx",
+      "exports": [
+        "StudyBlockDetails"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 15
+        },
+        {
+          "event": "onClick",
+          "line": 15
+        },
+        {
+          "event": "onClick",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "file": "src/components/calendar/StudyBlockModal.tsx",
+      "exports": [
+        "StudyBlockModal"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onSubmit",
+          "line": 86
+        },
+        {
+          "event": "onChange",
+          "line": 165
+        },
+        {
+          "event": "onChange",
+          "line": 178
+        },
+        {
+          "event": "onClick",
+          "line": 189
+        },
+        {
+          "event": "onChange",
+          "line": 200
+        },
+        {
+          "event": "onClick",
+          "line": 241
+        },
+        {
+          "event": "onChange",
+          "line": 254
+        },
+        {
+          "event": "onClick",
+          "line": 277
+        },
+        {
+          "event": "onClick",
+          "line": 284
+        },
+        {
+          "event": "onConfirm",
+          "line": 300
+        }
+      ]
+    },
+    {
+      "file": "src/components/calendar/StudyCalendar.tsx",
+      "exports": [
+        "StudyCalendar"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 195
+        },
+        {
+          "event": "onConfirm",
+          "line": 373
+        }
+      ]
+    },
+    {
+      "file": "src/components/form/ComboboxField.tsx",
+      "exports": [
+        "ComboboxField"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 30
+        },
+        {
+          "event": "onChange",
+          "line": 30
+        },
+        {
+          "event": "onClick",
+          "line": 33
+        }
+      ]
+    },
+    {
+      "file": "src/components/form/DatePickerField.tsx",
+      "exports": [
+        "DatePickerField",
+        "DateTimePickerField",
+        "TimePickerField"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 135
+        }
+      ]
+    },
+    {
+      "file": "src/components/form/input/InputField.tsx",
+      "exports": [],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 53
+        }
+      ]
+    },
+    {
+      "file": "src/components/form/NumberInput.tsx",
+      "exports": [
+        "NumberInput"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 32
+        },
+        {
+          "event": "onClick",
+          "line": 34
+        },
+        {
+          "event": "onClick",
+          "line": 35
+        }
+      ]
+    },
+    {
+      "file": "src/components/onboarding/OnboardingWizard.tsx",
+      "exports": [
+        "OnboardingWizard"
+      ],
+      "writes": [
+        {
+          "call": "completeOnboarding",
+          "line": 56
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onSubmit",
+          "line": 68
+        },
+        {
+          "event": "onChange",
+          "line": 70
+        },
+        {
+          "event": "onChange",
+          "line": 71
+        },
+        {
+          "event": "onClick",
+          "line": 71
+        },
+        {
+          "event": "onChange",
+          "line": 72
+        },
+        {
+          "event": "onChange",
+          "line": 73
+        },
+        {
+          "event": "onClick",
+          "line": 77
+        },
+        {
+          "event": "onClick",
+          "line": 78
+        }
+      ]
+    },
+    {
+      "file": "src/components/resources/ResourceModal.tsx",
+      "exports": [
+        "ResourceModal"
+      ],
+      "writes": [
+        {
+          "call": "createUpload",
+          "line": 119
+        },
+        {
+          "call": "finishUpload",
+          "line": 123
+        },
+        {
+          "call": "runOperation",
+          "line": 128
+        },
+        {
+          "call": "runOperation",
+          "line": 135
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onSubmit",
+          "line": 48
+        },
+        {
+          "event": "onChange",
+          "line": 162
+        }
+      ]
+    },
+    {
+      "file": "src/components/resources/Resources.tsx",
+      "exports": [
+        "Resources"
+      ],
+      "writes": [
+        {
+          "call": "runOperation",
+          "line": 341
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 105
+        },
+        {
+          "event": "onChange",
+          "line": 152
+        },
+        {
+          "event": "onChange",
+          "line": 158
+        },
+        {
+          "event": "onChange",
+          "line": 175
+        },
+        {
+          "event": "onChange",
+          "line": 187
+        },
+        {
+          "event": "onClick",
+          "line": 207
+        },
+        {
+          "event": "onChange",
+          "line": 216
+        },
+        {
+          "event": "onClick",
+          "line": 282
+        },
+        {
+          "event": "onClick",
+          "line": 290
+        },
+        {
+          "event": "onClick",
+          "line": 296
+        },
+        {
+          "event": "onChange",
+          "line": 314
+        },
+        {
+          "event": "onConfirm",
+          "line": 341
+        }
+      ]
+    },
+    {
+      "file": "src/components/settings/Settings.tsx",
+      "exports": [
+        "Settings"
+      ],
+      "writes": [
+        {
+          "call": "updateWorkspace",
+          "line": 30
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onSubmit",
+          "line": 53
+        },
+        {
+          "event": "onChange",
+          "line": 108
+        },
+        {
+          "event": "onSubmit",
+          "line": 122
+        },
+        {
+          "event": "onClick",
+          "line": 172
+        },
+        {
+          "event": "onClick",
+          "line": 176
+        },
+        {
+          "event": "onConfirm",
+          "line": 198
+        }
+      ]
+    },
+    {
+      "file": "src/components/study/FocusLauncher.tsx",
+      "exports": [
+        "FocusLauncher"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 58
+        }
+      ]
+    },
+    {
+      "file": "src/components/study/SessionModal.tsx",
+      "exports": [
+        "SessionModal"
+      ],
+      "writes": [
+        {
+          "call": "runOperation",
+          "line": 69
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onSubmit",
+          "line": 37
+        }
+      ]
+    },
+    {
+      "file": "src/components/study/SessionTable.tsx",
+      "exports": [
+        "SessionTable"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 95
+        },
+        {
+          "event": "onClick",
+          "line": 101
+        }
+      ]
+    },
+    {
+      "file": "src/components/study/StudyHistory.tsx",
+      "exports": [
+        "StudyHistory"
+      ],
+      "writes": [
+        {
+          "call": "runOperation",
+          "line": 118
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 56
+        },
+        {
+          "event": "onChange",
+          "line": 79
+        },
+        {
+          "event": "onChange",
+          "line": 85
+        },
+        {
+          "event": "onClick",
+          "line": 101
+        },
+        {
+          "event": "onClick",
+          "line": 101
+        },
+        {
+          "event": "onConfirm",
+          "line": 116
+        }
+      ]
+    },
+    {
+      "file": "src/components/study/StudySelectors.tsx",
+      "exports": [
+        "StudySelectors"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onChange",
+          "line": 32
+        },
+        {
+          "event": "onChange",
+          "line": 49
+        }
+      ]
+    },
+    {
+      "file": "src/components/study/TimerWidget.tsx",
+      "exports": [
+        "TimerWidget"
+      ],
+      "writes": [
+        {
+          "call": "runOperation",
+          "line": 48
+        },
+        {
+          "call": "runOperation",
+          "line": 49
+        },
+        {
+          "call": "runOperation",
+          "line": 50
+        },
+        {
+          "call": "runOperation",
+          "line": 140
+        },
+        {
+          "call": "runOperation",
+          "line": 180
+        },
+        {
+          "call": "runOperation",
+          "line": 195
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 108
+        },
+        {
+          "event": "onClick",
+          "line": 117
+        },
+        {
+          "event": "onClick",
+          "line": 123
+        },
+        {
+          "event": "onClick",
+          "line": 130
+        },
+        {
+          "event": "onSubmit",
+          "line": 138
+        },
+        {
+          "event": "onChange",
+          "line": 151
+        },
+        {
+          "event": "onSubmit",
+          "line": 177
+        },
+        {
+          "event": "onConfirm",
+          "line": 194
+        }
+      ]
+    },
+    {
+      "file": "src/components/studyflow/ActiveTimerIndicator.tsx",
+      "exports": [
+        "ActiveTimerIndicator"
+      ],
+      "writes": [
+        {
+          "call": "runOperation",
+          "line": 34
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 34
+        }
+      ]
+    },
+    {
+      "file": "src/components/studyflow/ConfirmDialog.tsx",
+      "exports": [
+        "ConfirmDialog"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 34
+        },
+        {
+          "event": "onClick",
+          "line": 39
+        }
+      ]
+    },
+    {
+      "file": "src/components/studyflow/ErrorState.tsx",
+      "exports": [
+        "ErrorState"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "file": "src/components/studyflow/Pagination.tsx",
+      "exports": [
+        "Pagination"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 7
+        },
+        {
+          "event": "onClick",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "file": "src/components/studyflow/ThemeToggle.tsx",
+      "exports": [
+        "ThemeToggle"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 79
+        }
+      ]
+    },
+    {
+      "file": "src/components/studyflow/WorkspaceHeader.tsx",
+      "exports": [
+        "WorkspaceHeader"
+      ],
+      "writes": [
+        {
+          "call": "updateWorkspace",
+          "line": 45
+        },
+        {
+          "call": "updateWorkspace",
+          "line": 54
+        },
+        {
+          "call": "updateWorkspace",
+          "line": 151
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 82
+        },
+        {
+          "event": "onClick",
+          "line": 90
+        },
+        {
+          "event": "onClick",
+          "line": 108
+        },
+        {
+          "event": "onChange",
+          "line": 123
+        },
+        {
+          "event": "onClick",
+          "line": 137
+        },
+        {
+          "event": "onClick",
+          "line": 150
+        },
+        {
+          "event": "onClick",
+          "line": 210
+        },
+        {
+          "event": "onChange",
+          "line": 222
+        },
+        {
+          "event": "onClick",
+          "line": 223
+        }
+      ]
+    },
+    {
+      "file": "src/components/studyflow/WorkspaceShell.tsx",
+      "exports": [
+        "WorkspaceShell"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 186
+        },
+        {
+          "event": "onClick",
+          "line": 205
+        },
+        {
+          "event": "onClick",
+          "line": 248
+        },
+        {
+          "event": "onClick",
+          "line": 269
+        },
+        {
+          "event": "onClick",
+          "line": 297
+        },
+        {
+          "event": "onClick",
+          "line": 304
+        },
+        {
+          "event": "onClick",
+          "line": 339
+        },
+        {
+          "event": "onChange",
+          "line": 356
+        },
+        {
+          "event": "onClick",
+          "line": 363
+        }
+      ]
+    },
+    {
+      "file": "src/components/subjects/SubjectCard.tsx",
+      "exports": [
+        "SubjectCard"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 20
+        },
+        {
+          "event": "onClick",
+          "line": 24
+        }
+      ]
+    },
+    {
+      "file": "src/components/subjects/SubjectDetail.tsx",
+      "exports": [
+        "SubjectDetail"
+      ],
+      "writes": [
+        {
+          "call": "updateWorkspace",
+          "line": 189
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 95
+        },
+        {
+          "event": "onClick",
+          "line": 101
+        },
+        {
+          "event": "onClick",
+          "line": 113
+        },
+        {
+          "event": "onClick",
+          "line": 131
+        },
+        {
+          "event": "onConfirm",
+          "line": 188
+        }
+      ]
+    },
+    {
+      "file": "src/components/subjects/SubjectModal.tsx",
+      "exports": [
+        "SubjectModal"
+      ],
+      "writes": [
+        {
+          "call": "updateWorkspace",
+          "line": 54
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onSubmit",
+          "line": 44
+        }
+      ]
+    },
+    {
+      "file": "src/components/subjects/Subjects.tsx",
+      "exports": [
+        "Subjects"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 40
+        },
+        {
+          "event": "onChange",
+          "line": 46
+        },
+        {
+          "event": "onChange",
+          "line": 51
+        },
+        {
+          "event": "onChange",
+          "line": 56
+        },
+        {
+          "event": "onClick",
+          "line": 76
+        },
+        {
+          "event": "onChange",
+          "line": 79
+        }
+      ]
+    },
+    {
+      "file": "src/components/subjects/TopicList.tsx",
+      "exports": [
+        "TopicList"
+      ],
+      "writes": [
+        {
+          "call": "updateWorkspace",
+          "line": 33
+        },
+        {
+          "call": "updateWorkspace",
+          "line": 51
+        },
+        {
+          "call": "updateWorkspace",
+          "line": 82
+        },
+        {
+          "call": "runOperation",
+          "line": 282
+        }
+      ],
+      "handlers": [
+        {
+          "event": "onSubmit",
+          "line": 95
+        },
+        {
+          "event": "onChange",
+          "line": 104
+        },
+        {
+          "event": "onClick",
+          "line": 110
+        },
+        {
+          "event": "onDrop",
+          "line": 129
+        },
+        {
+          "event": "onClick",
+          "line": 173
+        },
+        {
+          "event": "onClick",
+          "line": 181
+        },
+        {
+          "event": "onClick",
+          "line": 187
+        },
+        {
+          "event": "onClick",
+          "line": 196
+        },
+        {
+          "event": "onSubmit",
+          "line": 212
+        },
+        {
+          "event": "onSubmit",
+          "line": 231
+        },
+        {
+          "event": "onConfirm",
+          "line": 280
+        }
+      ]
+    },
+    {
+      "file": "src/components/ui/button/Button.tsx",
+      "exports": [],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 51
+        }
+      ]
+    },
+    {
+      "file": "src/components/ui/modal/index.tsx",
+      "exports": [
+        "Modal"
+      ],
+      "writes": [],
+      "handlers": [
+        {
+          "event": "onClick",
+          "line": 38
+        },
+        {
+          "event": "onClick",
+          "line": 53
+        }
+      ]
+    },
+    {
+      "file": "src/lib/auth/index.ts",
+      "exports": [
+        "getAuth",
+        "requireAdmin",
+        "requireLearner"
+      ],
+      "writes": [
+        {
+          "call": "getDb().update",
+          "line": 68
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/lib/services/calendar.ts",
+      "exports": [
+        "getCalendarBlock",
+        "mutateCalendar"
+      ],
+      "writes": [
+        {
+          "call": "getDb().transaction",
+          "line": 45
+        },
+        {
+          "call": "tx.delete",
+          "line": 84
+        },
+        {
+          "call": "tx.update",
+          "line": 86
+        },
+        {
+          "call": "tx.insert",
+          "line": 87
+        },
+        {
+          "call": "tx.delete",
+          "line": 90
+        },
+        {
+          "call": "tx.insert",
+          "line": 92
+        },
+        {
+          "call": "tx.update",
+          "line": 105
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/lib/services/jobs.ts",
+      "exports": [
+        "sweepTimers",
+        "cleanupStorage",
+        "retainData",
+        "generateReminders"
+      ],
+      "writes": [
+        {
+          "call": "getDb().update",
+          "line": 20
+        },
+        {
+          "call": "db.delete",
+          "line": 27
+        },
+        {
+          "call": "db.delete",
+          "line": 34
+        },
+        {
+          "call": "db.update",
+          "line": 36
+        },
+        {
+          "call": "db.delete",
+          "line": 42
+        },
+        {
+          "call": "db.delete",
+          "line": 43
+        },
+        {
+          "call": "db.delete",
+          "line": 44
+        },
+        {
+          "call": "db.delete",
+          "line": 45
+        },
+        {
+          "call": "db.delete",
+          "line": 46
+        },
+        {
+          "call": "db.insert",
+          "line": 78
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/lib/services/mutations.ts",
+      "exports": [
+        "mutate",
+        "deleteAccount",
+        "inspectLearnerContent"
+      ],
+      "writes": [
+        {
+          "call": "db.transaction",
+          "line": 23
+        },
+        {
+          "call": "tx.update",
+          "line": 83
+        },
+        {
+          "call": "tx.insert",
+          "line": 89
+        },
+        {
+          "call": "tx.update",
+          "line": 132
+        },
+        {
+          "call": "tx.insert",
+          "line": 133
+        },
+        {
+          "call": "tx.update",
+          "line": 166
+        },
+        {
+          "call": "tx.insert",
+          "line": 167
+        },
+        {
+          "call": "tx.update",
+          "line": 180
+        },
+        {
+          "call": "tx.insert",
+          "line": 181
+        },
+        {
+          "call": "tx.update",
+          "line": 198
+        },
+        {
+          "call": "tx.insert",
+          "line": 199
+        },
+        {
+          "call": "tx.delete",
+          "line": 200
+        },
+        {
+          "call": "tx.insert",
+          "line": 206
+        },
+        {
+          "call": "tx.update",
+          "line": 217
+        },
+        {
+          "call": "tx.update",
+          "line": 218
+        },
+        {
+          "call": "tx.update",
+          "line": 219
+        },
+        {
+          "call": "tx.update",
+          "line": 221
+        },
+        {
+          "call": "tx.update",
+          "line": 222
+        },
+        {
+          "call": "tx.update",
+          "line": 223
+        },
+        {
+          "call": "tx.delete",
+          "line": 227
+        },
+        {
+          "call": "tx.delete",
+          "line": 240
+        },
+        {
+          "call": "tx.delete",
+          "line": 245
+        },
+        {
+          "call": "tx.update",
+          "line": 266
+        },
+        {
+          "call": "tx.insert",
+          "line": 267
+        },
+        {
+          "call": "tx.insert",
+          "line": 277
+        },
+        {
+          "call": "tx.insert",
+          "line": 279
+        },
+        {
+          "call": "tx.update",
+          "line": 290
+        },
+        {
+          "call": "tx.delete",
+          "line": 293
+        },
+        {
+          "call": "tx.insert",
+          "line": 294
+        },
+        {
+          "call": "tx.update",
+          "line": 298
+        },
+        {
+          "call": "tx.insert",
+          "line": 311
+        },
+        {
+          "call": "tx.update",
+          "line": 316
+        },
+        {
+          "call": "tx.update",
+          "line": 318
+        },
+        {
+          "call": "tx.insert",
+          "line": 323
+        },
+        {
+          "call": "tx.delete",
+          "line": 327
+        },
+        {
+          "call": "tx.update",
+          "line": 338
+        },
+        {
+          "call": "getDb().transaction",
+          "line": 355
+        },
+        {
+          "call": "tx.delete",
+          "line": 358
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/lib/services/uploads.ts",
+      "exports": [
+        "requestUpload",
+        "confirmUpload"
+      ],
+      "writes": [
+        {
+          "call": "getDb().transaction",
+          "line": 20
+        },
+        {
+          "call": "tx.insert",
+          "line": 32
+        },
+        {
+          "call": "getDb().insert",
+          "line": 41
+        },
+        {
+          "call": "getDb().transaction",
+          "line": 42
+        },
+        {
+          "call": "tx.insert",
+          "line": 60
+        },
+        {
+          "call": "tx.delete",
+          "line": 62
+        },
+        {
+          "call": "tx.delete",
+          "line": 63
+        },
+        {
+          "call": "tx.update",
+          "line": 64
+        }
+      ],
+      "handlers": []
+    },
+    {
+      "file": "src/lib/services/workspace.ts",
+      "exports": [
+        "loadWorkspace",
+        "shellBaseWorkspace",
+        "ownedSubject"
+      ],
+      "writes": [
+        {
+          "call": "db.transaction",
+          "line": 79
+        },
+        {
+          "call": "tx.insert",
+          "line": 81
+        }
+      ],
+      "handlers": []
+    }
+  ],
+  "limits": "AST inventory discovers routes, components, event handlers and persistent call sites. It is an audit index, not evidence that every handler was executed."
+}

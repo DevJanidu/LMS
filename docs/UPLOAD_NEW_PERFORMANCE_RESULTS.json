@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-10-10T06:39:26.575Z",
+  "persona": "new",
+  "results": [
+    {
+      "operation": "browser signed upload, confirmation, exact download, foreign-account denial",
+      "status": "PASS",
+      "ms": 23998
+    },
+    {
+      "operation": "UUID fixture removed; object deletion uses the application storage queue",
+      "status": "PASS"
+    }
+  ]
+}

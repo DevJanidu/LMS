@@ -1,0 +1,125 @@
+{
+  "generatedAt": "2026-10-10T07:24:38.948Z",
+  "complete": true,
+  "focus": "stress",
+  "conditions": "CORRECTED: This historical run used the development server on port 3000 because env-runtime loaded APP_URL from .env.local. The original production-build label was incorrect. Raw results retained; not production certification.",
+  "results": [
+    {
+      "persona": "new",
+      "case": "registration, onboarding, committed account",
+      "status": "PASS",
+      "ms": 15918
+    },
+    {
+      "persona": "active",
+      "case": "registration, onboarding, committed account",
+      "status": "PASS",
+      "ms": 11618
+    },
+    {
+      "persona": "stress",
+      "case": "registration, onboarding, committed account",
+      "status": "PASS",
+      "ms": 11295
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 6083,
+      "serverTiming": "auth;dur=849.0, mutation;dur=5179.1"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 5380,
+      "serverTiming": "auth;dur=2616.2, mutation;dur=2706.0"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 3316,
+      "serverTiming": "auth;dur=728.9, mutation;dur=2564.7"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2950,
+      "serverTiming": "auth;dur=623.5, mutation;dur=2306.5"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 7180,
+      "serverTiming": "auth;dur=2680.8, mutation;dur=4456.6"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 5131,
+      "serverTiming": "auth;dur=2856.1, mutation;dur=2255.3"
+    },
+    {
+      "persona": "stress",
+      "case": "concurrent writes and stale note preimage rejection",
+      "status": "PASS",
+      "ms": 21311
+    },
+    {
+      "persona": "stress",
+      "case": "optimistic feedback during held acknowledgement",
+      "ms": 241
+    },
+    {
+      "persona": "stress",
+      "case": "lost response: one write, uncertainty warning, navigation, reload and committed database row",
+      "status": "PASS",
+      "ms": 9826
+    },
+    {
+      "persona": "stress",
+      "case": "known rejection rolls back the optimistic row and reports failure",
+      "status": "PASS",
+      "ms": 9532
+    },
+    {
+      "persona": "stress",
+      "case": "expired session returns 401 without writing",
+      "status": "PASS",
+      "ms": 6708
+    },
+    {
+      "persona": "new",
+      "case": "fixture cleanup",
+      "status": "PASS"
+    },
+    {
+      "persona": "active",
+      "case": "fixture cleanup",
+      "status": "PASS"
+    },
+    {
+      "persona": "stress",
+      "case": "fixture cleanup",
+      "status": "PASS"
+    }
+  ],
+  "baseURL": "http://localhost:3000"
+}

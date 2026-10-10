@@ -441,7 +441,7 @@ dialog[open] { animation: page-enter var(--motion-fast) var(--ease-standard); ba
 .planner-day-lane.is-weekend { background: color-mix(in srgb, var(--surface-subtle) 38%, transparent); }
 .planner-slot { height: 2.375rem !important; }
 .planner-time-label { @apply text-caption; color: var(--text-muted); padding-inline: 0.75rem !important;  }
-.planner-event { --planner-accent: var(--primary); --fc-classic-event: var(--primary-soft); --fc-classic-event-contrast: var(--text-primary); border-radius: .4rem !important; border: 1px solid color-mix(in srgb, var(--planner-accent) 20%, var(--border)) !important; border-inline-start: 3px solid var(--planner-accent) !important; background: color-mix(in srgb, var(--planner-accent) 10%, var(--surface)) !important; color: var(--text-primary) !important; overflow: hidden; min-width: 0; padding: 0 !important; transition: border-color var(--motion-fast), box-shadow var(--motion-fast); }
+.planner-event { --planner-accent: var(--primary); --fc-classic-event: var(--primary-soft); --fc-classic-event-contrast: var(--text-primary); border-radius: .4rem !important; border: 1px solid color-mix(in srgb, var(--planner-accent) 20%, var(--border)) !important; border-inline-start: 3px solid var(--planner-accent) !important; background: color-mix(in srgb, var(--planner-accent) 10%, var(--surface)) !important; color: var(--text-primary) !important; overflow: visible; min-width: 0; padding: 0 !important; transition: border-color var(--motion-fast), box-shadow var(--motion-fast); }
 .planner-event-success { --planner-accent: var(--success); }
 .planner-event-orange { --planner-accent: var(--warning); }
 .planner-event-purple { --planner-accent: var(--color-theme-purple-500); }
@@ -482,6 +482,8 @@ dialog[open] { animation: page-enter var(--motion-fast) var(--ease-standard); ba
 .sf-panel-heading { padding-top: var(--space-6); padding-bottom: var(--space-4); }
 .sf-subject-collection, .sf-continue-grid { gap: var(--space-8); }
 .sf-settings-layout > div { gap: var(--space-8); }
+.sf-chart { min-width: 0; max-width: 100%; overflow-x: clip; }
+.sf-chart .apexcharts-canvas { max-width: 100%; }
 .sf-chart :is(.apexcharts-text, .apexcharts-tooltip, .apexcharts-tooltip-title) { font-family: inherit !important; font-variant-numeric: tabular-nums; }
 .sf-chart .apexcharts-text { font-size: var(--text-caption) !important; font-weight: var(--text-caption--font-weight); fill: var(--text-muted); }
 .sf-chart :is(.apexcharts-tooltip, .apexcharts-tooltip-title) { @apply text-caption; color: var(--text-primary); }

@@ -1,0 +1,949 @@
+{
+  "generatedAt": "2026-10-09T13:21:02.702Z",
+  "baseURL": "http://localhost:3100",
+  "freshRegistration": true,
+  "results": [
+    {
+      "persona": "new",
+      "operation": "login/registration and onboarding",
+      "status": "PASS",
+      "ms": 15682
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "subject",
+      "ms": 6151,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1935.2, mutation;dur=4078.6"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 4923,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1796.2, mutation;dur=3121.2"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 4630,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1887.9, mutation;dur=2738.1"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "resource",
+      "ms": 3559,
+      "bytes": 54,
+      "serverTiming": "auth;dur=636.8, mutation;dur=2915.6"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "resource",
+      "ms": 3330,
+      "bytes": 54,
+      "serverTiming": "auth;dur=602.9, mutation;dur=2714.6"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "session",
+      "ms": 5197,
+      "bytes": 54,
+      "serverTiming": "auth;dur=626.2, mutation;dur=4563.4"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "session",
+      "ms": 6213,
+      "bytes": 54,
+      "serverTiming": "auth;dur=777.5, mutation;dur=5428.8"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 2298,
+      "bytes": 54,
+      "serverTiming": "auth;dur=655.5, mutation;dur=1637.8"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 3508,
+      "bytes": 54,
+      "serverTiming": "auth;dur=613.2, mutation;dur=2891.0"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 23381,
+      "bytes": 54,
+      "serverTiming": "auth;dur=606.9, mutation;dur=22770.3"
+    },
+    {
+      "persona": "new",
+      "operation": "subject/topic/resource/session CRUD persistence",
+      "status": "PASS",
+      "ms": 69486
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 3097,
+      "bytes": 54,
+      "serverTiming": "auth;dur=636.9, mutation;dur=2456.2"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2720,
+      "bytes": 54,
+      "serverTiming": "auth;dur=646.3, mutation;dur=2069.8"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2599,
+      "bytes": 54,
+      "serverTiming": "auth;dur=606.1, mutation;dur=1988.7"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2751,
+      "bytes": 80,
+      "serverTiming": "auth;dur=713.9, mutation;dur=2031.9"
+    },
+    {
+      "persona": "new",
+      "operation": "timer start/pause/resume/discard",
+      "status": "PASS",
+      "ms": 14240
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "profile",
+      "ms": 2797,
+      "bytes": 54,
+      "serverTiming": "auth;dur=767.2, mutation;dur=2025.6"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "profile",
+      "ms": 2756,
+      "bytes": 54,
+      "serverTiming": "auth;dur=717.4, mutation;dur=2026.3"
+    },
+    {
+      "persona": "new",
+      "operation": "profile save and restore",
+      "status": "PASS",
+      "ms": 7540
+    },
+    {
+      "persona": "new",
+      "operation": "calendar create/move/idempotent replay/delete",
+      "status": "PASS",
+      "ms": 10336
+    },
+    {
+      "persona": "new",
+      "operation": "route /analytics",
+      "status": "PASS",
+      "ms": 857
+    },
+    {
+      "persona": "new",
+      "operation": "route /calendar",
+      "status": "PASS",
+      "ms": 2079
+    },
+    {
+      "persona": "new",
+      "operation": "route /dashboard",
+      "status": "PASS",
+      "ms": 1921
+    },
+    {
+      "persona": "new",
+      "operation": "route /resources",
+      "status": "PASS",
+      "ms": 745
+    },
+    {
+      "persona": "new",
+      "operation": "route /settings",
+      "status": "PASS",
+      "ms": 727
+    },
+    {
+      "persona": "new",
+      "operation": "route /study/history",
+      "status": "PASS",
+      "ms": 779
+    },
+    {
+      "persona": "new",
+      "operation": "route /study",
+      "status": "PASS",
+      "ms": 762
+    },
+    {
+      "persona": "new",
+      "operation": "route /subjects",
+      "status": "PASS",
+      "ms": 720
+    },
+    {
+      "persona": "new",
+      "operation": "route /subjects/f7a48a82-720d-4e91-99c8-0adcb0f16a5f",
+      "status": "PASS",
+      "ms": 1493
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /analytics",
+      "status": "PASS",
+      "ms": 896
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /calendar",
+      "status": "PASS",
+      "ms": 1437
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /dashboard",
+      "status": "PASS",
+      "ms": 1942
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /resources",
+      "status": "PASS",
+      "ms": 747
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /settings",
+      "status": "PASS",
+      "ms": 737
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /study/history",
+      "status": "PASS",
+      "ms": 741
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /study",
+      "status": "PASS",
+      "ms": 716
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /subjects",
+      "status": "PASS",
+      "ms": 743
+    },
+    {
+      "persona": "new",
+      "operation": "mobile /subjects/f7a48a82-720d-4e91-99c8-0adcb0f16a5f",
+      "status": "PASS",
+      "ms": 1665
+    },
+    {
+      "persona": "active",
+      "operation": "login/registration and onboarding",
+      "status": "PASS",
+      "ms": 2741
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "subject",
+      "ms": 4539,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1774.0, mutation;dur=2759.9"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 4911,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1895.7, mutation;dur=3010.7"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 3320,
+      "bytes": 54,
+      "serverTiming": "auth;dur=676.0, mutation;dur=2640.9"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "resource",
+      "ms": 7874,
+      "bytes": 54,
+      "serverTiming": "auth;dur=600.8, mutation;dur=7268.7"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "resource",
+      "ms": 5406,
+      "bytes": 54,
+      "serverTiming": "auth;dur=2527.7, mutation;dur=2875.0"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "session",
+      "ms": 8636,
+      "bytes": 54,
+      "serverTiming": "auth;dur=764.8, mutation;dur=7867.3"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "session",
+      "ms": 13232,
+      "bytes": 54,
+      "serverTiming": "auth;dur=2245.8, mutation;dur=10982.5"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 8133,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1126.2, mutation;dur=7003.7"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 7048,
+      "bytes": 54,
+      "serverTiming": "auth;dur=926.1, mutation;dur=6117.9"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 7193,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1819.1, mutation;dur=5369.1"
+    },
+    {
+      "persona": "active",
+      "operation": "subject/topic/resource/session CRUD persistence",
+      "status": "PASS",
+      "ms": 79991
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 3160,
+      "bytes": 54,
+      "serverTiming": "auth;dur=786.1, mutation;dur=2370.7"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2652,
+      "bytes": 54,
+      "serverTiming": "auth;dur=627.4, mutation;dur=2020.9"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2747,
+      "bytes": 54,
+      "serverTiming": "auth;dur=601.1, mutation;dur=2137.2"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2633,
+      "bytes": 80,
+      "serverTiming": "auth;dur=603.1, mutation;dur=2025.7"
+    },
+    {
+      "persona": "active",
+      "operation": "timer start/pause/resume/discard",
+      "status": "PASS",
+      "ms": 13348
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "profile",
+      "ms": 2658,
+      "bytes": 54,
+      "serverTiming": "auth;dur=751.9, mutation;dur=1903.2"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "profile",
+      "ms": 2525,
+      "bytes": 54,
+      "serverTiming": "auth;dur=624.2, mutation;dur=1897.5"
+    },
+    {
+      "persona": "active",
+      "operation": "profile save and restore",
+      "status": "PASS",
+      "ms": 7645
+    },
+    {
+      "persona": "active",
+      "operation": "calendar create/move/idempotent replay/delete",
+      "status": "PASS",
+      "ms": 11594
+    },
+    {
+      "persona": "active",
+      "operation": "route /analytics",
+      "status": "PASS",
+      "ms": 1954
+    },
+    {
+      "persona": "active",
+      "operation": "route /calendar",
+      "status": "PASS",
+      "ms": 2141
+    },
+    {
+      "persona": "active",
+      "operation": "route /dashboard",
+      "status": "PASS",
+      "ms": 2226
+    },
+    {
+      "persona": "active",
+      "operation": "route /resources",
+      "status": "PASS",
+      "ms": 1053
+    },
+    {
+      "persona": "active",
+      "operation": "route /settings",
+      "status": "PASS",
+      "ms": 724
+    },
+    {
+      "persona": "active",
+      "operation": "route /study/history",
+      "status": "PASS",
+      "ms": 1194
+    },
+    {
+      "persona": "active",
+      "operation": "route /study",
+      "status": "PASS",
+      "ms": 1161
+    },
+    {
+      "persona": "active",
+      "operation": "route /subjects",
+      "status": "PASS",
+      "ms": 754
+    },
+    {
+      "persona": "active",
+      "operation": "route /subjects/310cc04f-3e0c-4d11-97f9-d9b2f2af5e15",
+      "status": "PASS",
+      "ms": 2182
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /analytics",
+      "status": "PASS",
+      "ms": 2079
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /calendar",
+      "status": "PASS",
+      "ms": 757
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /dashboard",
+      "status": "PASS",
+      "ms": 1038
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /resources",
+      "status": "PASS",
+      "ms": 1286
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /settings",
+      "status": "PASS",
+      "ms": 855
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /study/history",
+      "status": "PASS",
+      "ms": 1231
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /study",
+      "status": "PASS",
+      "ms": 1039
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /subjects",
+      "status": "PASS",
+      "ms": 719
+    },
+    {
+      "persona": "active",
+      "operation": "mobile /subjects/310cc04f-3e0c-4d11-97f9-d9b2f2af5e15",
+      "status": "PASS",
+      "ms": 2295
+    },
+    {
+      "persona": "stress",
+      "operation": "login/registration and onboarding",
+      "status": "PASS",
+      "ms": 2673
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "subject",
+      "ms": 5211,
+      "bytes": 54,
+      "serverTiming": "auth;dur=675.9, mutation;dur=4530.1"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 4074,
+      "bytes": 54,
+      "serverTiming": "auth;dur=642.0, mutation;dur=3429.3"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 3953,
+      "bytes": 54,
+      "serverTiming": "auth;dur=799.6, mutation;dur=3150.3"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "resource",
+      "ms": 3776,
+      "bytes": 54,
+      "serverTiming": "auth;dur=653.1, mutation;dur=3119.5"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "resource",
+      "ms": 3319,
+      "bytes": 54,
+      "serverTiming": "auth;dur=636.7, mutation;dur=2678.7"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "session",
+      "ms": 6398,
+      "bytes": 54,
+      "serverTiming": "auth;dur=821.2, mutation;dur=5572.9"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "session",
+      "ms": 6915,
+      "bytes": 54,
+      "serverTiming": "auth;dur=639.2, mutation;dur=6272.2"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 2237,
+      "bytes": 54,
+      "serverTiming": "auth;dur=593.4, mutation;dur=1639.7"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 4871,
+      "bytes": 54,
+      "serverTiming": "auth;dur=617.5, mutation;dur=4250.0"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 6803,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1821.8, mutation;dur=4977.9"
+    },
+    {
+      "persona": "stress",
+      "operation": "subject/topic/resource/session CRUD persistence",
+      "status": "PASS",
+      "ms": 58665
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 3169,
+      "bytes": 54,
+      "serverTiming": "auth;dur=766.7, mutation;dur=2398.9"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2667,
+      "bytes": 54,
+      "serverTiming": "auth;dur=610.0, mutation;dur=2053.8"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2629,
+      "bytes": 54,
+      "serverTiming": "auth;dur=647.8, mutation;dur=1977.6"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2787,
+      "bytes": 80,
+      "serverTiming": "auth;dur=609.2, mutation;dur=2173.9"
+    },
+    {
+      "persona": "stress",
+      "operation": "timer start/pause/resume/discard",
+      "status": "PASS",
+      "ms": 13269
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "profile",
+      "ms": 2920,
+      "bytes": 54,
+      "serverTiming": "auth;dur=907.4, mutation;dur=2008.8"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "profile",
+      "ms": 2640,
+      "bytes": 54,
+      "serverTiming": "auth;dur=629.4, mutation;dur=2006.9"
+    },
+    {
+      "persona": "stress",
+      "operation": "profile save and restore",
+      "status": "PASS",
+      "ms": 7585
+    },
+    {
+      "persona": "stress",
+      "operation": "calendar create/move/idempotent replay/delete",
+      "status": "PASS",
+      "ms": 12564
+    },
+    {
+      "persona": "stress",
+      "operation": "route /analytics",
+      "status": "PASS",
+      "ms": 1481
+    },
+    {
+      "persona": "stress",
+      "operation": "route /calendar",
+      "status": "PASS",
+      "ms": 1432
+    },
+    {
+      "persona": "stress",
+      "operation": "route /dashboard",
+      "status": "PASS",
+      "ms": 1030
+    },
+    {
+      "persona": "stress",
+      "operation": "route /resources",
+      "status": "PASS",
+      "ms": 1089
+    },
+    {
+      "persona": "stress",
+      "operation": "route /settings",
+      "status": "PASS",
+      "ms": 853
+    },
+    {
+      "persona": "stress",
+      "operation": "route /study/history",
+      "status": "PASS",
+      "ms": 1136
+    },
+    {
+      "persona": "stress",
+      "operation": "route /study",
+      "status": "PASS",
+      "ms": 1097
+    },
+    {
+      "persona": "stress",
+      "operation": "route /subjects",
+      "status": "PASS",
+      "ms": 794
+    },
+    {
+      "persona": "stress",
+      "operation": "route /subjects/e08be3b5-7ca6-43e5-a45a-f54e4f214dc1",
+      "status": "PASS",
+      "ms": 2143
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 3874,
+      "bytes": 54,
+      "serverTiming": "auth;dur=796.8, mutation;dur=3067.2"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 5778,
+      "bytes": 54,
+      "serverTiming": "auth;dur=787.8, mutation;dur=4960.1"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 7874,
+      "bytes": 54,
+      "serverTiming": "auth;dur=807.6, mutation;dur=7054.3"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 9838,
+      "bytes": 54,
+      "serverTiming": "auth;dur=790.3, mutation;dur=9013.3"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 11899,
+      "bytes": 54,
+      "serverTiming": "auth;dur=810.4, mutation;dur=11078.1"
+    },
+    {
+      "persona": "stress",
+      "operation": "concurrent independent writes",
+      "status": "PASS",
+      "ms": 15237
+    },
+    {
+      "persona": "stress",
+      "operation": "optimistic subject visible",
+      "ms": 76
+    },
+    {
+      "persona": "stress",
+      "operation": "slow save leaves navigation interactive and failure rolls back",
+      "status": "PASS",
+      "ms": 2901
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /analytics",
+      "status": "PASS",
+      "ms": 1896
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /calendar",
+      "status": "PASS",
+      "ms": 751
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /dashboard",
+      "status": "PASS",
+      "ms": 1908
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /resources",
+      "status": "PASS",
+      "ms": 1102
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /settings",
+      "status": "PASS",
+      "ms": 756
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /study/history",
+      "status": "PASS",
+      "ms": 1062
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /study",
+      "status": "PASS",
+      "ms": 1092
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /subjects",
+      "status": "PASS",
+      "ms": 753
+    },
+    {
+      "persona": "stress",
+      "operation": "mobile /subjects/e08be3b5-7ca6-43e5-a45a-f54e4f214dc1",
+      "status": "PASS",
+      "ms": 2349
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "subject",
+      "ms": 2149,
+      "bytes": 40
+    },
+    {
+      "persona": "cross-user",
+      "operation": "foreign subject edit rejected",
+      "status": "PASS",
+      "ms": 2838
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic,resource,session",
+      "ms": 6622,
+      "bytes": 54,
+      "serverTiming": "auth;dur=616.6, mutation;dur=5999.1"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "topic",
+      "ms": 21554,
+      "bytes": 40
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 2589,
+      "bytes": 40
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "resource",
+      "ms": 2073,
+      "bytes": 40
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 2290,
+      "bytes": 40
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "session",
+      "ms": 2640,
+      "bytes": 40
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 6400,
+      "bytes": 40
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "timer",
+      "ms": 2504,
+      "bytes": 40
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "resource",
+      "ms": 333,
+      "bytes": 35
+    },
+    {
+      "persona": "cross-user",
+      "operation": "topic/resource/session/timer ownership and invalid URL",
+      "status": "PASS",
+      "ms": 51530
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "settings",
+      "ms": 2889,
+      "bytes": 54,
+      "serverTiming": "auth;dur=624.6, mutation;dur=2261.1"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "settings",
+      "ms": 3015,
+      "bytes": 54,
+      "serverTiming": "auth;dur=704.9, mutation;dur=2306.8"
+    },
+    {
+      "persona": "admin",
+      "operation": "settings save and restore",
+      "status": "PASS",
+      "ms": 7924
+    },
+    {
+      "persona": "admin",
+      "operation": "role-boundary read rejected",
+      "status": "PASS",
+      "ms": 334
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "userStatus",
+      "ms": 3342,
+      "bytes": 54,
+      "serverTiming": "auth;dur=617.9, mutation;dur=2720.9"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "userStatus",
+      "ms": 3310,
+      "bytes": 54,
+      "serverTiming": "auth;dur=611.1, mutation;dur=2695.9"
+    },
+    {
+      "persona": "admin",
+      "operation": "deactivate/reactivate audit-only learner",
+      "status": "PASS",
+      "ms": 10584
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 3692,
+      "bytes": 54,
+      "serverTiming": "auth;dur=637.7, mutation;dur=3051.1"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 5090,
+      "bytes": 54,
+      "serverTiming": "auth;dur=636.9, mutation;dur=4450.0"
+    },
+    {
+      "operation": "mutation HTTP",
+      "kind": "delete",
+      "ms": 4785,
+      "bytes": 54,
+      "serverTiming": "auth;dur=636.5, mutation;dur=4144.4"
+    }
+  ]
+}

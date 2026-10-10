@@ -1,0 +1,29 @@
+{
+  "generatedAt": "2026-10-10T07:26:47.714Z",
+  "conditions": "Chrome against the local production build. Write responses are stubbed; this checks UI ordering, not persistence.",
+  "results": [
+    {
+      "module": "subjects",
+      "operation": "pending save permits another dialog; old confirmation preserves newer draft",
+      "status": "PASS",
+      "ms": 343
+    },
+    {
+      "module": "resources",
+      "operation": "pending save permits another dialog; old confirmation preserves newer draft",
+      "status": "PASS",
+      "ms": 518
+    },
+    {
+      "module": "sessions",
+      "operation": "pending save permits another dialog; old confirmation preserves newer draft",
+      "status": "PASS",
+      "ms": 366
+    },
+    {
+      "module": "settings",
+      "operation": "failed theme persistence restores the latest workspace preference",
+      "status": "PASS"
+    }
+  ]
+}

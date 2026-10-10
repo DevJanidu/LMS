@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { queryAdminUsers, searchWorkspace } from "@/app/[locale]/actions";
+import { queryAdminUsers, searchWorkspace } from "@/lib/workspace/transport";
 import { useSidebar } from "@/context/SidebarContext";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
@@ -18,7 +18,7 @@ import {
 import { APP_NAME } from "@/lib/constants";
 import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
 import Badge from "@/components/ui/badge/Badge";
-import { useWorkspaceError, useWorkspace } from "@/lib/workspace/store";
+import { useWorkspaceError, useWorkspace, useWorkspaceRetryable, retryWorkspaceMutation } from "@/lib/workspace/store";
 import type { Workspace } from "@/types";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
@@ -27,6 +27,7 @@ import Field from "./FormFields";
 import EmptyState from "./EmptyState";
 import FocusLauncher from "@/components/study/FocusLauncher";
 import WorkspaceHeader from "./WorkspaceHeader";
+import { useWriteStatus, acknowledgeUncertainWrites } from "@/lib/workspace/write-status";
 interface Props {
   children: ReactNode;
   initial: Workspace;
@@ -60,6 +61,8 @@ export default function WorkspaceShell({
   const { isMobileOpen, toggleMobileSidebar, isExpanded } = useSidebar();
   const data = useWorkspace(initial);
   const storageError = useWorkspaceError();
+  const retryable = useWorkspaceRetryable();
+  const writeStatus = useWriteStatus(initial.user.id);
   const search = useModal();
   const openSearch = search.openModal;
   const [query, setQuery] = useState("");
@@ -74,7 +77,7 @@ export default function WorkspaceShell({
     if (!query.trim()) return;
     let cancelled = false;
     const timeout = setTimeout(() => {
-      const request = admin ? queryAdminUsers({ search: query }).then(result => result.ok ? result.data.rows.map(({ user }) => ({ id: user.id, title: `${user.name} · ${user.email}`, type: "learner", href: `/admin/users/${user.id}` })) : []) : searchWorkspace(query).then(result => [
+      const request = admin ? queryAdminUsers({ search: query }, data.user.id).then(result => result.ok ? result.data.rows.map(({ user }) => ({ id: user.id, title: `${user.name} · ${user.email}`, type: "learner", href: `/admin/users/${user.id}` })) : []) : searchWorkspace(query, data.user.id).then(result => [
         ...result.subjects.map(row => ({ ...row, type: "subject", href: "/subjects/" + row.id })),
         ...result.topics.map(row => ({ ...row, type: "topic", href: "/subjects/" + row.subjectId })),
         ...result.resources.map(row => ({ ...row, type: "resource", href: "/resources?search=" + encodeURIComponent(row.title) })),
@@ -85,7 +88,7 @@ export default function WorkspaceShell({
       }).catch(() => { if (!cancelled) setServerHits([]); });
     }, 250);
     return () => { cancelled = true; clearTimeout(timeout); };
-  }, [admin, query, data.subjects, data.topics, data.resources]);
+  }, [admin, query, data.user.id]);
   const sidebarRef = useRef<HTMLElement>(null);
   const pageWidth =
     path === "/calendar"
@@ -289,12 +292,16 @@ export default function WorkspaceShell({
           tabIndex={-1}
           className={`sf-content sf-content-${pageWidth} outline-none`}
         >
-          {storageError && (
+          {(writeStatus === "saving" || writeStatus === "saved") && <p role="status" className="mb-3 text-small text-muted dark:text-muted">{t(writeStatus === "saving" ? "savingChanges" : "changesSaved")}</p>}
+          {writeStatus === "failed" && !storageError && <p role="alert" className="mb-3 text-body text-error-600 dark:text-error-400">{t("saveFailed")}</p>}
+          {writeStatus === "uncertain" && <p role="alert" className="mb-5 rounded-xl bg-warning-50 p-4 text-body text-warning-700 dark:bg-warning-500/15 dark:text-warning-300">{t("saveUncertain")} <button type="button" className="ms-3 underline" onClick={() => acknowledgeUncertainWrites(initial.user.id)}>{t("reviewedChanges")}</button></p>}
+          {storageError && storageError !== "saveUncertain" && (
             <p
               role="alert"
               className="mb-5 rounded-xl bg-warning-50 p-4 text-body text-warning-700 dark:bg-warning-500/15 dark:text-warning-300"
             >
               {t(storageError)}
+              {retryable && <button type="button" className="ms-3 underline" onClick={() => { void retryWorkspaceMutation(); }}>{t("planner.retry")}</button>}
             </p>
           )}
           <div key={path} className="sf-page-enter">

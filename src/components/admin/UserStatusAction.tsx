@@ -23,11 +23,12 @@ export default function UserStatusAction({ data, user }: Props) {
         {t(action)}
       </button>
       <ConfirmDialog
+        background={false}
         isOpen={modal.isOpen}
         onClose={modal.closeModal}
         title={t(action)}
         description={t("userStatusWarning", { name: user.name })}
-        onConfirm={async () => (await runOperation(data, { kind: "userStatus", id: user.id, status: action === "deactivate" ? "inactive" : "active" })).ok}
+        onConfirm={async () => (await runOperation(data, { kind: "userStatus", id: user.id, status: action === "deactivate" ? "inactive" : "active" }, user)).ok}
       />
     </>
   );

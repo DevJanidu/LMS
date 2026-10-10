@@ -395,8 +395,20 @@
       "evening": "Guten Abend, {name}",
       "night": "Gute Nacht, {name}",
       "midnight": "Noch wach, {name}?",
-      "taglines": { "morning": "Ich hoffe, dein Tag beginnt gut.", "afternoon": "Mach weiter so.", "evening": "Zeit, ein wenig langsamer zu machen.", "night": "Kommst du zur Ruhe? Schlaf gut.", "midnight": "Die Nachteulen sind heute unterwegs." },
-      "badges": { "morning": "Morgenmensch", "afternoon": "Tageschampion", "evening": "Abendstern", "night": "Nachtwanderung", "midnight": "Nachteule" },
+      "taglines": {
+        "morning": "Ich hoffe, dein Tag beginnt gut.",
+        "afternoon": "Mach weiter so.",
+        "evening": "Zeit, ein wenig langsamer zu machen.",
+        "night": "Kommst du zur Ruhe? Schlaf gut.",
+        "midnight": "Die Nachteulen sind heute unterwegs."
+      },
+      "badges": {
+        "morning": "Morgenmensch",
+        "afternoon": "Tageschampion",
+        "evening": "Abendstern",
+        "night": "Nachtwanderung",
+        "midnight": "Nachteule"
+      },
       "greetingStudied": "Du hast heute {time} gelernt. Jeder konzentrierte Moment bringt dich weiter.",
       "greetingPlanned": "Heute sind {count} Lerneinheiten geplant. Nimm dir Zeit für Fortschritt.",
       "greetingStreak": "Du lernst seit {days} Tagen in Folge. Bleib im Rhythmus.",
@@ -487,7 +499,7 @@
     "recordUnavailable": "Dieser Eintrag ist nicht verfügbar.",
     "saveFailed": "Änderungen konnten nicht gespeichert werden. Versuche es erneut.",
     "authenticationFailed": "Anmeldung oder Aktualisierung fehlgeschlagen. Prüfe deine Angaben.",
-    "resetEmailSent": "Falls ein passendes Konto existiert, wurde ein Link gesendet.",
+    "resetEmailSent": "Falls ein passendes Konto existiert, prüfe deinen Posteingang auf Anweisungen. Falls nichts ankommt, versuche es später erneut.",
     "tooManyRequests": "Zu viele Versuche. Warte eine Minute.",
     "timerAlreadyRunning": "Ein Timer läuft bereits.",
     "uploadFailed": "Die Datei konnte nicht hochgeladen werden.",
@@ -504,6 +516,13 @@
       "instructions": "Öffne diesen Link, um fortzufahren:",
       "ignore": "Falls du dies nicht angefordert hast, ignoriere diese E-Mail."
     },
-    "emailUnavailable": "E-Mails zum Zurücksetzen des Passworts sind noch nicht eingerichtet. Kontaktiere die Administration."
+    "emailUnavailable": "E-Mails zum Zurücksetzen des Passworts sind noch nicht eingerichtet. Kontaktiere die Administration.",
+    "savingChanges": "Änderungen werden gespeichert…",
+    "changesSaved": "Änderungen gespeichert.",
+    "saveUncertain": "Einige Änderungen wurden nicht bestätigt. Prüfe die gespeicherten Einträge vor einem erneuten Versuch; die Anfrage könnte den Server erreicht haben.",
+    "reviewedChanges": "Ich habe meine Änderungen geprüft",
+    "authenticationUnavailable": "Die Sitzungsprüfung ist vorübergehend nicht verfügbar. Bitte versuche es erneut.",
+    "databaseUnavailable": "Der Datendienst ist vorübergehend nicht verfügbar. Bitte versuche es erneut.",
+    "recordConflict": "Dieser Eintrag wurde anderswo geändert. Prüfe die aktuellen Werte, bevor du erneut speicherst."
   }
 }

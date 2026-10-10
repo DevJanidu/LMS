@@ -45,15 +45,27 @@ page.on("pageerror", error => errors.push(error.message));
 const started = new Map();
 page.on("request", request => {
   const path = new URL(request.url()).pathname;
-  if (path === "/api/calendar" || path === "/calendar") started.set(request, { at: performance.now(), phase, path });
+  let command;
+  if (path === "/api/calendar" && request.method() === "POST") {
+    const value = request.postDataJSON()?.command;
+    command = { kind: value?.kind, startsAt: value?.startsAt, endsAt: value?.endsAt };
+  }
+  if (path === "/api/calendar" || path === "/calendar") started.set(request, { at: performance.now(), phase, path, command });
 });
 page.on("requestfinished", async request => {
   const record = started.get(request); if (!record) return;
   const response = await request.response();
-  requests.push({ phase: record.phase, path: record.path, method: request.method(), action: Boolean(request.headers()["next-action"]), ms: Math.round(performance.now() - record.at), status: response?.status(), serverTiming: response?.headers()["server-timing"] });
+  requests.push({ phase: record.phase, path: record.path, method: request.method(), action: Boolean(request.headers()["next-action"]), command: record.command, ms: Math.round(performance.now() - record.at), status: response?.status(), serverTiming: response?.headers()["server-timing"] });
 });
 const dialog = () => page.locator("dialog[open]").last();
 const event = title => page.locator(".planner-event").filter({ hasText: title }).first();
+const contentY = title => event(title).evaluate(node => {
+  const grid = node.closest(".planner-timetable");
+  // The failure alert moves the whole calendar down; compare within its grid.
+  let y = node.getBoundingClientRect().y - grid.getBoundingClientRect().y;
+  for (let parent = node.parentElement; parent && parent !== grid; parent = parent.parentElement) y += parent.scrollTop;
+  return y;
+});
 const bodyOf = async response => { const body = await response.json(); assert(response.ok(), JSON.stringify({ status: response.status(), error: body.error })); return body; };
 const read = async id => (await bodyOf(await context.request.get(`/api/calendar?id=${id}`))).block;
 const saved = () => {
@@ -81,9 +93,9 @@ async function create(title, recurring = false) {
   await page.getByRole("button", { name: "Schedule Study", exact: true }).click();
   await expect(dialog()).toBeVisible(); metrics.push({ operation: "modal open", ms: Math.round(performance.now() - openAt) });
   await dialog().locator('input[name="title"]').fill(title);
-  await hourMinute("start-time-hour", recurring ? "19" : "21");
+  await hourMinute("start-time-hour", recurring ? "11" : "13");
   await hourMinute("start-time-minute", recurring ? "00" : "15");
-  await hourMinute("end-time-hour", recurring ? "20" : "22");
+  await hourMinute("end-time-hour", recurring ? "12" : "14");
   await hourMinute("end-time-minute", recurring ? "00" : "45");
   if (recurring) {
     await select("Repeat", "Daily");
@@ -92,10 +104,12 @@ async function create(title, recurring = false) {
     await dialog().getByRole("checkbox").nth(1).uncheck(); await dialog().getByRole("checkbox").nth(1).check();
   } else {
     await dialog().getByRole("button", { name: "60 min", exact: true }).click();
-    assert((await dialog().locator('input[name="end"]').inputValue()).endsWith("22:15"));
+    assert((await dialog().locator('input[name="end"]').inputValue()).endsWith("14:15"));
   }
   const response = saved(), submitAt = performance.now();
   await dialog().getByRole("button", { name: "Save", exact: true }).click();
+  const overlap = page.getByRole("dialog", { name: "These plans overlap", exact: true });
+  if (await overlap.isVisible()) await overlap.getByRole("button", { name: "Confirm", exact: true }).click();
   await expect(dialog()).toHaveCount(0); await expect(event(title)).toBeVisible();
   metrics.push({ operation: recurring ? "recurring optimistic create" : "optimistic create", ms: Math.round(performance.now() - submitAt) });
   const result = await bodyOf(await response), block = result.blocks.find(b => b.title === title);
@@ -103,9 +117,10 @@ async function create(title, recurring = false) {
 }
 async function drag(title, dx, dy) {
   const el = event(title); await centerEvent(el); const box = await el.boundingBox();
+  const gridY = await contentY(title);
   const x = box.x + box.width / 2, y = box.y + Math.min(12, box.height / 2);
   await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + dx, y + dy, { steps: 15 }); await page.mouse.up();
-  return box;
+  return { ...box, gridY };
 }
 async function centerEvent(el) {
   await el.scrollIntoViewIfNeeded();
@@ -158,22 +173,31 @@ try {
   assert((await event(once.title).boundingBox()).x > first.x + width / 2);
   metrics.push({ operation: "optimistic drop after pointer release", ms: Math.round(performance.now() - optimisticAt) });
   await drag(once.title, -width, 38);
+  // A drag can replace the event node on the next React paint. Capture the
+  // optimistic destination after that paint, before releasing the response.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await expect(event(once.title)).toBeVisible();
   const finalPosition = await event(once.title).boundingBox();
+  assert(finalPosition);
   gate = undefined; release();
   await expect(event(once.title)).not.toHaveClass(/opacity-70/, { timeout: 45000 });
+  await expect(event(once.title)).toBeVisible();
   const persisted = await read(once.id); assert.notEqual(persisted.startsAt, once.startsAt);
   assert.equal(Date.parse(persisted.endsAt) - Date.parse(persisted.startsAt), 3600000);
   assert(Math.abs((await event(once.title).boundingBox()).x - finalPosition.x) < 2);
   once = persisted;
   phase = "failedMove"; failures = 2;
-  const original = await event(once.title).boundingBox(); await drag(once.title, 0, -38);
-  await expect(page.getByRole("alert")).toBeVisible();
-  assert(Math.abs((await event(once.title).boundingBox()).y - original.y) < 3);
+  // drag() centers the event first; compare against the resulting viewport position.
+  const original = await drag(once.title, 0, -38);
+  await expect(page.getByRole("alert").filter({ hasText: "Your changes could not be saved" })).toBeVisible();
+  await expect.poll(async () => Math.abs(await contentY(once.title) - original.gridY)).toBeLessThan(3);
   const retry = saved(); await page.getByRole("button", { name: "Retry", exact: true }).click(); await bodyOf(await retry);
   once = await read(once.id); assert.notEqual(once.startsAt, persisted.startsAt);
+  await expect(event(once.title)).not.toHaveClass(/opacity-70/, { timeout: 45000 });
   phase = "resize"; await centerEvent(event(once.title)); await event(once.title).hover();
   // FullCalendar v7's installed internal resizer selector, not an application CSS override.
   const endHandle = event(once.title).locator(".fc-oN:visible").first(); const handleBox = await endHandle.boundingBox(); assert(handleBox);
+  metrics.push({ operation: "resize pointer target", box: handleBox, hit: await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.className, { x: handleBox.x + handleBox.width / 2, y: handleBox.y + handleBox.height / 2 }) });
   const resizeResponse = saved();
   await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2); await page.mouse.down();
   await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2 + 38, { steps: 12 }); await page.mouse.up();
@@ -217,7 +241,7 @@ try {
   metrics.push({ operation: "cached week navigation", ms: Math.round(performance.now() - cachedAt) });
   assert.equal(requests.filter(r => r.path === "/api/calendar" && r.method === "GET").length, beforeRequests);
   phase = "trashCancel"; await trash(once.title, false); await expect(event(once.title)).toBeVisible(); assert(await read(once.id));
-  phase = "failedTrashDelete"; failures = 2; await trash(once.title, true); await expect(page.getByRole("alert")).toBeVisible(); await expect(event(once.title)).toBeVisible();
+  phase = "failedTrashDelete"; failures = 2; await trash(once.title, true); await expect(page.locator("main").getByRole("alert").first()).toBeVisible(); await expect(event(once.title)).toBeVisible();
   phase = "deleteRetry"; const deleteResponse = saved(); await page.getByRole("button", { name: "Retry", exact: true }).click(); await bodyOf(await deleteResponse);
   assert.equal((await context.request.get(`/api/calendar?id=${once.id}`)).status(), 404);
   frames.push(...await page.evaluate(() => window.calendarAuditFrames));

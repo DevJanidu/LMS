@@ -1,0 +1,165 @@
+{
+  "conditions": "Local production build, Chrome, two fixture learners with 1095 sessions each, unthrottled. Video remains ignored locally. Not Lighthouse/4G results.",
+  "metrics": [
+    {
+      "route": "/dashboard",
+      "loginHeadingMs": 4159,
+      "hops": [
+        {
+          "method": "POST",
+          "path": "/login"
+        }
+      ]
+    },
+    {
+      "route": "/analytics",
+      "ttfbMs": 38,
+      "fcpMs": 100,
+      "jsTransferBytes": 504855,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 2060,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/calendar",
+      "ttfbMs": 36,
+      "fcpMs": 112,
+      "jsTransferBytes": 421970,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 1721,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/dashboard",
+      "ttfbMs": 22,
+      "fcpMs": 76,
+      "jsTransferBytes": 241248,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 1622,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/resources",
+      "ttfbMs": 18,
+      "fcpMs": 64,
+      "jsTransferBytes": 240907,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 1573,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/settings",
+      "ttfbMs": 24,
+      "fcpMs": 80,
+      "jsTransferBytes": 235330,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 1274,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/study/history",
+      "ttfbMs": 18,
+      "fcpMs": 80,
+      "jsTransferBytes": 233712,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 3646,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/study",
+      "ttfbMs": 14,
+      "fcpMs": 64,
+      "jsTransferBytes": 230889,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 1521,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/subjects",
+      "ttfbMs": 13,
+      "fcpMs": 68,
+      "jsTransferBytes": 233758,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 1244,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin",
+      "loginHeadingMs": 6465,
+      "hops": [
+        {
+          "method": "POST",
+          "path": "/login"
+        }
+      ]
+    },
+    {
+      "route": "/admin/analytics",
+      "ttfbMs": 30,
+      "fcpMs": 84,
+      "jsTransferBytes": 503768,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 1958,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin",
+      "ttfbMs": 18,
+      "fcpMs": 60,
+      "jsTransferBytes": 504340,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 5903,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin/settings",
+      "ttfbMs": 20,
+      "fcpMs": 72,
+      "jsTransferBytes": 232215,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 2485,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin/storage",
+      "ttfbMs": 16,
+      "fcpMs": 68,
+      "jsTransferBytes": 232514,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 2194,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin/users",
+      "ttfbMs": 20,
+      "fcpMs": 84,
+      "jsTransferBytes": 234274,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 2838,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "route": "/admin/users/2d268815-c9ce-431a-8510-357b23304926",
+      "ttfbMs": 19,
+      "fcpMs": 64,
+      "jsTransferBytes": 504581,
+      "overflow": false,
+      "heading": true,
+      "navigationIdleMs": 4914,
+      "cacheControl": "private, no-store"
+    }
+  ]
+}

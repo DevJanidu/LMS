@@ -121,10 +121,16 @@ export async function cachedAdmin<T>(suffix: string, fetcher: () => Promise<T>):
   await requireAdmin();
   const client = getRedis();
   if (!client || unavailableUntil > Date.now()) return fetcher();
+  // The database revision fences summaries even when Redis generation updates
+  // fail on a different instance. Counts also fence account deletions.
+  const { getDb } = await import("@/lib/db");
+  const { sql } = await import("drizzle-orm");
+  const result = await getDb().execute<{ revision: string }>(sql`SELECT concat(coalesce(max(updated_at)::text, ''), ':', count(*)::text) AS revision FROM users`);
+  const revision = result.rows[0].revision;
   let generation: unknown;
   try { generation = await client.get(`${cachePrefix()}:admin:generation`); }
   catch { failed("admin"); return fetcher(); }
-  return cached(`${cachePrefix()}:admin:${generation ?? "0"}:${encodeURIComponent(suffix)}`, 120, fetcher, "admin");
+  return cached(`${cachePrefix()}:admin:${generation ?? "0"}:${encodeURIComponent(revision)}:${encodeURIComponent(suffix)}`, 120, fetcher, "admin");
 }
 export async function cachedSettings<T>(fetcher: () => Promise<T>): Promise<T> {
   const client = getRedis();

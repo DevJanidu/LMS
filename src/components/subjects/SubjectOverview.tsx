@@ -17,7 +17,7 @@ interface Props {
 }
 export default function SubjectOverview({ data, subjectId }: Props) {
   const t = useTranslations("studyflow");
-  const clock = useNow();
+  const clock = useNow(60000);
   const today = localDay(clock || data.user.lastActiveAt, data.user.timezone);
   const topics = getTopics(data, subjectId).filter(
     (topic) => topic.status !== "completed",

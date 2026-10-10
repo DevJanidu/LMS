@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/modal";
 import Button from "@/components/ui/button/Button";
@@ -26,6 +26,12 @@ export default function SubjectModal({
   const t = useTranslations("studyflow");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const opened = useRef(false);
+  const original = useRef(subject);
+  useEffect(() => {
+    if (isOpen && !opened.current) original.current = subject;
+    opened.current = isOpen;
+  }, [isOpen, subject]);
   return (
     <Modal
       isOpen={isOpen}
@@ -45,7 +51,7 @@ export default function SubjectModal({
           }
           let accepted = false;
           setPending(true);
-          const saved = await updateWorkspace(initial, (data) => {
+          const request = updateWorkspace(initial, (data) => {
             if (
               !subject &&
               getSubjects(data).filter((item) => item.status === "active")
@@ -73,11 +79,12 @@ export default function SubjectModal({
                   )
                 : [...data.subjects, value],
             };
-          });
+          }, original.current);
+          if (accepted) { setPending(false); onClose(); }
+          const saved = await request;
           setPending(false);
           if (!accepted) setError(t("subjectLimit"));
-          else if (saved) onClose();
-          else setError(t("saveFailed"));
+          else if (!saved) setError(t("saveFailed"));
         }}
       >
         <Field

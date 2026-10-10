@@ -5,7 +5,6 @@ import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth";
 import { after } from "next/server";
-import { cachedSettings } from "@/lib/cache";
 import { learnerAnalytics } from "@/lib/analytics/server";
 import { subjectStatistics } from "./subject-statistics";
 import { platformAnalytics } from "@/lib/analytics/platform";
@@ -17,11 +16,13 @@ const preferenceRowsFor = cache((userId: string) => getDb().select().from(s.pref
 const timerRowsFor = cache((userId: string) => getDb().select().from(s.activeTimers).where(eq(s.activeTimers.userId, userId)));
 const notificationRowsFor = cache((userId: string) => getDb().select().from(s.notifications).where(eq(s.notifications.userId, userId)).orderBy(desc(s.notifications.scheduledFor)).limit(20));
 export { invalidateSettings } from "@/lib/cache";
-export const getSettings = cache(async () => cachedSettings(async () => {
+// Quotas and registration policy are a tiny authoritative table. Request-local
+// memoization avoids duplicates without trusting optional Redis invalidation.
+export const getSettings = cache(async () => {
   const values = Object.fromEntries((await getDb().select().from(s.appSettings)).map(row => [row.key, row.value]));
   const value = { streakMinutes: Number(values.streakMinutes ?? 10), maxFileSizeMB: Number(values.maxFileSizeMB ?? 10), storagePerUserMB: Number(values.storagePerUserMB ?? 100), minimumAge: Number(values.minimumAge ?? 0) };
   return value;
-}));
+});
 export async function loadWorkspace(userId: string, options: { adminTargetId?: string; account?: typeof s.users.$inferSelect } = {}): Promise<Workspace> {
   const db = getDb();
   const account = options.account?.id === userId ? options.account : (await db.select().from(s.users).where(eq(s.users.id, userId)))[0];
@@ -126,8 +127,8 @@ export function shellBaseWorkspace(account: typeof s.users.$inferSelect): Worksp
 }
 
 /** Persistent chrome can stream before the feature workspace and analytics finish. */
-export const getShellWorkspace = cache(async (): Promise<Workspace> => {
-  const account = await requireUser(), admin = account.role === "super_admin";
+export const getShellWorkspace = cache(async (authorizedAccount?: typeof s.users.$inferSelect): Promise<Workspace> => {
+  const account = authorizedAccount ?? await requireUser(), admin = account.role === "super_admin";
   const result = await timed("shell.data", () => getDb().execute<{
     prefs: { weeklyTargetMinutes: number; theme: User["theme"]; weekStartDay: number; reminders: boolean; highestStreak: number } | null;
     subjects: Array<{ id: string; title: string; displayColor: string; targetDate: string | null;

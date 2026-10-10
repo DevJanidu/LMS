@@ -2,13 +2,14 @@
 import Image from "next/image";
 import { FileIcon, LinkIcon, PlayIcon } from "@/icons";
 import { useEffect, useRef, useState } from "react";
-import { queryResources, resourceDetail } from "@/app/[locale]/actions";
+import { queryResources, resourceDetail } from "@/lib/workspace/transport";
 import type { ResourcePage } from "@/lib/services/resources";
 import Pagination from "@/components/studyflow/Pagination";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
 import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
-import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
+import { runOperation, useWorkspace, collectionRevision, useProjectedCollection } from "@/lib/workspace/store";
+import useQueryRefresh from "@/hooks/useQueryRefresh";
 import type { Resource, Workspace } from "@/types";
 import Button from "@/components/ui/button/Button";
 import { Modal } from "@/components/ui/modal";
@@ -61,19 +62,28 @@ export default function Resources({
   const [editing, setEditing] = useState<Resource>();
   const [deleting, setDeleting] = useState<Resource>();
   const [opened, setOpened] = useState<Resource>();
-  const [loadingId, setLoadingId] = useState("");
+  const [loadingIds, setLoadingIds] = useState<Set<string>>(() => new Set());
+  const detailSequence = useRef(0);
+  const detailRequests = useRef(new Set<string>());
+  useEffect(() => () => { detailSequence.current++; }, []);
   const [error, setError] = useState("");
   const openResource = async (resource: Resource, edit: boolean) => {
-    if (loadingId) return;
-    setLoadingId(resource.id); setError("");
+    if (detailRequests.current.has(resource.id)) return;
+    detailRequests.current.add(resource.id);
+    const sequence = ++detailSequence.current;
+    setLoadingIds(ids => new Set(ids).add(resource.id)); setError("");
     try {
-      const detail = resource.type === "note" ? await resourceDetail(resource.id) : { ok: true as const, textContent: undefined };
+      const detail = resource.type === "note" ? await resourceDetail(resource.id, data.user.id) : { ok: true as const, textContent: undefined };
+      if (sequence !== detailSequence.current) return;
       if (!detail.ok) { setError(t(detail.error)); return; }
       const value = { ...resource, textContent: detail.textContent };
       if (edit) { setEditing(value); modal.openModal(); }
       else { setOpened(value); preview.openModal(); }
-    } catch { setError(t("saveFailed")); }
-    finally { setLoadingId(""); }
+    } catch { if (sequence === detailSequence.current) setError(t("saveFailed")); }
+    finally {
+      detailRequests.current.delete(resource.id);
+      setLoadingIds(ids => { const next = new Set(ids); next.delete(resource.id); return next; });
+    }
   };
   const fallback = getResources(data)
     .filter(
@@ -93,6 +103,7 @@ export default function Resources({
   const addButton = (
     <Button
       onClick={() => {
+        detailSequence.current++;
         setEditing(undefined);
         modal.openModal();
       }}
@@ -103,21 +114,24 @@ export default function Resources({
   const [page, setPage] = useState(1);
   const [records, setRecords] = useState<ResourcePage>(initialPage ?? { total: fallback.length, rows: fallback.slice(0, 20) });
   const [loading, setLoading] = useState(false);
-  const lastQuery = useRef(initialPage ? JSON.stringify({ page: 1, query: search, subject: subjectId, topic: "", type: "", sort: "newest", revision: initial.user.updatedAt }) : "");
+  const [observed, setObserved] = useState(0);
+  const sync = useQueryRefresh();
+  const lastQuery = useRef(initialPage ? JSON.stringify({ page: 1, query: search, subject: subjectId, topic: "", type: "", sort: "newest", revision: initial.user.updatedAt, rows: initial.resources, sync: 0 }) : "");
   useEffect(() => {
-    const key = JSON.stringify({ page, query, subject, topic, type, sort, revision: data.user.updatedAt });
+    const key = JSON.stringify({ page, query, subject, topic, type, sort, revision: data.user.updatedAt, rows: data.resources, sync });
     if (lastQuery.current === key) return;
     let cancelled = false;
     const timeout = setTimeout(() => {
+      const revision = collectionRevision();
       setLoading(true);
-      void queryResources({ page, search: query, subjectId: subject || undefined, topicId: topic || undefined, type: type || undefined, sort }).then(result => {
+      void queryResources({ page, search: query, subjectId: subject || undefined, topicId: topic || undefined, type: type || undefined, sort }, data.user.id).then(result => {
         if (cancelled) return;
-        if (result.ok) { lastQuery.current = key; setRecords(result.data); setError(""); } else setError(t(result.error));
+        if (result.ok) { lastQuery.current = key; setRecords(result.data); setObserved(revision); setError(""); } else setError(t(result.error));
       }).catch(() => { if (!cancelled) setError(t("saveFailed")); }).finally(() => { if (!cancelled) setLoading(false); });
     }, query ? 250 : 0);
     return () => { cancelled = true; clearTimeout(timeout); };
-  }, [page, query, subject, topic, type, sort, data.resources, data.user.updatedAt, t]);
-  const resources = records.rows;
+  }, [page, query, subject, topic, type, sort, data.resources, data.user.updatedAt, data.user.id, sync, t]);
+  const resources = useProjectedCollection("resources", records.rows, observed).filter(row => (!subject || row.subjectId === subject) && (!topic || row.topicId === topic) && (!type || row.type === type) && (!query || row.title.toLowerCase().includes(query.toLowerCase())));
   const pages = Math.max(1, Math.ceil(records.total / 20));
   const current = Math.min(page, pages);
   return (
@@ -264,15 +278,15 @@ export default function Resources({
                       </a>
                     ) : (
                       <button
-                        disabled={Boolean(loadingId)}
+                        disabled={loadingIds.has(resource.id)}
                         onClick={() => { void openResource(resource, false); }}
                         className="text-brand-600 dark:text-brand-300"
                       >
-                        {t(loadingId === resource.id ? "loading" : "open")}
+                        {t(loadingIds.has(resource.id) ? "loading" : "open")}
                       </button>
                     )}
                     <button
-                      disabled={Boolean(loadingId)}
+                      disabled={loadingIds.has(resource.id)}
                       onClick={() => { void openResource(resource, true); }}
                       className="text-muted dark:text-secondary"
                     >
@@ -324,14 +338,7 @@ export default function Resources({
         onClose={() => setDeleting(undefined)}
         title={t("deleteResource")}
         description={t("deleteResourceWarning")}
-        onConfirm={() =>
-          updateWorkspace(initial, (state) => ({
-            ...state,
-            resources: state.resources.filter(
-              (item) => item.id !== deleting?.id,
-            ),
-          }))
-        }
+        onConfirm={() => deleting ? runOperation(initial, { kind: "delete", entity: "resource", id: deleting.id }, deleting).then(result => result.ok) : false}
       />
     </>
   );

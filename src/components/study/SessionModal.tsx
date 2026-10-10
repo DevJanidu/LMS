@@ -66,9 +66,11 @@ export default function SessionModal({
             createdAt: session?.createdAt ?? new Date().toISOString(),
           };
           setPending(true);
-          const result = await runOperation(data, { kind: "session", value });
+          const request = runOperation(data, { kind: "session", value }, session);
+          onClose();
+          const result = await request;
           setPending(false);
-          if (result.ok) onClose(); else setError(t(result.error));
+          if (!result.ok) setError(t(result.error));
         }}
       >
         <StudySelectors

@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { memo } from "react";
 import { useTranslations } from "next-intl";
 import type { ApexOptions } from "apexcharts";
 import { useTheme } from "@/context/ThemeContext";
@@ -15,7 +16,7 @@ interface Props {
   type?: "bar" | "line";
 }
 /** Lazy chart with an equivalent accessible data table. */
-export default function StudyChart({
+function StudyChart({
   labels,
   values,
   label,
@@ -67,3 +68,7 @@ export default function StudyChart({
     </div>
   );
 }
+export default memo(StudyChart, (before, after) => before.label === after.label && before.type === after.type
+  && before.labels.length === after.labels.length && before.values.length === after.values.length
+  && before.labels.every((label, index) => label === after.labels[index])
+  && before.values.every((value, index) => value === after.values[index]));

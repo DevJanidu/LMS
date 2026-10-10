@@ -56,6 +56,7 @@ export default function OnboardingWizard({ initial, initialStep = 0 }: Props) {
       const result = await completeOnboarding(parsed.data);
       if (!result.ok) { setError(t(result.error)); return; }
       router.replace("/dashboard");
+    } catch { setError(t("saveFailed"));
     } finally { setPending(false); }
   };
 

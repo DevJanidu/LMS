@@ -68,6 +68,29 @@ describe("calendar recurrence commands", () => {
 describe("optimistic calendar journal", () => {
   const once = { ...block, repeat: "once" as const, timezone: "UTC" };
   const move = { ...moved, date: "2026-10-05", startsAt: "2026-10-06T09:00:00.000Z", endsAt: "2026-10-06T10:00:00.000Z" };
+  it("does not let an older mutation receipt overwrite a newer background read", async () => {
+    const write = deferred<Response>();
+    const saved = { ...once, startsAt: move.startsAt, endsAt: move.endsAt, updatedAt: now };
+    const latest = { ...saved, title: "Edited elsewhere", updatedAt: "2026-10-08T00:00:00.000Z" };
+    const transport = vi.fn((url: string, init?: RequestInit) => init?.method === "POST" ? write.promise : response({ ok: true, blocks: [latest] }));
+    const store = new CalendarStore("owner", [once], range, transport);
+    const pending = store.mutate(move);
+    await vi.waitFor(() => expect(transport).toHaveBeenCalledTimes(1));
+    await store.load(range, true);
+    write.resolve(Response.json({ ok: true, blocks: [saved], removed: [] }));
+    await pending;
+    expect(store.getSnapshot().blocks[0].title).toBe("Edited elsewhere");
+    expect(store.getSnapshot().blocks[0].updatedAt).toBe(latest.updatedAt);
+  });
+  it("discards exceptions from an older series version outside the refreshed range", async () => {
+    const initial = { ...block, exceptions: [{ date: "2026-11-02", cancelled: true }] };
+    const fresh = { ...block, updatedAt: now, exceptions: [] };
+    const transport = vi.fn(() => response({ ok: true, blocks: [fresh] }));
+    const store = new CalendarStore("owner", [initial], range, transport);
+    await store.load(range, true);
+    await store.load({ from: "2026-11-02", to: "2026-11-09" }, true);
+    expect(store.getSnapshot().blocks[0].exceptions).toEqual([]);
+  });
   it("updates immediately, serializes rapid moves and uses the acknowledged version", async () => {
     const first = deferred<Response>(), second = deferred<Response>();
     const transport = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
@@ -125,6 +148,21 @@ describe("optimistic calendar journal", () => {
     await store.retry();
     expect(JSON.parse(transport.mock.calls.at(-1)![1].body).operationId).toBe(operationId);
     expect(store.getSnapshot().blocks).toHaveLength(2);
+  });
+  it("keeps failed-write recovery visible during background reads and unrelated writes", async () => {
+    const transport = vi.fn((url: string, init?: RequestInit) => {
+      if (init?.method === "POST") {
+        const command = JSON.parse(String(init.body)).command;
+        if (command.kind === "delete") return response({ ok: false, error: "saveFailed" }, 503);
+        return response({ ok: true, blocks: [{ ...once, id: "other" }], removed: [] });
+      }
+      return response({ ok: true, blocks: [once] });
+    });
+    const store = new CalendarStore("owner", [once], range, transport);
+    await store.mutate({ kind: "delete", id: once.id, date: "2026-10-05", scope: "one" });
+    await store.load(range, true);
+    await store.mutate({ kind: "create", value: { ...once, id: "other" } });
+    expect(store.getSnapshot()).toMatchObject({ error: "saveFailed", canRetry: true });
   });
   it("retains recurrence exceptions when another cached range returns the same series", async () => {
     const transport = vi.fn().mockImplementation(() => response({ ok: true, blocks: [block] }));

@@ -1,0 +1,79 @@
+{
+  "generatedAt": "2026-10-09T13:48:51.779Z",
+  "discovery": {
+    "sourceFiles": 210,
+    "routes": 40,
+    "components": 81,
+    "componentFolders": 14
+  },
+  "reports": {
+    "GLOBAL_PERFORMANCE_RESULTS": {
+      "passed": 76,
+      "generatedAt": "2026-10-09T13:21:02.702Z"
+    },
+    "FINAL_MUTATION_METRICS": {
+      "passed": 48,
+      "generatedAt": "2026-10-09T13:31:41.878Z"
+    },
+    "SUPPLEMENTAL_PERFORMANCE_RESULTS": {
+      "passed": 7
+    },
+    "DIALOG_PERFORMANCE_RESULTS": {
+      "passed": 4,
+      "generatedAt": "2026-10-09T13:40:13.366Z"
+    },
+    "UPLOAD_NEW_PERFORMANCE_RESULTS": {
+      "passed": 2,
+      "generatedAt": "2026-10-09T13:28:08.343Z"
+    },
+    "UPLOAD_STRESS_PERFORMANCE_RESULTS": {
+      "passed": 2,
+      "generatedAt": "2026-10-09T13:28:07.990Z"
+    },
+    "UPLOAD_PERFORMANCE_RESULTS": {
+      "passed": 2,
+      "generatedAt": "2026-10-09T13:25:30.335Z"
+    }
+  },
+  "metrics": {
+    "firstContentfulPaintMs": {
+      "min": 60,
+      "max": 112
+    },
+    "routeNetworkIdleMs": {
+      "min": 1244,
+      "max": 5903
+    },
+    "mutationConfirmationMs": {
+      "min": 2358,
+      "max": 6085
+    },
+    "calendar": [
+      {
+        "operation": "optimistic create",
+        "ms": 68
+      },
+      {
+        "operation": "recurring optimistic create",
+        "ms": 55
+      },
+      {
+        "operation": "optimistic drop after pointer release",
+        "ms": 75
+      },
+      {
+        "operation": "cached week navigation",
+        "ms": 55
+      }
+    ]
+  },
+  "limits": "Local production builds and UUID-scoped audit fixtures; remote services. Streamed first paint is not loaded content. Email, global cron execution and production capacity/SLA remain unverified. See GLOBAL_VALIDATION.md.",
+  "e2e": {
+    "startTime": "2026-10-09T13:45:46.576Z",
+    "duration": 139466.171,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -33,7 +33,7 @@ export default function Analytics({ initial }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
   const locale = useLocale();
-  const clock = useNow();
+  const clock = useNow(60000);
   const now = clock || Date.parse(initial.loadedAt ?? initial.user.lastActiveAt);
   const today = localDay(now, data.user.timezone);
   const sessions = getSessions(data);

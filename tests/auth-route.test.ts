@@ -2,7 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ allow: vi.fn(), post: vi.fn(), get: vi.fn(), session: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ getAuth: () => ({ api: { getSession: mocks.session } }) }));
 vi.mock("@/lib/env", () => ({ getEnv: () => ({ APP_URL: "https://study.example.com" }) }));
-vi.mock("@/lib/rate-limit", () => ({ allowRequest: mocks.allow }));
+vi.mock("@/lib/rate-limit", () => ({ requestLimit: async (...args: unknown[]) => await mocks.allow(...args) ? "allowed" : "limited" }));
 vi.mock("better-auth/next-js", () => ({ toNextJsHandler: () => ({ POST: mocks.post, GET: mocks.get }) }));
 import { GET, POST } from "@/app/api/auth/[...all]/route";
 beforeEach(() => { vi.clearAllMocks(); mocks.allow.mockResolvedValue(true); mocks.post.mockResolvedValue(Response.json({ ok: true })); mocks.get.mockResolvedValue(Response.json({ ok: true })); });

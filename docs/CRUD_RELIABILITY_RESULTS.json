@@ -1,0 +1,1021 @@
+{
+  "generatedAt": "2026-10-10T08:35:16.183Z",
+  "baseURL": "http://localhost:3100",
+  "complete": true,
+  "conditions": "Explicit local production server, remote configured Neon and Redis, three fresh UUID-scoped accounts. No shared settings changes. Cleanup restricted to these accounts.",
+  "results": [
+    {
+      "persona": "new",
+      "case": "registration, onboarding, committed account",
+      "status": "PASS",
+      "ms": 17216
+    },
+    {
+      "persona": "active",
+      "case": "registration, onboarding, committed account",
+      "status": "PASS",
+      "ms": 8695
+    },
+    {
+      "persona": "stress",
+      "case": "registration, onboarding, committed account",
+      "status": "PASS",
+      "ms": 8425
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 3052,
+      "serverTiming": "auth;dur=616.6, mutation;dur=2416.4"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 3534,
+      "serverTiming": "auth;dur=966.8, mutation;dur=2557.3"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 5214,
+      "serverTiming": "auth;dur=596.3, mutation;dur=4606.0"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 5017,
+      "serverTiming": "auth;dur=603.1, mutation;dur=4408.6"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 2853,
+      "serverTiming": "auth;dur=606.9, mutation;dur=2241.5"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 2829,
+      "serverTiming": "auth;dur=619.5, mutation;dur=2204.8"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 3257,
+      "serverTiming": "auth;dur=608.7, mutation;dur=2642.0"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 3098,
+      "serverTiming": "auth;dur=605.1, mutation;dur=2488.0"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "subject"
+      ],
+      "ms": 3150,
+      "serverTiming": "auth;dur=596.4, mutation;dur=2549.0"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 3316,
+      "serverTiming": "auth;dur=597.7, mutation;dur=2714.1"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 3426,
+      "serverTiming": "auth;dur=596.2, mutation;dur=2825.2"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 3287,
+      "serverTiming": "auth;dur=601.4, mutation;dur=2680.4"
+    },
+    {
+      "persona": "new",
+      "case": "subject create/update/delete confirmations survive immediate reload",
+      "status": "PASS",
+      "ms": 18448
+    },
+    {
+      "persona": "active",
+      "case": "subject create/update/delete confirmations survive immediate reload",
+      "status": "PASS",
+      "ms": 18240
+    },
+    {
+      "persona": "stress",
+      "case": "subject create/update/delete confirmations survive immediate reload",
+      "status": "PASS",
+      "ms": 18547
+    },
+    {
+      "persona": "active",
+      "case": "large dataset: 200 topics, 3000 sessions, 125 resources",
+      "status": "PASS",
+      "ms": 1752
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "topic"
+      ],
+      "ms": 3600,
+      "serverTiming": "auth;dur=851.2, mutation;dur=2740.5"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "topic"
+      ],
+      "ms": 3694,
+      "serverTiming": "auth;dur=816.2, mutation;dur=2869.8"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "topic"
+      ],
+      "ms": 3470,
+      "serverTiming": "auth;dur=648.9, mutation;dur=2812.9"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "topic"
+      ],
+      "ms": 3138,
+      "serverTiming": "auth;dur=620.6, mutation;dur=2511.5"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "topic"
+      ],
+      "ms": 3231,
+      "serverTiming": "auth;dur=618.6, mutation;dur=2602.9"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "topic"
+      ],
+      "ms": 3130,
+      "serverTiming": "auth;dur=681.2, mutation;dur=2441.3"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 3208,
+      "serverTiming": "auth;dur=613.1, mutation;dur=2587.0"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 3219,
+      "serverTiming": "auth;dur=704.8, mutation;dur=2508.8"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 3509,
+      "serverTiming": "auth;dur=824.9, mutation;dur=2680.0"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 5055,
+      "serverTiming": "auth;dur=584.9, mutation;dur=4464.8"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 5101,
+      "serverTiming": "auth;dur=637.8, mutation;dur=4460.0"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 5241,
+      "serverTiming": "auth;dur=620.4, mutation;dur=4616.9"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 2915,
+      "serverTiming": "auth;dur=575.4, mutation;dur=2335.1"
+    },
+    {
+      "persona": "stress",
+      "case": "topic create/update/delete and dependent references survive reload",
+      "status": "PASS",
+      "ms": 27657
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 2287,
+      "serverTiming": "auth;dur=678.5, mutation;dur=1604.6"
+    },
+    {
+      "persona": "new",
+      "case": "topic create/update/delete and dependent references survive reload",
+      "status": "PASS",
+      "ms": 28490
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 2342,
+      "serverTiming": "auth;dur=601.0, mutation;dur=1730.0"
+    },
+    {
+      "persona": "active",
+      "case": "topic create/update/delete and dependent references survive reload",
+      "status": "PASS",
+      "ms": 29499
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 3003,
+      "serverTiming": "auth;dur=594.1, mutation;dur=2401.7"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 3117,
+      "serverTiming": "auth;dur=816.4, mutation;dur=2294.5"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2883,
+      "serverTiming": "auth;dur=593.2, mutation;dur=2285.7"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2876,
+      "serverTiming": "auth;dur=593.4, mutation;dur=2279.4"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2883,
+      "serverTiming": "auth;dur=602.5, mutation;dur=2275.8"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2906,
+      "serverTiming": "auth;dur=611.7, mutation;dur=2290.7"
+    },
+    {
+      "persona": "new",
+      "case": "note create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 13470
+    },
+    {
+      "persona": "stress",
+      "case": "note create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 14935
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2854,
+      "serverTiming": "auth;dur=612.7, mutation;dur=2231.5"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2789,
+      "serverTiming": "auth;dur=587.0, mutation;dur=2191.8"
+    },
+    {
+      "persona": "active",
+      "case": "note create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 16940
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2829,
+      "serverTiming": "auth;dur=597.7, mutation;dur=2225.8"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2881,
+      "serverTiming": "auth;dur=604.2, mutation;dur=2272.8"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2823,
+      "serverTiming": "auth;dur=595.6, mutation;dur=2218.6"
+    },
+    {
+      "persona": "stress",
+      "case": "link create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 11353
+    },
+    {
+      "persona": "new",
+      "case": "link create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 13508
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2806,
+      "serverTiming": "auth;dur=583.1, mutation;dur=2216.8"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2818,
+      "serverTiming": "auth;dur=589.8, mutation;dur=2222.6"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2878,
+      "serverTiming": "auth;dur=565.3, mutation;dur=2308.9"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2966,
+      "serverTiming": "auth;dur=576.0, mutation;dur=2385.7"
+    },
+    {
+      "persona": "active",
+      "case": "link create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 13966
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 5062,
+      "serverTiming": "auth;dur=562.2, mutation;dur=4496.4"
+    },
+    {
+      "persona": "stress",
+      "case": "video create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 12044
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 3203,
+      "serverTiming": "auth;dur=740.6, mutation;dur=2453.8"
+    },
+    {
+      "persona": "new",
+      "case": "video create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 14068
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2849,
+      "serverTiming": "auth;dur=577.3, mutation;dur=2265.7"
+    },
+    {
+      "persona": "active",
+      "case": "video create/update/delete with SQL verification and reload",
+      "status": "PASS",
+      "ms": 16497
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2813,
+      "serverTiming": "auth;dur=570.2, mutation;dur=2238.9"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 2880,
+      "serverTiming": "auth;dur=572.4, mutation;dur=2303.8"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 2179,
+      "serverTiming": "auth;dur=598.3, mutation;dur=1576.3"
+    },
+    {
+      "persona": "new",
+      "case": "file upload/edit/delete, immediate reload, exact download and foreign denial",
+      "status": "PASS",
+      "ms": 29027
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 2199,
+      "serverTiming": "auth;dur=603.5, mutation;dur=1589.0"
+    },
+    {
+      "persona": "stress",
+      "case": "file upload/edit/delete, immediate reload, exact download and foreign denial",
+      "status": "PASS",
+      "ms": 33300
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 5070,
+      "serverTiming": "auth;dur=584.5, mutation;dur=4482.7"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "session"
+      ],
+      "ms": 3834,
+      "serverTiming": "auth;dur=580.3, mutation;dur=3249.4"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "session"
+      ],
+      "ms": 3756,
+      "serverTiming": "auth;dur=592.4, mutation;dur=3157.1"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 2484,
+      "serverTiming": "auth;dur=875.8, mutation;dur=1601.9"
+    },
+    {
+      "persona": "active",
+      "case": "file upload/edit/delete, immediate reload, exact download and foreign denial",
+      "status": "PASS",
+      "ms": 28030
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "session"
+      ],
+      "ms": 4102,
+      "serverTiming": "auth;dur=616.4, mutation;dur=3474.1"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "session"
+      ],
+      "ms": 4083,
+      "serverTiming": "auth;dur=586.4, mutation;dur=3492.4"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "session"
+      ],
+      "ms": 4134,
+      "serverTiming": "auth;dur=755.9, mutation;dur=3371.8"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 2905,
+      "serverTiming": "auth;dur=647.6, mutation;dur=2241.7"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 3355,
+      "serverTiming": "auth;dur=1110.5, mutation;dur=2240.0"
+    },
+    {
+      "persona": "stress",
+      "case": "manual sessions create/edit/delete, history and analytics",
+      "status": "PASS",
+      "ms": 14499
+    },
+    {
+      "persona": "new",
+      "case": "manual sessions create/edit/delete, history and analytics",
+      "status": "PASS",
+      "ms": 15750
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "session"
+      ],
+      "ms": 4136,
+      "serverTiming": "auth;dur=592.0, mutation;dur=3534.4"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 3190,
+      "serverTiming": "auth;dur=560.2, mutation;dur=2625.7"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 3219,
+      "serverTiming": "auth;dur=604.7, mutation;dur=2609.9"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 2828,
+      "serverTiming": "auth;dur=629.4, mutation;dur=2191.8"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "delete"
+      ],
+      "ms": 2808,
+      "serverTiming": "auth;dur=617.5, mutation;dur=2187.0"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 2876,
+      "serverTiming": "auth;dur=599.1, mutation;dur=2268.5"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 2855,
+      "serverTiming": "auth;dur=583.3, mutation;dur=2267.4"
+    },
+    {
+      "persona": "active",
+      "case": "manual sessions create/edit/delete, history and analytics",
+      "status": "PASS",
+      "ms": 19400
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 2848,
+      "serverTiming": "auth;dur=620.2, mutation;dur=2219.5"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 3565,
+      "serverTiming": "auth;dur=627.8, mutation;dur=2932.6"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 3787,
+      "serverTiming": "auth;dur=965.5, mutation;dur=2818.6"
+    },
+    {
+      "persona": "stress",
+      "case": "timer start/pause/resume/finish confirmed server state",
+      "status": "PASS",
+      "ms": 16367
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 3595,
+      "serverTiming": "auth;dur=796.5, mutation;dur=2794.1"
+    },
+    {
+      "persona": "new",
+      "case": "timer start/pause/resume/finish confirmed server state",
+      "status": "PASS",
+      "ms": 18331
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "profile"
+      ],
+      "ms": 2592,
+      "serverTiming": "auth;dur=610.5, mutation;dur=1978.1"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 2920,
+      "serverTiming": "auth;dur=627.9, mutation;dur=2287.4"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "profile"
+      ],
+      "ms": 2505,
+      "serverTiming": "auth;dur=600.1, mutation;dur=1901.7"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 2890,
+      "serverTiming": "auth;dur=604.2, mutation;dur=2278.6"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "readNotification"
+      ],
+      "ms": 2348,
+      "serverTiming": "auth;dur=629.1, mutation;dur=1714.3"
+    },
+    {
+      "persona": "new",
+      "case": "mutation timing",
+      "operations": [
+        "readNotification"
+      ],
+      "ms": 2265,
+      "serverTiming": "auth;dur=598.0, mutation;dur=1663.2"
+    },
+    {
+      "persona": "stress",
+      "case": "profile and notification confirmations survive reload",
+      "status": "PASS",
+      "ms": 10432
+    },
+    {
+      "persona": "new",
+      "case": "profile and notification confirmations survive reload",
+      "status": "PASS",
+      "ms": 8393
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "timer"
+      ],
+      "ms": 3649,
+      "serverTiming": "auth;dur=596.1, mutation;dur=3038.8"
+    },
+    {
+      "persona": "active",
+      "case": "timer start/pause/resume/finish confirmed server state",
+      "status": "PASS",
+      "ms": 19678
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "profile"
+      ],
+      "ms": 2530,
+      "serverTiming": "auth;dur=586.7, mutation;dur=1939.7"
+    },
+    {
+      "persona": "active",
+      "case": "mutation timing",
+      "operations": [
+        "readNotification"
+      ],
+      "ms": 2641,
+      "serverTiming": "auth;dur=927.6, mutation;dur=1709.9"
+    },
+    {
+      "persona": "new",
+      "case": "recurring calendar create/move/replay/delete and SQL persistence",
+      "status": "PASS",
+      "ms": 14077
+    },
+    {
+      "persona": "active",
+      "case": "profile and notification confirmations survive reload",
+      "status": "PASS",
+      "ms": 10655
+    },
+    {
+      "persona": "stress",
+      "case": "recurring calendar create/move/replay/delete and SQL persistence",
+      "status": "PASS",
+      "ms": 15822
+    },
+    {
+      "persona": "new",
+      "case": "owned export includes persisted rows and excludes authentication secrets",
+      "status": "PASS",
+      "ms": 2785
+    },
+    {
+      "persona": "stress",
+      "case": "owned export includes persisted rows and excludes authentication secrets",
+      "status": "PASS",
+      "ms": 2561
+    },
+    {
+      "persona": "active",
+      "case": "recurring calendar create/move/replay/delete and SQL persistence",
+      "status": "PASS",
+      "ms": 29262
+    },
+    {
+      "persona": "active",
+      "case": "owned export includes persisted rows and excludes authentication secrets",
+      "status": "PASS",
+      "ms": 5280
+    },
+    {
+      "persona": "new",
+      "case": "cross-user read/write isolation",
+      "status": "PASS",
+      "ms": 9743
+    },
+    {
+      "persona": "active",
+      "case": "cross-user read/write isolation",
+      "status": "PASS",
+      "ms": 10598
+    },
+    {
+      "persona": "stress",
+      "case": "cross-user read/write isolation",
+      "status": "PASS",
+      "ms": 8046
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 3402,
+      "serverTiming": "auth;dur=820.3, mutation;dur=2576.5"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 5326,
+      "serverTiming": "auth;dur=834.5, mutation;dur=4483.4"
+    },
+    {
+      "persona": "stress",
+      "case": "mutation timing",
+      "operations": [
+        "resource"
+      ],
+      "ms": 5202,
+      "serverTiming": "auth;dur=2770.3, mutation;dur=2428.0"
+    },
+    {
+      "persona": "stress",
+      "case": "concurrent writes and stale note preimage rejection",
+      "status": "PASS",
+      "ms": 19704
+    },
+    {
+      "persona": "stress",
+      "case": "optimistic feedback during held acknowledgement",
+      "ms": 184
+    },
+    {
+      "persona": "stress",
+      "case": "lost response: one write, uncertainty warning, navigation, reload and committed database row",
+      "status": "PASS",
+      "ms": 11163
+    },
+    {
+      "persona": "stress",
+      "case": "known rejection rolls back the optimistic row and reports failure",
+      "status": "PASS",
+      "ms": 1534
+    },
+    {
+      "persona": "stress",
+      "case": "expired session returns 401 without writing",
+      "status": "PASS",
+      "ms": 2959
+    },
+    {
+      "persona": "new",
+      "case": "fixture cleanup",
+      "status": "PASS"
+    },
+    {
+      "persona": "active",
+      "case": "fixture cleanup",
+      "status": "PASS"
+    },
+    {
+      "persona": "stress",
+      "case": "fixture cleanup",
+      "status": "PASS"
+    }
+  ]
+}

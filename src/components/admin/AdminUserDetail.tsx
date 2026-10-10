@@ -29,7 +29,7 @@ interface Props {
 /** Statistics projection excludes resources, notes and session note text. */
 export default function AdminUserDetail({ initial, id }: Props) {
   const data = useWorkspace(initial);
-  const now = useNow();
+  const now = useNow(60000);
   const t = useTranslations("studyflow");
   const locale = useLocale();
   const stats = getLearnerStatistics(data, id);

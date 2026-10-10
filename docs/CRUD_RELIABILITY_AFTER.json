@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-10-10T08:37:34.263Z",
+  "baseURL": "http://localhost:3100",
+  "results": [
+    {
+      "case": "subject: confirmation then direct database read",
+      "status": "PASS",
+      "ms": 8654,
+      "authoritativeRows": true
+    },
+    {
+      "case": "resource: confirmation then direct database read",
+      "status": "PASS",
+      "ms": 3640,
+      "authoritativeRows": true
+    },
+    {
+      "case": "Library persisted row delete then reload",
+      "status": "PASS",
+      "mutationRequests": 1,
+      "visibleAfterReload": false,
+      "databaseRows": 0
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-10-09T14:06:21.535Z",
+  "results": [
+    {
+      "case": "subject: confirmation then direct database read",
+      "status": "PASS",
+      "ms": 7141,
+      "authoritativeRows": false
+    },
+    {
+      "case": "resource: confirmation then direct database read",
+      "status": "PASS",
+      "ms": 5800,
+      "authoritativeRows": false
+    },
+    {
+      "case": "Library persisted row delete then reload",
+      "status": "REPRODUCED",
+      "mutationRequests": 0,
+      "visibleAfterReload": true,
+      "databaseRows": 1
+    }
+  ],
+  "baseURL": "http://localhost:3000",
+  "conditions": "Original defect reproduction on the development server, before application reliability edits."
+}

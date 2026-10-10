@@ -5,6 +5,7 @@ import { getScheduleBlocksInRange, rangeSchema } from "@/lib/services/lists";
 import { CalendarError, mutateCalendar, getCalendarBlock } from "@/lib/services/calendar";
 import { uuidSchema } from "@/lib/validation";
 import { timed } from "@/lib/perf";
+import { AuthenticationUnavailable } from "@/lib/auth/errors";
 
 export const runtime = "nodejs";
 const response = (value: unknown, status = 200, timing?: string) => Response.json(value, { status,
@@ -16,7 +17,7 @@ async function account() {
   return user;
 }
 function failure(error: unknown) {
-  return response({ ok: false, error: error instanceof CalendarError ? error.message : "saveFailed" }, error instanceof CalendarError ? error.status : 503);
+  return response({ ok: false, error: error instanceof CalendarError ? error.message : error instanceof AuthenticationUnavailable ? "authenticationUnavailable" : "databaseUnavailable" }, error instanceof CalendarError ? error.status : 503);
 }
 export async function GET(request: Request) {
   const started = performance.now();

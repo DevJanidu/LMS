@@ -1,0 +1,30 @@
+import { chromium, expect } from '@playwright/test';
+import { readFileSync, writeFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const fixture=JSON.parse(readFileSync('.audit-local/fixtures.json','utf8'));
+const baseURL=process.env.APP_URL??'http://localhost:3100';
+assert(fixture.users[0].email.startsWith('audit-'));
+const browser=await chromium.launch({channel:'chrome',headless:true});
+const context=await browser.newContext({baseURL});
+const results=[];
+try {
+  assert((await context.request.post('/api/auth/sign-in/email',{headers:{Origin:baseURL},data:{email:fixture.users[0].email,password:fixture.password}})).ok());
+  const page=await context.newPage();let release;let intercepted=false;
+  const hold=new Promise(resolve=>{release=resolve;});
+  await page.route('**/api/workspace',async route=>{if(route.request().method()!=='POST')return route.continue();intercepted=true;await hold;await route.abort().catch(()=>{});});
+  await page.goto('/subjects');
+  await page.getByRole('button',{name:'Add Subject',exact:true}).click();
+  const title=`Pending audit ${crypto.randomUUID()}`;
+  await page.getByLabel('Title',{exact:true}).fill(title);
+  await page.getByRole('dialog').getByRole('button',{name:'Save',exact:true}).click();
+  await expect.poll(()=>intercepted).toBe(true);
+  await expect(page.getByRole('link',{name:title,exact:true})).toBeVisible();
+  const saving=await page.getByRole('status').filter({hasText:'Saving changes'}).count();
+  page.on('dialog',dialog=>dialog.accept());
+  await page.reload();release();
+  const warning=await page.getByRole('alert').filter({hasText:'Some changes were not confirmed'}).count();
+  const response=await(await context.request.get('/api/workspace?groups=subjects')).json();
+  assert(!response.fields.subjects.some(row=>row.title===title));
+  results.push({case:'reload while optimistic create has not reached server',status:saving&&warning?'PASS':'REPRODUCED',savingVisible:Boolean(saving),uncertaintyVisibleAfterReload:Boolean(warning),persisted:false,conditions:'Mutation intercepted before reaching server; no database write was sent.'});
+} finally {await browser.close();writeFileSync(`docs/CRUD_PENDING_${process.argv.includes('--after')?'AFTER':'BASELINE'}.json`,JSON.stringify({generatedAt:new Date().toISOString(),results},null,2));}
+console.info(JSON.stringify(results));

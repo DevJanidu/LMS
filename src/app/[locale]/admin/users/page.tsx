@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getWorkspace } from "@/lib/services/workspace";
+import { adminPageWorkspace } from "@/lib/services/focused-workspace";
 import AdminUsers from "@/components/admin/AdminUsers";
 import { listAdminUsers, adminUserFilterSchema } from "@/lib/services/admin-users";
 export default async function Page({
@@ -11,7 +11,7 @@ export default async function Page({
   const { locale } = await params;
   setRequestLocale(locale);
   await requireAdmin();
-  const [workspace, initialPage] = await Promise.all([getWorkspace(), listAdminUsers(adminUserFilterSchema.parse({}))]);
+  const [workspace, initialPage] = await Promise.all([adminPageWorkspace(), listAdminUsers(adminUserFilterSchema.parse({}))]);
   return <AdminUsers initial={workspace} initialPage={initialPage} />;
 }
 

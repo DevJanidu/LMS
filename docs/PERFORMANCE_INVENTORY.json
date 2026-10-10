@@ -1,0 +1,4439 @@
+{
+  "generatedAt": "2026-10-10T07:07:05.706Z",
+  "sourceFiles": 216,
+  "routes": [
+    {
+      "file": "src/app/api/auth/[...all]/route.ts",
+      "path": "/api/auth/[...all]",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/calendar/route.ts",
+      "path": "/api/calendar",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/cron/reminders/route.ts",
+      "path": "/api/cron/reminders",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/cron/retention/route.ts",
+      "path": "/api/cron/retention",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/cron/storage/route.ts",
+      "path": "/api/cron/storage",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/cron/timers/route.ts",
+      "path": "/api/cron/timers",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/export/route.ts",
+      "path": "/api/export",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/files/[id]/route.ts",
+      "path": "/api/files/[id]",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/health/route.ts",
+      "path": "/api/health",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/workspace/query/route.ts",
+      "path": "/api/workspace/query",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/api/workspace/route.ts",
+      "path": "/api/workspace",
+      "kind": "api"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/analytics/page.tsx",
+      "path": "/analytics",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/calendar/page.tsx",
+      "path": "/calendar",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/dashboard/page.tsx",
+      "path": "/dashboard",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/resources/page.tsx",
+      "path": "/resources",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/settings/page.tsx",
+      "path": "/settings",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/study/history/page.tsx",
+      "path": "/study/history",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/study/page.tsx",
+      "path": "/study",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/page.tsx",
+      "path": "/subjects",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/[id]/page.tsx",
+      "path": "/subjects/[id]",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/error-404/page.tsx",
+      "path": "/error-404",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/error-500/page.tsx",
+      "path": "/error-500",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/forgot-password/page.tsx",
+      "path": "/forgot-password",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/login/page.tsx",
+      "path": "/login",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/context/page.tsx",
+      "path": "/onboarding/context",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/goal/page.tsx",
+      "path": "/onboarding/goal",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/page.tsx",
+      "path": "/onboarding",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/subject/page.tsx",
+      "path": "/onboarding/subject",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/topics/page.tsx",
+      "path": "/onboarding/topics",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/privacy/page.tsx",
+      "path": "/privacy",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/register/page.tsx",
+      "path": "/register",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/reset-password/page.tsx",
+      "path": "/reset-password",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/(public)/terms/page.tsx",
+      "path": "/terms",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/admin/analytics/page.tsx",
+      "path": "/admin/analytics",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/admin/page.tsx",
+      "path": "/admin",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/admin/settings/page.tsx",
+      "path": "/admin/settings",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/admin/storage/page.tsx",
+      "path": "/admin/storage",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/admin/users/page.tsx",
+      "path": "/admin/users",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/admin/users/[id]/page.tsx",
+      "path": "/admin/users/[id]",
+      "kind": "page"
+    },
+    {
+      "file": "src/app/[locale]/page.tsx",
+      "path": "/",
+      "kind": "page"
+    }
+  ],
+  "components": [
+    {
+      "file": "src/components/admin/AdminAnalytics.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminOperations.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminOverview.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminSettings.tsx",
+      "module": "admin",
+      "mutations": [
+        "updateWorkspace"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace",
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onSubmit"
+      ],
+      "form": true,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminStorage.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminUserDetail.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminUsers.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [
+        "queryAdminUsers"
+      ],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/UserStatusAction.tsx",
+      "module": "admin",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/Analytics.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/HeatmapCalendar.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/LearningInsights.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/StreakBadge.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/StudyChart.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/auth/AuthForm.tsx",
+      "module": "auth",
+      "mutations": [
+        "useActionState"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": true,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/CalendarActionDialog.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onChange",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/CalendarDeleteTarget.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/PlannerEvent.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/PlannerLoading.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/PlannerSkeleton.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/PlannerToolbar.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/ScheduleDateTimeField.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/StudyBlockDetails.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/StudyBlockModal.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onSubmit",
+        "onSubjectChange",
+        "onTopicChange",
+        "onChange",
+        "onClick",
+        "onCheckedChange",
+        "onConfirm"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/StudyCalendar.tsx",
+      "module": "calendar",
+      "mutations": [
+        "mutate"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onSchedule",
+        "onNavigate",
+        "onViewChange",
+        "onClick",
+        "onClose",
+        "onSave",
+        "onDelete",
+        "onEdit",
+        "onDuplicate",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/common/ComponentCard.tsx",
+      "module": "common",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/common/PageBreadCrumb.tsx",
+      "module": "common",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/dashboard/Dashboard.tsx",
+      "module": "dashboard",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/dashboard/DashboardGreeting.tsx",
+      "module": "dashboard",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onError"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/dashboard/TodayPlan.tsx",
+      "module": "dashboard",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/dashboard/WeeklyJourney.tsx",
+      "module": "dashboard",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/ComboboxField.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onOpenChange",
+        "onFocus",
+        "onClick",
+        "onKeyDown",
+        "onChange",
+        "onOpenAutoFocus",
+        "onMouseEnter"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/DatePickerField.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onSelect",
+        "onOpenChange",
+        "onValueChange",
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/input/InputField.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/Label.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/NumberInput.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onChange",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/SelectField.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onOpenChange",
+        "onValueChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/onboarding/OnboardingWizard.tsx",
+      "module": "onboarding",
+      "mutations": [
+        "completeOnboarding"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onSubmit",
+        "onChange",
+        "onClick"
+      ],
+      "form": true,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/resources/NotePreview.tsx",
+      "module": "resources",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/resources/ResourceModal.tsx",
+      "module": "resources",
+      "mutations": [
+        "createUpload",
+        "finishUpload",
+        "runOperation"
+      ],
+      "reads": [
+        "fetch"
+      ],
+      "loaders": [
+        "reloadWorkspace"
+      ],
+      "interactions": [
+        "onClose",
+        "onSubmit",
+        "onSubjectChange",
+        "onTopicChange",
+        "onChange"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/resources/Resources.tsx",
+      "module": "resources",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [
+        "resourceDetail",
+        "queryResources"
+      ],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onChange",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/settings/Settings.tsx",
+      "module": "settings",
+      "mutations": [
+        "updateWorkspace",
+        "deleteMyAccount"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace",
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onSubmit",
+        "onChange",
+        "onCheckedChange",
+        "onClick",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/FocusLauncher.tsx",
+      "module": "study",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onClose",
+        "onStarted"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/SessionModal.tsx",
+      "module": "study",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onSubmit",
+        "onSubjectChange",
+        "onTopicChange"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/SessionTable.tsx",
+      "module": "study",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/StudyHistory.tsx",
+      "module": "study",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [
+        "querySessions"
+      ],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onSubjectChange",
+        "onTopicChange",
+        "onChange",
+        "onEdit",
+        "onDelete",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/StudySelectors.tsx",
+      "module": "study",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/TimerWidget.tsx",
+      "module": "study",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onSubmit",
+        "onSubjectChange",
+        "onTopicChange",
+        "onChange",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ActiveTimerIndicator.tsx",
+      "module": "studyflow",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ConfirmDialog.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/EmptyState.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ErrorPage.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ErrorState.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/FormFields.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/LoadingSkeleton.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/PageHeader.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/Pagination.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ProgressBar.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ShellDetails.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "getShellWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ShellDetailsHydrator.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "hydrateShellWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/StatTile.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/styles.ts",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/TextLink.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ThemeToggle.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/WorkspaceHeader.tsx",
+      "module": "studyflow",
+      "mutations": [
+        "updateWorkspace",
+        "signOut"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace",
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/WorkspacePageLoading.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/WorkspaceShell.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [
+        "queryAdminUsers",
+        "searchWorkspace"
+      ],
+      "loaders": [
+        "useWorkspace",
+        "searchWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onOpen",
+        "onSearch",
+        "onClose",
+        "onChange"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/WorkspaceShellLoading.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/SubjectCard.tsx",
+      "module": "subjects",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/SubjectDetail.tsx",
+      "module": "subjects",
+      "mutations": [
+        "updateWorkspace"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace",
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/SubjectModal.tsx",
+      "module": "subjects",
+      "mutations": [
+        "updateWorkspace"
+      ],
+      "reads": [],
+      "loaders": [
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onClose",
+        "onSubmit"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/SubjectOverview.tsx",
+      "module": "subjects",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/Subjects.tsx",
+      "module": "subjects",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onChange",
+        "onClose"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/TopicList.tsx",
+      "module": "subjects",
+      "mutations": [
+        "updateWorkspace",
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onSubmit",
+        "onChange",
+        "onClick",
+        "onDragStart",
+        "onDragOver",
+        "onDrop",
+        "onCheckedChange",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/badge/Badge.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/button/Button.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/Calendar.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/Checkbox.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/modal/index.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onCancel",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/Popover.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/Select.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/table/index.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    }
+  ],
+  "sources": [
+    {
+      "file": "src/app/api/auth/[...all]/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/calendar/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "getScheduleBlocksInRange"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/cron/reminders/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/cron/retention/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/cron/storage/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/cron/timers/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/export/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/files/[id]/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/health/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/workspace/query/route.ts",
+      "module": "api",
+      "mutations": [],
+      "reads": [
+        "querySessions",
+        "queryResources",
+        "queryAdminUsers",
+        "queryBlocks",
+        "resourceDetail",
+        "searchWorkspace"
+      ],
+      "loaders": [
+        "searchWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/api/workspace/route.ts",
+      "module": "api",
+      "mutations": [
+        "mutate"
+      ],
+      "reads": [],
+      "loaders": [
+        "getShellWorkspace",
+        "subjectPageWorkspace",
+        "analyticsPageWorkspace",
+        "getScheduleBlocksInRange",
+        "platformAnalytics",
+        "listSessions",
+        "resourcePageWorkspace",
+        "listResources"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/analytics/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/analytics/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "analyticsPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/calendar/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/calendar/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "calendarPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/dashboard/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/dashboard/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "dashboardStatsWorkspace",
+        "dashboardBodyWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/error.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/layout.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "shellBaseWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/not-found.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/resources/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/resources/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "resourcePageWorkspace",
+        "listResources"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/settings/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/settings/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "getShellWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/study/history/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "studyPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/study/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/study/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "studyPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "subjectPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/[id]/error.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/[id]/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(learner)/subjects/[id]/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "subjectPageWorkspace",
+        "subjectDetailWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/error-404/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/error-500/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/error.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/forgot-password/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/layout.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/login/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/not-found.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/context/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/goal/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "getOnboardingWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/subject/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/onboarding/topics/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/privacy/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/register/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/reset-password/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/(public)/terms/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/actions.ts",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [
+        "querySessions",
+        "queryBlocks",
+        "searchWorkspace",
+        "resourceDetail",
+        "queryResources",
+        "queryAdminUsers"
+      ],
+      "loaders": [
+        "searchWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": true
+    },
+    {
+      "file": "src/app/[locale]/admin/analytics/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "adminPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/error.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/layout.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "shellBaseWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/not-found.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "adminPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/settings/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "adminPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/storage/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "adminPageWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/users/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "adminPageWorkspace",
+        "listAdminUsers"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/users/[id]/error.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/users/[id]/loading.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/admin/users/[id]/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "adminDetailWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/auth-actions.ts",
+      "module": "[locale]",
+      "mutations": [
+        "resetPassword",
+        "signOut"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/error.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/file-actions.ts",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/layout.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/not-found.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/app/[locale]/page.tsx",
+      "module": "[locale]",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminAnalytics.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminOperations.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminOverview.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminSettings.tsx",
+      "module": "admin",
+      "mutations": [
+        "updateWorkspace"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace",
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onSubmit"
+      ],
+      "form": true,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminStorage.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminUserDetail.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/AdminUsers.tsx",
+      "module": "admin",
+      "mutations": [],
+      "reads": [
+        "queryAdminUsers"
+      ],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/admin/UserStatusAction.tsx",
+      "module": "admin",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/Analytics.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/HeatmapCalendar.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/LearningInsights.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/StreakBadge.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/analytics/StudyChart.tsx",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/auth/AuthForm.tsx",
+      "module": "auth",
+      "mutations": [
+        "useActionState"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": true,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/CalendarActionDialog.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onChange",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/CalendarDeleteTarget.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/PlannerEvent.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/PlannerLoading.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/PlannerSkeleton.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/PlannerToolbar.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/ScheduleDateTimeField.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/StudyBlockDetails.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/StudyBlockModal.tsx",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onSubmit",
+        "onSubjectChange",
+        "onTopicChange",
+        "onChange",
+        "onClick",
+        "onCheckedChange",
+        "onConfirm"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/calendar/StudyCalendar.tsx",
+      "module": "calendar",
+      "mutations": [
+        "mutate"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onSchedule",
+        "onNavigate",
+        "onViewChange",
+        "onClick",
+        "onClose",
+        "onSave",
+        "onDelete",
+        "onEdit",
+        "onDuplicate",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/common/ComponentCard.tsx",
+      "module": "common",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/common/PageBreadCrumb.tsx",
+      "module": "common",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/dashboard/Dashboard.tsx",
+      "module": "dashboard",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/dashboard/DashboardGreeting.tsx",
+      "module": "dashboard",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onError"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/dashboard/TodayPlan.tsx",
+      "module": "dashboard",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/dashboard/WeeklyJourney.tsx",
+      "module": "dashboard",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/ComboboxField.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onOpenChange",
+        "onFocus",
+        "onClick",
+        "onKeyDown",
+        "onChange",
+        "onOpenAutoFocus",
+        "onMouseEnter"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/DatePickerField.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onSelect",
+        "onOpenChange",
+        "onValueChange",
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/input/InputField.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/Label.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/NumberInput.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onChange",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/form/SelectField.tsx",
+      "module": "form",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onOpenChange",
+        "onValueChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/onboarding/OnboardingWizard.tsx",
+      "module": "onboarding",
+      "mutations": [
+        "completeOnboarding"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onSubmit",
+        "onChange",
+        "onClick"
+      ],
+      "form": true,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/resources/NotePreview.tsx",
+      "module": "resources",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/resources/ResourceModal.tsx",
+      "module": "resources",
+      "mutations": [
+        "createUpload",
+        "finishUpload",
+        "runOperation"
+      ],
+      "reads": [
+        "fetch"
+      ],
+      "loaders": [
+        "reloadWorkspace"
+      ],
+      "interactions": [
+        "onClose",
+        "onSubmit",
+        "onSubjectChange",
+        "onTopicChange",
+        "onChange"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/resources/Resources.tsx",
+      "module": "resources",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [
+        "resourceDetail",
+        "queryResources"
+      ],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onChange",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/settings/Settings.tsx",
+      "module": "settings",
+      "mutations": [
+        "updateWorkspace",
+        "deleteMyAccount"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace",
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onSubmit",
+        "onChange",
+        "onCheckedChange",
+        "onClick",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/FocusLauncher.tsx",
+      "module": "study",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onClose",
+        "onStarted"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/SessionModal.tsx",
+      "module": "study",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onSubmit",
+        "onSubjectChange",
+        "onTopicChange"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/SessionTable.tsx",
+      "module": "study",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/StudyHistory.tsx",
+      "module": "study",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [
+        "querySessions"
+      ],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onSubjectChange",
+        "onTopicChange",
+        "onChange",
+        "onEdit",
+        "onDelete",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/StudySelectors.tsx",
+      "module": "study",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/study/TimerWidget.tsx",
+      "module": "study",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onSubmit",
+        "onSubjectChange",
+        "onTopicChange",
+        "onChange",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ActiveTimerIndicator.tsx",
+      "module": "studyflow",
+      "mutations": [
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ConfirmDialog.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClose",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/EmptyState.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ErrorPage.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ErrorState.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/FormFields.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/LoadingSkeleton.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/PageHeader.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/Pagination.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ProgressBar.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ShellDetails.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "getShellWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ShellDetailsHydrator.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "hydrateShellWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/StatTile.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/styles.ts",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/TextLink.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/ThemeToggle.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/WorkspaceHeader.tsx",
+      "module": "studyflow",
+      "mutations": [
+        "updateWorkspace",
+        "signOut"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace",
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onChange"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/WorkspacePageLoading.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/WorkspaceShell.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [
+        "queryAdminUsers",
+        "searchWorkspace"
+      ],
+      "loaders": [
+        "useWorkspace",
+        "searchWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onOpen",
+        "onSearch",
+        "onClose",
+        "onChange"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/studyflow/WorkspaceShellLoading.tsx",
+      "module": "studyflow",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/SubjectCard.tsx",
+      "module": "subjects",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/SubjectDetail.tsx",
+      "module": "subjects",
+      "mutations": [
+        "updateWorkspace"
+      ],
+      "reads": [],
+      "loaders": [
+        "useWorkspace",
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/SubjectModal.tsx",
+      "module": "subjects",
+      "mutations": [
+        "updateWorkspace"
+      ],
+      "reads": [],
+      "loaders": [
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onClose",
+        "onSubmit"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/SubjectOverview.tsx",
+      "module": "subjects",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/Subjects.tsx",
+      "module": "subjects",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "useWorkspace"
+      ],
+      "interactions": [
+        "onClick",
+        "onChange",
+        "onClose"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/subjects/TopicList.tsx",
+      "module": "subjects",
+      "mutations": [
+        "updateWorkspace",
+        "runOperation"
+      ],
+      "reads": [],
+      "loaders": [
+        "updateWorkspace"
+      ],
+      "interactions": [
+        "onSubmit",
+        "onChange",
+        "onClick",
+        "onDragStart",
+        "onDragOver",
+        "onDrop",
+        "onCheckedChange",
+        "onClose",
+        "onConfirm"
+      ],
+      "form": true,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/badge/Badge.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/button/Button.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onClick"
+      ],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/Calendar.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/Checkbox.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/modal/index.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [
+        "onCancel",
+        "onClick"
+      ],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/Popover.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/Select.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/components/ui/table/index.tsx",
+      "module": "ui",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/context/SidebarContext.tsx",
+      "module": "SidebarContext.tsx",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/context/ThemeContext.tsx",
+      "module": "ThemeContext.tsx",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/hooks/useModal.ts",
+      "module": "useModal.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": true,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/hooks/useQueryRefresh.ts",
+      "module": "useQueryRefresh.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/i18n/languages.ts",
+      "module": "languages.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/i18n/navigation.ts",
+      "module": "navigation.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/i18n/request.ts",
+      "module": "request.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/i18n/routing.ts",
+      "module": "routing.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/icons/index.tsx",
+      "module": "index.tsx",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/instrumentation.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/analytics/admin.ts",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/analytics/index.ts",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/analytics/platform.ts",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "platformAnalytics"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/analytics/server.ts",
+      "module": "analytics",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "learnerAnalytics"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/auth/destination.ts",
+      "module": "auth",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/auth/errors.ts",
+      "module": "auth",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/auth/index.ts",
+      "module": "auth",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/auth/return-path.ts",
+      "module": "auth",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/cache/index.ts",
+      "module": "cache",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/calendar/model.ts",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/calendar/store.ts",
+      "module": "calendar",
+      "mutations": [
+        "mutate"
+      ],
+      "reads": [
+        "fetch"
+      ],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/calendar/useCalendar.ts",
+      "module": "calendar",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/constants.ts",
+      "module": "constants.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/cron.ts",
+      "module": "cron.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/csv.ts",
+      "module": "csv.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/db/index.ts",
+      "module": "db",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/db/metrics.ts",
+      "module": "db",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/db/schema.ts",
+      "module": "db",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/email/index.ts",
+      "module": "email",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/env.ts",
+      "module": "env.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/greeting.ts",
+      "module": "greeting.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/perf.ts",
+      "module": "perf.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/rate-limit/index.ts",
+      "module": "rate-limit",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/schedule/index.ts",
+      "module": "schedule",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/admin-users.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/calendar.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/focused-workspace.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "getShellWorkspace",
+        "learnerAnalytics",
+        "subjectPageWorkspace",
+        "listSessions",
+        "listResources",
+        "analyticsPageWorkspace",
+        "platformAnalytics",
+        "listAdminUsers",
+        "shellBaseWorkspace",
+        "studyPageWorkspace",
+        "getScheduleBlocksInRange"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/jobs.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/lists.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "getScheduleBlocksInRange"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/mutation-records.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/mutations.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/resources.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/subject-statistics.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/uploads.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/workspace-reads.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "listSessions",
+        "getBlocksInRange",
+        "listResources",
+        "listAdminUsers"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/services/workspace.ts",
+      "module": "services",
+      "mutations": [],
+      "reads": [],
+      "loaders": [
+        "learnerAnalytics",
+        "platformAnalytics",
+        "loadWorkspace",
+        "shellBaseWorkspace"
+      ],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/storage/index.ts",
+      "module": "storage",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/time.ts",
+      "module": "time.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/timer/index.ts",
+      "module": "timer",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/timer/session-edit.ts",
+      "module": "timer",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/validation/age.ts",
+      "module": "validation",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/validation/calendar.ts",
+      "module": "validation",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/validation/index.ts",
+      "module": "validation",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/validation/onboarding.ts",
+      "module": "validation",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/validation/operations.ts",
+      "module": "validation",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/workspace/confirmation.ts",
+      "module": "workspace",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/workspace/mutations.ts",
+      "module": "workspace",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/workspace/notifications.ts",
+      "module": "workspace",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/workspace/preconditions.ts",
+      "module": "workspace",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/workspace/queries.ts",
+      "module": "workspace",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/workspace/store.ts",
+      "module": "workspace",
+      "mutations": [],
+      "reads": [
+        "fetch"
+      ],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/workspace/transport.ts",
+      "module": "workspace",
+      "mutations": [],
+      "reads": [
+        "fetch"
+      ],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/lib/workspace/write-status.ts",
+      "module": "workspace",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/proxy.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/svg.d.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/types/index.ts",
+      "module": "index.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    },
+    {
+      "file": "src/utils/index.ts",
+      "module": "index.ts",
+      "mutations": [],
+      "reads": [],
+      "loaders": [],
+      "interactions": [],
+      "form": false,
+      "dialog": false,
+      "globalPending": false,
+      "refresh": false
+    }
+  ],
+  "modules": [
+    "admin",
+    "analytics",
+    "auth",
+    "calendar",
+    "common",
+    "dashboard",
+    "form",
+    "onboarding",
+    "resources",
+    "settings",
+    "study",
+    "studyflow",
+    "subjects",
+    "ui"
+  ]
+}

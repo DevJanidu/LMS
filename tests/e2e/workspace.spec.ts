@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import messages from "../../src/messages/en.json";
 
 test("public pages and unauthenticated route protection", async ({ page }) => {
   await page.goto("/dashboard"); await expect(page).toHaveURL(/\/login\?returnTo=%2Fdashboard$/);
@@ -10,6 +11,42 @@ test("public pages and unauthenticated route protection", async ({ page }) => {
   await page.goto("/privacy"); await expect(page.getByText(/Owner policy placeholder:/)).toBeVisible();
 });
 
+test("filled onboarding recovers from a failed final save without duplicating records", async ({ page, context }) => {
+  test.setTimeout(180000);
+  test.skip(!process.env.E2E_DATABASE_READY, "Requires the configured test database.");
+  const t = messages.studyflow;
+  await page.goto("/register");
+  await page.getByLabel("Name", { exact: true }).fill("Onboarding Fixture");
+  await page.getByLabel("Email", { exact: true }).fill(`e2e-${crypto.randomUUID()}@example.com`);
+  await page.getByLabel("Password", { exact: true }).fill("fixture-password-only");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Sign up", exact: true }).click();
+  await expect(page).toHaveURL(/\/onboarding$/);
+  await page.getByRole("button", { name: t.continue, exact: true }).click();
+  await page.getByRole("button", { name: t.continue, exact: true }).click();
+  await page.getByLabel(t.subjectTitle, { exact: true }).fill("Filled onboarding fixture");
+  await page.getByRole("button", { name: t.continue, exact: true }).click();
+  await page.getByLabel(t.onePerLine, { exact: true }).fill("Basics\nPractice");
+  await page.getByRole("button", { name: t.continue, exact: true }).click();
+  await page.route("**/onboarding", route => route.request().method() === "POST"
+    ? route.fulfill({ status: 503, contentType: "text/plain", body: "Fixture failure" }) : route.continue());
+  await page.getByRole("button", { name: t.goDashboard, exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: t.saveFailed })).toBeVisible();
+  await expect(page.getByRole("button", { name: t.goDashboard, exact: true })).toBeEnabled();
+  await page.unroute("**/onboarding");
+  await page.getByRole("button", { name: t.goDashboard, exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  const workspace = await (await context.request.get("/api/workspace?groups=subjects,shell")).json();
+  const subjects = workspace.fields.subjects.filter((row: { title: string }) => row.title === "Filled onboarding fixture");
+  expect(subjects).toHaveLength(1);
+  expect(workspace.fields.topics.filter((row: { subjectId: string }) => row.subjectId === subjects[0].id)).toHaveLength(2);
+  expect(workspace.fields.user.weeklyTargetMinutes).toBe(720);
+  await page.goto("/settings");
+  await page.getByRole("button", { name: t.deleteAccount, exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: t.confirm, exact: true }).click();
+  await expect(page).toHaveURL(/\/register$/);
+});
+
 test("learner registration, topics, server timer refresh and history", async ({ page }) => {
   test.setTimeout(300000);
   test.skip(!process.env.E2E_DATABASE_READY, "Requires a migrated disposable Neon branch and configured app environment.");
@@ -18,7 +55,7 @@ test("learner registration, topics, server timer refresh and history", async ({ 
   await page.getByLabel("Name", { exact: true }).fill("Integration Learner");
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByLabel("Password", { exact: true }).fill("fixture-password-only");
-  await page.locator('input[name="terms"]').check();
+  await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Sign up", exact: true }).click();
   await expect(page).toHaveURL(/\/onboarding$/);
   for (let step = 0; step < 5; step++) await page.getByRole("button", { name: "Skip", exact: true }).click();
@@ -26,6 +63,7 @@ test("learner registration, topics, server timer refresh and history", async ({ 
   await page.goto("/subjects?add=1");
   await page.getByLabel("Title", { exact: true }).fill("E2E Subject");
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("link", { name: "E2E Subject", exact: true })).not.toHaveAttribute("aria-disabled", "true");
   await page.getByRole("link", { name: "E2E Subject", exact: true }).click();
   await page.getByRole("tab", { name: "Topics", exact: true }).click();
   await page.getByLabel("New topic").fill("Revision");
@@ -33,7 +71,8 @@ test("learner registration, topics, server timer refresh and history", async ({ 
   await page.getByRole("checkbox", { name: /Completed: Revision/ }).check();
   await expect(page.getByText(/100%/).first()).toBeVisible();
   await page.goto("/study");
-  await page.getByLabel("Subject", { exact: true }).selectOption({ label: "E2E Subject" });
+  await page.getByRole("combobox", { name: "Subject", exact: true }).click();
+  await page.getByRole("option", { name: "E2E Subject", exact: true }).click();
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect(page.getByRole("button", { name: "Pause", exact: true }).first()).toBeVisible();
   await page.getByRole("button", { name: "Pause", exact: true }).first().click();
@@ -49,4 +88,10 @@ test("learner registration, topics, server timer refresh and history", async ({ 
   await page.goto("/study/history");
   await expect(page.getByRole("cell", { name: "E2E Subject", exact: true }).first()).toBeVisible();
   await page.goto("/admin"); await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "Delete my account", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Confirm", exact: true }).click();
+  await expect(page).toHaveURL(/\/register$/);
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/login\?returnTo=%2Fdashboard$/);
 });

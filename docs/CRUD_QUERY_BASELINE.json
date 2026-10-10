@@ -1,0 +1,284 @@
+{
+  "conditions": "Ten representative reads on two audit learners with 1095 sessions each. Read-only EXPLAIN ANALYZE; not a ranking of every query and not a production-scale load test. Plan filter values and private data omitted.",
+  "neonRegionHint": "unknown",
+  "storageRegion": "us-east-2",
+  "vercelRegion": "owner must confirm",
+  "upstashRegion": "owner must confirm",
+  "results": [
+    {
+      "family": "local-day analytics",
+      "sqlExecutionMs": 4.138,
+      "planningMs": 0.197,
+      "networkInclusiveMs": 1660,
+      "nodes": [
+        {
+          "type": "Sort",
+          "rows": 1095,
+          "loops": 1
+        },
+        {
+          "type": "Aggregate",
+          "rows": 1095,
+          "loops": 1
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 1095,
+          "loops": 1
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "study_sessions",
+          "rows": 1095,
+          "loops": 1
+        },
+        {
+          "type": "Memoize",
+          "rows": 1,
+          "loops": 1095
+        },
+        {
+          "type": "Function Scan",
+          "rows": 1,
+          "loops": 365
+        }
+      ]
+    },
+    {
+      "family": "subject totals",
+      "sqlExecutionMs": 0.455,
+      "planningMs": 0.111,
+      "networkInclusiveMs": 1617,
+      "nodes": [
+        {
+          "type": "Aggregate",
+          "rows": 3,
+          "loops": 1
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "study_sessions",
+          "rows": 1095,
+          "loops": 1
+        }
+      ]
+    },
+    {
+      "family": "recent subject sessions",
+      "sqlExecutionMs": 0.588,
+      "planningMs": 0.11,
+      "networkInclusiveMs": 367,
+      "nodes": [
+        {
+          "type": "Subquery Scan",
+          "rows": 9,
+          "loops": 1
+        },
+        {
+          "type": "WindowAgg",
+          "rows": 9,
+          "loops": 1
+        },
+        {
+          "type": "Sort",
+          "rows": 1095,
+          "loops": 1
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "study_sessions",
+          "rows": 1095,
+          "loops": 1
+        }
+      ]
+    },
+    {
+      "family": "history page",
+      "sqlExecutionMs": 0.073,
+      "planningMs": 0.146,
+      "networkInclusiveMs": 354,
+      "nodes": [
+        {
+          "type": "Limit",
+          "rows": 20,
+          "loops": 1
+        },
+        {
+          "type": "Incremental Sort",
+          "rows": 20,
+          "loops": 1
+        },
+        {
+          "type": "Index Scan",
+          "relation": "study_sessions",
+          "index": "study_sessions_owner_start_idx",
+          "rows": 22,
+          "loops": 1
+        }
+      ]
+    },
+    {
+      "family": "history count",
+      "sqlExecutionMs": 0.317,
+      "planningMs": 0.086,
+      "networkInclusiveMs": 369,
+      "nodes": [
+        {
+          "type": "Aggregate",
+          "rows": 1,
+          "loops": 1
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "study_sessions",
+          "rows": 1095,
+          "loops": 1
+        }
+      ]
+    },
+    {
+      "family": "subject progress",
+      "sqlExecutionMs": 1.198,
+      "planningMs": 0.184,
+      "networkInclusiveMs": 384,
+      "nodes": [
+        {
+          "type": "Aggregate",
+          "rows": 3,
+          "loops": 1
+        },
+        {
+          "type": "Sort",
+          "rows": 30,
+          "loops": 1
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 30,
+          "loops": 1
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "topics",
+          "rows": 60,
+          "loops": 1
+        },
+        {
+          "type": "Memoize",
+          "rows": 0.5,
+          "loops": 60
+        },
+        {
+          "type": "Index Only Scan",
+          "relation": "subjects",
+          "index": "subjects_owner_unique",
+          "rows": 0.5,
+          "loops": 6
+        }
+      ]
+    },
+    {
+      "family": "resource metadata page",
+      "sqlExecutionMs": 0.051,
+      "planningMs": 0.095,
+      "networkInclusiveMs": 382,
+      "nodes": [
+        {
+          "type": "Limit",
+          "rows": 0,
+          "loops": 1
+        },
+        {
+          "type": "Sort",
+          "rows": 0,
+          "loops": 1
+        },
+        {
+          "type": "Bitmap Heap Scan",
+          "relation": "resources",
+          "rows": 0,
+          "loops": 1
+        },
+        {
+          "type": "Bitmap Index Scan",
+          "index": "resources_owner_subject_idx",
+          "rows": 0,
+          "loops": 1
+        }
+      ]
+    },
+    {
+      "family": "calendar range",
+      "sqlExecutionMs": 0.026,
+      "planningMs": 0.091,
+      "networkInclusiveMs": 356,
+      "nodes": [
+        {
+          "type": "Index Scan",
+          "relation": "schedule_blocks",
+          "index": "schedule_blocks_owner_start_idx",
+          "rows": 0,
+          "loops": 1
+        }
+      ]
+    },
+    {
+      "family": "platform daily activity",
+      "sqlExecutionMs": 1.428,
+      "planningMs": 0.138,
+      "networkInclusiveMs": 416,
+      "nodes": [
+        {
+          "type": "Aggregate",
+          "rows": 89,
+          "loops": 1
+        },
+        {
+          "type": "Sort",
+          "rows": 534,
+          "loops": 1
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "study_sessions",
+          "rows": 534,
+          "loops": 1
+        }
+      ]
+    },
+    {
+      "family": "platform account growth",
+      "sqlExecutionMs": 0.386,
+      "planningMs": 0.158,
+      "networkInclusiveMs": 369,
+      "nodes": [
+        {
+          "type": "Aggregate",
+          "rows": 90,
+          "loops": 1
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 94,
+          "loops": 1
+        },
+        {
+          "type": "Function Scan",
+          "rows": 90,
+          "loops": 1
+        },
+        {
+          "type": "Materialize",
+          "rows": 5,
+          "loops": 90
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "users",
+          "rows": 5,
+          "loops": 1
+        }
+      ]
+    }
+  ]
+}

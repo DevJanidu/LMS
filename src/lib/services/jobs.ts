@@ -7,6 +7,15 @@ import { localDay, shiftDay, zonedToUtc } from "@/lib/analytics";
 import { getOccurrences } from "@/lib/schedule";
 import type { ScheduleBlock, SubjectColor } from "@/types";
 
+function groupRows<T>(rows: T[], key: (row: T) => string) {
+  const groups = new Map<string, T[]>();
+  for (const row of rows) {
+    const id = key(row), group = groups.get(id);
+    if (group) group.push(row); else groups.set(id, [row]);
+  }
+  return groups;
+}
+
 export async function sweepTimers() {
   const rows = await getDb().update(s.activeTimers).set({
     pausedAt: sql`${s.activeTimers.startedAt} + (${s.activeTimers.confirmedUntilSeconds} + ${s.activeTimers.pausedTotalSeconds}) * interval '1 second'`, needsConfirmation: true,
@@ -41,23 +50,28 @@ export async function generateReminders() {
   const db = getDb(); const now = Date.now();
   const [userRows, prefs, subjects, topics, blocks, exceptions] = await Promise.all([
     db.select({ id: s.users.id, timezone: s.users.timezone }).from(s.users).where(and(eq(s.users.role, "learner"), eq(s.users.status, "active"))),
-    db.select().from(s.preferences),
+    db.select({ userId: s.preferences.userId, reminders: s.preferences.reminders }).from(s.preferences),
     db.select({ id: s.subjects.id, userId: s.subjects.userId, title: s.subjects.title, targetDate: s.subjects.targetDate }).from(s.subjects).where(and(eq(s.subjects.status, "active"), sql`${s.subjects.targetDate} IS NOT NULL`)),
     db.select({ id: s.topics.id, userId: s.subjects.userId, title: s.topics.title, targetDate: s.topics.targetDate }).from(s.topics).innerJoin(s.subjects, eq(s.topics.subjectId, s.subjects.id)).where(and(eq(s.topics.archived, false), sql`${s.topics.status} <> 'completed'`, eq(s.subjects.status, "active"), sql`${s.topics.targetDate} IS NOT NULL`)),
     db.select().from(s.scheduleBlocks).where(sql`${s.scheduleBlocks.endsAt} >= now() - interval '1 day' OR ${s.scheduleBlocks.recurrenceRule} IS NOT NULL`),
     db.select().from(s.scheduleExceptions),
   ]);
+  const reminders = new Map(prefs.map(row => [row.userId, row.reminders]));
+  const subjectGroups = groupRows(subjects, row => row.userId);
+  const topicGroups = groupRows(topics, row => row.userId);
+  const blockGroups = groupRows(blocks, row => row.userId);
+  const exceptionGroups = groupRows(exceptions, row => row.blockId);
   let created = 0;
   for (const user of userRows) {
-    if (prefs.find(row => row.userId === user.id)?.reminders === false) continue;
+    if (reminders.get(user.id) === false) continue;
     const today = localDay(now, user.timezone), tomorrow = shiftDay(today, 1);
     const records: (typeof s.notifications.$inferInsert)[] = [];
-    const plans: ScheduleBlock[] = blocks.filter(row => row.userId === user.id).map(row => ({ id: row.id, userId: row.userId, subjectId: row.subjectId ?? undefined, topicId: row.topicId ?? undefined, title: row.title, startsAt: row.startsAt.toISOString(), endsAt: row.endsAt.toISOString(), repeat: row.recurrenceRule ? "weekly" : "once", weekdays: row.recurrenceRule?.weekdays ?? [], recurrenceUntil: row.recurrenceRule?.until, timezone: row.timezone, color: row.displayColor as SubjectColor, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(), exceptions: exceptions.filter(e => e.blockId === row.id).map(e => ({ date: e.date, cancelled: e.isCancelled, overrides: e.overrides ?? undefined, title: e.newTitle ?? undefined, note: e.newNote ?? undefined, color: (e.newColor ?? undefined) as SubjectColor | undefined, subjectId: e.newSubjectId ?? undefined, topicId: e.newTopicId ?? undefined, startsAt: e.newStartsAt?.toISOString(), endsAt: e.newEndsAt?.toISOString() })) }));
+    const plans: ScheduleBlock[] = (blockGroups.get(user.id) ?? []).map(row => ({ id: row.id, userId: row.userId, subjectId: row.subjectId ?? undefined, topicId: row.topicId ?? undefined, title: row.title, startsAt: row.startsAt.toISOString(), endsAt: row.endsAt.toISOString(), repeat: row.recurrenceRule ? "weekly" : "once", weekdays: row.recurrenceRule?.weekdays ?? [], recurrenceUntil: row.recurrenceRule?.until, timezone: row.timezone, color: row.displayColor as SubjectColor, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(), exceptions: (exceptionGroups.get(row.id) ?? []).map(e => ({ date: e.date, cancelled: e.isCancelled, overrides: e.overrides ?? undefined, title: e.newTitle ?? undefined, note: e.newNote ?? undefined, color: (e.newColor ?? undefined) as SubjectColor | undefined, subjectId: e.newSubjectId ?? undefined, topicId: e.newTopicId ?? undefined, startsAt: e.newStartsAt?.toISOString(), endsAt: e.newEndsAt?.toISOString() })) }));
     for (const occurrence of getOccurrences(plans, shiftDay(today, -1), tomorrow)) {
       if (Date.parse(occurrence.startsAt) < now || Date.parse(occurrence.startsAt) > now + 15 * 60000) continue;
       records.push({ userId: user.id, type: "block", title: occurrence.title, body: "", scheduledFor: new Date(occurrence.startsAt), deduplicationKey: `block:${occurrence.block.id}:${occurrence.date}` });
     }
-    for (const [rows, type] of [[subjects, "subjectDeadline"], [topics, "topicDeadline"]] as const) for (const row of rows) {
+    for (const [rows, type] of [[(subjectGroups.get(user.id) ?? []), "subjectDeadline"], [(topicGroups.get(user.id) ?? []), "topicDeadline"]] as const) for (const row of rows) {
       if (row.userId !== user.id || !row.targetDate || ![today, tomorrow].includes(row.targetDate)) continue;
       records.push({ userId: user.id, type, title: row.title, body: "", scheduledFor: new Date(zonedToUtc(`${row.targetDate}T09:00`, user.timezone)), deduplicationKey: `${type}:${row.id}:${today}` });
     }

@@ -2,6 +2,7 @@ import type { ScheduleBlock } from "@/types";
 import type { CalendarCommand, CalendarMutation } from "@/lib/validation/calendar";
 import { applyCalendarCommand, mergeCalendarChange, type CalendarChange, type CalendarRange } from "./model";
 import { localDay, zonedToUtc } from "@/lib/analytics";
+import { beginWrite } from "@/lib/workspace/write-status";
 
 type Transport = (url: string, init?: RequestInit) => Promise<Response>;
 type Layer = { command: CalendarCommand; operationId: string; key: string; now: string };
@@ -18,6 +19,14 @@ export class CalendarStore {
   private reads = new Map<string, Promise<void>>();
   private touched = new Map<string, number>();
   private epoch = 0;
+  private accountRevision?: string;
+  synchronizeRevision(revision: string) {
+    if (this.accountRevision === revision) return false;
+    const changed = this.accountRevision !== undefined;
+    this.accountRevision = revision;
+    if (changed) this.cached.clear();
+    return changed;
+  }
   private listeners = new Set<() => void>();
   private loading = 0;
   private error = "";
@@ -47,7 +56,7 @@ export class CalendarStore {
     const existing = this.reads.get(key);
     if (existing) return existing;
     const epoch = this.epoch;
-    this.loading++; this.error = ""; this.emit();
+    this.loading++; if (!this.failed) this.error = ""; this.emit();
     const read = (async () => {
       try {
         const response = await this.transport(`/api/calendar?from=${range.from}&to=${range.to}`, { signal: AbortSignal.timeout(15000) });
@@ -60,13 +69,13 @@ export class CalendarStore {
           if (current) {
             const changed = block.updatedAt !== current.updatedAt;
             if (changed) for (const [otherKey, entry] of this.cached) if (otherKey !== key && entry.ids.includes(block.id)) entry.at = 0;
-            // Range reads contain only relevant exceptions. Keep known exceptions
-            // outside the range; replace those covered by this read, including removals.
+            // Never mix exception sets from different series revisions. Within
+            // one revision, preserve only known exceptions outside this read.
             const from = Date.parse(zonedToUtc(`${range.from}T00:00`, this.timezone));
             const to = Date.parse(zonedToUtc(`${range.to}T00:00`, this.timezone));
             const fromDay = localDay(from - (Date.parse(block.endsAt) - Date.parse(block.startsAt)), block.timezone);
             const toDay = localDay(to, block.timezone);
-            const retained = current.exceptions.filter(e => !changed || !(
+            const retained = current.exceptions.filter(e => !changed && !(
               (e.date >= fromDay && e.date <= toDay)
               || (e.startsAt && e.endsAt && Date.parse(e.startsAt) < to && Date.parse(e.endsAt) > from)
             ));
@@ -99,7 +108,10 @@ export class CalendarStore {
     }
     catch { this.error = "recordUnavailable"; this.emit(); return Promise.resolve(false); }
     const layer: Layer = { command, operationId, key, now };
-    this.layers.push(layer); this.touched.set(key, ++this.epoch); this.error = ""; this.failed = undefined; this.emit();
+    const finishWrite = beginWrite(this.userId);
+    this.layers.push(layer); this.touched.set(key, ++this.epoch);
+    if (!this.failed || this.failed.key === key) { this.error = ""; this.failed = undefined; }
+    this.emit();
     const task = (this.queues.get(key) ?? Promise.resolve()).then(async () => {
       let retryable = true;
       try {
@@ -125,11 +137,17 @@ export class CalendarStore {
           throw new Error(result.error ?? "saveFailed");
         }
         const change = result as CalendarChange;
-        for (const block of change.blocks) { this.confirmed.set(block.id, block); this.touched.set(block.id, ++this.epoch); }
+        for (const block of change.blocks) {
+          const current = this.confirmed.get(block.id);
+          if (current && Date.parse(current.updatedAt) > Date.parse(block.updatedAt)) continue;
+          this.confirmed.set(block.id, block); this.touched.set(block.id, ++this.epoch);
+        }
         for (const id of change.removed) { this.confirmed.delete(id); this.touched.set(id, ++this.epoch); }
         if (this.errorKey === key) { this.error = ""; this.errorKey = undefined; this.failed = undefined; }
+        finishWrite("saved");
         return true;
       } catch (error) {
+        finishWrite(retryable ? "uncertain" : "failed");
         const superseded = this.layers.slice(this.layers.indexOf(layer) + 1).some(l => l.key === key);
         if (retryable && !superseded) this.failed = layer;
         this.errorKey = key;

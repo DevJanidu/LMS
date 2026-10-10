@@ -6,12 +6,13 @@ import { getDb } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getEnv } from "@/lib/env";
-import { allowRequest } from "@/lib/rate-limit";
+import { requestLimit } from "@/lib/rate-limit";
 import { getSettings } from "@/lib/services/workspace";
 import { ageInYears } from "@/lib/validation/age";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { loginDestination } from "@/lib/auth/destination";
+import { authenticationFailureKind } from "@/lib/auth/errors";
 
 const inputSchema = z.object({ mode: z.enum(["login", "register", "forgot-password", "reset-password"]), email: z.email().optional(), name: z.string().trim().min(1).max(150).optional(), password: z.string().min(8).max(128).optional(), acceptedTerms: z.boolean().optional(), dateOfBirth: z.iso.date().optional(), token: z.string().max(500).optional(), returnTo: z.string().max(2048).optional() });
 export async function authenticate(input: unknown) {
@@ -23,8 +24,9 @@ export async function authenticate(input: unknown) {
     const auth = getAuth();
     const requestHeaders = await headers();
     const ip = requestHeaders.get("x-forwarded-for")?.split(",")[0].trim() ?? "local";
-    const limits = await Promise.all([allowRequest(`auth:${v.mode}:${ip}`, 10), allowRequest(`account:${v.mode}:${v.email?.toLowerCase() ?? ip}`, 5)]);
-    if (limits.some(allowed => !allowed)) return { ok: false as const, error: "tooManyRequests" };
+    const limits = await Promise.all([requestLimit(`auth:${v.mode}:${ip}`, 10), requestLimit(`account:${v.mode}:${v.email?.toLowerCase() ?? ip}`, 5)]);
+    if (limits.includes("unavailable")) return { ok: false as const, error: "authenticationUnavailable" };
+    if (limits.includes("limited")) return { ok: false as const, error: "tooManyRequests" };
     if (v.mode === "register") {
       if (!v.email || !v.password || !v.name || !v.acceptedTerms) return { ok: false as const, error: "invalidInput" };
       if (v.dateOfBirth && v.dateOfBirth > new Date().toISOString().slice(0, 10)) return { ok: false as const, error: "invalidInput" };
@@ -53,9 +55,16 @@ export async function authenticate(input: unknown) {
       await auth.api.resetPassword({ headers: requestHeaders, body: { newPassword: v.password, token: v.token } });
       destination = "/login";
     }
-  } catch {
-    if (v.mode === "forgot-password") return { ok: true as const, href: "" };
-    return { ok: false as const, error: "authenticationFailed" };
+  } catch (error) {
+    if (v.mode === "forgot-password") {
+      // Keep account-existence responses indistinguishable. Acknowledgement is
+      // not proof of delivery; report provider failures through safe telemetry.
+      console.warn(JSON.stringify({ event: "password_reset_unavailable", category: authenticationFailureKind(error) }));
+      return { ok: true as const, href: "" };
+    }
+    const category = authenticationFailureKind(error);
+    if (category !== "session_provider") console.warn(JSON.stringify({ event: "authentication_unavailable", category }));
+    return { ok: false as const, error: category === "session_provider" ? "authenticationFailed" : "authenticationUnavailable" };
   }
   redirect({ href: destination, locale: await getLocale() });
 }

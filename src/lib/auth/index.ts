@@ -1,4 +1,5 @@
 import "server-only";
+import { verifySession } from "./errors";
 import { betterAuth } from "better-auth";
 import { APIError } from "better-auth/api";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -78,7 +79,7 @@ export function getAuth() { return instance ??= createAuth(); }
 
 export const getCurrentUser = cache(async () => {
   const requestHeaders = await headers();
-  const session = await timed("auth.session", () => getAuth().api.getSession({ headers: requestHeaders })).catch(() => { throw new Error("Authentication service unavailable."); });
+  const session = await verifySession(() => timed("auth.session", () => getAuth().api.getSession({ headers: requestHeaders })));
   if (!session) return null;
   const user = session.user;
   if (user.status !== "active") return null;

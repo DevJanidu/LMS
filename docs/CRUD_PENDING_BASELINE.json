@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-10-09T14:23:40.443Z",
+  "results": [
+    {
+      "case": "reload while optimistic create has not reached server",
+      "status": "REPRODUCED",
+      "savingVisible": false,
+      "uncertaintyVisibleAfterReload": false,
+      "persisted": false,
+      "conditions": "Mutation intercepted before reaching server; no database write was sent."
+    }
+  ]
+}

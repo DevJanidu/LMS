@@ -1,0 +1,38 @@
+{
+  "results": [
+    {
+      "persona": "new",
+      "operation": "notification read persistence",
+      "status": "PASS"
+    },
+    {
+      "persona": "new",
+      "operation": "owned export and credential exclusion",
+      "status": "PASS"
+    },
+    {
+      "persona": "active",
+      "operation": "notification read persistence",
+      "status": "PASS"
+    },
+    {
+      "persona": "active",
+      "operation": "owned export and credential exclusion",
+      "status": "PASS"
+    },
+    {
+      "persona": "stress",
+      "operation": "notification read persistence",
+      "status": "PASS"
+    },
+    {
+      "persona": "stress",
+      "operation": "owned export and credential exclusion",
+      "status": "PASS"
+    },
+    {
+      "operation": "notification ownership and CSRF",
+      "status": "PASS"
+    }
+  ]
+}

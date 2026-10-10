@@ -14,8 +14,9 @@ function rateLimitRedis() {
   // fail-closed deadline than optional cached data (250ms).
   return securityRedis ??= new Redis({ url: env.UPSTASH_REDIS_REST_URL, token: env.UPSTASH_REDIS_REST_TOKEN, retry: false, signal: () => AbortSignal.timeout(1500) });
 }
-/** Sliding windows are independent of cached data and fail closed on Redis errors. */
-export async function allowRequest(identifier: string, maximum = 5, seconds = 60): Promise<boolean> {
+export type LimitDecision = "allowed" | "limited" | "unavailable";
+/** Security stays fail closed; outages must not be described as excess requests. */
+export async function requestLimit(identifier: string, maximum = 5, seconds = 60): Promise<LimitDecision> {
   const key = createHash("sha256").update(identifier).digest("hex");
   try {
     const redis = rateLimitRedis();
@@ -23,15 +24,29 @@ export async function allowRequest(identifier: string, maximum = 5, seconds = 60
       const family = `${maximum}:${seconds}`;
       let limiter = limiters.get(family);
       if (!limiter) { limiter = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(maximum, `${seconds} s`), prefix: `${rateLimitPrefix()}:${family}`, timeout: 1500, ephemeralCache: false, analytics: false }); limiters.set(family, limiter); }
-      const result = await limiter.limit(key);
-      return result.success && result.reason !== "timeout";
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const result = await limiter.limit(key);
+          if (result.reason !== "timeout") {
+            if (attempt) console.info(JSON.stringify({ event: "rate_limit_verification_recovered" }));
+            return result.success ? "allowed" : "limited";
+          }
+          if (attempt) { console.warn(JSON.stringify({ event: "rate_limit_unavailable", category: "timeout" })); return "unavailable"; }
+        } catch {
+          if (attempt) { console.warn(JSON.stringify({ event: "rate_limit_unavailable", category: "connection" })); return "unavailable"; }
+        }
+        // Retry only the security decision, before any database mutation. An
+        // uncertain first increment can consume an extra slot; never bypass it.
+      }
+      return "unavailable";
     }
-    if (process.env.NODE_ENV !== "development") return false;
+    if (process.env.NODE_ENV !== "development") return "unavailable";
     const now = Date.now(), cutoff = now - seconds * 1000;
     for (const [name, times] of local) if ((times.at(-1) ?? 0) <= cutoff) local.delete(name);
     const times = (local.get(key) ?? []).filter(time => time > cutoff);
-    if (times.length >= maximum) return false;
+    if (times.length >= maximum) return "limited";
     times.push(now); local.set(key, times);
-    return true;
-  } catch { return false; }
+    return "allowed";
+  } catch { console.warn(JSON.stringify({ event: "rate_limit_unavailable", category: "connection" })); return "unavailable"; }
 }
+export async function allowRequest(identifier: string, maximum = 5, seconds = 60): Promise<boolean> { return await requestLimit(identifier, maximum, seconds) === "allowed"; }

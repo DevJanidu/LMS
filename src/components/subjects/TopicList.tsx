@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { getTopics } from "@/lib/workspace/queries";
-import { newId, updateWorkspace, runOperation, useWorkspacePending } from "@/lib/workspace/store";
+import { newId, updateWorkspace, runOperation } from "@/lib/workspace/store";
 import type { Topic, Workspace } from "@/types";
 import { Modal } from "@/components/ui/modal";
 import { useModal } from "@/hooks/useModal";
@@ -21,7 +21,6 @@ interface Props {
 /** Completion, bulk entry, editable topics and accessible reordering. */
 export default function TopicList({ data, subjectId }: Props) {
   const t = useTranslations("studyflow");
-  const pending = useWorkspacePending();
   const topics = getTopics(data, subjectId);
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
@@ -30,7 +29,7 @@ export default function TopicList({ data, subjectId }: Props) {
   const [deleting, setDeleting] = useState<Topic>();
   const bulk = useModal();
   const editor = useModal();
-  const change = (id: string, patch: Partial<Topic>) =>
+  const change = (id: string, patch: Partial<Topic>, original?: Topic) =>
     updateWorkspace(data, (state) => ({
       ...state,
       topics: state.topics.map((topic) =>
@@ -38,7 +37,7 @@ export default function TopicList({ data, subjectId }: Props) {
           ? { ...topic, ...patch, updatedAt: new Date().toISOString() }
           : topic,
       ),
-    }));
+    }), original);
   const add = async (text: string): Promise<boolean> => {
     const titles = text
       .split(/\r?\n/)
@@ -49,7 +48,7 @@ export default function TopicList({ data, subjectId }: Props) {
       setError(t("topicLimit"));
       return false;
     }
-    const saved = await updateWorkspace(data, (state) => {
+    const request = updateWorkspace(data, (state) => {
       const now = new Date().toISOString();
       return {
         ...state,
@@ -67,8 +66,11 @@ export default function TopicList({ data, subjectId }: Props) {
         ],
       };
     });
+    bulk.closeModal();
+    setTitle(""); setError("");
+    const saved = await request;
     if (!saved) { setError(t("saveFailed")); return false; }
-    setTitle(""); setError(""); return true;
+    return true;
   };
   const reorder = (from: string, to: string) => {
     const order = topics.map((topic) => topic.id);
@@ -104,8 +106,8 @@ export default function TopicList({ data, subjectId }: Props) {
             maxLength={150}
           />
         </div>
-        <Button type="submit" disabled={pending}>{t("addTopic")}</Button>
-        <Button variant="outline" disabled={pending} onClick={bulk.openModal}>
+        <Button type="submit">{t("addTopic")}</Button>
+        <Button variant="outline" onClick={bulk.openModal}>
           {t("bulkAdd")}
         </Button>
       </form>
@@ -166,7 +168,7 @@ export default function TopicList({ data, subjectId }: Props) {
             </span>
             <div className="flex gap-2">
               <button
-                disabled={pending || index === 0}
+                disabled={index === 0}
                 aria-label={t("moveUp", { title: topic.title })}
                 onClick={() => reorder(topic.id, topics[index - 1].id)}
                 className="rounded p-1 text-muted disabled:opacity-30 dark:text-secondary"
@@ -174,7 +176,7 @@ export default function TopicList({ data, subjectId }: Props) {
                 ↑
               </button>
               <button
-                disabled={pending || index === topics.length - 1}
+                disabled={index === topics.length - 1}
                 aria-label={t("moveDown", { title: topic.title })}
                 onClick={() => reorder(topic.id, topics[index + 1].id)}
                 className="rounded p-1 text-muted disabled:opacity-30 dark:text-secondary"
@@ -214,7 +216,7 @@ export default function TopicList({ data, subjectId }: Props) {
           }}
         >
           <TextField label={t("onePerLine")} name="titles" required />
-          <Button type="submit" disabled={pending}>{t("addTopics")}</Button>
+          <Button type="submit">{t("addTopics")}</Button>
           {error && <p role="alert">{error}</p>}
         </form>
       </Modal>
@@ -231,7 +233,7 @@ export default function TopicList({ data, subjectId }: Props) {
             if (!editing) return;
             const fields = new FormData(event.currentTarget);
             const status = fields.get("status") as Topic["status"];
-            const saved = await change(editing.id, {
+            const request = change(editing.id, {
               title: String(fields.get("title")).trim(),
               status,
               targetDate: String(fields.get("date")) || undefined,
@@ -239,8 +241,9 @@ export default function TopicList({ data, subjectId }: Props) {
                 status === "completed"
                   ? (editing.completedAt ?? new Date().toISOString())
                   : undefined,
-            });
-            if (saved) editor.closeModal(); else setError(t("saveFailed"));
+            }, editing);
+            editor.closeModal();
+            if (!await request) setError(t("saveFailed"));
           }}
         >
           <Field

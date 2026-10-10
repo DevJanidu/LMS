@@ -395,8 +395,20 @@
       "evening": "Buenas noches, {name}",
       "night": "Buenas noches, {name}",
       "midnight": "¿Sigues por aquí, {name}?",
-      "taglines": { "morning": "Espero que tu día empiece bien.", "afternoon": "Sigue con ese gran trabajo.", "evening": "Es hora de bajar un poco el ritmo.", "night": "¿Terminando el día? Descansa bien.", "midnight": "Los búhos nocturnos están despiertos esta noche." },
-      "badges": { "morning": "Ave madrugadora", "afternoon": "Brillo del día", "evening": "Estrella de la tarde", "night": "Espíritu nocturno", "midnight": "Búho nocturno" },
+      "taglines": {
+        "morning": "Espero que tu día empiece bien.",
+        "afternoon": "Sigue con ese gran trabajo.",
+        "evening": "Es hora de bajar un poco el ritmo.",
+        "night": "¿Terminando el día? Descansa bien.",
+        "midnight": "Los búhos nocturnos están despiertos esta noche."
+      },
+      "badges": {
+        "morning": "Ave madrugadora",
+        "afternoon": "Brillo del día",
+        "evening": "Estrella de la tarde",
+        "night": "Espíritu nocturno",
+        "midnight": "Búho nocturno"
+      },
       "greetingStudied": "Hoy has estudiado {time}. Cada momento de concentración te ayuda a avanzar.",
       "greetingPlanned": "Tienes {count} sesiones de estudio previstas para hoy. Haz espacio para avanzar.",
       "greetingStreak": "Llevas una racha de {days} días. Mantén el ritmo.",
@@ -487,7 +499,7 @@
     "recordUnavailable": "Este registro no está disponible.",
     "saveFailed": "No se pudieron guardar los cambios. Inténtalo de nuevo.",
     "authenticationFailed": "No se pudo iniciar sesión o actualizar la cuenta. Revisa tus datos.",
-    "resetEmailSent": "Si existe una cuenta con ese correo, se ha enviado un enlace.",
+    "resetEmailSent": "Si existe una cuenta con ese correo, revisa tu bandeja de entrada para ver las instrucciones. Si no llegan, inténtalo de nuevo más tarde.",
     "tooManyRequests": "Demasiados intentos. Espera un minuto.",
     "timerAlreadyRunning": "Ya tienes un temporizador activo.",
     "uploadFailed": "No se pudo subir el archivo. Inténtalo de nuevo.",
@@ -504,6 +516,13 @@
       "instructions": "Abre este enlace para continuar:",
       "ignore": "Si no lo solicitaste, ignora este correo."
     },
-    "emailUnavailable": "El correo para restablecer contraseñas aún no está configurado. Contacta con el administrador."
+    "emailUnavailable": "El correo para restablecer contraseñas aún no está configurado. Contacta con el administrador.",
+    "savingChanges": "Guardando cambios…",
+    "changesSaved": "Cambios guardados.",
+    "saveUncertain": "Algunos cambios no se confirmaron. Revisa los registros guardados antes de intentarlo de nuevo; la solicitud podría haber llegado al servidor.",
+    "reviewedChanges": "He revisado mis cambios",
+    "authenticationUnavailable": "La verificación de la sesión no está disponible temporalmente. Inténtalo de nuevo.",
+    "databaseUnavailable": "El servicio de datos no está disponible temporalmente. Inténtalo de nuevo.",
+    "recordConflict": "Este registro cambió en otra sesión. Revisa los valores actuales antes de guardar de nuevo."
   }
 }

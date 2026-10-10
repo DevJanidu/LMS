@@ -8,6 +8,8 @@ import { headObject, uploadUrl, copyObject } from "@/lib/storage";
 import { uploadSchema } from "@/lib/validation";
 import type { z } from "zod";
 import { invalidateUser } from "@/lib/cache";
+import { resourceRecord } from "./mutation-records";
+import type { Resource } from "@/types";
 
 export async function requestUpload(userId: string, value: z.infer<typeof uploadSchema>) {
   await ownedSubject(userId, value.subjectId);
@@ -32,16 +34,18 @@ export async function requestUpload(userId: string, value: z.infer<typeof upload
   return { id, url: await uploadUrl(key, value.mimeType, value.sizeBytes) };
 }
 export async function confirmUpload(userId: string, id: string) {
+  let resource: Resource | undefined;
+  let userUpdatedAt: string | undefined;
   const limits = await getSettings();
   const [candidate] = await getDb().select().from(s.pendingUploads).where(and(eq(s.pendingUploads.id, id), eq(s.pendingUploads.userId, userId)));
   if (candidate) await getDb().insert(s.pendingObjectDeletions).values({ storageKey: `users/${userId}/subjects/${candidate.subjectId}/${id}` }).onConflictDoNothing();
   await getDb().transaction(async tx => {
-    const [actor] = await tx.select({ status: s.users.status, role: s.users.role }).from(s.users).where(eq(s.users.id, userId)).for("update");
+    const [actor] = await tx.select({ status: s.users.status, role: s.users.role, updatedAt: s.users.updatedAt }).from(s.users).where(eq(s.users.id, userId)).for("update");
     if (!actor || actor.status !== "active" || actor.role !== "learner") throw new DomainError("accountInactive");
     const [upload] = await tx.select().from(s.pendingUploads).where(and(eq(s.pendingUploads.id, id), eq(s.pendingUploads.userId, userId))).for("update");
     if (!upload) {
-      const [already] = await tx.select({ id: s.resources.id }).from(s.resources).where(and(eq(s.resources.id, id), eq(s.resources.userId, userId)));
-      if (already) return;
+      const [already] = await tx.select().from(s.resources).where(and(eq(s.resources.id, id), eq(s.resources.userId, userId)));
+      if (already) { resource = resourceRecord(already); userUpdatedAt = actor.updatedAt.toISOString(); return; }
       throw new DomainError("recordUnavailable");
     }
     const metadata = await headObject(upload.storageKey);
@@ -53,9 +57,13 @@ export async function confirmUpload(userId: string, id: string) {
     await copyObject(upload.storageKey, finalKey);
     const finalMetadata = await headObject(finalKey);
     if (finalMetadata.ContentLength !== upload.sizeBytes || finalMetadata.ContentType !== upload.mimeType) throw new DomainError("invalidFileType");
-    await tx.insert(s.resources).values({ id: upload.id, userId, subjectId: upload.subjectId, topicId: upload.topicId, type: "file", title: upload.title, storageKey: finalKey, mimeType: upload.mimeType, sizeBytes: upload.sizeBytes });
+    const [saved] = await tx.insert(s.resources).values({ id: upload.id, userId, subjectId: upload.subjectId, topicId: upload.topicId, type: "file", title: upload.title, storageKey: finalKey, mimeType: upload.mimeType, sizeBytes: upload.sizeBytes }).returning();
+    resource = resourceRecord(saved);
     await tx.delete(s.pendingObjectDeletions).where(eq(s.pendingObjectDeletions.storageKey, finalKey));
     await tx.delete(s.pendingUploads).where(eq(s.pendingUploads.id, id));
+    const [revision] = await tx.update(s.users).set({ updatedAt: sql`greatest(${s.users.updatedAt} + interval '1 millisecond', clock_timestamp())` }).where(eq(s.users.id, userId)).returning({ updatedAt: s.users.updatedAt });
+    userUpdatedAt = revision.updatedAt.toISOString();
   });
   await invalidateUser(userId, ["subjects"]);
+  return { resource: resource!, userUpdatedAt: userUpdatedAt! };
 }

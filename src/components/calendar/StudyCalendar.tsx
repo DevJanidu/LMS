@@ -61,6 +61,7 @@ export default function StudyCalendar({ initial, add = false }: Props) {
   const deleteTarget = useRef<HTMLDivElement>(null);
   const suppressDrop = useRef<string | undefined>(undefined);
   const isOverDelete = (x: number, y: number) => {
+    if (deleteTarget.current?.dataset.active !== "true") return false;
     const box = deleteTarget.current?.getBoundingClientRect();
     return Boolean(box && x >= box.left && x <= box.right && y >= box.top && y <= box.bottom);
   };
@@ -96,12 +97,16 @@ export default function StudyCalendar({ initial, add = false }: Props) {
         editable: false,
       })),
   ], [initial, t]);
-  const events = useMemo(() => [
+  const projectedEvents = useMemo(() => [
     ...occurrences.map(item => ({ id: occurrenceId(item), title: item.title,
       start: `${wallTime(item.startsAt, data.user.timezone)}:00Z`, end: `${wallTime(item.endsAt, data.user.timezone)}:00Z`,
       allDay: false,
     })), ...deadlines,
   ], [occurrences, deadlines, data.user.timezone]);
+  // A receipt or range read may update metadata without changing rendered dates.
+  // Keep the event input stable so FullCalendar does not rebuild dragged nodes.
+  const eventsKey = JSON.stringify(projectedEvents);
+  const events = useMemo(() => JSON.parse(eventsKey) as typeof projectedEvents, [eventsKey]);
   const open = (occurrence?: BlockOccurrence, day = today, time?: string) => {
     setSelected(occurrence);
     setDate(day);
@@ -141,7 +146,18 @@ export default function StudyCalendar({ initial, add = false }: Props) {
       // restore React state, but it cannot move that DOM node back after a
       // failed save, so explicitly invoke its rollback callback as well.
       if (saved) setMessage(t("redesign.scheduleMoved"));
-      else revert();
+      else {
+        revert();
+        // A controlled events update may have replaced FullCalendar's original
+        // drag snapshot. Restore from the current journal rather than a stale
+        // pointer snapshot, including any newer queued change to this event.
+        const current = calendarOccurrences(state.store.getSnapshot().blocks, range, data.user.timezone)
+          .find(item => occurrenceId(item) === id);
+        if (current) calendar.current?.getApi().getEventById(id)?.setDates(
+          `${wallTime(current.startsAt, data.user.timezone)}:00Z`,
+          `${wallTime(current.endsAt, data.user.timezone)}:00Z`,
+        );
+      }
     });
   };
   const month = new Intl.DateTimeFormat(locale, {

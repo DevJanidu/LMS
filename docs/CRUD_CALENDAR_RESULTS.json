@@ -1,0 +1,467 @@
+{
+  "generatedAt": "2026-10-10T08:58:17.409Z",
+  "result": "PASS",
+  "baseURL": "http://localhost:3100",
+  "metrics": [
+    {
+      "operation": "calendar load",
+      "ms": 3063
+    },
+    {
+      "operation": "modal open",
+      "ms": 142
+    },
+    {
+      "operation": "start-time-hour open",
+      "ms": 287,
+      "width": 96,
+      "height": 240,
+      "rowHeight": 32
+    },
+    {
+      "operation": "start-time-minute open",
+      "ms": 113,
+      "width": 96,
+      "height": 240,
+      "rowHeight": 32
+    },
+    {
+      "operation": "end-time-hour open",
+      "ms": 128,
+      "width": 96,
+      "height": 240,
+      "rowHeight": 32
+    },
+    {
+      "operation": "end-time-minute open",
+      "ms": 117,
+      "width": 96,
+      "height": 240,
+      "rowHeight": 32
+    },
+    {
+      "operation": "optimistic create",
+      "ms": 73
+    },
+    {
+      "operation": "modal open",
+      "ms": 115
+    },
+    {
+      "operation": "start-time-hour open",
+      "ms": 328,
+      "width": 96,
+      "height": 240,
+      "rowHeight": 32
+    },
+    {
+      "operation": "start-time-minute open",
+      "ms": 122,
+      "width": 96,
+      "height": 240,
+      "rowHeight": 32
+    },
+    {
+      "operation": "end-time-hour open",
+      "ms": 132,
+      "width": 96,
+      "height": 240,
+      "rowHeight": 32
+    },
+    {
+      "operation": "end-time-minute open",
+      "ms": 112,
+      "width": 96,
+      "height": 240,
+      "rowHeight": 32
+    },
+    {
+      "operation": "recurring optimistic create",
+      "ms": 65
+    },
+    {
+      "operation": "optimistic drop after pointer release",
+      "ms": 81
+    },
+    {
+      "operation": "resize pointer target",
+      "box": {
+        "x": 1110.75,
+        "y": 745.578125,
+        "width": 148.671875,
+        "height": 8
+      },
+      "hit": "fc-classic-1EY fc-classic-pps fc-classic-vs6 fc-classic-MaV fc-classic-uuA fc-classic-fJL fc-hB fc-9e fc-AJ fc-oN"
+    },
+    {
+      "operation": "cached week navigation",
+      "ms": 49
+    },
+    {
+      "operation": "start-time-hour open",
+      "ms": 344,
+      "width": 134,
+      "height": 240,
+      "rowHeight": 32
+    }
+  ],
+  "frames": [
+    {
+      "operation": "modal",
+      "ms": 98,
+      "observed": true
+    },
+    {
+      "operation": "create",
+      "ms": 33,
+      "observed": true
+    },
+    {
+      "operation": "modal",
+      "ms": 68,
+      "observed": true
+    },
+    {
+      "operation": "create",
+      "ms": 26,
+      "observed": true
+    },
+    {
+      "operation": "drag",
+      "ms": 26,
+      "observed": false
+    },
+    {
+      "operation": "drag",
+      "ms": 14,
+      "observed": true
+    },
+    {
+      "operation": "drag",
+      "ms": 19,
+      "observed": false
+    },
+    {
+      "operation": "drag",
+      "ms": 15,
+      "observed": false
+    },
+    {
+      "operation": "drag",
+      "ms": 12,
+      "observed": false
+    },
+    {
+      "operation": "drag",
+      "ms": 14,
+      "observed": false
+    },
+    {
+      "operation": "drag",
+      "ms": 17,
+      "observed": false
+    },
+    {
+      "operation": "navigation",
+      "ms": 26,
+      "observed": true
+    },
+    {
+      "operation": "create",
+      "ms": 33,
+      "observed": true
+    },
+    {
+      "operation": "navigation",
+      "ms": 17,
+      "observed": true
+    },
+    {
+      "operation": "drag",
+      "ms": 10,
+      "observed": false
+    },
+    {
+      "operation": "drag",
+      "ms": 18,
+      "observed": false
+    },
+    {
+      "operation": "modal",
+      "ms": 88,
+      "observed": true
+    }
+  ],
+  "requests": [
+    {
+      "phase": "initial",
+      "path": "/calendar",
+      "method": "GET",
+      "action": false,
+      "ms": 2656,
+      "status": 200
+    },
+    {
+      "phase": "createOnce",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "create"
+      },
+      "ms": 4769,
+      "status": 200,
+      "serverTiming": "auth;dur=329.9, mutation;dur=4315.3"
+    },
+    {
+      "phase": "createRecurring",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "create"
+      },
+      "ms": 4172,
+      "status": 200,
+      "serverTiming": "auth;dur=2389.7, mutation;dur=1783.1"
+    },
+    {
+      "phase": "createRecurring",
+      "path": "/calendar",
+      "method": "GET",
+      "action": false,
+      "ms": 3112,
+      "status": 200
+    },
+    {
+      "phase": "rapidMoves",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-11T08:15:00.000Z",
+        "endsAt": "2026-10-11T09:15:00.000Z"
+      },
+      "ms": 2250,
+      "status": 200,
+      "serverTiming": "auth;dur=333.9, mutation;dur=1889.1"
+    },
+    {
+      "phase": "rapidMoves",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-10T08:45:00.000Z",
+        "endsAt": "2026-10-10T09:45:00.000Z"
+      },
+      "ms": 2270,
+      "status": 200,
+      "serverTiming": "auth;dur=328.3, mutation;dur=1928.1"
+    },
+    {
+      "phase": "failedMove",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-10T08:15:00.000Z",
+        "endsAt": "2026-10-10T09:15:00.000Z"
+      },
+      "ms": 8,
+      "status": 503
+    },
+    {
+      "phase": "failedMove",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-10T08:15:00.000Z",
+        "endsAt": "2026-10-10T09:15:00.000Z"
+      },
+      "ms": 55,
+      "status": 503
+    },
+    {
+      "phase": "failedMove",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-10T08:15:00.000Z",
+        "endsAt": "2026-10-10T09:15:00.000Z"
+      },
+      "ms": 2423,
+      "status": 200,
+      "serverTiming": "auth;dur=381.2, mutation;dur=2035.3"
+    },
+    {
+      "phase": "resize",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-10T08:15:00.000Z",
+        "endsAt": "2026-10-10T09:45:00.000Z"
+      },
+      "ms": 2402,
+      "status": 200,
+      "serverTiming": "auth;dur=434.8, mutation;dur=1959.5"
+    },
+    {
+      "phase": "monthMoveAcrossWeeks",
+      "path": "/api/calendar",
+      "method": "GET",
+      "action": false,
+      "ms": 635,
+      "status": 200,
+      "serverTiming": "auth;dur=325.6, db;dur=303.1"
+    },
+    {
+      "phase": "monthMoveAcrossWeeks",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-17T08:15:00.000Z",
+        "endsAt": "2026-10-17T09:45:00.000Z"
+      },
+      "ms": 2422,
+      "status": 200,
+      "serverTiming": "auth;dur=329.8, mutation;dur=2084.3"
+    },
+    {
+      "phase": "monthMoveAcrossWeeks",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-10T08:15:00.000Z",
+        "endsAt": "2026-10-10T09:45:00.000Z"
+      },
+      "ms": 2243,
+      "status": 200,
+      "serverTiming": "auth;dur=337.0, mutation;dur=1899.2"
+    },
+    {
+      "phase": "recurringMove",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "move",
+        "startsAt": "2026-10-10T07:00:00.000Z",
+        "endsAt": "2026-10-10T08:00:00.000Z"
+      },
+      "ms": 2840,
+      "status": 200,
+      "serverTiming": "auth;dur=385.9, mutation;dur=2447.3"
+    },
+    {
+      "phase": "recurringDeleteOne",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "delete"
+      },
+      "ms": 2914,
+      "status": 200,
+      "serverTiming": "auth;dur=475.7, mutation;dur=2428.2"
+    },
+    {
+      "phase": "navigate",
+      "path": "/api/calendar",
+      "method": "GET",
+      "action": false,
+      "ms": 655,
+      "status": 200,
+      "serverTiming": "auth;dur=335.0, db;dur=314.6"
+    },
+    {
+      "phase": "recurringEditFuture",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "edit"
+      },
+      "ms": 2648,
+      "status": 200,
+      "serverTiming": "auth;dur=342.2, mutation;dur=2298.2"
+    },
+    {
+      "phase": "recurringDeleteAll",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "delete"
+      },
+      "ms": 2454,
+      "status": 200,
+      "serverTiming": "auth;dur=342.5, mutation;dur=2105.0"
+    },
+    {
+      "phase": "failedTrashDelete",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "delete"
+      },
+      "ms": 3,
+      "status": 503
+    },
+    {
+      "phase": "failedTrashDelete",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "delete"
+      },
+      "ms": 53,
+      "status": 503
+    },
+    {
+      "phase": "deleteRetry",
+      "path": "/api/calendar",
+      "method": "POST",
+      "action": false,
+      "command": {
+        "kind": "delete"
+      },
+      "ms": 2490,
+      "status": 200,
+      "serverTiming": "auth;dur=500.8, mutation;dur=1982.1"
+    },
+    {
+      "phase": "mobile",
+      "path": "/calendar",
+      "method": "GET",
+      "action": false,
+      "ms": 2698,
+      "status": 200
+    },
+    {
+      "phase": "mobile",
+      "path": "/api/calendar",
+      "method": "GET",
+      "action": false,
+      "ms": 698,
+      "status": 200,
+      "serverTiming": "auth;dur=342.2, db;dur=328.7"
+    }
+  ],
+  "errors": []
+}

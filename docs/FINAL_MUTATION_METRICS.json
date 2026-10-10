@@ -1,0 +1,390 @@
+{
+  "generatedAt": "2026-10-09T13:31:41.878Z",
+  "conditions": "Three audit accounts against the final local production build; remote Neon and Redis. Sequential requests per persona, small UUID-scoped fixtures. Not a load test.",
+  "results": [
+    {
+      "persona": "new",
+      "operation": "subject create",
+      "status": "PASS",
+      "ms": 3315,
+      "bytes": 54,
+      "serverTiming": "auth;dur=610.9, mutation;dur=2699.1"
+    },
+    {
+      "persona": "new",
+      "operation": "topic create",
+      "status": "PASS",
+      "ms": 3532,
+      "bytes": 54,
+      "serverTiming": "auth;dur=637.2, mutation;dur=2891.3"
+    },
+    {
+      "persona": "new",
+      "operation": "note create",
+      "status": "PASS",
+      "ms": 3439,
+      "bytes": 54,
+      "serverTiming": "auth;dur=669.1, mutation;dur=2765.8"
+    },
+    {
+      "persona": "new",
+      "operation": "note edit",
+      "status": "PASS",
+      "ms": 3397,
+      "bytes": 54,
+      "serverTiming": "auth;dur=725.7, mutation;dur=2666.8"
+    },
+    {
+      "persona": "new",
+      "operation": "note delete",
+      "status": "PASS",
+      "ms": 2477,
+      "bytes": 54,
+      "serverTiming": "auth;dur=796.6, mutation;dur=1676.6"
+    },
+    {
+      "persona": "new",
+      "operation": "link create",
+      "status": "PASS",
+      "ms": 3528,
+      "bytes": 54,
+      "serverTiming": "auth;dur=720.6, mutation;dur=2803.6"
+    },
+    {
+      "persona": "new",
+      "operation": "link edit",
+      "status": "PASS",
+      "ms": 3235,
+      "bytes": 54,
+      "serverTiming": "auth;dur=618.8, mutation;dur=2612.3"
+    },
+    {
+      "persona": "new",
+      "operation": "link delete",
+      "status": "PASS",
+      "ms": 2470,
+      "bytes": 54,
+      "serverTiming": "auth;dur=825.1, mutation;dur=1640.7"
+    },
+    {
+      "persona": "new",
+      "operation": "video create",
+      "status": "PASS",
+      "ms": 3370,
+      "bytes": 54,
+      "serverTiming": "auth;dur=762.6, mutation;dur=2603.9"
+    },
+    {
+      "persona": "new",
+      "operation": "video edit",
+      "status": "PASS",
+      "ms": 3431,
+      "bytes": 54,
+      "serverTiming": "auth;dur=666.4, mutation;dur=2760.5"
+    },
+    {
+      "persona": "new",
+      "operation": "video delete",
+      "status": "PASS",
+      "ms": 2607,
+      "bytes": 54,
+      "serverTiming": "auth;dur=837.2, mutation;dur=1766.8"
+    },
+    {
+      "persona": "new",
+      "operation": "session create",
+      "status": "PASS",
+      "ms": 4601,
+      "bytes": 54,
+      "serverTiming": "auth;dur=653.8, mutation;dur=3944.1"
+    },
+    {
+      "persona": "new",
+      "operation": "session edit with streak preservation",
+      "status": "PASS",
+      "ms": 6085,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1874.9, mutation;dur=4207.1"
+    },
+    {
+      "persona": "new",
+      "operation": "session delete with streak preservation",
+      "status": "PASS",
+      "ms": 3967,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1754.1, mutation;dur=2210.0"
+    },
+    {
+      "persona": "new",
+      "operation": "topic delete",
+      "status": "PASS",
+      "ms": 5619,
+      "bytes": 54,
+      "serverTiming": "auth;dur=611.2, mutation;dur=5005.2"
+    },
+    {
+      "persona": "new",
+      "operation": "subject cleanup",
+      "status": "PASS",
+      "ms": 4000,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1812.6, mutation;dur=2184.7"
+    },
+    {
+      "persona": "active",
+      "operation": "subject create",
+      "status": "PASS",
+      "ms": 3324,
+      "bytes": 54,
+      "serverTiming": "auth;dur=761.4, mutation;dur=2559.3"
+    },
+    {
+      "persona": "active",
+      "operation": "topic create",
+      "status": "PASS",
+      "ms": 3611,
+      "bytes": 54,
+      "serverTiming": "auth;dur=625.2, mutation;dur=2983.2"
+    },
+    {
+      "persona": "active",
+      "operation": "note create",
+      "status": "PASS",
+      "ms": 3446,
+      "bytes": 54,
+      "serverTiming": "auth;dur=682.9, mutation;dur=2760.7"
+    },
+    {
+      "persona": "active",
+      "operation": "note edit",
+      "status": "PASS",
+      "ms": 3519,
+      "bytes": 54,
+      "serverTiming": "auth;dur=631.1, mutation;dur=2884.8"
+    },
+    {
+      "persona": "active",
+      "operation": "note delete",
+      "status": "PASS",
+      "ms": 2673,
+      "bytes": 54,
+      "serverTiming": "auth;dur=935.8, mutation;dur=1733.8"
+    },
+    {
+      "persona": "active",
+      "operation": "link create",
+      "status": "PASS",
+      "ms": 3412,
+      "bytes": 54,
+      "serverTiming": "auth;dur=598.4, mutation;dur=2810.7"
+    },
+    {
+      "persona": "active",
+      "operation": "link edit",
+      "status": "PASS",
+      "ms": 3309,
+      "bytes": 54,
+      "serverTiming": "auth;dur=625.5, mutation;dur=2680.4"
+    },
+    {
+      "persona": "active",
+      "operation": "link delete",
+      "status": "PASS",
+      "ms": 2566,
+      "bytes": 54,
+      "serverTiming": "auth;dur=849.5, mutation;dur=1713.3"
+    },
+    {
+      "persona": "active",
+      "operation": "video create",
+      "status": "PASS",
+      "ms": 3483,
+      "bytes": 54,
+      "serverTiming": "auth;dur=715.5, mutation;dur=2764.4"
+    },
+    {
+      "persona": "active",
+      "operation": "video edit",
+      "status": "PASS",
+      "ms": 3254,
+      "bytes": 54,
+      "serverTiming": "auth;dur=599.4, mutation;dur=2651.6"
+    },
+    {
+      "persona": "active",
+      "operation": "video delete",
+      "status": "PASS",
+      "ms": 2456,
+      "bytes": 54,
+      "serverTiming": "auth;dur=770.1, mutation;dur=1682.8"
+    },
+    {
+      "persona": "active",
+      "operation": "session create",
+      "status": "PASS",
+      "ms": 4523,
+      "bytes": 54,
+      "serverTiming": "auth;dur=655.9, mutation;dur=3864.5"
+    },
+    {
+      "persona": "active",
+      "operation": "session edit with streak preservation",
+      "status": "PASS",
+      "ms": 5615,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1759.9, mutation;dur=3852.1"
+    },
+    {
+      "persona": "active",
+      "operation": "session delete with streak preservation",
+      "status": "PASS",
+      "ms": 3940,
+      "bytes": 54,
+      "serverTiming": "auth;dur=1772.7, mutation;dur=2164.1"
+    },
+    {
+      "persona": "active",
+      "operation": "topic delete",
+      "status": "PASS",
+      "ms": 5505,
+      "bytes": 54,
+      "serverTiming": "auth;dur=781.9, mutation;dur=4719.6"
+    },
+    {
+      "persona": "active",
+      "operation": "subject cleanup",
+      "status": "PASS",
+      "ms": 2882,
+      "bytes": 54,
+      "serverTiming": "auth;dur=597.7, mutation;dur=2280.1"
+    },
+    {
+      "persona": "stress",
+      "operation": "subject create",
+      "status": "PASS",
+      "ms": 4738,
+      "bytes": 54,
+      "serverTiming": "auth;dur=657.0, mutation;dur=4077.8"
+    },
+    {
+      "persona": "stress",
+      "operation": "topic create",
+      "status": "PASS",
+      "ms": 3532,
+      "bytes": 54,
+      "serverTiming": "auth;dur=727.1, mutation;dur=2801.9"
+    },
+    {
+      "persona": "stress",
+      "operation": "note create",
+      "status": "PASS",
+      "ms": 3295,
+      "bytes": 54,
+      "serverTiming": "auth;dur=623.2, mutation;dur=2668.7"
+    },
+    {
+      "persona": "stress",
+      "operation": "note edit",
+      "status": "PASS",
+      "ms": 3382,
+      "bytes": 54,
+      "serverTiming": "auth;dur=621.0, mutation;dur=2758.3"
+    },
+    {
+      "persona": "stress",
+      "operation": "note delete",
+      "status": "PASS",
+      "ms": 2691,
+      "bytes": 54,
+      "serverTiming": "auth;dur=795.8, mutation;dur=1892.7"
+    },
+    {
+      "persona": "stress",
+      "operation": "link create",
+      "status": "PASS",
+      "ms": 3383,
+      "bytes": 54,
+      "serverTiming": "auth;dur=664.7, mutation;dur=2715.6"
+    },
+    {
+      "persona": "stress",
+      "operation": "link edit",
+      "status": "PASS",
+      "ms": 3291,
+      "bytes": 54,
+      "serverTiming": "auth;dur=613.2, mutation;dur=2675.0"
+    },
+    {
+      "persona": "stress",
+      "operation": "link delete",
+      "status": "PASS",
+      "ms": 2410,
+      "bytes": 54,
+      "serverTiming": "auth;dur=608.8, mutation;dur=1798.1"
+    },
+    {
+      "persona": "stress",
+      "operation": "video create",
+      "status": "PASS",
+      "ms": 3378,
+      "bytes": 54,
+      "serverTiming": "auth;dur=591.3, mutation;dur=2783.8"
+    },
+    {
+      "persona": "stress",
+      "operation": "video edit",
+      "status": "PASS",
+      "ms": 3255,
+      "bytes": 54,
+      "serverTiming": "auth;dur=606.5, mutation;dur=2645.5"
+    },
+    {
+      "persona": "stress",
+      "operation": "video delete",
+      "status": "PASS",
+      "ms": 2358,
+      "bytes": 54,
+      "serverTiming": "auth;dur=793.9, mutation;dur=1561.8"
+    },
+    {
+      "persona": "stress",
+      "operation": "session create",
+      "status": "PASS",
+      "ms": 4320,
+      "bytes": 54,
+      "serverTiming": "auth;dur=681.2, mutation;dur=3636.3"
+    },
+    {
+      "persona": "stress",
+      "operation": "session edit with streak preservation",
+      "status": "PASS",
+      "ms": 4520,
+      "bytes": 54,
+      "serverTiming": "auth;dur=656.0, mutation;dur=3861.1"
+    },
+    {
+      "persona": "stress",
+      "operation": "session delete with streak preservation",
+      "status": "PASS",
+      "ms": 3093,
+      "bytes": 54,
+      "serverTiming": "auth;dur=636.7, mutation;dur=2452.2"
+    },
+    {
+      "persona": "stress",
+      "operation": "topic delete",
+      "status": "PASS",
+      "ms": 5384,
+      "bytes": 54,
+      "serverTiming": "auth;dur=602.4, mutation;dur=4779.0"
+    },
+    {
+      "persona": "stress",
+      "operation": "subject cleanup",
+      "status": "PASS",
+      "ms": 3122,
+      "bytes": 54,
+      "serverTiming": "auth;dur=677.9, mutation;dur=2440.9"
+    }
+  ]
+}

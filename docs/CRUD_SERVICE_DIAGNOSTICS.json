@@ -1,0 +1,170 @@
+{
+  "generatedAt": "2026-10-10T06:46:02.513Z",
+  "results": [
+    {
+      "service": "redis-1500ms",
+      "ms": 641,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 1649,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 282,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 1459,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 293,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 328,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 279,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 302,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 282,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 311,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 280,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 336,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 331,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 365,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 283,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 305,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 279,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 306,
+      "ok": true
+    },
+    {
+      "service": "redis-1500ms",
+      "ms": 275,
+      "ok": true
+    },
+    {
+      "service": "neon-http",
+      "ms": 306,
+      "ok": true
+    },
+    {
+      "service": "sign-in",
+      "ms": 3798,
+      "status": 200
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 691,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 629,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 620,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 700,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 634,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 630,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 627,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 663,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 642,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "service": "authenticated-read",
+      "ms": 649,
+      "status": 200,
+      "ok": true
+    }
+  ]
+}

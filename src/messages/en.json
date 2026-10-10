@@ -395,8 +395,20 @@
       "evening": "Good evening, {name}",
       "night": "Good night, {name}",
       "midnight": "Still up, {name}?",
-      "taglines": { "morning": "Hope your day starts well.", "afternoon": "Keep up the great work.", "evening": "Time to slow down a little.", "night": "Winding down? Rest well.", "midnight": "The night owls are out tonight." },
-      "badges": { "morning": "Early Bird", "afternoon": "Day Champion", "evening": "Evening Star", "night": "Night Voyager", "midnight": "Night Owl" },
+      "taglines": {
+        "morning": "Hope your day starts well.",
+        "afternoon": "Keep up the great work.",
+        "evening": "Time to slow down a little.",
+        "night": "Winding down? Rest well.",
+        "midnight": "The night owls are out tonight."
+      },
+      "badges": {
+        "morning": "Early Bird",
+        "afternoon": "Day Champion",
+        "evening": "Evening Star",
+        "night": "Night Voyager",
+        "midnight": "Night Owl"
+      },
       "greetingStudied": "You’ve studied {time} today. Every focused moment moves you forward.",
       "greetingPlanned": "You have {count} study sessions planned today. Make a little room for progress.",
       "greetingStreak": "You’re building a {days}-day streak. Keep your momentum going.",
@@ -487,7 +499,7 @@
     "recordUnavailable": "This record is unavailable.",
     "saveFailed": "Your changes could not be saved. Please try again.",
     "authenticationFailed": "Unable to sign in or update your account. Check your details and try again.",
-    "resetEmailSent": "If an account matches that email, a reset link has been sent.",
+    "resetEmailSent": "If an account matches that email, check your inbox for reset instructions. If nothing arrives, try again later.",
     "tooManyRequests": "Too many attempts. Please wait a minute and try again.",
     "timerAlreadyRunning": "You already have a running timer.",
     "uploadFailed": "The file could not be uploaded. Please try again.",
@@ -504,6 +516,13 @@
       "instructions": "Open this link to continue:",
       "ignore": "If you did not request this, ignore this email."
     },
-    "emailUnavailable": "Password-reset email is not configured yet. Please contact the platform administrator."
+    "emailUnavailable": "Password-reset email is not configured yet. Please contact the platform administrator.",
+    "savingChanges": "Saving changes…",
+    "changesSaved": "Changes saved.",
+    "saveUncertain": "Some changes were not confirmed. Check the saved records before trying again; a request may still have reached the server.",
+    "reviewedChanges": "I have reviewed my changes",
+    "authenticationUnavailable": "Session verification is temporarily unavailable. Please try again.",
+    "databaseUnavailable": "The data service is temporarily unavailable. Please try again.",
+    "recordConflict": "This record changed elsewhere. Review the latest values before saving again."
   }
 }

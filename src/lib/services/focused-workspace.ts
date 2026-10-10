@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { sql } from "drizzle-orm";
+import { sql, and, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { shellBaseWorkspace } from "./workspace";
@@ -10,6 +10,60 @@ import { timed } from "@/lib/perf";
 import { localDay, shiftDay, weekStart } from "@/lib/analytics";
 import { getScheduleBlocksInRange } from "./lists";
 import type { AnalyticsSummary } from "@/lib/analytics/server";
+import { getShellWorkspace } from "./workspace";
+import { listSessions, sessionFilterSchema } from "./lists";
+import { listResources, resourceFilterSchema } from "./resources";
+import { listAdminUsers, adminUserFilterSchema } from "./admin-users";
+import { platformAnalytics } from "@/lib/analytics/platform";
+import { learnerAnalytics } from "@/lib/analytics/server";
+import { subjectStatistics } from "./subject-statistics";
+
+/** Admin detail exposes aggregates and subject identifiers, never learning content. */
+export async function adminDetailWorkspace(id: string): Promise<Workspace | undefined> {
+  const shell = await getShellWorkspace();
+  if (shell.user.role !== "admin") throw new Error("Account unavailable.");
+  const [row] = await getDb().select({ account: schema.users, prefs: schema.preferences }).from(schema.users)
+    .leftJoin(schema.preferences, eq(schema.preferences.userId, schema.users.id))
+    .where(and(eq(schema.users.id, id), eq(schema.users.role, "learner")));
+  if (!row) return;
+  const { account, prefs } = row;
+  const [subjects, statistics, analytics] = await Promise.all([
+    getDb().select({ id: schema.subjects.id, userId: schema.subjects.userId, color: schema.subjects.displayColor, status: schema.subjects.status,
+      createdAt: schema.subjects.createdAt, updatedAt: schema.subjects.updatedAt }).from(schema.subjects).where(eq(schema.subjects.userId, id)),
+    subjectStatistics(id, false, account.updatedAt.toISOString()),
+    learnerAnalytics(id, account.timezone, (prefs?.weekStartDay ?? 1) as 0 | 1, shell.settings.streakMinutes, undefined, prefs?.highestStreak ?? 0, account.updatedAt.toISOString()),
+  ]);
+  const user = { id, name: account.name, email: account.email, role: "learner" as const, status: account.status === "active" ? "active" as const : "inactive" as const,
+    timezone: account.timezone, createdAt: account.createdAt.toISOString(), updatedAt: account.updatedAt.toISOString(), lastActiveAt: account.lastActiveAt.toISOString(),
+    weeklyTargetMinutes: prefs?.weeklyTargetMinutes ?? 0, theme: (prefs?.theme ?? "auto") as Workspace["user"]["theme"],
+    weekStartDay: (prefs?.weekStartDay ?? 1) as 0 | 1, reminders: prefs?.reminders ?? true, longestStreak: prefs?.highestStreak ?? 0 };
+  return { ...shell, shellOnly: false, scope: `admin:${id}`, loadedAt: new Date().toISOString(), users: [user],
+    subjects: subjects.map(subject => ({ ...subject, color: subject.color as SubjectColor, title: "", description: "", createdAt: subject.createdAt.toISOString(), updatedAt: subject.updatedAt.toISOString() })),
+    subjectStatistics: statistics, adminLearnerAnalytics: analytics };
+}
+
+/** Detail pages read their own rows and aggregates, not the entire workspace. */
+export async function subjectDetailWorkspace(account: typeof schema.users.$inferSelect, id: string): Promise<Workspace> {
+  const [subjects, shell, sessions, resources, analytics] = await Promise.all([
+    subjectPageWorkspace(account), getShellWorkspace(),
+    listSessions(account.id, account.timezone, sessionFilterSchema.parse({ subjectId: id })),
+    listResources(account.id, resourceFilterSchema.parse({ subjectId: id })), analyticsPageWorkspace(account),
+  ]);
+  return { ...subjects, user: shell.user, settings: shell.settings, timer: shell.timer,
+    sessions: sessions.rows, resources: resources.rows, resourceCounts: { [id]: resources.total }, analytics: analytics.analytics,
+    pageFields: ["user", "subjects", "topics", "subjectStatistics", "sessions", "resources", "resourceCounts", "analytics", "timer", "settings"] };
+}
+
+export async function adminPageWorkspace(includePlatform = false, includeUsers = false): Promise<Workspace> {
+  const shell = await getShellWorkspace();
+  if (shell.user.role !== "admin") throw new Error("Account unavailable.");
+  const [platform, users] = await Promise.all([
+    includePlatform ? platformAnalytics(shell.user.timezone, shell.user.weekStartDay) : undefined,
+    includeUsers ? listAdminUsers(adminUserFilterSchema.parse({})) : undefined,
+  ]);
+  return { ...shell, shellOnly: false, loadedAt: new Date().toISOString(), platform,
+    users: users?.rows.map(row => row.user) ?? shell.users };
+}
 
 type Account = typeof schema.users.$inferSelect;
 type PageField = NonNullable<Workspace["pageFields"]>[number];
@@ -142,6 +196,7 @@ export const resourcePageWorkspace = cache(async (account: Account): Promise<Wor
       status: "active" | "archived"; createdAt: string; updatedAt: string }>;
     topics: SubjectRow["topics"];
     storage_bytes: string;
+    resource_counts: Record<string, number>;
     settings: Record<string, number>;
   }>(sql`
     SELECT
@@ -156,6 +211,8 @@ export const resourcePageWorkspace = cache(async (account: Account): Promise<Wor
         FROM topics t JOIN subjects s ON s.id = t.subject_id
         WHERE s.user_id = ${account.id}::uuid AND NOT t.archived) AS topics,
       (SELECT coalesce(sum(size_bytes), 0)::text FROM resources WHERE user_id = ${account.id}::uuid) AS storage_bytes,
+      (SELECT coalesce(jsonb_object_agg(subject_id, total), '{}'::jsonb)
+        FROM (SELECT subject_id, count(*)::integer AS total FROM resources WHERE user_id = ${account.id}::uuid GROUP BY subject_id) counts) AS resource_counts,
       (SELECT coalesce(jsonb_object_agg(key, value), '{}'::jsonb) FROM app_settings) AS settings
   `));
   const row = result.rows[0];
@@ -168,8 +225,8 @@ export const resourcePageWorkspace = cache(async (account: Account): Promise<Wor
     targetDate: item.targetDate ?? undefined, sortOrder: item.sortOrder, archived: item.archived,
     completedAt: item.completedAt ? new Date(item.completedAt).toISOString() : undefined,
     createdAt: new Date(item.createdAt).toISOString(), updatedAt: new Date(item.updatedAt).toISOString() }));
-  return focused(account, ["subjects", "topics", "storageBytes", "settings"], {
-    subjects, topics, storageBytes: Number(row.storage_bytes),
+  return focused(account, ["subjects", "topics", "storageBytes", "resourceCounts", "settings"], {
+    subjects, topics, storageBytes: Number(row.storage_bytes), resourceCounts: row.resource_counts,
     settings: { streakMinutes: Number(row.settings.streakMinutes ?? 10),
       maxFileSizeMB: Number(row.settings.maxFileSizeMB ?? 10),
       storagePerUserMB: Number(row.settings.storagePerUserMB ?? 100),

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createUpload, finishUpload } from "@/app/[locale]/file-actions";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/modal";
@@ -9,7 +9,8 @@ import Field, {
   TextField,
 } from "@/components/studyflow/FormFields";
 import { getResources } from "@/lib/workspace/queries";
-import { newId, runOperation, reloadWorkspace } from "@/lib/workspace/store";
+import { newId, runOperation, reloadWorkspace, confirmWorkspaceChanges } from "@/lib/workspace/store";
+import { beginWrite } from "@/lib/workspace/write-status";
 import type { Resource, Workspace } from "@/types";
 import StudySelectors from "@/components/study/StudySelectors";
 interface Props {
@@ -34,6 +35,8 @@ export default function ResourceModal({
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const submitting = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   return (
     <Modal
       isOpen={isOpen}
@@ -111,6 +114,7 @@ export default function ResourceModal({
             createdAt: resource?.createdAt ?? new Date().toISOString(),
           };
           if (type === "file" && file) {
+            const finishWrite = beginWrite(data.user.id);
             try {
               const upload = await createUpload({ subjectId: subject, topicId: topic || undefined, title, name: file.name, mimeType: file.type, sizeBytes: file.size });
               if (!upload.ok) { setError(t(upload.error)); return; }
@@ -118,17 +122,23 @@ export default function ResourceModal({
               if (!sent.ok) { setError(t("uploadFailed")); return; }
               const confirmed = await finishUpload(upload.data.id);
               if (!confirmed.ok) { setError(t(confirmed.error)); return; }
+              confirmWorkspaceChanges(data, { ok: true, userUpdatedAt: confirmed.data.userUpdatedAt, changes: { resources: [confirmed.data.resource] } });
+              finishWrite("saved");
               if (resource) {
-                const removed = await runOperation(data, { kind: "delete", entity: "resource", id: resource.id });
+                const removed = await runOperation(data, { kind: "delete", entity: "resource", id: resource.id }, resource);
                 if (!removed.ok) { setError(t(removed.error)); return; }
               }
               await reloadWorkspace();
             } catch { setError(t("uploadFailed")); return; }
+            finally { finishWrite("uncertain"); }
           } else {
-            const saved = await runOperation(data, { kind: "resource", value });
+            const request = runOperation(data, { kind: "resource", value }, resource);
+            onClose();
+            const saved = await request;
             if (!saved.ok) { setError(t(saved.error)); return; }
+            return;
           }
-          onClose();
+          if (mounted.current) onClose();
           } finally { submitting.current = false; setPending(false); }
         }}
       >
