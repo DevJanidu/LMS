@@ -12,7 +12,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "node scripts/test-analytics.mjs && vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",

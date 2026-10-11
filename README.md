@@ -70,7 +70,7 @@ Cron -> bearer check -> reminders, timer sweep, storage cleanup, retention
 
 Set Vercel's production variables and Node 24, connect the main branch and final domain, and run migrations as a protected release step before deployment. Previews need an independent Neon branch and matching storage endpoint. Configure Resend's domain, bucket CORS, Redis and CRON_SECRET. `vercel.json` defines job schedules; choose a plan supporting their frequency.
 
-GitHub Actions runs lint, typecheck, tests, build and public browser checks. Internal PRs can provision disposable Neon branches when NEON_PROJECT_ID, NEON_TEST_PARENT_BRANCH and NEON_API_KEY are configured. Deployment credentials are not in this repository.
+GitHub Actions runs lint, generated-route typecheck, tests, migration checks, build and public browser checks on main pushes and PRs targeting main. Isolated Neon integration also requires dedicated CI Redis configuration; see [CI setup and failure diagnosis](docs/CI_SETUP.md). Deployment credentials are not in this repository.
 
 Read [security](docs/SECURITY.md), [operations](docs/OPERATIONS.md), [backend audit](docs/BACKEND_AUDIT.md) and [backend delivery](docs/BACKEND_DELIVERY.md) for verification limits. Performance targets, full authenticated/file/email E2E behavior, backup recovery and external error tracking have not been verified against real infrastructure. Terms/Privacy are owner placeholders. Decide minimum-age/parental-consent rules before launch.
 

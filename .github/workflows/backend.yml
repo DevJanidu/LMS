@@ -1,69 +1,174 @@
 name: Backend checks
+
 on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
+  workflow_dispatch:
+
 permissions:
   contents: read
+
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Non-live fixtures allow production-mode public checks without production secrets.
+# Authenticated checks override the database and Redis with isolated services.
+env:
+  CI: 'true'
+  NEXT_TELEMETRY_DISABLED: '1'
+  APP_URL: http://localhost:3000
+  AUTH_SECRET: github-ci-disposable-auth-secret-fixture-only
+  CRON_SECRET: github-ci-disposable-cron-secret-fixture-only
+  DATABASE_URL: postgresql://fixture:fixture@database.example.com/app
+  DATABASE_URL_UNPOOLED: postgresql://fixture:fixture@database.example.com/app
+  OBJECT_STORAGE_ENDPOINT: https://storage.example.com
+  OBJECT_STORAGE_REGION: us-east-2
+  OBJECT_STORAGE_BUCKET: fixture
+  OBJECT_STORAGE_ACCESS_KEY_ID: fixture-key
+  OBJECT_STORAGE_SECRET_ACCESS_KEY: fixture-secret
+  UPSTASH_REDIS_REST_URL: https://redis.example.com
+  UPSTASH_REDIS_REST_TOKEN: fixture-token
+  CACHE_NAMESPACE: test
+  RESEND_API_KEY: ''
+  EMAIL_FROM: ''
+  GOOGLE_CLIENT_ID: ''
+  GOOGLE_CLIENT_SECRET: ''
+  TEST_DATABASE_URL: ''
+  TEST_DATABASE_ISOLATED: 'false'
+  E2E_DATABASE_READY: ''
+
 jobs:
   quality:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          node-version: 24
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: package.json
           cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Generate route types and typecheck
+        run: npm run typecheck
+      - name: Translation, analytics and unit tests
+        run: npm test
+      - name: Validate migration metadata
+        run: npx --no-install drizzle-kit check
+      - name: Build production application
+        run: npm run build
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Public browser checks
+        run: npm run test:e2e
+        env:
+          PLAYWRIGHT_SKIP_BUILD: '1'
+      - name: Upload browser diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: public-browser-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # The Neon driver uses HTTPS/WebSockets; a plain Postgres container is insufficient.
+  # Configure a dedicated empty test parent and CI-only Redis before enabling this job.
   database:
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.NEON_PROJECT_ID != '' && vars.NEON_TEST_PARENT_BRANCH != ''
-    runs-on: ubuntu-latest
+    needs: quality
+    if: >-
+      vars.NEON_PROJECT_ID != '' && vars.NEON_TEST_PARENT_BRANCH != '' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      UPSTASH_REDIS_REST_URL: ${{ vars.CI_UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.CI_UPSTASH_REDIS_REST_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          node-version: 24
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: package.json
           cache: npm
-      - run: npm ci
-      - uses: neondatabase/create-branch-action@v6
+          cache-dependency-path: package-lock.json
+      - name: Validate integration credentials
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: |
+          for key in NEON_API_KEY UPSTASH_REDIS_REST_URL UPSTASH_REDIS_REST_TOKEN; do
+            if [[ -z "${!key}" ]]; then
+              echo "::error::Missing isolated CI service configuration: $key"
+              exit 1
+            fi
+          done
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Set branch expiry
+        id: expiry
+        run: echo "expires_at=$(date -u -d '+1 day' '+%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+      - name: Create disposable Neon branch
+        uses: neondatabase/create-branch-action@fb620d43d4c565abaf088b848a4e28e5c4ea4d9c # v6
         id: branch
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           api_key: ${{ secrets.NEON_API_KEY }}
           parent_branch: ${{ vars.NEON_TEST_PARENT_BRANCH }}
           branch_name: ci-${{ github.run_id }}-${{ github.run_attempt }}
-      - run: npm run db:migrate
+          branch_type: schema-only
+          expires_at: ${{ steps.expiry.outputs.expires_at }}
+      - name: Apply migrations to disposable branch
+        run: npm run db:migrate
         env:
           DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
-      - run: npm run test:unit
-        env:
-          TEST_DATABASE_URL: ${{ steps.branch.outputs.db_url }}
-          TEST_DATABASE_ISOLATED: 'true'
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Database integration tests
+        run: npm run test:unit
         env:
           DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
           DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
-          AUTH_SECRET: github-ci-disposable-auth-secret-fixture-only
-          CRON_SECRET: github-ci-disposable-cron-secret-fixture-only
-          APP_URL: http://localhost:3000
-          RESEND_API_KEY: fixture-not-a-live-email-key
-          EMAIL_FROM: tests@example.com
-          OBJECT_STORAGE_ENDPOINT: https://storage.example.com
-          OBJECT_STORAGE_REGION: us-east-2
-          OBJECT_STORAGE_BUCKET: fixture
-          OBJECT_STORAGE_ACCESS_KEY_ID: fixture-key
-          OBJECT_STORAGE_SECRET_ACCESS_KEY: fixture-secret
+          TEST_DATABASE_URL: ${{ steps.branch.outputs.db_url }}
+          TEST_DATABASE_ISOLATED: 'true'
+      - name: Build production application
+        run: npm run build
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Authenticated browser checks
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
           E2E_DATABASE_READY: '1'
-      - uses: neondatabase/delete-branch-action@v3
+          PLAYWRIGHT_SKIP_BUILD: '1'
+      - name: Delete disposable Neon branch
+        uses: neondatabase/delete-branch-action@4468d825d5a88ef4012f1705a82f02ec3072f776 # v3
         if: always() && steps.branch.outputs.branch_id != ''
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           api_key: ${{ secrets.NEON_API_KEY }}
           branch: ${{ steps.branch.outputs.branch_id }}
+      - name: Upload browser diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: database-browser-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 3
+          if-no-files-found: ignore
