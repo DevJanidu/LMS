@@ -1,11 +1,11 @@
 import { beforeEach, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ allow: vi.fn(), post: vi.fn(), get: vi.fn(), session: vi.fn() }));
+const mocks = vi.hoisted(() => ({ allow: vi.fn(), post: vi.fn(), get: vi.fn(), session: vi.fn(), getEnv: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ getAuth: () => ({ api: { getSession: mocks.session } }) }));
-vi.mock("@/lib/env", () => ({ getEnv: () => ({ APP_URL: "https://study.example.com" }) }));
+vi.mock("@/lib/env", () => ({ getEnv: mocks.getEnv }));
 vi.mock("@/lib/rate-limit", () => ({ requestLimit: async (...args: unknown[]) => await mocks.allow(...args) ? "allowed" : "limited" }));
 vi.mock("better-auth/next-js", () => ({ toNextJsHandler: () => ({ POST: mocks.post, GET: mocks.get }) }));
 import { GET, POST } from "@/app/api/auth/[...all]/route";
-beforeEach(() => { vi.clearAllMocks(); mocks.allow.mockResolvedValue(true); mocks.post.mockResolvedValue(Response.json({ ok: true })); mocks.get.mockResolvedValue(Response.json({ ok: true })); });
+beforeEach(() => { vi.clearAllMocks(); mocks.getEnv.mockReturnValue({ APP_URL: "https://study.example.com" }); mocks.allow.mockResolvedValue(true); mocks.post.mockResolvedValue(Response.json({ ok: true })); mocks.get.mockResolvedValue(Response.json({ ok: true })); });
 it("rejects foreign origins and denied rate limits before credential processing", async () => {
   expect((await POST(new Request("https://study.example.com/api/auth/sign-in/email", { method: "POST", headers: { Origin: "https://attacker.example.com" } }))).status).toBe(403);
   expect(mocks.post).not.toHaveBeenCalled();
@@ -25,6 +25,14 @@ it("opens old emailed reset callbacks without requiring a session or trusting ca
 it("offers recovery for reset callbacks missing a token", async () => {
   const response = await GET(new Request("https://study.example.com/api/auth/reset-password"));
   expect(response.headers.get("location")).toBe("https://study.example.com/reset-password?error=INVALID_TOKEN");
+});
+it("redirects emailed links to a helpful page when server configuration is unavailable", async () => {
+  mocks.getEnv.mockImplementationOnce(() => { throw new Error("Invalid server configuration"); });
+  const response = await GET(new Request("https://study.example.com/api/auth/reset-password/fixture-token"));
+  expect(response.status).toBe(303);
+  expect(response.headers.get("location")).toBe("/reset-password?error=AUTHENTICATION_UNAVAILABLE");
+  expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+  expect(mocks.session).not.toHaveBeenCalled();
 });
 it("protects every public credential route and prevents shared caching of auth responses", async () => {
   for (const path of ["sign-in/email", "sign-up/email", "request-password-reset", "reset-password"]) {

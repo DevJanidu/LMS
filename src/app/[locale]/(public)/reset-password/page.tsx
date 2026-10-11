@@ -10,7 +10,7 @@ export default async function Page({
   const { locale } = await params;
   setRequestLocale(locale);
   const { token, error } = await searchParams;
-  return <AuthForm token={token} resetLinkError={Boolean(error)} mode="reset-password" />;
+  return <AuthForm token={token} resetLinkError={error === "AUTHENTICATION_UNAVAILABLE" ? "unavailable" : error ? "invalid" : undefined} mode="reset-password" />;
 }
 
 export async function generateMetadata({

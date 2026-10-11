@@ -38,6 +38,15 @@ async function guarded(request: Request, handler: (request: Request) => Promise<
   try { return await handler(request); }
   catch (error) {
     console.warn(JSON.stringify({ event: "authentication_unavailable", category: authenticationFailureKind(error) }));
+    const path = authPath(request);
+    if (request.method === "GET" && (path === "/reset-password" || /^\/reset-password\/[^/]+$/.test(path))) {
+      // A browser opening an emailed link should see our recovery UI even
+      // when APP_URL or another required setting cannot currently be validated.
+      return privateResponse(new Response(null, { status: 303, headers: {
+        Location: "/reset-password?error=AUTHENTICATION_UNAVAILABLE",
+        "Referrer-Policy": "no-referrer",
+      } }));
+    }
     return privateResponse(Response.json({ error: "authenticationUnavailable" }, { status: 503 }));
   }
 }

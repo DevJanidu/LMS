@@ -19,6 +19,8 @@ test("invalid reset links offer recovery and valid-shaped links validate new pas
   await expect(page.locator("form").getByRole("alert")).toHaveText(/missing, invalid, or has expired/);
   await expect(page.getByRole("link", { name: "Send me a new reset link" })).toHaveAttribute("href", "/forgot-password");
   await expect(page.getByRole("button", { name: "Reset password", exact: true })).toHaveCount(0);
+  await page.goto("/reset-password?error=AUTHENTICATION_UNAVAILABLE");
+  await expect(page.locator("form").getByRole("alert")).toHaveText(/account service is temporarily unavailable/);
   const response = await request.get("/api/auth/reset-password/fixture-token?callbackURL=https://attacker.example.com", { maxRedirects: 0 });
   expect(response.status()).toBe(303);
   expect(response.headers().location).toContain("/reset-password?token=fixture-token");

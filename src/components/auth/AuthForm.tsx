@@ -15,7 +15,7 @@ interface Props {
   token?: string;
   returnTo?: string;
   mode: "login" | "register" | "forgot-password" | "reset-password";
-  resetLinkError?: boolean;
+  resetLinkError?: "invalid" | "unavailable";
   passwordResetComplete?: boolean;
 }
 /** Account forms submit only to the authenticated server API. */
@@ -40,7 +40,7 @@ export default function AuthForm({ token, mode, returnTo, resetLinkError, passwo
     }
   }, undefined);
   const failure = result && !result.ok ? result : undefined;
-  const error = failure ? t(failure.error) : unusableLink ? t("invalidResetLink") : "";
+  const error = failure ? t(failure.error) : unusableLink ? t(resetLinkError === "unavailable" ? "authenticationUnavailable" : "invalidResetLink") : "";
   const fieldError = (field: AuthField) => failure?.field === field ? t(failure.error) : undefined;
   const message = result?.ok && forgot ? t("resetEmailSentTo", { email: result.email ?? "" }) : passwordResetComplete ? t("passwordResetComplete") : "";
   const invalidLink = unusableLink || failure?.error === "invalidResetLink";
