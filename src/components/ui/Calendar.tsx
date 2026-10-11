@@ -2,8 +2,9 @@
 
 import { DayPicker, type DayPickerProps } from "react-day-picker";
 import { ChevronDownIcon } from "@/icons";
+import CalendarDropdown from "@/components/ui/CalendarDropdown";
 
-export function Calendar({ className = "", classNames, ...props }: DayPickerProps) {
+export function Calendar({ className = "", classNames, components, ...props }: DayPickerProps) {
   return <DayPicker
     showOutsideDays
     navLayout="around"
@@ -11,6 +12,7 @@ export function Calendar({ className = "", classNames, ...props }: DayPickerProp
     classNames={{
       months: "flex flex-col", month: "space-y-3", month_caption: "relative flex h-8 items-center justify-center",
       caption_label: "text-h3 text-primary dark:text-primary", nav: "flex items-center gap-1",
+      dropdowns: "flex min-w-0 items-center justify-center gap-1",
       button_previous: "absolute start-0 grid size-8 place-items-center rounded-lg text-muted transition hover:bg-gray-100 hover:text-brand-600 dark:text-secondary dark:hover:bg-gray-800 dark:hover:text-brand-300",
       button_next: "absolute end-0 grid size-8 place-items-center rounded-lg text-muted transition hover:bg-gray-100 hover:text-brand-600 dark:text-secondary dark:hover:bg-gray-800 dark:hover:text-brand-300",
       chevron: "size-4", month_grid: "w-full border-collapse", weekdays: "grid grid-cols-7",
@@ -21,7 +23,7 @@ export function Calendar({ className = "", classNames, ...props }: DayPickerProp
       outside: "text-muted dark:text-muted", disabled: "[&>button]:cursor-not-allowed [&>button]:opacity-30",
       ...classNames,
     }}
-    components={{ Chevron: ({ orientation, className: iconClass }) => <ChevronDownIcon className={`${iconClass ?? ""} ${orientation === "left" ? "rotate-90" : "-rotate-90"}`} /> }}
+    components={{ Dropdown: CalendarDropdown, Chevron: ({ orientation, className: iconClass }) => <ChevronDownIcon className={`${iconClass ?? ""} ${orientation === "down" ? "" : orientation === "left" ? "rotate-90 rtl:-rotate-90" : "-rotate-90 rtl:rotate-90"}`} />, ...components }}
     {...props}
   />;
 }

@@ -177,6 +177,7 @@
     "oneTime": "One-time",
     "weekly": "Weekly",
     "weekdays": "Repeat on",
+    "selectAllDays": "Seleccionar todos los días",
     "repeatScope": "Change which blocks?",
     "thisOne": "This one only",
     "allFuture": "All future",

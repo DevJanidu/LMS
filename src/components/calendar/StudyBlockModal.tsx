@@ -1,5 +1,5 @@
 "use client";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Modal } from "@/components/ui/modal";
@@ -14,10 +14,11 @@ import { newId } from "@/lib/workspace/store";
 import type { CalendarCommand } from "@/lib/validation/calendar";
 import { localDay, shiftDay, wallTime, zonedToUtc } from "@/lib/analytics";
 import { getOccurrences, type BlockOccurrence } from "@/lib/schedule";
-import type { ScheduleBlock, SubjectColor, Workspace } from "@/types";
+import type { ScheduleBlock, Workspace } from "@/types";
 import StudySelectors from "@/components/study/StudySelectors";
 import ScheduleDateTimeField from "./ScheduleDateTimeField";
-import { Checkbox } from "@/components/ui/Checkbox";
+import RepeatWeekdays from "./RepeatWeekdays";
+import { accentClasses } from "@/components/studyflow/ProgressBar";
 import { blockSchema } from "@/lib/validation";
 
 const addMinutes = (value: string, minutes: number) =>
@@ -42,7 +43,6 @@ export default function StudyBlockModal({
   onClose,
   onSave,
 }: Props) {
-  const id = useId();
   const t = useTranslations("studyflow");
   const block = occurrence?.block.id ? occurrence.block : undefined;
   const source = occurrence?.block;
@@ -54,6 +54,8 @@ export default function StudyBlockModal({
     ? wallTime(occurrence.endsAt, timezone)
     : startLocal ? addMinutes(startLocal, 60) : `${date}T18:00`;
   const [subject, setSubject] = useState(source?.subjectId ?? "");
+  const selectedSubject = getSubjects(data).find(item => item.id === subject);
+  const color = selectedSubject?.color ?? source?.color ?? "brand";
   const [topic, setTopic] = useState(source?.topicId ?? "");
   const [startValue, setStartValue] = useState(initialStart);
   const [endValue, setEndValue] = useState(initialEnd);
@@ -113,7 +115,7 @@ export default function StudyBlockModal({
             weekdays,
             timezone,
             note: String(fields.get("note")) || undefined,
-            color: fields.get("color") as SubjectColor,
+            color,
             exceptions: [],
             createdAt: block?.createdAt ?? timestamp,
             updatedAt: timestamp,
@@ -205,47 +207,19 @@ export default function StudyBlockModal({
             <option value="weekly">{t("weekly")}</option>
             <option value="daily">{t("daily")}</option>
           </SelectField>
-          <SelectField
-            label={t("color")}
-            name="color"
-            defaultValue={block?.color ?? "brand"}
-          >
-            {["brand", "success", "orange", "purple"].map((color) => (
-              <option key={color} value={color}>
-                {t(`colors.${color}`)}
-              </option>
-            ))}
-          </SelectField>
+          <div className="space-y-2 text-body text-primary dark:text-primary">
+            <p className="text-small text-secondary dark:text-secondary">{t("color")}</p>
+            <div className="flex min-h-11 items-center gap-2">
+              <span aria-hidden="true" className={`size-3 shrink-0 rounded-full ${accentClasses[color]}`} />
+              <span>{t(`colors.${color}`)}</span>
+            </div>
+          </div>
         </div>
         {repeat !== "once" && (
-          <fieldset>
-            <legend className="mb-2 text-body">{t("weekdays")}</legend>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              {[0, 1, 2, 3, 4, 5, 6].map((day) => {
-                const checked = weekdays.includes(day);
-                const labelId = `${id}-repeat-day-${day}`;
-                const toggle = () => { if (repeat === "daily" && checked) setRepeat("weekly"); setWeekdays(current => checked
-                  ? current.filter(item => item !== day)
-                  : [...current, day]); };
-                return (
-                  <div key={day} className="inline-flex min-h-8 items-center gap-2 text-small">
-                    <Checkbox
-                      id={labelId}
-                      checked={checked}
-                      aria-labelledby={`${labelId}-label`}
-                      className="!aspect-square !h-4 !min-h-0 !min-w-0 !w-4 shrink-0"
-                      onCheckedChange={(next) => { if (repeat === "daily" && next !== true) setRepeat("weekly"); setWeekdays(current => next === true
-                        ? current.includes(day) ? current : [...current, day]
-                        : current.filter(item => item !== day)); }}
-                    />
-                    <button id={`${labelId}-label`} type="button" onClick={toggle} aria-pressed={checked} className="text-start">
-                      {t(`weekdaysShort.d${day}`)}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </fieldset>
+          <RepeatWeekdays weekdays={weekdays} onChange={next => {
+            if (repeat === "daily" && next.length !== 7) setRepeat("weekly");
+            setWeekdays(next);
+          }} />
         )}
         {block?.repeat === "weekly" && (
           <SelectField

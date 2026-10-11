@@ -17,8 +17,10 @@ export function SelectTrigger({ className = "", compact = false, children, ...pr
 }
 
 export function SelectContent({ className = "", viewportClassName = "", compact = false, children, position = "popper", container, ...props }: ComponentProps<typeof Primitive.Content> & { container?: HTMLElement | null; viewportClassName?: string; compact?: boolean }) {
-  const compactHeight = "max-h-[min(15rem,var(--radix-select-content-available-height))]";
-  return <Primitive.Portal container={container}><Primitive.Content position={position} sideOffset={6} collisionPadding={12} className={`z-999999 ${compact ? `${compactHeight} p-1` : "max-h-80 p-2"} min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-gray-200 bg-white text-body text-secondary shadow-theme-xl outline-none dark:border-gray-700 dark:bg-gray-dark dark:text-primary ${className}`} {...props}><Primitive.Viewport className={`${compact ? compactHeight : "max-h-80"} overflow-y-auto ${viewportClassName}`}>{children}</Primitive.Viewport></Primitive.Content></Primitive.Portal>;
+  const menuHeight = compact
+    ? "max-h-[min(15rem,var(--radix-select-content-available-height))]"
+    : "max-h-[min(20rem,var(--radix-select-content-available-height))]";
+  return <Primitive.Portal container={container}><Primitive.Content position={position} sideOffset={6} collisionPadding={12} className={`z-999999 ${menuHeight} ${compact ? "p-1" : "p-2"} min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-gray-200 bg-white text-body text-secondary shadow-theme-xl outline-none dark:border-gray-700 dark:bg-gray-dark dark:text-primary ${className}`} {...props}><Primitive.Viewport className={`custom-scrollbar overflow-y-auto ${viewportClassName}`} style={{ maxHeight: "inherit" }}>{children}</Primitive.Viewport></Primitive.Content></Primitive.Portal>;
 }
 
 export function SelectItem({ className = "", compact = false, children, ...props }: ComponentProps<typeof Primitive.Item> & { compact?: boolean }) {

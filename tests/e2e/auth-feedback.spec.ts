@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-test("registration birth-date calendar fits a small viewport and selects an earlier year", async ({ page }) => {
+for (const theme of ["light", "dark"] as const) {
+test(`registration birth-date calendar fits a small viewport and selects an earlier year (${theme})`, async ({ page, context }, testInfo) => {
+  await context.addCookies([{ name: "sf-theme", value: theme, url: testInfo.project.use.baseURL! }]);
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto("/register");
   await page.getByLabel("Date of birth (optional)").click();
@@ -10,12 +12,30 @@ test("registration birth-date calendar fits a small viewport and selects an earl
   expect(size!.width).toBeLessThanOrEqual(260);
   expect(size!.y).toBeGreaterThanOrEqual(0);
   expect(size!.y + size!.height).toBeLessThanOrEqual(667);
-  await calendar.getByRole("combobox", { name: /year/i }).selectOption("2000");
-  await calendar.getByRole("combobox", { name: /month/i }).selectOption("0");
+  await calendar.getByRole("combobox", { name: /year/i }).click();
+  const menu = page.getByRole("listbox");
+  await expect(menu).toBeVisible();
+  const menuSize = await menu.boundingBox();
+  expect(menuSize!.x).toBeGreaterThanOrEqual(0);
+  expect(menuSize!.y).toBeGreaterThanOrEqual(0);
+  expect(menuSize!.x + menuSize!.width).toBeLessThanOrEqual(375);
+  expect(menuSize!.y + menuSize!.height).toBeLessThanOrEqual(667);
+  expect(await menu.evaluate(element => getComputedStyle(element).backgroundColor)).toBe(
+    await calendar.evaluate(element => getComputedStyle(element.closest('[role="dialog"]')!).backgroundColor),
+  );
+  await page.screenshot({ path: testInfo.outputPath(`birth-date-year-${theme}.png`) });
+  await page.getByRole("option", { name: "2000", exact: true }).click();
+  await expect(calendar).toBeVisible();
+  await calendar.getByRole("combobox", { name: /month/i }).click();
+  await page.keyboard.press("Home");
+  await expect(page.getByRole("option", { name: "January", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(calendar.getByRole("combobox", { name: /month/i })).toHaveText("January");
   await calendar.getByRole("button").filter({ hasText: /^15$/ }).click();
   await expect(page.locator('input[name="dob"]')).toHaveValue("2000-01-15");
   await expect(calendar).toBeHidden();
 });
+}
 
 test("login explains invalid emails and missing passwords next to the field", async ({ page }) => {
   await page.goto("/login");

@@ -21,8 +21,10 @@ test("registration, login, reset allowance, password change and session revocati
   expect(size!.y).toBeGreaterThanOrEqual(0);
   expect(size!.y + size!.height).toBeLessThanOrEqual(667);
   await page.screenshot({ path: testInfo.outputPath("registration-calendar.png") });
-  await calendar.getByRole("combobox", { name: /year/i }).selectOption("2000");
-  await calendar.getByRole("combobox", { name: /month/i }).selectOption("0");
+  await calendar.getByRole("combobox", { name: /year/i }).click();
+  await page.getByRole("option", { name: "2000", exact: true }).click();
+  await calendar.getByRole("combobox", { name: /month/i }).click();
+  await page.getByRole("option", { name: "January", exact: true }).click();
   await calendar.getByRole("button").filter({ hasText: /^15$/ }).click();
   await expect(calendar).toBeHidden();
   await page.getByLabel("Name", { exact: true }).fill("Auth Lifecycle Fixture");

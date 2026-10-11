@@ -236,20 +236,13 @@ html[data-sf-theme-reveal="light"]::view-transition-old(root) { animation: sf-th
   max-width: calc(100vw - var(--space-6));
   padding: var(--space-2);
 }
-.sf-date-picker-compact button[class] {
+.sf-date-picker-compact button[class]:not([role="combobox"]) {
   @apply text-small;
   width: var(--space-8);
   height: var(--space-8);
   min-height: var(--space-8);
 }
 .sf-date-picker-compact td { padding: 0; }
-.sf-date-picker-compact select {
-  @apply text-small;
-  min-height: var(--space-8);
-  height: var(--space-8);
-  padding-block: 0;
-  padding-inline: var(--space-1);
-}
 .sf-date-picker-compact .text-h3 { @apply text-body-strong; }
 @media (max-width: 639px) {
   :root { --text-display: 1.625rem; --text-h1: 1.5rem; }

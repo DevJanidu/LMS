@@ -42,10 +42,8 @@ function DateControl({ value, onSelect, min, max, label, compact = false }: {
     classNames={compact ? {
       month: "relative space-y-2",
       dropdowns: "flex min-w-0 items-center justify-center gap-1",
-      dropdown_root: "min-w-0",
       months_dropdown: "w-24",
       years_dropdown: "w-16",
-      dropdown: "max-w-28 rounded-lg border-gray-300 bg-white text-primary dark:border-gray-700 dark:bg-gray-900 dark:text-primary",
       button_previous: "absolute start-0 top-0 grid size-8 place-items-center rounded-lg text-muted hover:bg-gray-100 hover:text-brand-600 dark:text-secondary dark:hover:bg-gray-800 dark:hover:text-brand-300",
       button_next: "absolute end-0 top-0 grid size-8 place-items-center rounded-lg text-muted hover:bg-gray-100 hover:text-brand-600 dark:text-secondary dark:hover:bg-gray-800 dark:hover:text-brand-300",
       caption_label: "sr-only",

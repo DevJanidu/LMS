@@ -85,6 +85,8 @@
 html { scroll-behavior: smooth; scroll-padding-top: 6rem; scrollbar-gutter: stable; }
 
 :focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+/* Select options use Radix's highlighted row as their keyboard focus indicator. */
+[role="option"]:focus-visible { outline: none; outline-offset: 0; }
 html, body { min-height: 100%; background: var(--background); color: var(--text-primary); }
 html { color-scheme: light; }
 html.dark { color-scheme: dark; }
