@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   goalSchema,
   milestoneSchema,
@@ -439,6 +439,75 @@ describe.skipIf(!enabled)(
           content: "Forbidden",
         }),
       ).rejects.toMatchObject({ status: 404 });
+    });
+    it("enforces the shared monthly budget across concurrent learners", async () => {
+      const { reserveUsage } = await import("@/lib/aven/usage");
+      const { avenConfig, MAX_OUTPUT_TOKENS } =
+        await import("@/lib/aven/config");
+      const config = avenConfig(false);
+      const global = await db.execute<{ cost: number }>(
+        sql`SELECT coalesce(sum(cost_micros),0)::bigint AS cost FROM ai_usage_records WHERE day>=date_trunc('month',now())::date`,
+      );
+      const cost = Math.ceil(
+        10 * config.inputPrice + MAX_OUTPUT_TOKENS * config.outputPrice,
+      );
+      const previous = process.env.AVEN_GLOBAL_MONTHLY_BUDGET_USD;
+      process.env.AVEN_GLOBAL_MONTHLY_BUDGET_USD = String(
+        (Number(global.rows[0].cost) + cost + 1) / 1e6,
+      );
+      try {
+        const results = await Promise.allSettled([
+          reserveUsage(a, crypto.randomUUID(), false, 0, 10),
+          reserveUsage(b, crypto.randomUUID(), false, 0, 10),
+        ]);
+        expect(
+          results.filter((result) => result.status === "fulfilled"),
+        ).toHaveLength(1);
+        const rejected = results.find(
+          (result) => result.status === "rejected",
+        ) as PromiseRejectedResult;
+        expect(rejected.reason.message).toBe("workspaceUsageLimit");
+      } finally {
+        if (previous === undefined)
+          delete process.env.AVEN_GLOBAL_MONTHLY_BUDGET_USD;
+        else process.env.AVEN_GLOBAL_MONTHLY_BUDGET_USD = previous;
+      }
+    });
+    it("enables supportive check-ins and deduplicates goal deadline reminders", async () => {
+      const { changeAvenPreferences } = await import("@/lib/aven/preferences");
+      const { processAvenUser } = await import("@/lib/aven/scheduler");
+      const goal = await create();
+      await db
+        .update(s.goals)
+        .set({ targetDate: today, reminders: true, status: "active" })
+        .where(eq(s.goals.id, goal.goal.id));
+      const preferences = await changeAvenPreferences(a, {
+        kind: "enableReminders",
+      });
+      expect(preferences.notifications).toMatchObject({
+        enabled: true,
+        inApp: true,
+        morning: true,
+        randomized: true,
+        evening: true,
+        weekly: true,
+        goalReminders: true,
+      });
+      const now = Date.parse(`${today}T07:05:00Z`);
+      await Promise.all([processAvenUser(a, now), processAvenUser(a, now)]);
+      const records = await db
+        .select()
+        .from(s.notifications)
+        .where(
+          and(
+            eq(s.notifications.userId, a),
+            eq(
+              s.notifications.deduplicationKey,
+              `aven:goalDeadline:${goal.goal.id}:${today}`,
+            ),
+          ),
+        );
+      expect(records).toHaveLength(1);
     });
     it("delivers one missed-start notification under overlapping worker executions", async () => {
       const { processAvenUser } = await import("@/lib/aven/scheduler"),

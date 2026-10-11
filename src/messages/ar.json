@@ -214,7 +214,8 @@
       "aiAccessDenied": "This OpenAI project does not have access to the selected model. Ask your workspace administrator to check project permissions.",
       "aiModelUnavailable": "The selected AI model is unavailable. Ask your workspace administrator to check the model configuration.",
       "aiQuotaExceeded": "The OpenAI project has reached its billing or usage limit. Ask your workspace administrator to check its API billing.",
-      "aiRequestInvalid": "Aven could not submit this request to the AI provider. Your message is saved; ask your workspace administrator to check the AI integration."
+      "aiRequestInvalid": "Aven could not submit this request to the AI provider. Your message is saved; ask your workspace administrator to check the AI integration.",
+      "workspaceUsageLimit": "The shared monthly AI budget is fully allocated. Chat becomes available when pending requests finish or the budget resets next month. Your goals and reminders still work."
     },
     "dailyPriorities": "Today's goal priorities"
   },
@@ -242,7 +243,10 @@
       "checkInBody": "How is {title} going? Open Aven if you'd like help with your next step.",
       "learning": "your learning",
       "recoveryTitle": "A gentle restart",
-      "recoveryBody": "Would a small restart plan help today? Open Aven to choose a manageable next step."
+      "recoveryBody": "Would a small restart plan help today? Open Aven to choose a manageable next step.",
+      "goalDeadlineTitle": "A small step toward your goal",
+      "goalDeadlineBody": "Your goal \"{title}\" is due {date}. What is one manageable step you can take today?",
+      "taskDeadlineBody": "Your task \"{title}\" is due {date}. Could you make a little progress today?"
     },
     "settings": "Preferences",
     "conversations": "Conversations",
@@ -354,7 +358,8 @@
       "graceMinutes": "Missed-start grace (minutes)",
       "dailyLimit": "Daily notification limit",
       "inactivityDays": "Inactivity recovery after (days)",
-      "weeklyDay": "Weekly review day"
+      "weeklyDay": "Weekly review day",
+      "goalReminders": "Goal and task deadline reminders"
     },
     "proposalKinds": {
       "goalPlan": "Proposed goal plan",
@@ -429,7 +434,8 @@
       "aiAccessDenied": "This OpenAI project does not have access to the selected model. Ask your workspace administrator to check project permissions.",
       "aiModelUnavailable": "The selected AI model is unavailable. Ask your workspace administrator to check the model configuration.",
       "aiQuotaExceeded": "The OpenAI project has reached its billing or usage limit. Ask your workspace administrator to check its API billing.",
-      "aiRequestInvalid": "Aven could not submit this request to the AI provider. Your message is saved; ask your workspace administrator to check the AI integration."
+      "aiRequestInvalid": "Aven could not submit this request to the AI provider. Your message is saved; ask your workspace administrator to check the AI integration.",
+      "workspaceUsageLimit": "The shared monthly AI budget is fully allocated. Chat becomes available when pending requests finish or the budget resets next month. Your goals and reminders still work."
     },
     "smartTitle": "Refine your SMART goal",
     "smartHelp": "Aven will read this draft and your permitted learning context, then propose a plan. Review the complete proposal before approving it.",
@@ -442,7 +448,19 @@
     "loadOlder": "Load older messages",
     "scheduleExplanation": "Uses your preferred study times and daily limit, existing commitments, and 15-minute breaks. Only unblocked unfinished tasks are included. {remaining} task(s) still require capacity or prerequisites.",
     "enableAven": "Enable Aven",
-    "consentRequired": "Enable Aven to send messages. Review the privacy information above before enabling."
+    "consentRequired": "Enable Aven to send messages. Review the privacy information above before enabling.",
+    "showConversations": "Conversations",
+    "hideConversations": "Hide conversations",
+    "noConversations": "Your saved conversations will appear here.",
+    "messagePlaceholder": "Ask Aven about your learning or next step...",
+    "composerHelp": "Enter to send. Shift + Enter for a new line",
+    "enableStudyReminders": "Enable study reminders",
+    "reminderSetupHelp": "Get schedule reminders, goal check-ins and supportive daily messages. Quiet hours and your notification preferences still apply.",
+    "remindersActive": "Study reminders are on",
+    "budgetSummary": "Shared AI budget: ${used} of ${limit} this month",
+    "noDailyChatLimit": "No daily chat allowance. Chat stays available within the shared monthly budget.",
+    "goalRemindersLabel": "Goal and task deadline reminders",
+    "budgetShort": "AI budget: ${used} / ${limit}"
   },
   "studyflow": {
     "exportUsers": "Export users (CSV)",

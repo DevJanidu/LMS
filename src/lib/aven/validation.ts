@@ -37,6 +37,7 @@ export const notificationPreferenceSchema = z
     sessionReminders: z.boolean().default(true),
     leadMinutes: z.number().int().min(0).max(60).default(15),
     missedSessions: z.boolean().default(true),
+    goalReminders: z.boolean().default(true),
     graceMinutes: z.number().int().min(5).max(60).default(10),
     randomized: z.boolean().default(false),
     allowedStart: clock.default("12:00"),
@@ -142,6 +143,7 @@ export const chatSchema = z.object({
 });
 export const preferenceMutationSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("enableAven") }),
+  z.object({ kind: z.literal("enableReminders") }),
   z.object({
     kind: z.literal("preferences"),
     ai: aiPreferenceSchema,

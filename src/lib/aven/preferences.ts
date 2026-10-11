@@ -8,37 +8,43 @@ import {
   notificationPreferenceSchema,
   type preferenceMutationSchema,
 } from "./validation";
-import { avenStatus } from "./config";
+import { avenStatus, avenConfig } from "./config";
 import type { z } from "zod";
 export async function getAvenPreferences(userId: string) {
   const db = getDb();
-  const [[ai], [notifications], memory, usage, [account]] = await Promise.all([
-    db
-      .select()
-      .from(s.aiUserPreferences)
-      .where(eq(s.aiUserPreferences.userId, userId)),
-    db
-      .select()
-      .from(s.notificationPreferences)
-      .where(eq(s.notificationPreferences.userId, userId)),
-    db
-      .select({
-        id: s.aiMemory.id,
-        content: s.aiMemory.content,
-        source: s.aiMemory.source,
-      })
-      .from(s.aiMemory)
-      .where(eq(s.aiMemory.userId, userId))
-      .orderBy(desc(s.aiMemory.updatedAt))
-      .limit(50),
-    db.execute<{ tokens: number; costMicros: number }>(
-      sql`SELECT coalesce(sum(input_tokens+output_tokens),0)::int AS tokens, coalesce(sum(cost_micros),0)::int AS "costMicros" FROM ai_usage_records WHERE user_id=${userId}::uuid AND day >= date_trunc('month',now())::date`,
-    ),
-    db
-      .select({ timezone: s.users.timezone })
-      .from(s.users)
-      .where(eq(s.users.id, userId)),
-  ]);
+  const [[ai], [notifications], memory, usage, [account], globalUsage] =
+    await Promise.all([
+      db
+        .select()
+        .from(s.aiUserPreferences)
+        .where(eq(s.aiUserPreferences.userId, userId)),
+      db
+        .select()
+        .from(s.notificationPreferences)
+        .where(eq(s.notificationPreferences.userId, userId)),
+      db
+        .select({
+          id: s.aiMemory.id,
+          content: s.aiMemory.content,
+          source: s.aiMemory.source,
+        })
+        .from(s.aiMemory)
+        .where(eq(s.aiMemory.userId, userId))
+        .orderBy(desc(s.aiMemory.updatedAt))
+        .limit(50),
+      db.execute<{ tokens: number; costMicros: number }>(
+        sql`SELECT coalesce(sum(input_tokens+output_tokens),0)::int AS tokens, coalesce(sum(cost_micros),0)::int AS "costMicros" FROM ai_usage_records WHERE user_id=${userId}::uuid AND day >= date_trunc('month',now())::date`,
+      ),
+      db
+        .select({ timezone: s.users.timezone })
+        .from(s.users)
+        .where(eq(s.users.id, userId)),
+      db.execute<{ costMicros: number }>(
+        sql`SELECT coalesce(sum(cost_micros),0)::bigint AS "costMicros" FROM ai_usage_records WHERE day>=date_trunc('month',now())::date`,
+      ),
+    ]);
+  const status = avenStatus(),
+    config = status.configured ? avenConfig() : null;
   return {
     timezone: account?.timezone ?? "UTC",
     ai: aiPreferenceSchema.parse(ai?.value ?? {}),
@@ -47,6 +53,11 @@ export async function getAvenPreferences(userId: string) {
     ),
     memory,
     usage: usage.rows[0],
+    budget: {
+      monthlyUsd: config?.globalMonthlyBudget ?? 5,
+      usedUsd: Number(globalUsage.rows[0].costMicros) / 1e6,
+      dailyLimitEnabled: Boolean(config?.dailyBudget || config?.dailyTokens),
+    },
     configured: avenStatus().configured,
     configurationError: avenStatus().code,
     pushConfigured: Boolean(
@@ -88,6 +99,32 @@ export async function changeAvenPreferences(
         .onConflictDoUpdate({
           target: s.aiUserPreferences.userId,
           set: { value, updatedAt: new Date() },
+        });
+    } else if (input.kind === "enableReminders") {
+      const [existing] = await tx
+        .select()
+        .from(s.notificationPreferences)
+        .where(eq(s.notificationPreferences.userId, userId));
+      const value = notificationPreferenceSchema.parse({
+        ...existing?.value,
+        enabled: true,
+        inApp: true,
+        morning: true,
+        sessionReminders: true,
+        missedSessions: true,
+        goalReminders: true,
+        randomized: true,
+        evening: true,
+        weekly: true,
+        dailyLimit: 6,
+        snoozedUntil: null,
+      });
+      await tx
+        .insert(s.notificationPreferences)
+        .values({ userId, value })
+        .onConflictDoUpdate({
+          target: s.notificationPreferences.userId,
+          set: { value, nextCheckAt: new Date(), updatedAt: new Date() },
         });
     } else if (input.kind === "preferences") {
       await tx

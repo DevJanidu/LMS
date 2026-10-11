@@ -76,6 +76,7 @@ it("allows a planning turn with the default models and account limits", () => {
       (inputBound * value.OPENAI_PLANNING_INPUT_PRICE +
         MAX_OUTPUT_TOKENS * value.OPENAI_PLANNING_OUTPUT_PRICE)) /
     1e6;
-  expect(tokens).toBeLessThanOrEqual(value.AVEN_DAILY_TOKEN_LIMIT);
-  expect(cost).toBeLessThanOrEqual(value.AVEN_DAILY_BUDGET_USD);
+  if (value.AVEN_DAILY_TOKEN_LIMIT > 0)
+    expect(tokens).toBeLessThanOrEqual(value.AVEN_DAILY_TOKEN_LIMIT);
+  expect(cost).toBeLessThanOrEqual(value.AVEN_GLOBAL_MONTHLY_BUDGET_USD);
 });

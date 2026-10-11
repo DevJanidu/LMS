@@ -225,6 +225,7 @@ export default function AvenSettings({ initial, onSaved }: Props) {
                 "morning",
                 "sessionReminders",
                 "missedSessions",
+                "goalReminders",
                 "randomized",
                 "evening",
                 "weekly",
@@ -363,6 +364,17 @@ export default function AvenSettings({ initial, onSaved }: Props) {
           {!initial.emailConfigured && (
             <p className="text-muted dark:text-muted text-caption">
               {t("emailUnavailable")}
+            </p>
+          )}
+          <p className="text-muted dark:text-muted text-caption">
+            {t("budgetSummary", {
+              used: initial.budget.usedUsd.toFixed(2),
+              limit: initial.budget.monthlyUsd.toFixed(2),
+            })}
+          </p>
+          {!initial.budget.dailyLimitEnabled && (
+            <p className="text-muted dark:text-muted text-caption">
+              {t("noDailyChatLimit")}
             </p>
           )}
           <p className="text-muted dark:text-muted text-caption">

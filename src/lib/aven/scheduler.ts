@@ -229,6 +229,34 @@ export async function processAvenUser(userId: string, now: number) {
       });
   }
   const dailyAction = { kind: "goals", goalId: goals[0]?.id };
+  if (
+    prefs.goalReminders &&
+    dueLocalTime(now, user.timezone, prefs.morningTime)
+  ) {
+    for (const goal of goals
+      .filter((goal) => goal.targetDate <= shiftDay(today, 3))
+      .slice(0, 2))
+      candidates.push({
+        kind: "goalDeadline",
+        key: `goalDeadline:${goal.id}:${today}`,
+        title: t("goalDeadlineTitle"),
+        body: t("goalDeadlineBody", {
+          title: goal.title,
+          date: goal.targetDate,
+        }),
+        action: { kind: "goals", goalId: goal.id },
+      });
+    for (const task of tasks
+      .filter((task) => task.dueDate && task.dueDate <= shiftDay(today, 1))
+      .slice(0, 2))
+      candidates.push({
+        kind: "taskDeadline",
+        key: `taskDeadline:${task.id}:${today}`,
+        title: t("goalDeadlineTitle"),
+        body: t("taskDeadlineBody", { title: task.title, date: task.dueDate! }),
+        action: { kind: "goals", goalId: task.goalId },
+      });
+  }
   const todaySessions = occurrences.filter(
     (o) => localDay(o.startsAt, user.timezone) === today,
   );

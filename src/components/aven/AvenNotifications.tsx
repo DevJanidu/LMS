@@ -27,6 +27,13 @@ export default function AvenNotifications({ timezone }: { timezone: string }) {
     [start, setStart] = useState(""),
     [end, setEnd] = useState("");
   useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible")
+        setRevision((value) => value + 1);
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+  useEffect(() => {
     const controller = new AbortController();
     void featureRequest<NotificationList>(
       `/api/aven/notifications?page=${page}`,

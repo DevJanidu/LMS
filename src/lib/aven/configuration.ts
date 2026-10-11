@@ -15,10 +15,15 @@ const schema = z.object({
   OPENAI_CHAT_OUTPUT_PRICE: price,
   OPENAI_PLANNING_INPUT_PRICE: price,
   OPENAI_PLANNING_OUTPUT_PRICE: price,
-  AVEN_DAILY_BUDGET_USD: z.coerce.number().positive().max(100).default(1),
-  AVEN_MONTHLY_BUDGET_USD: z.coerce.number().positive().max(1000).default(10),
-  AVEN_DAILY_TOKEN_LIMIT: z.coerce.number().int().positive().default(500000),
-  AVEN_MONTHLY_TOKEN_LIMIT: z.coerce.number().int().positive().default(5000000),
+  AVEN_DAILY_BUDGET_USD: z.coerce.number().min(0).max(100).default(0),
+  AVEN_MONTHLY_BUDGET_USD: z.coerce.number().positive().max(1000).default(5),
+  AVEN_GLOBAL_MONTHLY_BUDGET_USD: z.coerce
+    .number()
+    .positive()
+    .max(1000)
+    .default(5),
+  AVEN_DAILY_TOKEN_LIMIT: z.coerce.number().int().min(0).default(0),
+  AVEN_MONTHLY_TOKEN_LIMIT: z.coerce.number().int().min(0).default(0),
 });
 
 /** Pure resolver shared with the operator check; never return credentials to clients. */
@@ -30,7 +35,7 @@ export function resolveAvenConfiguration(
     if (entry?.trim()) value[key] = entry.trim();
   }
   const chat = String(value.OPENAI_CHAT_MODEL ?? "gpt-4.1-mini");
-  const planning = String(value.OPENAI_PLANNING_MODEL ?? "gpt-4.1");
+  const planning = String(value.OPENAI_PLANNING_MODEL ?? "gpt-4.1-mini");
   return schema.safeParse({
     ...value,
     OPENAI_CHAT_MODEL: chat,

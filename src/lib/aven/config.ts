@@ -26,6 +26,7 @@ export function avenConfig(planning = false) {
       : value.OPENAI_CHAT_OUTPUT_PRICE,
     dailyBudget: value.AVEN_DAILY_BUDGET_USD,
     monthlyBudget: value.AVEN_MONTHLY_BUDGET_USD,
+    globalMonthlyBudget: value.AVEN_GLOBAL_MONTHLY_BUDGET_USD,
     dailyTokens: value.AVEN_DAILY_TOKEN_LIMIT,
     monthlyTokens: value.AVEN_MONTHLY_TOKEN_LIMIT,
   };

@@ -14,9 +14,9 @@ it("enables the documented default models with only a private API key", () => {
   if (!result.success) return;
   expect(result.data.OPENAI_API_KEY).toBe("fixture-key");
   expect(result.data.OPENAI_CHAT_MODEL).toBe("gpt-4.1-mini");
-  expect(result.data.OPENAI_PLANNING_MODEL).toBe("gpt-4.1");
+  expect(result.data.OPENAI_PLANNING_MODEL).toBe("gpt-4.1-mini");
   expect(result.data.OPENAI_CHAT_INPUT_PRICE).toBe(0.4);
-  expect(result.data.OPENAI_PLANNING_OUTPUT_PRICE).toBe(8);
+  expect(result.data.OPENAI_PLANNING_OUTPUT_PRICE).toBe(1.6);
 });
 it("normalizes empty optional env values but never invents a missing API key", () => {
   expect(avenConfigurationStatus({ OPENAI_API_KEY: " " }).code).toBe(

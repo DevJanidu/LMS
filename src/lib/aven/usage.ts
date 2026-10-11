@@ -2,6 +2,7 @@ import "server-only";
 import { eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
+import { budgetFailure } from "./budget";
 import { GoalError } from "@/lib/goals/service";
 import {
   avenConfig,
@@ -29,6 +30,10 @@ export async function reserveUsage(
           MAX_OUTPUT_TOKENS * config.outputPrice),
     );
   return getDb().transaction(async (tx) => {
+    // Global lock precedes account locks so concurrent learners cannot overspend the shared cap.
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtext('aven-global-budget'))`,
+    );
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(hashtext(${`aven-usage:${userId}`}))`,
     );
@@ -49,14 +54,17 @@ export async function reserveUsage(
       sql`SELECT coalesce(sum(cost_micros) FILTER(WHERE day=current_date),0)::int AS "dayCost", coalesce(sum(cost_micros),0)::int AS "monthCost", coalesce(sum(CASE WHEN status='reserved' THEN reserved_tokens ELSE input_tokens+output_tokens END) FILTER(WHERE day=current_date),0)::int AS "dayTokens", coalesce(sum(CASE WHEN status='reserved' THEN reserved_tokens ELSE input_tokens+output_tokens END),0)::int AS "monthTokens", count(*) FILTER(WHERE created_at>now()-interval '1 minute')::int AS recent FROM ai_usage_records WHERE user_id=${userId}::uuid AND day>=date_trunc('month',now())::date`,
     );
     const row = usage.rows[0];
+    const global = await tx.execute<{ cost: number }>(
+      sql`SELECT coalesce(sum(cost_micros),0)::bigint AS cost FROM ai_usage_records WHERE day>=date_trunc('month',now())::date`,
+    );
     if (row.recent >= 5) throw new GoalError("rateLimited", 429);
-    if (
-      row.dayCost + costMicros > config.dailyBudget * 1e6 ||
-      row.monthCost + costMicros > config.monthlyBudget * 1e6 ||
-      row.dayTokens + tokens > config.dailyTokens ||
-      row.monthTokens + tokens > config.monthlyTokens
-    )
-      throw new GoalError("usageLimit", 429);
+    const failure = budgetFailure(
+      { ...row, globalCost: Number(global.rows[0].cost) },
+      costMicros,
+      tokens,
+      config,
+    );
+    if (failure) throw new GoalError(failure, 429);
     const [reservation] = await tx
       .insert(s.aiUsageRecords)
       .values({
