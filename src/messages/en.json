@@ -545,6 +545,8 @@
     "resetEmailSentTo": "Check {email} for your reset link. If this address belongs to an account, a link will arrive shortly. Check your spam folder too. The link expires in one hour.",
     "forgotPasswordDescription": "Enter the email you used to create your account. We will help you reset your password.",
     "resetPasswordDescription": "Choose a new password with at least 8 characters, then enter it again to confirm.",
-    "passwordResetComplete": "Your password has been updated. You can now sign in with your new password."
+    "passwordResetComplete": "Your password has been updated. You can now sign in with your new password.",
+    "passwordResetWeeklyLimit": "You have requested five password-reset links in the past seven days. You can request another on {date}.",
+    "nextWeek": "next week"
   }
 }

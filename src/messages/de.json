@@ -545,6 +545,8 @@
     "resetEmailSentTo": "Prüfe {email} auf den Link zum Zurücksetzen. Wenn die Adresse zu einem Konto gehört, kommt der Link in Kürze. Prüfe auch den Spam-Ordner. Der Link läuft nach einer Stunde ab.",
     "forgotPasswordDescription": "Gib die E-Mail-Adresse deines Kontos ein. Wir helfen dir, dein Passwort zurückzusetzen.",
     "resetPasswordDescription": "Wähle ein neues Passwort mit mindestens 8 Zeichen und wiederhole es zur Bestätigung.",
-    "passwordResetComplete": "Dein Passwort wurde aktualisiert. Du kannst dich jetzt mit deinem neuen Passwort anmelden."
+    "passwordResetComplete": "Dein Passwort wurde aktualisiert. Du kannst dich jetzt mit deinem neuen Passwort anmelden.",
+    "passwordResetWeeklyLimit": "Du hast in den letzten sieben Tagen fünf Links angefordert. Ab {date} kannst du einen weiteren anfordern.",
+    "nextWeek": "nächste Woche"
   }
 }

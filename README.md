@@ -9,7 +9,7 @@ Use **Node 24**, the tested backend runtime. Install with `npm ci`.
 1. Create a Neon project in a region supporting Object Storage. Create independent development and production branches.
 2. Fill `.env.local` using `.env.example`. Preserve the existing local seed settings and generated secrets if that file already exists. Set the development branch's pooled and direct database URLs.
 3. Create a **private** storage bucket on that branch. Copy its actual endpoint, region and S3 credentials from Neon Connect -> Storage. Configure bucket CORS for your app origin; see [operations](docs/OPERATIONS.md).
-4. Configure Resend with a verified sender. Supply the Redis REST URL/token for production rate limiting. Set long random AUTH_SECRET and CRON_SECRET values and the actual APP_URL.
+4. Configure Resend with a verified sender. Supply the Redis REST URL/token for production LMS mutation rate limiting and caching; account actions use persistent database limits. Set long random AUTH_SECRET and CRON_SECRET values and the actual APP_URL.
 5. Run:
 
 ```sh
@@ -33,7 +33,7 @@ The seed never resets an existing password or changes an existing account's role
 | OBJECT_STORAGE_ENDPOINT / OBJECT_STORAGE_REGION / OBJECT_STORAGE_BUCKET | Actual branch storage endpoint, signing region and private bucket |
 | OBJECT_STORAGE_ACCESS_KEY_ID / OBJECT_STORAGE_SECRET_ACCESS_KEY | Branch-scoped S3 key pair |
 | CRON_SECRET | Bearer secret for jobs, at least 32 characters |
-| UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN | Shared rate limits; required in production |
+| UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN | LMS mutation rate limits and optional caching; account actions enforce database limits |
 | SEED_USER_EMAIL / SEED_USER_PASSWORD / SEED_USER_NAME / SEED_USER_ROLE | CLI-only account provisioning inputs |
 | TEST_DATABASE_URL / TEST_DATABASE_ISOLATED | Disposable test branch connection / explicit test opt-in |
 

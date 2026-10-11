@@ -6,7 +6,7 @@ vi.mock("@neondatabase/serverless", () => ({
   Pool: class extends EventEmitter { constructor() { super(); mocked.pools.push(this); } },
 }));
 vi.mock("drizzle-orm/neon-serverless", () => ({ drizzle: mocked.drizzle }));
-vi.mock("@/lib/env", () => ({ getEnv: () => ({ DATABASE_URL: "postgresql://fixture:fixture@database.example.com/app" }) }));
+vi.mock("@/lib/env", () => ({ getDatabaseEnv: () => ({ DATABASE_URL: "postgresql://fixture:fixture@database.example.com/app" }) }));
 import { getDb } from "@/lib/db";
 
 it("handles idle pool disconnects without throwing or exposing error contents and reuses the pool", () => {

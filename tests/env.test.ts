@@ -1,11 +1,16 @@
 import { expect, it } from "vitest";
-import { validateEnvironment } from "@/lib/env";
+import { validateEnvironment, validateAccountEnvironment } from "@/lib/env";
 
 const core = {
   NODE_ENV: "test", DATABASE_URL: "postgresql://fixture:fixture@database.example.com/app", DATABASE_URL_UNPOOLED: "postgresql://fixture:fixture@database.example.com/app",
   AUTH_SECRET: "fixture-auth-secret-with-at-least-32-characters", APP_URL: "http://localhost:3000", CRON_SECRET: "fixture-cron-secret-with-at-least-32-characters",
   OBJECT_STORAGE_ENDPOINT: "https://storage.example.com", OBJECT_STORAGE_REGION: "us-east-2", OBJECT_STORAGE_BUCKET: "fixture", OBJECT_STORAGE_ACCESS_KEY_ID: "fixture-key", OBJECT_STORAGE_SECRET_ACCESS_KEY: "fixture-secret",
 };
+it("allows account operations with only their own required server settings", () => {
+  const env = validateAccountEnvironment({ NODE_ENV: "production", DATABASE_URL: core.DATABASE_URL, AUTH_SECRET: core.AUTH_SECRET, APP_URL: core.APP_URL });
+  expect(env.DATABASE_URL).toBe(core.DATABASE_URL);
+  expect(() => validateAccountEnvironment({ DATABASE_URL: core.DATABASE_URL, APP_URL: core.APP_URL })).toThrow("Missing or invalid service configuration");
+});
 it("accepts core application configuration while email setup is pending", () => {
   const env = validateEnvironment(core);
   expect(env.DATABASE_URL).toBe(core.DATABASE_URL);

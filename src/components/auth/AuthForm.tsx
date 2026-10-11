@@ -1,13 +1,13 @@
 "use client";
-import { useActionState, useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { useTranslations, useFormatter } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authenticate } from "@/app/[locale]/auth-actions";
 import { APP_NAME } from "@/lib/constants";
 import BrandLogo from "@/components/studyflow/BrandLogo";
 import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
-import Field from "@/components/studyflow/FormFields";
+import { DatePickerField } from "@/components/form/DatePickerField";
 import { Checkbox } from "@/components/ui/Checkbox";
 import AuthInput from "./AuthInput";
 import { parseAuthInput, validResetToken, type AuthResult, type AuthField } from "@/lib/auth/input";
@@ -21,11 +21,13 @@ interface Props {
 /** Account forms submit only to the authenticated server API. */
 export default function AuthForm({ token, mode, returnTo, resetLinkError, passwordResetComplete }: Props) {
   const t = useTranslations("studyflow");
+  const format = useFormatter();
   const router = useRouter();
   const register = mode === "register";
   const reset = mode === "reset-password";
   const forgot = mode === "forgot-password";
   const form = useRef<HTMLFormElement>(null);
+  const [details, setDetails] = useState({ name: "", email: "", password: "", confirmation: "", dob: "", terms: false });
   const unusableLink = reset && (resetLinkError || !validResetToken(token));
   const [result, submit, pending] = useActionState(async (_previous: AuthResult | undefined, fields: FormData): Promise<AuthResult> => {
     const input = { mode, token, returnTo, email: reset ? undefined : String(fields.get("email") ?? ""), name: register ? String(fields.get("name") ?? "") : undefined, password: forgot ? undefined : String(fields.get("password") ?? ""), acceptedTerms: fields.get("terms") === "on", dateOfBirth: fields.get("dob") || undefined };
@@ -40,7 +42,10 @@ export default function AuthForm({ token, mode, returnTo, resetLinkError, passwo
     }
   }, undefined);
   const failure = result && !result.ok ? result : undefined;
-  const error = failure ? t(failure.error) : unusableLink ? t(resetLinkError === "unavailable" ? "authenticationUnavailable" : "invalidResetLink") : "";
+  const failureText = failure?.error === "passwordResetWeeklyLimit"
+    ? t("passwordResetWeeklyLimit", { date: failure.retryAt ? format.dateTime(new Date(failure.retryAt), { dateStyle: "medium", timeZone: "UTC" }) : t("nextWeek") })
+    : failure ? t(failure.error) : "";
+  const error = failureText || (unusableLink ? t(resetLinkError === "unavailable" ? "authenticationUnavailable" : "invalidResetLink") : "");
   const fieldError = (field: AuthField) => failure?.field === field ? t(failure.error) : undefined;
   const message = result?.ok && forgot ? t("resetEmailSentTo", { email: result.email ?? "" }) : passwordResetComplete ? t("passwordResetComplete") : "";
   const invalidLink = unusableLink || failure?.error === "invalidResetLink";
@@ -71,13 +76,15 @@ export default function AuthForm({ token, mode, returnTo, resetLinkError, passwo
       >
         {!(reset && invalidLink) && <div className="sf-auth-fields">
           {register && (
-            <AuthInput label={t("name")} name="name" error={fieldError("name")} required maxLength={150} autoComplete="name" />
+            <AuthInput label={t("name")} name="name" value={details.name} onChange={event => setDetails(current => ({ ...current, name: event.target.value }))} error={fieldError("name")} required maxLength={150} autoComplete="name" />
           )}
           {!reset && (
             <AuthInput
               label={t("email")}
               type="email"
               name="email"
+              value={details.email}
+              onChange={event => setDetails(current => ({ ...current, email: event.target.value }))}
               error={fieldError("email")}
               required
               autoComplete="email"
@@ -88,6 +95,8 @@ export default function AuthForm({ token, mode, returnTo, resetLinkError, passwo
               label={t("password")}
               type="password"
               name="password"
+              value={details.password}
+              onChange={event => setDetails(current => ({ ...current, password: event.target.value }))}
               error={fieldError("password")}
               required
               minLength={mode === "login" ? undefined : 8}
@@ -102,6 +111,8 @@ export default function AuthForm({ token, mode, returnTo, resetLinkError, passwo
               label={t("confirmPassword")}
               type="password"
               name="confirmation"
+              value={details.confirmation}
+              onChange={event => setDetails(current => ({ ...current, confirmation: event.target.value }))}
               error={fieldError("confirmation")}
               required
               minLength={8}
@@ -110,13 +121,13 @@ export default function AuthForm({ token, mode, returnTo, resetLinkError, passwo
             />
           )}
           {register && (
-            <Field label={t("dobOptional")} name="dob" type="date" />
+            <DatePickerField label={t("dobOptional")} name="dob" value={details.dob} onChange={event => setDetails(current => ({ ...current, dob: event.target.value }))} compact max={new Date().toISOString().slice(0, 10)} />
           )}
         </div>}
         {register && (
           <>
             <label className="flex items-start gap-3 text-body">
-              <Checkbox name="terms" required className="mt-1" />
+              <Checkbox name="terms" checked={details.terms} onCheckedChange={checked => setDetails(current => ({ ...current, terms: checked === true }))} required className="mt-1" />
               <span>
                 {t("acceptTerms")}{" "}
                 <Link

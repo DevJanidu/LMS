@@ -43,7 +43,7 @@ export async function retainData() {
   await db.delete(s.verifications).where(lt(s.verifications.expiresAt, new Date()));
   await db.delete(s.authSessions).where(lt(s.authSessions.expiresAt, new Date()));
   await db.delete(s.notifications).where(lt(s.notifications.createdAt, new Date(Date.now() - 90 * 86400000)));
-  await db.delete(s.rateLimits).where(lt(s.rateLimits.lastRequest, Date.now() - 86400000));
+  await db.delete(s.rateLimits).where(sql`(${s.rateLimits.key} LIKE 'reset-week:v1:%' AND ${s.rateLimits.lastRequest} < ${Date.now() - 7 * 86400000}) OR (${s.rateLimits.key} NOT LIKE 'reset-week:v1:%' AND ${s.rateLimits.lastRequest} < ${Date.now() - 86400000})`);
   return { ok: true };
 }
 export async function generateReminders() {

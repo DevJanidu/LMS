@@ -1,11 +1,11 @@
 import { beforeEach, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ allow: vi.fn(), post: vi.fn(), get: vi.fn(), session: vi.fn(), getEnv: vi.fn() }));
+const mocks = vi.hoisted(() => ({ allow: vi.fn(), post: vi.fn(), get: vi.fn(), session: vi.fn(), getEnv: vi.fn(), quota: vi.fn(), release: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ getAuth: () => ({ api: { getSession: mocks.session } }) }));
-vi.mock("@/lib/env", () => ({ getEnv: mocks.getEnv }));
-vi.mock("@/lib/rate-limit", () => ({ requestLimit: async (...args: unknown[]) => await mocks.allow(...args) ? "allowed" : "limited" }));
+vi.mock("@/lib/env", () => ({ getAccountEnv: mocks.getEnv }));
+vi.mock("@/lib/auth/limits", () => ({ requestAuthLimit: async (...args: unknown[]) => await mocks.allow(...args) ? "allowed" : "limited", reservePasswordReset: mocks.quota, releasePasswordReset: mocks.release }));
 vi.mock("better-auth/next-js", () => ({ toNextJsHandler: () => ({ POST: mocks.post, GET: mocks.get }) }));
 import { GET, POST } from "@/app/api/auth/[...all]/route";
-beforeEach(() => { vi.clearAllMocks(); mocks.getEnv.mockReturnValue({ APP_URL: "https://study.example.com" }); mocks.allow.mockResolvedValue(true); mocks.post.mockResolvedValue(Response.json({ ok: true })); mocks.get.mockResolvedValue(Response.json({ ok: true })); });
+beforeEach(() => { vi.clearAllMocks(); mocks.getEnv.mockReturnValue({ APP_URL: "https://study.example.com", RESEND_API_KEY: "fixture-key", EMAIL_FROM: "fixture@example.com" }); mocks.allow.mockResolvedValue(true); mocks.quota.mockResolvedValue({ decision: "allowed", reservation: "fixture-reservation" }); mocks.post.mockResolvedValue(Response.json({ ok: true })); mocks.get.mockResolvedValue(Response.json({ ok: true })); });
 it("rejects foreign origins and denied rate limits before credential processing", async () => {
   expect((await POST(new Request("https://study.example.com/api/auth/sign-in/email", { method: "POST", headers: { Origin: "https://attacker.example.com" } }))).status).toBe(403);
   expect(mocks.post).not.toHaveBeenCalled();
@@ -36,11 +36,18 @@ it("redirects emailed links to a helpful page when server configuration is unava
 });
 it("protects every public credential route and prevents shared caching of auth responses", async () => {
   for (const path of ["sign-in/email", "sign-up/email", "request-password-reset", "reset-password"]) {
-    const response = await POST(new Request(`https://study.example.com/api/auth/${path}`, { method: "POST", headers: { Origin: "https://study.example.com" } }));
+    const response = await POST(new Request(`https://study.example.com/api/auth/${path}`, { method: "POST", headers: { Origin: "https://study.example.com", "Content-Type": "application/json" }, body: JSON.stringify({ email: "fixture@example.com" }) }));
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   }
   expect(mocks.allow).toHaveBeenCalledTimes(4);
   expect((await GET(new Request("https://study.example.com/api/auth/get-session"))).headers.get("cache-control")).toBe("private, no-store");
+});
+it("enforces the same weekly reset allowance through the public API", async () => {
+  mocks.quota.mockResolvedValue({ decision: "limited", retryAt: "2026-10-20T12:00:00.000Z" });
+  const response = await POST(new Request("https://study.example.com/api/auth/request-password-reset", { method: "POST", headers: { Origin: "https://study.example.com", "Content-Type": "application/json" }, body: JSON.stringify({ email: "fixture@example.com" }) }));
+  expect(response.status).toBe(429);
+  expect(await response.json()).toEqual({ error: "passwordResetWeeklyLimit", retryAt: "2026-10-20T12:00:00.000Z" });
+  expect(mocks.post).not.toHaveBeenCalled();
 });
 it("rejects deactivated sessions on library profile/session endpoints as well as LMS pages", async () => {
   mocks.session.mockResolvedValue({ user: { status: "deactivated" } });

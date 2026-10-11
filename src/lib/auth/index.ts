@@ -11,7 +11,7 @@ import { after } from "next/server";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getDb } from "@/lib/db";
-import { getEnv } from "@/lib/env";
+import { getAccountEnv } from "@/lib/env";
 import * as schema from "@/lib/db/schema";
 import { sendAccountEmail } from "@/lib/email";
 import { scheduleWelcomeEmail } from "@/lib/email/welcome";
@@ -22,11 +22,12 @@ import { safeReturnPath } from "./return-path";
 import { timed } from "@/lib/perf";
 import { APP_NAME } from "@/lib/constants";
 import { passwordResetLink } from "./reset-link";
+import { recordResetDeliveryFailure } from "@/lib/email/reset-delivery";
 
 const registrationSchema = z.object({ acceptedTerms: z.literal(true), name: z.string().trim().min(1).max(150), email: z.email(), dateOfBirth: z.iso.date().refine(value => value <= new Date().toISOString().slice(0, 10)).optional() });
 
 function createAuth() {
-  const env = getEnv();
+  const env = getAccountEnv();
   return betterAuth({
     appName: APP_NAME, baseURL: env.APP_URL, secret: env.AUTH_SECRET,
     logger: { disabled: true },
@@ -35,7 +36,10 @@ function createAuth() {
     emailAndPassword: {
       enabled: true, minPasswordLength: 8, maxPasswordLength: 128,
       password: { hash: password => hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1 }), verify: ({ hash: digest, password }) => verify(digest, password) },
-      sendResetPassword: async ({ user, token }) => { await sendAccountEmail(user.email, "reset", passwordResetLink(env.APP_URL, token)); },
+      sendResetPassword: async ({ user, token }) => {
+        try { await sendAccountEmail(user.email, "reset", passwordResetLink(env.APP_URL, token)); }
+        catch (error) { recordResetDeliveryFailure(error); throw error; }
+      },
       revokeSessionsOnPasswordReset: true,
     },
     emailVerification: { sendVerificationEmail: async ({ user, url }) => { await sendAccountEmail(user.email, "verify", url); } },
@@ -51,9 +55,8 @@ function createAuth() {
     } },
     session: { expiresIn: 60 * 60 * 24 * 7, updateAge: 60 * 60 * 24, cookieCache: { enabled: false } },
     advanced: { database: { generateId: () => crypto.randomUUID(), joins: true }, useSecureCookies: process.env.NODE_ENV === "production", defaultCookieAttributes: { httpOnly: true, sameSite: "lax" } },
-    // Both public entry points (auth route POST and authenticate Server Action)
-    // enforce fail-closed Upstash sliding windows before invoking Better Auth.
-    // A second database counter would add round trips to every credential request.
+    // Both public entry points enforce persistent database admission limits and
+    // the shared reset quota. Disable the provider's duplicate counter.
     rateLimit: { enabled: false },
     databaseHooks: {
       user: { create: { before: async (user, context) => {

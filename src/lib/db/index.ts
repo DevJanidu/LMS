@@ -1,7 +1,7 @@
 import "server-only";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
-import { getEnv } from "@/lib/env";
+import { getDatabaseEnv } from "@/lib/env";
 import * as schema from "./schema";
 import { recordQuery } from "./metrics";
 neonConfig.poolQueryViaFetch = true;
@@ -10,7 +10,7 @@ neonConfig.poolQueryViaFetch = true;
 let database: ReturnType<typeof drizzle<typeof schema>> | undefined;
 export function getDb() {
   if (database) return database;
-  const pool = new Pool({ connectionString: getEnv().DATABASE_URL, max: 10, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000 });
+  const pool = new Pool({ connectionString: getDatabaseEnv().DATABASE_URL, max: 10, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000 });
   // The driver discards disconnected idle clients. Handle its error event so a
   // dropped connection cannot become an uncaught process error between saves.
   // Only "error" preserves Neon's HTTP fast path for non-transactional reads.

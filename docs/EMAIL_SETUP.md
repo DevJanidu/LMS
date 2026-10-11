@@ -39,9 +39,50 @@ is introduced to disclose which addresses are registered.
 
 Startup validates server configuration and logs only invalid setting names as
 `startup_configuration_invalid`. It no longer aborts all public recovery pages.
-Account services still require valid configuration and production Redis, and
-`/api/health` returns 503 while the database/service configuration is unhealthy.
-This preserves the service validation while allowing the UI to explain a failure.
+Account services require `DATABASE_URL`, `AUTH_SECRET` (at least 32 characters)
+and the correct `APP_URL`; reset delivery additionally needs `RESEND_API_KEY`
+and `EMAIL_FROM`. Storage, cron, migration and Redis settings do not block account
+actions. The database is validated independently, and `/api/health` reports its
+readiness. Other LMS features still validate their own service configuration.
+
+## Five reset requests per week
+
+Both Server Actions and the public reset API share five timestamped database
+slots per normalized email over a rolling seven-day window. The existing
+`auth_rate_limits` table provides persistent counters and a row lock serializes
+concurrent reservations; no new migration is required. Account identifiers are
+hashed. The sixth request reports the next eligible date, while a failed send
+releases only its own reservation. Cleanup preserves weekly rows for seven days.
+Login and registration retain independent short-term database admission limits.
+
+Better Auth's callback runner swallows delivery exceptions, so reset requests
+track those exceptions using request-local async context. Provider failures now
+reach the form/API and release quota instead of returning a false acknowledgement.
+
+## Repeatable full account test
+
+Build first, then run the owned-fixture test against a chosen database:
+
+```powershell
+$env:PLAYWRIGHT_ISOLATED_BUILD='1'
+npm run build
+node scripts/test-auth-lifecycle.mjs --env=.env.local --acknowledge-current-test-database
+```
+
+The harness captures Resend HTTP calls in a local mailbox and only permits its
+unique `auth-e2e-…@example.invalid` recipient. It creates one tagged account,
+selects a birth date in the compact calendar, verifies successful registration,
+failed/successful login, a failed send plus five successful reset requests, the
+weekly denial, password change, revoked old sessions, old-password rejection,
+new-password login and rejection of a reused token. It deletes only that fixture
+account, its reset tokens and account quota rows. No external inbox receives mail.
+The normal CI public job skips this fixture test unless the harness enables it.
+
+The corresponding database integration suite verifies concurrent admission,
+normalized-email quota sharing, independent accounts, slot release and expiry.
+It runs only with explicit isolated/fixture-only database opt-in. The local
+production configuration has passed the full account lifecycle and those
+concurrency checks; actual external inbox delivery is a separate provider check.
 
 On 11 October, the live Resend domain API confirmed the sender is verified using
 the local production key. Before this patch was deployed, public checks of the

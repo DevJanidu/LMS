@@ -1,11 +1,11 @@
 import { beforeEach, expect, it, vi } from "vitest";
-const mocked = vi.hoisted(() => ({ getAuth: vi.fn(), requestPasswordReset: vi.fn(), getEnv: vi.fn(), limit: vi.fn(), signIn: vi.fn(), signUp: vi.fn(), resetPassword: vi.fn(), readUser: vi.fn(), redirect: vi.fn() }));
+const mocked = vi.hoisted(() => ({ getAuth: vi.fn(), requestPasswordReset: vi.fn(), getEnv: vi.fn(), limit: vi.fn(), quota: vi.fn(), release: vi.fn(), signIn: vi.fn(), signUp: vi.fn(), resetPassword: vi.fn(), readUser: vi.fn(), redirect: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ getAuth: mocked.getAuth, requireUser: vi.fn() }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
 vi.mock("next-intl/server", () => ({ getLocale: async () => "en" }));
 vi.mock("@/i18n/navigation", () => ({ redirect: mocked.redirect }));
-vi.mock("@/lib/rate-limit", () => ({ requestLimit: mocked.limit }));
-vi.mock("@/lib/env", () => ({ getEnv: mocked.getEnv }));
+vi.mock("@/lib/auth/limits", () => ({ requestAuthLimit: mocked.limit, reservePasswordReset: mocked.quota, releasePasswordReset: mocked.release }));
+vi.mock("@/lib/env", () => ({ getAccountEnv: mocked.getEnv }));
 vi.mock("@/lib/db", () => ({ getDb: () => ({ select: () => ({ from: () => ({ where: mocked.readUser }) }) }) }));
 vi.mock("@/lib/services/workspace", () => ({ getSettings: async () => ({ minimumAge: 0 }) }));
 import { authenticate } from "@/app/[locale]/auth-actions";
@@ -15,6 +15,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   mocked.getEnv.mockReturnValue({ APP_URL: "http://localhost:3000", RESEND_API_KEY: "fixture-key", EMAIL_FROM: "fixture@example.com" });
   mocked.limit.mockResolvedValue("allowed");
+  mocked.quota.mockResolvedValue({ decision: "allowed", reservation: "fixture-reservation" });
   mocked.getAuth.mockReturnValue({ api: { requestPasswordReset: mocked.requestPasswordReset, signInEmail: mocked.signIn, signUpEmail: mocked.signUp, resetPassword: mocked.resetPassword } });
   mocked.readUser.mockResolvedValue([{ role: "learner", status: "active", onboardingCompletedAt: new Date() }]);
   mocked.signIn.mockResolvedValue({ user: { id: "fixture-user" } });
@@ -45,6 +46,14 @@ it("describes rejected credentials without misidentifying which detail is wrong"
 it("reports email delivery failure rather than returning a false success", async () => {
   mocked.requestPasswordReset.mockRejectedValue(new AccountEmailUnavailable());
   expect(await authenticate({ mode: "forgot-password", email: "fixture@example.com" })).toEqual({ ok: false, error: "emailDeliveryFailed" });
+  expect(mocked.release).toHaveBeenCalledWith("fixture-reservation");
+});
+it("reports the weekly reset allowance without applying it to login", async () => {
+  mocked.quota.mockResolvedValue({ decision: "limited", retryAt: "2026-10-20T12:00:00.000Z" });
+  expect(await authenticate({ mode: "forgot-password", email: "fixture@example.com" })).toEqual({ ok: false, error: "passwordResetWeeklyLimit", retryAt: "2026-10-20T12:00:00.000Z" });
+  expect(mocked.requestPasswordReset).not.toHaveBeenCalled();
+  await authenticate({ mode: "login", email: "fixture@example.com", password: "fixture-password-only" });
+  expect(mocked.signIn).toHaveBeenCalled();
 });
 it("acknowledges the normalized entered email without disclosing whether it exists", async () => {
   expect(await authenticate({ mode: "forgot-password", email: " Fixture@Example.com " })).toEqual({ ok: true, href: "", email: "fixture@example.com" });

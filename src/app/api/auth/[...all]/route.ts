@@ -1,8 +1,10 @@
 import { toNextJsHandler } from "better-auth/next-js";
 import { getAuth } from "@/lib/auth";
-import { getEnv } from "@/lib/env";
-import { requestLimit } from "@/lib/rate-limit";
-import { authenticationFailureKind, verifySession } from "@/lib/auth/errors";
+import { getAccountEnv } from "@/lib/env";
+import { requestAuthLimit, reservePasswordReset, releasePasswordReset } from "@/lib/auth/limits";
+import { z } from "zod";
+import { authenticationFailureKind, authFeedback, verifySession } from "@/lib/auth/errors";
+import { trackResetDelivery } from "@/lib/email/reset-delivery";
 import { passwordResetLink } from "@/lib/auth/reset-link";
 import { validResetToken } from "@/lib/auth/input";
 
@@ -13,8 +15,8 @@ async function get(request: Request) {
   if (path === "/reset-password" || /^\/reset-password\/[^/]+$/.test(path)) {
     const token = path.slice("/reset-password/".length);
     const destination = validResetToken(token) && path !== "/reset-password"
-      ? passwordResetLink(getEnv().APP_URL, token)
-      : new URL("/reset-password?error=INVALID_TOKEN", getEnv().APP_URL).href;
+      ? passwordResetLink(getAccountEnv().APP_URL, token)
+      : new URL("/reset-password?error=INVALID_TOKEN", getAccountEnv().APP_URL).href;
     const response = privateResponse(Response.redirect(destination, 303));
     response.headers.set("Referrer-Policy", "no-referrer");
     return response;
@@ -28,10 +30,24 @@ async function get(request: Request) {
   return privateResponse(response);
 }
 async function post(request: Request) {
-  if (request.headers.get("origin") !== new URL(getEnv().APP_URL).origin) return privateResponse(new Response(null, { status: 403 }));
-  const limit = await requestLimit(`auth-route:${request.headers.get("x-forwarded-for")?.split(",")[0] ?? "local"}`, 10);
+  if (request.headers.get("origin") !== new URL(getAccountEnv().APP_URL).origin) return privateResponse(new Response(null, { status: 403 }));
+  const limit = await requestAuthLimit(`auth-route:${request.headers.get("x-forwarded-for")?.split(",")[0] ?? "local"}`, 10);
   if (limit !== "allowed") return privateResponse(Response.json({ error: limit === "limited" ? "tooManyRequests" : "authenticationUnavailable" }, { status: limit === "limited" ? 429 : 503 }));
   if (!publicEndpoint(authPath(request)) && !(await activeSession(request))) return privateResponse(new Response(null, { status: 401 }));
+  if (["/request-password-reset", "/forget-password"].includes(authPath(request))) {
+    const input = await request.clone().json().catch(() => null) as { email?: unknown } | null;
+    const email = z.string().trim().toLowerCase().pipe(z.email()).safeParse(input?.email);
+    if (!email.success) return privateResponse(Response.json({ error: "invalidEmail" }, { status: 400 }));
+    const env = getAccountEnv();
+    if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return privateResponse(Response.json({ error: "emailUnavailable" }, { status: 503 }));
+    const quota = await reservePasswordReset(email.data);
+    if (quota.decision !== "allowed") return privateResponse(Response.json({ error: quota.decision === "limited" ? "passwordResetWeeklyLimit" : "authenticationUnavailable", retryAt: quota.retryAt }, { status: quota.decision === "limited" ? 429 : 503 }));
+    try {
+      const response = await trackResetDelivery(() => toNextJsHandler(getAuth()).POST(request));
+      if (!response.ok && quota.reservation) await releasePasswordReset(quota.reservation);
+      return privateResponse(response);
+    } catch (error) { if (quota.reservation) await releasePasswordReset(quota.reservation); throw error; }
+  }
   return privateResponse(await toNextJsHandler(getAuth()).POST(request));
 }
 async function guarded(request: Request, handler: (request: Request) => Promise<Response>) {
@@ -47,7 +63,7 @@ async function guarded(request: Request, handler: (request: Request) => Promise<
         "Referrer-Policy": "no-referrer",
       } }));
     }
-    return privateResponse(Response.json({ error: "authenticationUnavailable" }, { status: 503 }));
+    return privateResponse(Response.json({ error: authFeedback(error).error }, { status: 503 }));
   }
 }
 export async function GET(request: Request) { return guarded(request, get); }

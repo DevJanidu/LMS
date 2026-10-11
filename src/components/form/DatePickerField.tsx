@@ -2,6 +2,8 @@
 
 import { useId, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type Ref } from "react";
 import { format, isValid, parse } from "date-fns";
+import { useLocale } from "next-intl";
+import { ar, de, es, enUS } from "react-day-picker/locale";
 import { ChevronDownIcon } from "@/icons";
 import Label from "@/components/form/Label";
 import { Calendar } from "@/components/ui/Calendar";
@@ -18,9 +20,10 @@ const parseDate = (value: string) => parse(value, "yyyy-MM-dd", new Date());
 const dateLabel = (value: string) => value ? format(parseDate(value), "MMM d, yyyy") : "Select a date";
 const eventFor = (value: string) => ({ target: { value }, currentTarget: { value } } as ChangeEvent<HTMLInputElement>);
 
-function DateControl({ value, onSelect, min, max, label }: {
-  value: string; onSelect: (value: string) => void; min?: string; max?: string; label: string;
+function DateControl({ value, onSelect, min, max, label, compact = false }: {
+  value: string; onSelect: (value: string) => void; min?: string; max?: string; label: string; compact?: boolean;
 }) {
+  const locale = useLocale();
   const selected = value ? parseDate(value) : undefined;
   const minDate = min ? parseDate(min.slice(0, 10)) : undefined;
   const maxDate = max ? parseDate(max.slice(0, 10)) : undefined;
@@ -30,12 +33,30 @@ function DateControl({ value, onSelect, min, max, label }: {
     onSelect={date => { if (date) onSelect(format(date, "yyyy-MM-dd")); }}
     disabled={[...(minDate ? [{ before: minDate }] : []), ...(maxDate ? [{ after: maxDate }] : [])]}
     aria-label={label}
-    className="w-[18.5rem] max-w-[calc(100vw-1.5rem)]"
+    locale={({ ar, de, es, en: enUS } as const)[locale as "ar" | "de" | "es" | "en"] ?? enUS}
+    dir={locale === "ar" ? "rtl" : "ltr"}
+    captionLayout={compact ? "dropdown" : "label"}
+    startMonth={compact ? minDate ?? new Date(new Date().getFullYear() - 120, 0) : undefined}
+    endMonth={compact ? maxDate ?? new Date() : undefined}
+    className={compact ? "sf-date-picker-compact" : "w-[18.5rem] max-w-[calc(100vw-1.5rem)]"}
+    classNames={compact ? {
+      month: "relative space-y-2",
+      dropdowns: "flex min-w-0 items-center justify-center gap-1",
+      dropdown_root: "min-w-0",
+      months_dropdown: "w-24",
+      years_dropdown: "w-16",
+      dropdown: "max-w-28 rounded-lg border-gray-300 bg-white text-primary dark:border-gray-700 dark:bg-gray-900 dark:text-primary",
+      button_previous: "absolute start-0 top-0 grid size-8 place-items-center rounded-lg text-muted hover:bg-gray-100 hover:text-brand-600 dark:text-secondary dark:hover:bg-gray-800 dark:hover:text-brand-300",
+      button_next: "absolute end-0 top-0 grid size-8 place-items-center rounded-lg text-muted hover:bg-gray-100 hover:text-brand-600 dark:text-secondary dark:hover:bg-gray-800 dark:hover:text-brand-300",
+      caption_label: "sr-only",
+      day: "grid place-items-center p-0",
+      week: "mt-0.5 grid grid-cols-7",
+    } : undefined}
     modifiersClassNames={{ selected: "bg-brand-500 text-white hover:bg-brand-500 hover:text-white" }}
   />;
 }
 
-export function DatePickerField({ label, name, value, defaultValue, onChange, min, max, disabled, required, id: suppliedId, ...props }: CommonProps) {
+export function DatePickerField({ label, name, value, defaultValue, onChange, min, max, disabled, required, compact = false, id: suppliedId, ...props }: CommonProps & { compact?: boolean }) {
   const generatedId = useId();
   const id = suppliedId ?? generatedId;
   const [internal, setInternal] = useState(defaultValue ?? "");
@@ -52,7 +73,7 @@ export function DatePickerField({ label, name, value, defaultValue, onChange, mi
       setOpen(next);
     }}>
       <PopoverTrigger asChild><button ref={trigger} id={id} type="button" disabled={disabled} aria-haspopup="dialog" aria-expanded={open} className="flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-gray-300 bg-white px-4 text-start text-body text-primary shadow-theme-xs outline-none transition duration-150 hover:border-brand-300 focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-primary dark:hover:border-brand-700"><span className={current ? "" : "text-muted dark:text-primary/30"}>{dateLabel(current)}</span><ChevronDownIcon className="size-4 text-muted dark:text-secondary" /></button></PopoverTrigger>
-      <PopoverContent container={portalContainer} align="start" aria-label={label} className="p-0"><DateControl value={current} onSelect={select} min={min} max={max} label={label} /></PopoverContent>
+      <PopoverContent container={portalContainer} align="start" aria-label={label} className="p-0"><DateControl value={current} onSelect={select} min={min} max={max} label={label} compact={compact} /></PopoverContent>
     </Popover>
   </div>;
 }

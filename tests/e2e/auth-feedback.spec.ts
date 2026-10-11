@@ -1,5 +1,22 @@
 import { expect, test } from "@playwright/test";
 
+test("registration birth-date calendar fits a small viewport and selects an earlier year", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/register");
+  await page.getByLabel("Date of birth (optional)").click();
+  const calendar = page.locator(".sf-date-picker-compact");
+  await expect(calendar).toBeVisible();
+  const size = await calendar.boundingBox();
+  expect(size!.width).toBeLessThanOrEqual(260);
+  expect(size!.y).toBeGreaterThanOrEqual(0);
+  expect(size!.y + size!.height).toBeLessThanOrEqual(667);
+  await calendar.getByRole("combobox", { name: /year/i }).selectOption("2000");
+  await calendar.getByRole("combobox", { name: /month/i }).selectOption("0");
+  await calendar.getByRole("button").filter({ hasText: /^15$/ }).click();
+  await expect(page.locator('input[name="dob"]')).toHaveValue("2000-01-15");
+  await expect(calendar).toBeHidden();
+});
+
 test("login explains invalid emails and missing passwords next to the field", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("Email", { exact: true }).fill("not-an-email");
@@ -7,6 +24,7 @@ test("login explains invalid emails and missing passwords next to the field", as
   await expect(page.locator("form").getByRole("alert")).toHaveText(/valid email address/);
   await expect(page.getByLabel("Email", { exact: true })).toBeFocused();
   await expect(page.getByLabel("Email", { exact: true })).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByLabel("Email", { exact: true })).toHaveValue("not-an-email");
   await page.getByLabel("Email", { exact: true }).fill("fixture@example.com");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.locator("form").getByRole("alert")).toHaveText("Please enter your password.");

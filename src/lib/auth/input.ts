@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export type AuthMode = "login" | "register" | "forgot-password" | "reset-password";
 export type AuthField = "email" | "password" | "confirmation" | "name" | "terms" | "dob";
-export type AuthFailure = { ok: false; error: string; field?: AuthField };
+export type AuthFailure = { ok: false; error: string; field?: AuthField; retryAt?: string };
 export type AuthResult = AuthFailure | { ok: true; href: string; email?: string };
 
 const inputSchema = z.object({

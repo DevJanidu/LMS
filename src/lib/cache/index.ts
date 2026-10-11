@@ -1,7 +1,7 @@
 import "server-only";
 import { Redis } from "@upstash/redis";
 import { createHash } from "node:crypto";
-import { getEnv } from "@/lib/env";
+import { getCacheEnv } from "@/lib/env";
 import { localDay, shiftDay, zonedToUtc } from "@/lib/analytics";
 import { timed } from "@/lib/perf";
 
@@ -27,14 +27,14 @@ function markConnected() {
 }
 
 function branchNamespace() {
-  const env = getEnv(), endpoint = new URL(env.DATABASE_URL);
+  const env = getCacheEnv(), endpoint = new URL(env.DATABASE_URL);
   const branch = createHash("sha256").update(endpoint.hostname + endpoint.pathname).digest("hex").slice(0, 12);
   return `${env.CACHE_NAMESPACE}:${branch}`;
 }
 export function cachePrefix() { return `lms:v2:${branchNamespace()}`; }
 export function rateLimitPrefix() { return `lms:security:v1:${branchNamespace()}`; }
 export function getRedis(): Redis | undefined {
-  const env = getEnv();
+  const env = getCacheEnv();
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
     if (!warned && process.env.NODE_ENV === "development") { warned = true; console.warn("[cache] DISABLED: Upstash variables absent; using database reads"); }
     return undefined;

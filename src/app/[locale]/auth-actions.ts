@@ -4,8 +4,8 @@ import { getAuth, requireUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { getEnv } from "@/lib/env";
-import { requestLimit } from "@/lib/rate-limit";
+import { getAccountEnv } from "@/lib/env";
+import { requestAuthLimit, reservePasswordReset, releasePasswordReset } from "@/lib/auth/limits";
 import { getSettings } from "@/lib/services/workspace";
 import { ageInYears } from "@/lib/validation/age";
 import { getLocale } from "next-intl/server";
@@ -13,17 +13,19 @@ import { redirect } from "@/i18n/navigation";
 import { loginDestination } from "@/lib/auth/destination";
 import { authenticationFailureKind, authFeedback } from "@/lib/auth/errors";
 import { parseAuthInput, type AuthResult } from "@/lib/auth/input";
+import { trackResetDelivery } from "@/lib/email/reset-delivery";
 
 export async function authenticate(input: unknown): Promise<AuthResult> {
   const parsed = parseAuthInput(input);
   if (!parsed.success) return parsed.result;
   const v = parsed.data;
   let destination: string;
+  let resetReservation: string | undefined;
   try {
     const auth = getAuth();
     const requestHeaders = await headers();
     const ip = requestHeaders.get("x-forwarded-for")?.split(",")[0].trim() ?? "local";
-    const limits = await Promise.all([requestLimit(`auth:${v.mode}:${ip}`, 10), requestLimit(`account:${v.mode}:${v.email?.toLowerCase() ?? ip}`, 5)]);
+    const limits = await Promise.all([requestAuthLimit(`auth:${v.mode}:${ip}`, 10), ...(v.mode === "forgot-password" ? [] : [requestAuthLimit(`account:${v.mode}:${v.email?.toLowerCase() ?? ip}`, 5)])]);
     if (limits.includes("unavailable")) return { ok: false as const, error: "authenticationUnavailable" };
     if (limits.includes("limited")) return { ok: false as const, error: "tooManyRequests" };
     if (v.mode === "register") {
@@ -44,9 +46,13 @@ export async function authenticate(input: unknown): Promise<AuthResult> {
     }
     else if (v.mode === "forgot-password") {
       if (!v.email) return { ok: false as const, error: "invalidInput" };
-      const env = getEnv();
+      const env = getAccountEnv();
       if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return { ok: false as const, error: "emailUnavailable" };
-      await auth.api.requestPasswordReset({ headers: requestHeaders, body: { email: v.email.toLowerCase(), redirectTo: `${getEnv().APP_URL}/reset-password` } });
+      const quota = await reservePasswordReset(v.email);
+      if (quota.decision === "unavailable") return { ok: false, error: "authenticationUnavailable" };
+      if (quota.decision === "limited") return { ok: false, error: "passwordResetWeeklyLimit", retryAt: quota.retryAt };
+      resetReservation = quota.reservation;
+      await trackResetDelivery(() => auth.api.requestPasswordReset({ headers: requestHeaders, body: { email: v.email!.toLowerCase(), redirectTo: `${env.APP_URL}/reset-password` } }));
       return { ok: true as const, href: "", email: v.email };
     }
     else {
@@ -56,6 +62,7 @@ export async function authenticate(input: unknown): Promise<AuthResult> {
     }
   } catch (error) {
     if (v.mode === "forgot-password") {
+      if (resetReservation) await releasePasswordReset(resetReservation);
       console.warn(JSON.stringify({ event: "password_reset_unavailable", category: authenticationFailureKind(error) }));
       return { ok: false, ...authFeedback(error) };
     }

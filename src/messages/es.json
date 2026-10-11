@@ -545,6 +545,8 @@
     "resetEmailSentTo": "Busca el enlace en {email}. Si esa dirección pertenece a una cuenta, llegará pronto. Revisa también el spam. El enlace caduca en una hora.",
     "forgotPasswordDescription": "Introduce el correo que usaste para crear tu cuenta. Te ayudaremos a restablecer tu contraseña.",
     "resetPasswordDescription": "Elige una nueva contraseña de al menos 8 caracteres y repítela para confirmarla.",
-    "passwordResetComplete": "Tu contraseña se ha actualizado. Ya puedes iniciar sesión con la nueva contraseña."
+    "passwordResetComplete": "Tu contraseña se ha actualizado. Ya puedes iniciar sesión con la nueva contraseña.",
+    "passwordResetWeeklyLimit": "Has solicitado cinco enlaces en los últimos siete días. Puedes solicitar otro el {date}.",
+    "nextWeek": "la próxima semana"
   }
 }
