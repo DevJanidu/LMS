@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import ts from "typescript";
+import { messageReferences } from "./message-references.mjs";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 function keys(value, prefix = "") {
@@ -27,27 +27,8 @@ function inspectDirectory(directory) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) inspectDirectory(path);
     else if (/\.tsx?$/.test(path)) {
-      const tree = ts.createSourceFile(
-        path,
-        readFileSync(path, "utf8"),
-        ts.ScriptTarget.Latest,
-        true,
-      );
-      function inspect(node) {
-        if (
-          ts.isCallExpression(node) &&
-          ts.isIdentifier(node.expression) &&
-          node.expression.text === "t" &&
-          node.arguments[0] &&
-          ts.isStringLiteral(node.arguments[0])
-        )
-          assert.ok(
-            available.has(node.arguments[0].text),
-            `Missing message ${node.arguments[0].text} in ${path}`,
-          );
-        ts.forEachChild(node, inspect);
-      }
-      inspect(tree);
+      for (const key of messageReferences(readFileSync(path, "utf8"), path))
+        assert.ok(available.has(key), `Missing message ${key} in ${path}`);
     }
   }
 }
