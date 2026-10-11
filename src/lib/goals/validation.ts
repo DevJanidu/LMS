@@ -109,6 +109,7 @@ export const goalMutationSchema = z.object({
   expectedVersion: z.number().int().min(0),
   action: z.discriminatedUnion("kind", [
     z.object({ kind: z.literal("goal"), value: goalSchema }),
+    z.object({ kind: z.literal("completion"), completed: z.boolean() }),
     z.object({ kind: z.literal("deleteGoal") }),
     z.object({
       kind: z.literal("milestone"),

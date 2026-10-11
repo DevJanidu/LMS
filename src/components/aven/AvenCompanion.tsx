@@ -11,7 +11,6 @@ import AvenConversationSidebar from "./AvenConversationSidebar";
 import AvenComposer from "./AvenComposer";
 import Button from "@/components/ui/button/Button";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
-import { TextField } from "@/components/studyflow/FormFields";
 import AvenMarkdown from "./AvenMarkdown";
 import AvenSettings from "./AvenSettings";
 import AvenNotifications from "./AvenNotifications";
@@ -75,8 +74,7 @@ export default function AvenCompanion({
     intent === "plan" || intent === "recovery" || intent === "schedule",
   );
   const [contextTitle, setContextTitle] = useState(goalTitle),
-    [hasOlder, setHasOlder] = useState(false),
-    [summary, setSummary] = useState("");
+    [hasOlder, setHasOlder] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const chatScroll = useRef<HTMLDivElement>(null),
     followLatest = useRef(true);
@@ -114,7 +112,6 @@ export default function AvenCompanion({
         setProposals(value.proposals);
         setActiveGoal(value.conversation.goalId);
         setContextTitle(value.conversation.goalTitle ?? undefined);
-        setSummary(value.conversation.summary);
       })
       .catch((error) => {
         if (!controller.signal.aborted)
@@ -135,7 +132,6 @@ export default function AvenCompanion({
       featureRequest<Bootstrap>("/api/aven"),
     ]);
     setHasOlder(conversation.hasOlder);
-    setSummary(conversation.conversation.summary);
     setContextTitle(conversation.conversation.goalTitle ?? undefined);
     setMessages(conversation.messages);
     setProposals(conversation.proposals);
@@ -339,7 +335,6 @@ export default function AvenCompanion({
               setSelected(null);
               setActiveGoal(goalId ?? null);
               setContextTitle(goalTitle);
-              setSummary("");
               setMessages([]);
               setProposals([]);
               setError("");
@@ -536,7 +531,8 @@ export default function AvenCompanion({
                 {messages.map((message) => (
                   <article
                     key={message.id}
-                    className={`min-w-0 rounded-xl p-4 ${message.role === "user" ? "ms-4 bg-brand-50 dark:bg-brand-950/30" : "me-4 bg-gray-50 dark:bg-gray-900"}`}
+                    data-role={message.role}
+                    className={`w-fit min-w-0 rounded-xl p-4 ${message.role === "user" ? "ms-auto max-w-3xl bg-brand-50 dark:bg-brand-950/30" : "me-auto max-w-5xl bg-gray-50 dark:bg-gray-900"}`}
                   >
                     <p className="text-muted dark:text-muted mb-2 text-overline">
                       {t(message.role === "user" ? "you" : "title")}
@@ -551,42 +547,6 @@ export default function AvenCompanion({
                     )}
                   </article>
                 ))}
-                {selected && (
-                  <details className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
-                    <summary className="text-primary dark:text-primary cursor-pointer text-small">
-                      {t("summaryMemory")}
-                    </summary>
-                    <p className="text-muted dark:text-muted my-3 text-caption">
-                      {t("summaryHelp")}
-                    </p>
-                    <form
-                      className="space-y-3"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        void featureRequest("/api/aven", {
-                          kind: "summary",
-                          id: selected,
-                          content: summary,
-                        })
-                          .then(() => setError(""))
-                          .catch(() =>
-                            setError(t("errors.serviceUnavailable")),
-                          );
-                      }}
-                    >
-                      <TextField
-                        label={t("summaryLabel")}
-                        value={summary}
-                        maxLength={2500}
-                        disabled={busy}
-                        onChange={(event) => setSummary(event.target.value)}
-                      />
-                      <Button type="submit" variant="outline" disabled={busy}>
-                        {t("save")}
-                      </Button>
-                    </form>
-                  </details>
-                )}
                 {proposals.map((proposal) => (
                   <ProposalCard
                     key={proposal.id}

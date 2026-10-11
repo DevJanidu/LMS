@@ -14,7 +14,7 @@ import { getScheduleBlocksInRange } from "@/lib/services/lists";
 import { getCalendarBlock } from "@/lib/services/calendar";
 import { getOccurrences } from "@/lib/schedule";
 import { localDay, shiftDay } from "@/lib/analytics";
-import { taskSchema } from "@/lib/goals/validation";
+import { taskSchema, goalSchema } from "@/lib/goals/validation";
 import { goalPlanSchema } from "./validation";
 import { getAvenPreferences } from "./preferences";
 import { proposeAdaptiveSchedule } from "./planning";
@@ -36,6 +36,11 @@ const schemas = {
   getStudyResources: z.object({ resourceId: z.uuid().nullable() }),
   getWeeklyAnalytics: empty,
   proposeGoalPlan: goalPlanSchema,
+  proposeGoal: z.object({
+    title: z.string().trim().min(1).max(200),
+    targetDate: z.iso.date(),
+    goalId: z.uuid().nullable(),
+  }),
   proposeStudySchedule: z.object({
     goalId: z.uuid(),
     days: z.number().int().min(1).max(14),
@@ -60,6 +65,7 @@ const schemas = {
 } as const;
 export type AvenToolName = keyof typeof schemas;
 const writeTools = new Set<AvenToolName>([
+  "proposeGoal",
   "proposeGoalPlan",
   "proposeStudySchedule",
   "createGoalTask",
@@ -291,6 +297,41 @@ export async function executeAvenTool(
       reason:
         "This resource format was not processed. Do not infer its contents from the title or URL.",
     };
+  }
+  if (name === "proposeGoal") {
+    const value = args as {
+      title: string;
+      targetDate: string;
+      goalId: string | null;
+    };
+    const existing = value.goalId
+      ? await getGoalDetail(userId, value.goalId)
+      : null;
+    const goal = goalSchema.parse({
+      ...existing?.goal,
+      title: value.title,
+      targetDate: value.targetDate,
+      startDate:
+        existing?.goal.startDate && existing.goal.startDate <= value.targetDate
+          ? existing.goal.startDate
+          : value.targetDate < today
+            ? value.targetDate
+            : today,
+      progressMode: existing?.goal.progressMode ?? "outcome",
+    });
+    const t = await getTranslations({
+      locale: (await getAvenPreferences(userId)).ai.locale,
+      namespace: "aven",
+    });
+    return proposal({
+      kind: "goalPlan",
+      goalId: value.goalId,
+      expectedVersion: existing?.goal.version ?? 0,
+      explanation: t("simpleGoalExplanation"),
+      goal,
+      milestones: [],
+      tasks: [],
+    });
   }
   if (name === "proposeGoalPlan") return proposal(args);
   if (name === "proposeStudySchedule") {

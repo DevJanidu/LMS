@@ -37,6 +37,10 @@ export default function ProposalCard({
         : proposal.status),
     result = resolvedResult ?? proposal.result;
   const { value } = proposal;
+  const simpleGoal =
+    value.kind === "goalPlan" &&
+    !value.tasks.length &&
+    !value.milestones.length;
   const resolve = async (decision: "approve" | "reject") => {
     if (busy) return;
     setBusy(true);
@@ -69,7 +73,9 @@ export default function ProposalCard({
   return (
     <article className="rounded-2xl border border-brand-200 bg-brand-25 p-5 dark:border-brand-800 dark:bg-brand-950/20">
       <h3 className="text-primary dark:text-primary text-h3">
-        {t(`proposalKinds.${value.kind}`)}
+        {simpleGoal
+          ? t("simpleGoalProposal")
+          : t(`proposalKinds.${value.kind}`)}
       </h3>
       <p className="text-secondary dark:text-secondary mt-2 text-small">
         {t("reviewHelp")}
@@ -85,35 +91,44 @@ export default function ProposalCard({
             <h4 className="text-primary dark:text-primary text-h3">
               {value.goal.title}
             </h4>
-            <p className="text-secondary dark:text-secondary text-small whitespace-pre-wrap">
-              {value.goal.description}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small">
-              {value.goal.startDate} → {value.goal.targetDate}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small">
-              {value.goal.successCriteria}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small">
-              {value.goal.motivation}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small">
-              {t("planMetrics", {
-                mode: value.goal.progressMode,
-                hours: value.goal.progressConfig.hoursTarget,
-                quantity: value.goal.progressConfig.quantityTarget,
-              })}
-            </p>
-            {references.subjects
-              .filter((s) => value.goal.subjectIds.includes(s.id))
-              .map((s) => (
-                <p
-                  key={s.id}
-                  className="text-secondary dark:text-secondary text-small"
-                >
-                  {s.title}
+            {simpleGoal ? (
+              <p className="text-secondary dark:text-secondary text-small">
+                {t("goalDue", { date: value.goal.targetDate })}
+              </p>
+            ) : (
+              <>
+                {" "}
+                <p className="text-secondary dark:text-secondary text-small whitespace-pre-wrap">
+                  {value.goal.description}
                 </p>
-              ))}
+                <p className="text-secondary dark:text-secondary text-small">
+                  {value.goal.startDate} → {value.goal.targetDate}
+                </p>
+                <p className="text-secondary dark:text-secondary text-small">
+                  {value.goal.successCriteria}
+                </p>
+                <p className="text-secondary dark:text-secondary text-small">
+                  {value.goal.motivation}
+                </p>
+                <p className="text-secondary dark:text-secondary text-small">
+                  {t("planMetrics", {
+                    mode: value.goal.progressMode,
+                    hours: value.goal.progressConfig.hoursTarget,
+                    quantity: value.goal.progressConfig.quantityTarget,
+                  })}
+                </p>
+                {references.subjects
+                  .filter((s) => value.goal.subjectIds.includes(s.id))
+                  .map((s) => (
+                    <p
+                      key={s.id}
+                      className="text-secondary dark:text-secondary text-small"
+                    >
+                      {s.title}
+                    </p>
+                  ))}
+              </>
+            )}
             {value.milestones.map((m) => (
               <div
                 key={m.key}

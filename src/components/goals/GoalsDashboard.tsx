@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import type { GoalReferences, listGoals } from "@/lib/goals/service";
 import type { GoalDetail, GoalRecord } from "@/lib/goals/model";
 import { featureRequest, saveGoal } from "@/lib/goals/client";
-import { goalStatuses, type GoalInput } from "@/lib/goals/validation";
+import { type GoalInput } from "@/lib/goals/validation";
 import PageHeader from "@/components/studyflow/PageHeader";
 import Field, { SelectField } from "@/components/studyflow/FormFields";
 import Pagination from "@/components/studyflow/Pagination";
@@ -99,26 +99,47 @@ export default function GoalsDashboard({ initial, references }: Props) {
         throw error;
       }
     }
+    void result;
     setEditing(undefined);
-    router.push(`/goals/${result.detail!.goal.id}`);
+    setRevision((value) => value + 1);
     router.refresh();
   };
-  const labels = [
-    "active",
-    "completed",
-    "upcoming",
-    "attention",
-    "hours",
-    "weeklyRate",
-  ] as const;
+  const [completing, setCompleting] = useState<string>();
+  const complete = async (detail: GoalDetail) => {
+    if (completing) return;
+    setCompleting(detail.goal.id);
+    try {
+      await saveGoal({
+        operationId: crypto.randomUUID(),
+        goalId: detail.goal.id,
+        expectedVersion: detail.goal.version,
+        action: {
+          kind: "completion",
+          completed: detail.goal.status !== "completed",
+        },
+      });
+      setRevision((value) => value + 1);
+      router.refresh();
+    } catch (error) {
+      const key = (error as Error).message;
+      setError(
+        t.has("errors." + key)
+          ? t("errors." + key)
+          : t("errors.serviceUnavailable"),
+      );
+    } finally {
+      setCompleting(undefined);
+    }
+  };
+  const labels = ["active", "completed"] as const;
   return (
     <>
       <PageHeader
         title={t("title")}
-        description={t("description")}
+        description={t("simpleGoalHelp")}
         action={<Button onClick={create}>{t("createGoal")}</Button>}
       />
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mb-6 grid gap-3 sm:grid-cols-2">
         {labels.map((key) => (
           <div
             key={key}
@@ -128,11 +149,7 @@ export default function GoalsDashboard({ initial, references }: Props) {
               {t(`summary.${key}`)}
             </p>
             <p className="text-primary dark:text-primary mt-2 text-stat">
-              {key === "hours"
-                ? Number(list.statistics.hours).toFixed(1)
-                : key === "weeklyRate"
-                  ? `${Math.round(Number(list.statistics.weeklyRate))}%`
-                  : Number(list.statistics[key])}
+              {Number(list.statistics[key])}
             </p>
           </div>
         ))}
@@ -156,7 +173,7 @@ export default function GoalsDashboard({ initial, references }: Props) {
           }}
         >
           <option value="">{t("allStatuses")}</option>
-          {goalStatuses.map((key) => (
+          {(["active", "completed"] as const).map((key) => (
             <option key={key} value={key}>
               {t(`statuses.${key}`)}
             </option>
@@ -179,6 +196,10 @@ export default function GoalsDashboard({ initial, references }: Props) {
           <GoalCard
             key={detail.goal.id}
             detail={detail}
+            onComplete={() => {
+              void complete(detail);
+            }}
+            busy={Boolean(completing)}
             onEdit={() => setEditing(detail.goal)}
             onDelete={() => setDeleting(detail)}
           />

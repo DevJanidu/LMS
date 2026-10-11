@@ -646,23 +646,51 @@ export async function mutateGoal(
         .concat([]);
       if (links.length) await tx.insert(s.goalLinks).values(links);
       if (topicIds.length)
-        await tx
-          .insert(s.goalLinks)
-          .values(
-            [...new Set(topicIds)].map((topicId) => ({
-              goalId: input.goalId,
-              topicId,
-            })),
-          );
+        await tx.insert(s.goalLinks).values(
+          [...new Set(topicIds)].map((topicId) => ({
+            goalId: input.goalId,
+            topicId,
+          })),
+        );
       if (resourceIds.length)
+        await tx.insert(s.goalLinks).values(
+          [...new Set(resourceIds)].map((resourceId) => ({
+            goalId: input.goalId,
+            resourceId,
+          })),
+        );
+    } else if (action.kind === "completion") {
+      if (action.completed) {
         await tx
-          .insert(s.goalLinks)
-          .values(
-            [...new Set(resourceIds)].map((resourceId) => ({
-              goalId: input.goalId,
-              resourceId,
-            })),
+          .insert(s.goalActivity)
+          .values({
+            goalId: input.goalId,
+            type: "outcome",
+            amount: 1,
+            evidence: "User marked this goal complete.",
+            date: localDay(Date.now(), actor.timezone),
+            deduplicationKey: "manual-completion",
+          })
+          .onConflictDoNothing();
+      } else {
+        await tx
+          .delete(s.goalActivity)
+          .where(
+            and(
+              eq(s.goalActivity.goalId, input.goalId),
+              eq(s.goalActivity.deduplicationKey, "manual-completion"),
+            ),
           );
+      }
+      await tx
+        .update(s.goals)
+        .set({
+          status: action.completed ? "completed" : "active",
+          ...(action.completed ? { progressMode: "outcome" } : {}),
+          version,
+          updatedAt: new Date(),
+        })
+        .where(ownedGoal(userId, input.goalId));
     } else if (action.kind === "deleteGoal") {
       // Unassign milestones before cascading the hierarchy's restrictive composite FK.
       await tx
@@ -752,27 +780,23 @@ export async function mutateGoal(
               ),
             );
         else
-          await tx
-            .insert(s.goalTasks)
-            .values({
-              ...value,
-              id: action.id,
-              goalId: input.goalId,
-              completedAt,
-            });
+          await tx.insert(s.goalTasks).values({
+            ...value,
+            id: action.id,
+            goalId: input.goalId,
+            completedAt,
+          });
         await tx
           .delete(s.goalTaskDependencies)
           .where(eq(s.goalTaskDependencies.taskId, action.id));
         if (dependencyIds.length)
-          await tx
-            .insert(s.goalTaskDependencies)
-            .values(
-              [...new Set(dependencyIds)].map((prerequisiteId) => ({
-                goalId: input.goalId,
-                taskId: action.id,
-                prerequisiteId,
-              })),
-            );
+          await tx.insert(s.goalTaskDependencies).values(
+            [...new Set(dependencyIds)].map((prerequisiteId) => ({
+              goalId: input.goalId,
+              taskId: action.id,
+              prerequisiteId,
+            })),
+          );
       } else if (action.kind === "milestone") {
         if (
           milestones.length >= 50 &&
@@ -972,14 +996,12 @@ export async function mutateGoal(
         .where(ownedGoal(userId, input.goalId));
     }
     if (action.kind !== "deleteGoal") {
-      await tx
-        .insert(s.goalHistory)
-        .values({
-          goalId: input.goalId,
-          action: action.kind,
-          targetId: "id" in action ? action.id : input.goalId,
-          version,
-        });
+      await tx.insert(s.goalHistory).values({
+        goalId: input.goalId,
+        action: action.kind,
+        targetId: "id" in action ? action.id : input.goalId,
+        version,
+      });
       const detail = await getGoalDetail(userId, input.goalId, tx),
         day = localDay(Date.now(), actor.timezone);
       await tx

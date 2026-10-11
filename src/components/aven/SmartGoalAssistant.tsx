@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Modal } from "@/components/ui/modal";
 import Button from "@/components/ui/button/Button";
+import { TextField } from "@/components/studyflow/FormFields";
 import type { GoalReferences } from "@/lib/goals/service";
 import { responseEvents } from "@/lib/aven/stream";
 import ProposalCard, { type ProposalRecord } from "./ProposalCard";
@@ -27,9 +28,11 @@ export default function SmartGoalAssistant({
     [proposals, setProposals] = useState<ProposalRecord[]>([]),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const [conversationId, setConversationId] = useState<string | null>(null),
+    [followUp, setFollowUp] = useState("");
   const abort = useRef<AbortController | null>(null);
   useEffect(() => () => abort.current?.abort(), []);
-  const generate = async () => {
+  const generate = async (reply?: string) => {
     if (busy) return;
     setBusy(true);
     setError("");
@@ -41,11 +44,13 @@ export default function SmartGoalAssistant({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          conversationId: null,
+          conversationId,
           goalId: goalId ?? null,
           requestId: crypto.randomUUID(),
           planning: true,
-          message: `Refine this user-provided draft into a SMART goal plan, with realistic milestones, task dependencies and controllable success criteria. Read permitted existing subjects and schedules before proposing. Do not apply anything; call proposeGoalPlan for review. Preserve requested linked IDs and target dates unless explaining a proposed revision. Draft: ${JSON.stringify(draft)}`,
+          message:
+            reply ??
+            `Help the user save a simple goal with its title and due date. Ask only for a missing title or deadline. Call proposeGoal for review; do not add milestones, tasks or extra setup unless the user specifically asks. Preserve the goalId when provided. Draft: ${JSON.stringify(draft)}`,
         }),
         signal: controller.signal,
       });
@@ -57,10 +62,13 @@ export default function SmartGoalAssistant({
       for await (const raw of responseEvents(response.body)) {
         const event = raw as unknown as {
           type: string;
+          id?: string;
           text?: string;
           code?: string;
           proposal?: ProposalRecord;
         };
+        if (event.type === "conversation" && event.id)
+          setConversationId(event.id);
         if (event.type === "delta") setAnswer((value) => value + event.text);
         if (event.type === "proposal" && event.proposal)
           setProposals((current) => [
@@ -96,6 +104,31 @@ export default function SmartGoalAssistant({
           {t(busy ? "thinking" : "generatePlan")}
         </Button>
         {answer && <AvenMarkdown text={answer} />}
+        {conversationId && (
+          <form
+            className="space-y-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!followUp.trim()) return;
+              const reply = followUp;
+              setFollowUp("");
+              void generate(reply);
+            }}
+          >
+            <TextField
+              label={t("message")}
+              value={followUp}
+              rows={2}
+              maxLength={6000}
+              required
+              disabled={busy}
+              onChange={(event) => setFollowUp(event.target.value)}
+            />
+            <Button type="submit" disabled={busy || !followUp.trim()}>
+              {t("send")}
+            </Button>
+          </form>
+        )}
         {error && (
           <div
             role="alert"

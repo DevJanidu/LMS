@@ -440,6 +440,46 @@ describe.skipIf(!enabled)(
         }),
       ).rejects.toMatchObject({ status: 404 });
     });
+    it("creates a simple AI goal only after approval and supports manual completion and reopening", async () => {
+      const { executeAvenTool } = await import("@/lib/aven/tools");
+      const conversation = await db
+        .insert(s.aiConversations)
+        .values({ userId: a, title: "Simple goal fixture" })
+        .returning();
+      const proposal = (await executeAvenTool(
+        a,
+        conversation[0].id,
+        "proposeGoal",
+        { title: "Learn Spring Boot", targetDate: future, goalId: null },
+      )) as {
+        id: string;
+        value: { goal: { title: string }; tasks: unknown[] };
+      };
+      expect(proposal.value.tasks).toHaveLength(0);
+      const saved = await proposals.resolveProposal(a, proposal.id, "approve");
+      const id = saved.result?.goalId;
+      if (!id) throw new Error("Goal approval did not return an ID");
+      let detail = await service.getGoalDetail(a, id);
+      expect(detail.goal.title).toBe("Learn Spring Boot");
+      expect(detail.goal.targetDate).toBe(future);
+      expect(detail.tasks).toHaveLength(0);
+      detail = await change(id, { kind: "completion", completed: true });
+      expect(detail.goal.status).toBe("completed");
+      expect(detail.progress.outcomeConfirmed).toBe(true);
+      expect(detail.progress.percent).toBe(100);
+      detail = await change(id, { kind: "completion", completed: false });
+      expect(detail.goal.status).toBe("active");
+      expect(detail.progress.outcomeConfirmed).toBe(false);
+      expect(detail.progress.percent).toBe(0);
+      await expect(
+        service.mutateGoal(b, {
+          operationId: crypto.randomUUID(),
+          goalId: id,
+          expectedVersion: detail.goal.version,
+          action: { kind: "completion", completed: true },
+        }),
+      ).rejects.toMatchObject({ status: 404 });
+    });
     it("enforces the shared monthly budget across concurrent learners", async () => {
       const { reserveUsage } = await import("@/lib/aven/usage");
       const { avenConfig, MAX_OUTPUT_TOKENS } =

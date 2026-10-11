@@ -57,15 +57,20 @@ export default async function GoalPriorities({ userId }: { userId: string }) {
             >
               {detail.goal.title}
             </Link>
-            <ProgressBar
-              value={detail.progress.percent}
-              label={detail.goal.title}
-            />
-            <p className="text-secondary dark:text-secondary text-small">
-              {detail.tasks.find(
-                (task) => task.id === detail.progress.nextTaskId,
-              )?.title ?? t("noNextTask")}
-            </p>
+            {detail.tasks.length > 0 && (
+              <>
+                {" "}
+                <ProgressBar
+                  value={detail.progress.percent}
+                  label={detail.goal.title}
+                />
+                <p className="text-secondary dark:text-secondary text-small">
+                  {detail.tasks.find(
+                    (task) => task.id === detail.progress.nextTaskId,
+                  )?.title ?? t("noNextTask")}
+                </p>
+              </>
+            )}
             <p className="text-muted dark:text-muted text-caption">
               {t("targetLabel", { date: detail.goal.targetDate })}
             </p>

@@ -10,9 +10,9 @@
     "search": "Search goals",
     "allStatuses": "All statuses",
     "empty": "Make room for your next goal",
-    "emptyHelp": "Start with something meaningful, then break it into achievable steps.",
+    "emptyHelp": "Add a goal and choose when you want to finish it.",
     "askAven": "Ask Aven",
-    "smartHelp": "Want help refining your goal into a SMART plan?",
+    "smartHelp": "Aven can help you choose a clear goal and due date.",
     "outcomeHelp": "Preparation and the final outcome are separate. Record outcome evidence explicitly; completing preparation alone does not guarantee the result.",
     "progressValue": "{value}% complete",
     "currentMilestone": "Current milestone: {title}",
@@ -217,7 +217,14 @@
       "aiRequestInvalid": "Aven could not submit this request to the AI provider. Your message is saved; ask your workspace administrator to check the AI integration.",
       "workspaceUsageLimit": "The shared monthly AI budget is fully allocated. Chat becomes available when pending requests finish or the budget resets next month. Your goals and reminders still work."
     },
-    "dailyPriorities": "Today's goal priorities"
+    "dailyPriorities": "Today's goal priorities",
+    "goalName": "Goal",
+    "dueDate": "Due date",
+    "simpleGoalHelp": "What do you want to achieve, and when do you want to finish?",
+    "markComplete": "Mark complete",
+    "reopenGoal": "Reopen goal",
+    "existingStudyPlan": "Existing study plan (optional)",
+    "openGoalStatus": "To do"
   },
   "aven": {
     "title": "Aven AI",
@@ -437,9 +444,9 @@
       "aiRequestInvalid": "Aven could not submit this request to the AI provider. Your message is saved; ask your workspace administrator to check the AI integration.",
       "workspaceUsageLimit": "The shared monthly AI budget is fully allocated. Chat becomes available when pending requests finish or the budget resets next month. Your goals and reminders still work."
     },
-    "smartTitle": "Refine your SMART goal",
-    "smartHelp": "Aven will read this draft and your permitted learning context, then propose a plan. Review the complete proposal before approving it.",
-    "generatePlan": "Generate a plan",
+    "smartTitle": "Create a goal with Aven",
+    "smartHelp": "Aven will help you choose a goal and due date. Answer any missing detail, then review and approve the goal.",
+    "generatePlan": "Suggest a goal",
     "notificationsTab": "Notifications",
     "summaryMemory": "Conversation memory",
     "summaryHelp": "Aven uses this summary as context. Correct or clear it at any time; future conversations may update it.",
@@ -460,7 +467,10 @@
     "budgetSummary": "Shared AI budget: ${used} of ${limit} this month",
     "noDailyChatLimit": "No daily chat allowance. Chat stays available within the shared monthly budget.",
     "goalRemindersLabel": "Goal and task deadline reminders",
-    "budgetShort": "AI budget: ${used} / ${limit}"
+    "budgetShort": "AI budget: ${used} / ${limit}",
+    "simpleGoalExplanation": "Save this goal and its due date. You can mark it complete whenever you achieve it.",
+    "simpleGoalProposal": "Proposed goal",
+    "goalDue": "Due date: {date}"
   },
   "studyflow": {
     "exportUsers": "Export users (CSV)",
