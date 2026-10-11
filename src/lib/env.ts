@@ -57,7 +57,7 @@ const cacheSchema = z.object({
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   CACHE_NAMESPACE: z.enum(["development", "preview", "production", "test"]).default("development"),
 });
-function scopedEnvironment<T extends z.ZodType>(schema: T, input: Record<string, string | undefined>): z.infer<T> {
+function normalizedEnvironment(input: Record<string, string | undefined>) {
   input = { ...input, AUTH_SECRET: input.AUTH_SECRET || input.BETTER_AUTH_SECRET, APP_URL: input.APP_URL || input.BETTER_AUTH_URL };
   const normalized = Object.fromEntries(Object.entries(input).map(([key, value]) => {
     // Dashboard paste often retains dotenv quotes. Normalize URLs/senders only;
@@ -69,6 +69,12 @@ function scopedEnvironment<T extends z.ZodType>(schema: T, input: Record<string,
     return [key, value === "" ? undefined : value];
   }));
   normalized.CACHE_NAMESPACE ??= input.VERCEL_ENV;
+  // The public canonical origin is safe to default; secrets never have fallbacks.
+  if (input.VERCEL_ENV === "production" && !z.string().url().safeParse(normalized.APP_URL).success) normalized.APP_URL = "https://acadence.janidudev.com";
+  return normalized;
+}
+function scopedEnvironment<T extends z.ZodType>(schema: T, input: Record<string, string | undefined>): z.infer<T> {
+  const normalized = normalizedEnvironment(input);
   const result = schema.safeParse(normalized);
   if (!result.success) throw new InvalidServerConfiguration("Missing or invalid service configuration.", [...new Set(result.error.issues.map(issue => String(issue.path[0] ?? "")))]);
   return result.data;
@@ -82,8 +88,7 @@ export function getCacheEnv() { return scopedEnvironment(cacheSchema, process.en
 
 /** Validate server configuration without including secret values in errors. */
 export function validateEnvironment(input: Record<string, string | undefined>): Environment {
-  const normalized = Object.fromEntries(Object.entries(input).map(([key, value]) => [key, value === "" ? undefined : value]));
-  normalized.CACHE_NAMESPACE ??= input.VERCEL_ENV;
+  const normalized = normalizedEnvironment(input);
   const result = environmentSchema.safeParse(normalized);
   if (!result.success) {
     throw new InvalidServerConfiguration(`Invalid server configuration: ${result.error.issues.map(issue => `${issue.path.join(".")}: ${issue.message}`).join("; ")}`, [...new Set(result.error.issues.map(issue => String(issue.path[0] ?? "")))]);

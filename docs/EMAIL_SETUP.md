@@ -47,6 +47,9 @@ readiness. Other LMS features still validate their own service configuration.
 The standard `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` aliases are accepted when
 the app-specific names are absent. Readiness returns only invalid core setting
 names, never values; the database and account configuration must both be healthy.
+Vercel production defaults a missing/invalid public `APP_URL` to the existing
+canonical origin `https://acadence.janidudev.com`. A valid explicit URL takes
+precedence; previews require their own origin. Signing secrets have no fallback.
 
 ## Five reset requests per week
 

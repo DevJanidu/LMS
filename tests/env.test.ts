@@ -25,6 +25,13 @@ it("supports standard Better Auth setting names while preferring explicit app se
   expect(validateAccountEnvironment(aliases).AUTH_SECRET).toBe(core.AUTH_SECRET);
   expect(validateAccountEnvironment({ ...aliases, APP_URL: "https://preferred.example.com" }).APP_URL).toBe("https://preferred.example.com");
 });
+it("defaults only the public production origin and never signing secrets", () => {
+  const production = { VERCEL_ENV: "production", DATABASE_URL: core.DATABASE_URL, AUTH_SECRET: core.AUTH_SECRET };
+  expect(validateAccountEnvironment(production).APP_URL).toBe("https://acadence.janidudev.com");
+  expect(validateAccountEnvironment({ ...production, APP_URL: "https://custom.example.com" }).APP_URL).toBe("https://custom.example.com");
+  expect(() => validateAccountEnvironment({ ...production, AUTH_SECRET: "" })).toThrow();
+  expect(() => validateAccountEnvironment({ ...production, VERCEL_ENV: "preview" })).toThrow();
+});
 it("accepts core application configuration while email setup is pending", () => {
   const env = validateEnvironment(core);
   expect(env.DATABASE_URL).toBe(core.DATABASE_URL);
