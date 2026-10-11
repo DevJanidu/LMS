@@ -5,11 +5,12 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ token?: string; error?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <AuthForm token={(await searchParams).token} mode="reset-password" />;
+  const { token, error } = await searchParams;
+  return <AuthForm token={token} resetLinkError={Boolean(error)} mode="reset-password" />;
 }
 
 export async function generateMetadata({

@@ -23,3 +23,6 @@ it("rejects malformed senders and header injection", () => {
     expect(() => validateEnvironment({ ...core, EMAIL_FROM: sender })).toThrow("Use an email address");
   }
 });
+it("still rejects missing production Redis even when public recovery pages can render", () => {
+  expect(() => validateEnvironment({ ...core, NODE_ENV: "production" })).toThrow("Production requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.");
+});

@@ -21,6 +21,7 @@ import { ageInYears } from "@/lib/validation/age";
 import { safeReturnPath } from "./return-path";
 import { timed } from "@/lib/perf";
 import { APP_NAME } from "@/lib/constants";
+import { passwordResetLink } from "./reset-link";
 
 const registrationSchema = z.object({ acceptedTerms: z.literal(true), name: z.string().trim().min(1).max(150), email: z.email(), dateOfBirth: z.iso.date().refine(value => value <= new Date().toISOString().slice(0, 10)).optional() });
 
@@ -34,7 +35,7 @@ function createAuth() {
     emailAndPassword: {
       enabled: true, minPasswordLength: 8, maxPasswordLength: 128,
       password: { hash: password => hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1 }), verify: ({ hash: digest, password }) => verify(digest, password) },
-      sendResetPassword: async ({ user, url }) => { await sendAccountEmail(user.email, "reset", url); },
+      sendResetPassword: async ({ user, token }) => { await sendAccountEmail(user.email, "reset", passwordResetLink(env.APP_URL, token)); },
       revokeSessionsOnPasswordReset: true,
     },
     emailVerification: { sendVerificationEmail: async ({ user, url }) => { await sendAccountEmail(user.email, "verify", url); } },
@@ -65,7 +66,7 @@ function createAuth() {
       }, after: scheduleWelcomeEmail } },
       session: { create: { before: async (session) => {
         const [user] = await getDb().select({ status: schema.users.status }).from(schema.users).where(eq(schema.users.id, session.userId));
-        if (!user || user.status !== "active") throw new APIError("FORBIDDEN", { message: "Account unavailable." });
+        if (!user || user.status !== "active") throw new APIError("FORBIDDEN", { code: "ACCOUNT_INACTIVE", message: "Account unavailable." });
         after(async () => {
           try { await getDb().update(schema.users).set({ lastActiveAt: new Date() }).where(eq(schema.users.id, session.userId)); }
           catch { console.warn(JSON.stringify({ event: "last_active_update_failed" })); }

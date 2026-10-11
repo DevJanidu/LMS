@@ -9,16 +9,16 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ returnTo?: string }>;
+  searchParams: Promise<{ returnTo?: string; reset?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const { returnTo } = await searchParams;
+  const { returnTo, reset } = await searchParams;
   if ((await headers()).get("cookie")?.includes("better-auth.session_token=")) {
     const user = await getCurrentUser();
     if (user) redirect({ href: loginDestination(user.role, Boolean(user.onboardingCompletedAt), returnTo), locale });
   }
-  return <AuthForm mode="login" returnTo={returnTo} />;
+  return <AuthForm mode="login" returnTo={returnTo} passwordResetComplete={reset === "success"} />;
 }
 
 export async function generateMetadata({

@@ -1,6 +1,5 @@
 "use server";
 import { headers } from "next/headers";
-import { z } from "zod";
 import { getAuth, requireUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { users } from "@/lib/db/schema";
@@ -12,12 +11,12 @@ import { ageInYears } from "@/lib/validation/age";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { loginDestination } from "@/lib/auth/destination";
-import { authenticationFailureKind } from "@/lib/auth/errors";
+import { authenticationFailureKind, authFeedback } from "@/lib/auth/errors";
+import { parseAuthInput, type AuthResult } from "@/lib/auth/input";
 
-const inputSchema = z.object({ mode: z.enum(["login", "register", "forgot-password", "reset-password"]), email: z.email().optional(), name: z.string().trim().min(1).max(150).optional(), password: z.string().min(8).max(128).optional(), acceptedTerms: z.boolean().optional(), dateOfBirth: z.iso.date().optional(), token: z.string().max(500).optional(), returnTo: z.string().max(2048).optional() });
-export async function authenticate(input: unknown) {
-  const parsed = inputSchema.safeParse(input);
-  if (!parsed.success) return { ok: false as const, error: "invalidInput" };
+export async function authenticate(input: unknown): Promise<AuthResult> {
+  const parsed = parseAuthInput(input);
+  if (!parsed.success) return parsed.result;
   const v = parsed.data;
   let destination: string;
   try {
@@ -48,25 +47,24 @@ export async function authenticate(input: unknown) {
       const env = getEnv();
       if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return { ok: false as const, error: "emailUnavailable" };
       await auth.api.requestPasswordReset({ headers: requestHeaders, body: { email: v.email.toLowerCase(), redirectTo: `${getEnv().APP_URL}/reset-password` } });
-      return { ok: true as const, href: "" };
+      return { ok: true as const, href: "", email: v.email };
     }
     else {
       if (!v.password || !v.token) return { ok: false as const, error: "invalidInput" };
       await auth.api.resetPassword({ headers: requestHeaders, body: { newPassword: v.password, token: v.token } });
-      destination = "/login";
+      destination = "/login?reset=success";
     }
   } catch (error) {
     if (v.mode === "forgot-password") {
-      // Keep account-existence responses indistinguishable. Acknowledgement is
-      // not proof of delivery; report provider failures through safe telemetry.
       console.warn(JSON.stringify({ event: "password_reset_unavailable", category: authenticationFailureKind(error) }));
-      return { ok: true as const, href: "" };
+      return { ok: false, ...authFeedback(error) };
     }
     const category = authenticationFailureKind(error);
     if (category !== "session_provider") console.warn(JSON.stringify({ event: "authentication_unavailable", category }));
-    return { ok: false as const, error: category === "session_provider" ? "authenticationFailed" : "authenticationUnavailable" };
+    return { ok: false, ...authFeedback(error) };
   }
   redirect({ href: destination, locale: await getLocale() });
+  return { ok: true, href: destination };
 }
 export async function signOut() {
   await requireUser();

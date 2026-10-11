@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+/** Operators can identify invalid settings without logging their values. */
+export class InvalidServerConfiguration extends Error {
+  constructor(message: string, readonly fields: readonly string[]) {
+    super(message);
+    this.name = "InvalidServerConfiguration";
+  }
+}
+
 const environmentSchema = z.object({
   DATABASE_URL: z.string().url(),
   DATABASE_URL_UNPOOLED: z.string().url(),
@@ -43,9 +51,9 @@ export function validateEnvironment(input: Record<string, string | undefined>): 
   normalized.CACHE_NAMESPACE ??= input.VERCEL_ENV;
   const result = environmentSchema.safeParse(normalized);
   if (!result.success) {
-    throw new Error(`Invalid server configuration: ${result.error.issues.map(issue => `${issue.path.join(".")}: ${issue.message}`).join("; ")}`);
+    throw new InvalidServerConfiguration(`Invalid server configuration: ${result.error.issues.map(issue => `${issue.path.join(".")}: ${issue.message}`).join("; ")}`, [...new Set(result.error.issues.map(issue => String(issue.path[0] ?? "")))]);
   }
-  if (input.NODE_ENV === "production" && (!result.data.UPSTASH_REDIS_REST_URL || !result.data.UPSTASH_REDIS_REST_TOKEN)) throw new Error("Production requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.");
+  if (input.NODE_ENV === "production" && (!result.data.UPSTASH_REDIS_REST_URL || !result.data.UPSTASH_REDIS_REST_TOKEN)) throw new InvalidServerConfiguration("Production requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.", ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"].filter(key => !result.data[key as "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN"]));
   return result.data;
 }
 

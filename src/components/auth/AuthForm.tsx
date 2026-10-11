@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authenticate } from "@/app/[locale]/auth-actions";
@@ -9,24 +9,47 @@ import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
 import Field from "@/components/studyflow/FormFields";
 import { Checkbox } from "@/components/ui/Checkbox";
+import AuthInput from "./AuthInput";
+import { parseAuthInput, validResetToken, type AuthResult, type AuthField } from "@/lib/auth/input";
 interface Props {
   token?: string;
   returnTo?: string;
   mode: "login" | "register" | "forgot-password" | "reset-password";
+  resetLinkError?: boolean;
+  passwordResetComplete?: boolean;
 }
 /** Account forms submit only to the authenticated server API. */
-export default function AuthForm({ token, mode, returnTo }: Props) {
+export default function AuthForm({ token, mode, returnTo, resetLinkError, passwordResetComplete }: Props) {
   const t = useTranslations("studyflow");
   const router = useRouter();
   const register = mode === "register";
   const reset = mode === "reset-password";
   const forgot = mode === "forgot-password";
-  const [result, submit, pending] = useActionState(async (_previous: Awaited<ReturnType<typeof authenticate>> | undefined, fields: FormData) => {
-    if (reset && fields.get("password") !== fields.get("confirmation")) return { ok: false as const, error: "passwordMismatch" };
-    return authenticate({ mode, token, returnTo, email: reset ? undefined : String(fields.get("email")), name: register ? String(fields.get("name")) : undefined, password: forgot ? undefined : String(fields.get("password")), acceptedTerms: fields.get("terms") === "on", dateOfBirth: fields.get("dob") || undefined });
+  const form = useRef<HTMLFormElement>(null);
+  const unusableLink = reset && (resetLinkError || !validResetToken(token));
+  const [result, submit, pending] = useActionState(async (_previous: AuthResult | undefined, fields: FormData): Promise<AuthResult> => {
+    const input = { mode, token, returnTo, email: reset ? undefined : String(fields.get("email") ?? ""), name: register ? String(fields.get("name") ?? "") : undefined, password: forgot ? undefined : String(fields.get("password") ?? ""), acceptedTerms: fields.get("terms") === "on", dateOfBirth: fields.get("dob") || undefined };
+    const validation = parseAuthInput(input);
+    if (!validation.success) return validation.result;
+    if (reset && fields.get("password") !== fields.get("confirmation")) return { ok: false, error: "passwordMismatch", field: "confirmation" };
+    try { return await authenticate(validation.data); }
+    catch (error) {
+      // Next.js uses a redirect signal to navigate after successful actions.
+      if ((error as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT;")) throw error;
+      return { ok: false, error: "authenticationUnavailable" };
+    }
   }, undefined);
-  const error = result && !result.ok ? t(result.error) : "";
-  const message = result?.ok ? t("resetEmailSent") : "";
+  const failure = result && !result.ok ? result : undefined;
+  const error = failure ? t(failure.error) : unusableLink ? t("invalidResetLink") : "";
+  const fieldError = (field: AuthField) => failure?.field === field ? t(failure.error) : undefined;
+  const message = result?.ok && forgot ? t("resetEmailSentTo", { email: result.email ?? "" }) : passwordResetComplete ? t("passwordResetComplete") : "";
+  const invalidLink = unusableLink || failure?.error === "invalidResetLink";
+  useEffect(() => {
+    if (failure?.field) {
+      const selector = failure.field === "terms" ? '[role="checkbox"]' : `[name="${failure.field}"]`;
+      form.current?.querySelector<HTMLElement>(selector)?.focus();
+    }
+  }, [failure]);
   useEffect(() => { if (mode === "login") router.prefetch("/dashboard"); }, [mode, router]);
   const title = register
     ? "createAccount"
@@ -38,51 +61,58 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
   return (
     <div className="sf-auth-form mx-auto w-full max-w-md" data-auth-mode={mode}>
       {(mode === "login" || register) && <BrandLogo className="sf-auth-logo" />}
-      <PageHeader title={t(title)} description={t("authDescription")} />
+      <PageHeader title={t(title)} description={t(forgot ? "forgotPasswordDescription" : reset ? "resetPasswordDescription" : "authDescription")} />
       <form
+        ref={form}
+        noValidate
         className="space-y-5"
         action={submit}
         aria-busy={pending}
       >
-        <div className="sf-auth-fields">
+        {!(reset && invalidLink) && <div className="sf-auth-fields">
           {register && (
-            <Field label={t("name")} name="name" required autoComplete="name" />
+            <AuthInput label={t("name")} name="name" error={fieldError("name")} required maxLength={150} autoComplete="name" />
           )}
           {!reset && (
-            <Field
+            <AuthInput
               label={t("email")}
               type="email"
               name="email"
+              error={fieldError("email")}
               required
               autoComplete="email"
             />
           )}
           {!forgot && (
-            <Field
+            <AuthInput
               label={t("password")}
               type="password"
               name="password"
+              error={fieldError("password")}
               required
-              minLength={8}
+              minLength={mode === "login" ? undefined : 8}
+              maxLength={128}
               autoComplete={
                 register || reset ? "new-password" : "current-password"
               }
             />
           )}
           {reset && (
-            <Field
+            <AuthInput
               label={t("confirmPassword")}
               type="password"
               name="confirmation"
+              error={fieldError("confirmation")}
               required
               minLength={8}
+              maxLength={128}
               autoComplete="new-password"
             />
           )}
           {register && (
             <Field label={t("dobOptional")} name="dob" type="date" />
           )}
-        </div>
+        </div>}
         {register && (
           <>
             <label className="flex items-start gap-3 text-body">
@@ -125,7 +155,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
             {message}
           </p>
         )}
-        <Button type="submit" className="w-full" disabled={pending}>
+        {!(reset && invalidLink) && <Button type="submit" className="w-full" disabled={pending}>
           {pending ? t("loading") : t(
             register
               ? "signUp"
@@ -135,7 +165,8 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
                   ? "sendResetLink"
                   : "signIn",
           )}
-        </Button>
+        </Button>}
+        {reset && invalidLink && <Link href="/forgot-password" className="block text-center text-body text-brand-600 dark:text-brand-300">{t("requestNewResetLink")}</Link>}
         {!forgot && !reset && (
           <>
             <Button variant="outline" className="w-full" disabled>

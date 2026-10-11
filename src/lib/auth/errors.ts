@@ -1,6 +1,24 @@
 export class AuthenticationUnavailable extends Error {
   constructor(cause: unknown) { super("Authentication service unavailable.", { cause }); this.name = "AuthenticationUnavailable"; }
 }
+/** Map only documented provider codes; never expose provider messages to the browser. */
+export function authFeedback(error: unknown): { error: string; field?: "email" | "password" } {
+  const value = error as { body?: { code?: string }; name?: string; statusCode?: number } | null;
+  switch (value?.body?.code) {
+    case "INVALID_EMAIL": return { error: "invalidEmail", field: "email" };
+    case "INVALID_EMAIL_OR_PASSWORD":
+    case "INVALID_PASSWORD": return { error: "invalidCredentials" };
+    case "PASSWORD_TOO_SHORT": return { error: "passwordTooShort", field: "password" };
+    case "PASSWORD_TOO_LONG": return { error: "passwordTooLong", field: "password" };
+    case "INVALID_TOKEN": return { error: "invalidResetLink" };
+    case "EMAIL_NOT_VERIFIED": return { error: "emailNotVerified" };
+    case "ACCOUNT_INACTIVE": return { error: "accountInactive" };
+    case "USER_ALREADY_EXISTS":
+    case "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL": return { error: "emailAlreadyRegistered", field: "email" };
+  }
+  if (value?.name === "AccountEmailUnavailable") return { error: "emailDeliveryFailed" };
+  return { error: "authenticationUnavailable" };
+}
 /** Classify without logging cookies, SQL parameters, connection URLs or error text. */
 export function authenticationFailureKind(error: unknown): string {
   for (let depth = 0; depth < 5 && error && typeof error === "object"; depth++) {

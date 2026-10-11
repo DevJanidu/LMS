@@ -65,7 +65,7 @@ it("skips welcome delivery while the Resend API key is pending", async () => {
 it("rejects failed or unacknowledged sends for all account email types", async () => {
   mocked.send.mockResolvedValue({ data: null, error: { message: "fixture-provider-error" } });
   await expect(sendWelcomeEmail(user, "en")).rejects.toThrow("Welcome email delivery failed.");
-  await expect(sendAccountEmail(user.email, "reset", "https://acadence.janidudev.com/reset-password")).rejects.toThrow("Account email delivery failed.");
+  await expect(sendAccountEmail(user.email, "reset", "https://acadence.janidudev.com/reset-password")).rejects.toThrow("Account email delivery is temporarily unavailable.");
   mocked.send.mockResolvedValue({ data: null, error: null });
-  await expect(sendAccountEmail(user.email, "verify", "https://acadence.janidudev.com/api/auth/verify-email")).rejects.toThrow("Account email delivery failed.");
+  await expect(sendAccountEmail(user.email, "verify", "https://acadence.janidudev.com/api/auth/verify-email")).rejects.toThrow("Account email delivery is temporarily unavailable.");
 });

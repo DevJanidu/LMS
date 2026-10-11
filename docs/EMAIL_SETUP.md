@@ -17,4 +17,35 @@ Sending uses `APP_NAME` (Acadence) for the subject and message, and the configur
 
 A prepared sender without an API key is allowed so the application can continue running during setup. Welcome sending stays disabled until both are supplied; password-reset requests continue to report email as unavailable. Invalid sender addresses and header injection are rejected by environment validation.
 
-Current status (10 October 2026): sender and application flow are implemented and tested. The owner supplied the production Resend API key; the live provider check confirmed `acadence.janidudev.com` is verified and all production connection checks passed. Build, lint, TypeScript and 220 tests passed; 12 integration tests were skipped. A real test registration and inbox delivery check remain outstanding. The local development file has the sender prepared; configure its API key separately if local email delivery is needed.
+The 10 October checks used the private local production configuration file; those checks do not prove that the same values were imported into the hosted Vercel environment. The local development file has the sender prepared; configure its API key separately if local email delivery is needed.
+
+## Password-reset recovery and feedback
+
+Reset emails now link directly to `/reset-password?token=...`. Existing
+`/api/auth/reset-password/<token>` links also open the public form while logged
+out, even if a mail client removed their callback query. Caller-provided callback
+origins are ignored. The token is validated, expires, and is consumed by Better
+Auth when the password is changed; existing sessions are revoked. Reset pages
+and redirects prevent caching and suppress referral headers containing tokens.
+
+The request confirmation shows the normalized email entered by the user. It
+keeps account-existence responses generic. Email-provider and service failures
+produce actionable errors rather than pretending a reset email was sent. Invalid
+or expired links offer a fresh-link action, and completed resets show a sign-in
+confirmation. Invalid email syntax, missing passwords, new-password length and
+confirmation errors identify the relevant form field. Rejected login credentials
+use the provider's combined email/password error; no additional account lookup
+is introduced to disclose which addresses are registered.
+
+Startup validates server configuration and logs only invalid setting names as
+`startup_configuration_invalid`. It no longer aborts all public recovery pages.
+Account services still require valid configuration and production Redis, and
+`/api/health` returns 503 while the database/service configuration is unhealthy.
+This preserves the service validation while allowing the UI to explain a failure.
+
+On 11 October, the live Resend domain API confirmed the sender is verified using
+the local production key. Before this patch was deployed, public checks of the
+hosted login, forgot-password, reset-password and health endpoints returned 500.
+Hosted configuration and runtime logs require Vercel access; a verified sender
+alone does not prove hosted email delivery. No user's reset token was replayed,
+no password was changed, and no test email was sent during these checks.

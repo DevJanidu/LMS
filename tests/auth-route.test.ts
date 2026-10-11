@@ -13,6 +13,19 @@ it("rejects foreign origins and denied rate limits before credential processing"
   expect((await POST(new Request("https://study.example.com/api/auth/sign-in/email", { method: "POST", headers: { Origin: "https://study.example.com" } }))).status).toBe(429);
   expect(mocks.post).not.toHaveBeenCalled();
 });
+it("opens old emailed reset callbacks without requiring a session or trusting callbackURL", async () => {
+  const response = await GET(new Request("https://study.example.com/api/auth/reset-password/fixture-token?callbackURL=https://attacker.example.com"));
+  expect(response.status).toBe(303);
+  expect(response.headers.get("location")).toBe("https://study.example.com/reset-password?token=fixture-token");
+  expect(response.headers.get("cache-control")).toBe("private, no-store");
+  expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+  expect(mocks.session).not.toHaveBeenCalled();
+  expect(mocks.get).not.toHaveBeenCalled();
+});
+it("offers recovery for reset callbacks missing a token", async () => {
+  const response = await GET(new Request("https://study.example.com/api/auth/reset-password"));
+  expect(response.headers.get("location")).toBe("https://study.example.com/reset-password?error=INVALID_TOKEN");
+});
 it("protects every public credential route and prevents shared caching of auth responses", async () => {
   for (const path of ["sign-in/email", "sign-up/email", "request-password-reset", "reset-password"]) {
     const response = await POST(new Request(`https://study.example.com/api/auth/${path}`, { method: "POST", headers: { Origin: "https://study.example.com" } }));

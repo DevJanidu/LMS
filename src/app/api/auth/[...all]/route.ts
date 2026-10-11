@@ -3,9 +3,22 @@ import { getAuth } from "@/lib/auth";
 import { getEnv } from "@/lib/env";
 import { requestLimit } from "@/lib/rate-limit";
 import { authenticationFailureKind, verifySession } from "@/lib/auth/errors";
+import { passwordResetLink } from "@/lib/auth/reset-link";
+import { validResetToken } from "@/lib/auth/input";
 
 async function get(request: Request) {
   const path = authPath(request);
+  // Existing emailed callbacks must work while logged out, including links
+  // whose callbackURL was lost by a mail client. Token validity is enforced at reset.
+  if (path === "/reset-password" || /^\/reset-password\/[^/]+$/.test(path)) {
+    const token = path.slice("/reset-password/".length);
+    const destination = validResetToken(token) && path !== "/reset-password"
+      ? passwordResetLink(getEnv().APP_URL, token)
+      : new URL("/reset-password?error=INVALID_TOKEN", getEnv().APP_URL).href;
+    const response = privateResponse(Response.redirect(destination, 303));
+    response.headers.set("Referrer-Policy", "no-referrer");
+    return response;
+  }
   if (path !== "/get-session" && !publicEndpoint(path) && !(await activeSession(request))) return privateResponse(new Response(null, { status: 401 }));
   const response = await toNextJsHandler(getAuth()).GET(request);
   if (path === "/get-session" && response.ok) {
