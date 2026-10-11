@@ -44,6 +44,9 @@ and the correct `APP_URL`; reset delivery additionally needs `RESEND_API_KEY`
 and `EMAIL_FROM`. Storage, cron, migration and Redis settings do not block account
 actions. The database is validated independently, and `/api/health` reports its
 readiness. Other LMS features still validate their own service configuration.
+The standard `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` aliases are accepted when
+the app-specific names are absent. Readiness returns only invalid core setting
+names, never values; the database and account configuration must both be healthy.
 
 ## Five reset requests per week
 

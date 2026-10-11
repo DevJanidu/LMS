@@ -58,6 +58,7 @@ const cacheSchema = z.object({
   CACHE_NAMESPACE: z.enum(["development", "preview", "production", "test"]).default("development"),
 });
 function scopedEnvironment<T extends z.ZodType>(schema: T, input: Record<string, string | undefined>): z.infer<T> {
+  input = { ...input, AUTH_SECRET: input.AUTH_SECRET || input.BETTER_AUTH_SECRET, APP_URL: input.APP_URL || input.BETTER_AUTH_URL };
   const normalized = Object.fromEntries(Object.entries(input).map(([key, value]) => {
     // Dashboard paste often retains dotenv quotes. Normalize URLs/senders only;
     // signing secrets and API tokens must keep their exact configured bytes.

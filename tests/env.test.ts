@@ -20,6 +20,11 @@ it("accepts dashboard-pasted URL/sender quotes without altering signing secrets"
   expect(result.EMAIL_FROM).toBe("Fixture <fixture@example.com>");
   expect(result.AUTH_SECRET).toBe(secret);
 });
+it("supports standard Better Auth setting names while preferring explicit app settings", () => {
+  const aliases = { DATABASE_URL: core.DATABASE_URL, BETTER_AUTH_SECRET: core.AUTH_SECRET, BETTER_AUTH_URL: "https://app.example.com" };
+  expect(validateAccountEnvironment(aliases).AUTH_SECRET).toBe(core.AUTH_SECRET);
+  expect(validateAccountEnvironment({ ...aliases, APP_URL: "https://preferred.example.com" }).APP_URL).toBe("https://preferred.example.com");
+});
 it("accepts core application configuration while email setup is pending", () => {
   const env = validateEnvironment(core);
   expect(env.DATABASE_URL).toBe(core.DATABASE_URL);
