@@ -36,7 +36,7 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
         ? "forgotPassword"
         : "welcomeBack";
   return (
-    <div className="sf-auth-form mx-auto w-full max-w-md">
+    <div className="sf-auth-form mx-auto w-full max-w-md" data-auth-mode={mode}>
       {(mode === "login" || register) && <BrandLogo className="sf-auth-logo" />}
       <PageHeader title={t(title)} description={t("authDescription")} />
       <form
@@ -44,43 +44,47 @@ export default function AuthForm({ token, mode, returnTo }: Props) {
         action={submit}
         aria-busy={pending}
       >
-        {register && (
-          <Field label={t("name")} name="name" required autoComplete="name" />
-        )}
-        {!reset && (
-          <Field
-            label={t("email")}
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-          />
-        )}
-        {!forgot && (
-          <Field
-            label={t("password")}
-            type="password"
-            name="password"
-            required
-            minLength={8}
-            autoComplete={
-              register || reset ? "new-password" : "current-password"
-            }
-          />
-        )}{" "}
-        {reset && (
-          <Field
-            label={t("confirmPassword")}
-            type="password"
-            name="confirmation"
-            required
-            minLength={8}
-            autoComplete="new-password"
-          />
-        )}
+        <div className="sf-auth-fields">
+          {register && (
+            <Field label={t("name")} name="name" required autoComplete="name" />
+          )}
+          {!reset && (
+            <Field
+              label={t("email")}
+              type="email"
+              name="email"
+              required
+              autoComplete="email"
+            />
+          )}
+          {!forgot && (
+            <Field
+              label={t("password")}
+              type="password"
+              name="password"
+              required
+              minLength={8}
+              autoComplete={
+                register || reset ? "new-password" : "current-password"
+              }
+            />
+          )}
+          {reset && (
+            <Field
+              label={t("confirmPassword")}
+              type="password"
+              name="confirmation"
+              required
+              minLength={8}
+              autoComplete="new-password"
+            />
+          )}
+          {register && (
+            <Field label={t("dobOptional")} name="dob" type="date" />
+          )}
+        </div>
         {register && (
           <>
-            <Field label={t("dobOptional")} name="dob" type="date" />
             <label className="flex items-start gap-3 text-body">
               <Checkbox name="terms" required className="mt-1" />
               <span>

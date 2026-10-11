@@ -343,6 +343,7 @@ tbody tr:hover { background: var(--surface-hover); }
 .sf-public-story h1 { @apply text-h1; margin-block: 1.5rem; max-width: 34rem;  }
 .sf-public-story > p:not(.sf-eyebrow) { @apply text-body; color: var(--text-secondary); max-width: 28rem; }
 .sf-public-form { padding: 2.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+.sf-auth-fields { display: grid; gap: var(--space-5); }
 .sf-learning-path { display: flex; align-items: center; gap: 0.75rem; margin-top: 3rem; color: var(--primary); }
 .sf-learning-path span { @apply text-caption; border: 1px solid var(--border-strong); border-radius: 50%; padding: 0.75rem;  }
 .sf-learning-path span:last-child { background: var(--primary-soft); border-color: var(--primary); color: var(--color-brand-600); }
@@ -510,3 +511,98 @@ dialog[open] { animation: page-enter var(--motion-fast) var(--ease-standard); ba
 .sf-subject { @apply text-body; }
 .sf-subject .sf-subject-progress > span, .sf-subject .sf-subject-progress strong > span, .sf-subject-footer > span { @apply text-caption; }
 .sf-subject-footer a { @apply text-body-strong; }
+
+/* Account pages fill the viewport; long public documents keep their normal flow. */
+html:has(.sf-public [data-auth-mode="login"], .sf-public [data-auth-mode="register"]) {
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) > header {
+  flex-shrink: 0;
+  padding-block: var(--space-3);
+}
+.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) > footer {
+  flex-shrink: 0;
+  padding-block: var(--space-2);
+}
+.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-main {
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+  padding-block: var(--space-3);
+  gap: var(--space-6);
+}
+.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-form {
+  min-height: 0;
+  max-height: 100%;
+  padding: var(--space-6);
+  /* Preserve access when zoom or the on-screen keyboard reduces available space. */
+  overflow-y: auto;
+}
+.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-logo {
+  width: calc(var(--space-16) * 2);
+  margin-bottom: var(--space-3);
+}
+.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-page-header {
+  margin-bottom: var(--space-4);
+}
+.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) form > * { margin-block: 0; }
+.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-fields { gap: var(--space-3); }
+.sf-auth-form[data-auth-mode="register"] .sf-auth-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+}
+.sf-auth-form[data-auth-mode="register"] .sf-auth-fields > * { min-width: 0; }
+.sf-auth-form[data-auth-mode="register"] form > label { min-height: 0; }
+.sf-auth-form[data-auth-mode="register"] button[role="checkbox"] { min-height: 0; }
+.sf-auth-form[data-auth-mode="register"] .sf-auth-fields button[aria-haspopup="dialog"] {
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-sm);
+}
+.sf-auth-form[data-auth-mode="register"] .sf-auth-fields button[aria-haspopup="dialog"] > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 1023px) {
+  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-story,
+  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) > header { display: none; }
+  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-form {
+    width: 100%;
+    max-width: 34rem;
+    justify-self: center;
+  }
+}
+@media (max-width: 639px), (max-height: 740px) {
+  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-form { padding: var(--space-4); }
+  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) form,
+  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-fields { gap: var(--space-2); }
+  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-page-header { margin-bottom: var(--space-3); }
+  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-fields label { margin-bottom: var(--space-1); }
+}
+@media (max-height: 740px) {
+  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-logo {
+    width: var(--space-16);
+    margin-bottom: var(--space-2);
+  }
+  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-page-header p {
+    @apply text-small;
+    margin-top: var(--space-1);
+  }
+  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) > footer { padding-block: var(--space-1); }
+}
+@media (max-width: 639px) and (min-height: 741px) {
+  .sf-auth-form[data-auth-mode="register"] .sf-auth-fields { grid-template-columns: minmax(0, 1fr); }
+}
