@@ -141,6 +141,7 @@ export const chatSchema = z.object({
   planning: z.boolean().default(false),
 });
 export const preferenceMutationSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("enableAven") }),
   z.object({
     kind: z.literal("preferences"),
     ai: aiPreferenceSchema,

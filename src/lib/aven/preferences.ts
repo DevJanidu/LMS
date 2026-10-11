@@ -73,7 +73,23 @@ export async function changeAvenPreferences(
       .for("update");
     if (user?.status !== "active")
       throw new GoalError("authenticationFailed", 403);
-    if (input.kind === "preferences") {
+    if (input.kind === "enableAven") {
+      const [existing] = await tx
+        .select()
+        .from(s.aiUserPreferences)
+        .where(eq(s.aiUserPreferences.userId, userId));
+      const value = {
+        ...aiPreferenceSchema.parse(existing?.value ?? {}),
+        consent: true,
+      };
+      await tx
+        .insert(s.aiUserPreferences)
+        .values({ userId, value })
+        .onConflictDoUpdate({
+          target: s.aiUserPreferences.userId,
+          set: { value, updatedAt: new Date() },
+        });
+    } else if (input.kind === "preferences") {
       await tx
         .insert(s.aiUserPreferences)
         .values({ userId, value: input.ai })

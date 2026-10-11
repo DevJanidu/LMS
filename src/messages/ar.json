@@ -440,7 +440,9 @@
     "summaryLabel": "Saved summary",
     "skipHelp": "Skip this occurrence of the study session? Your other scheduled sessions will stay in the planner.",
     "loadOlder": "Load older messages",
-    "scheduleExplanation": "Uses your preferred study times and daily limit, existing commitments, and 15-minute breaks. Only unblocked unfinished tasks are included. {remaining} task(s) still require capacity or prerequisites."
+    "scheduleExplanation": "Uses your preferred study times and daily limit, existing commitments, and 15-minute breaks. Only unblocked unfinished tasks are included. {remaining} task(s) still require capacity or prerequisites.",
+    "enableAven": "Enable Aven",
+    "consentRequired": "Enable Aven to send messages. Review the privacy information above before enabling."
   },
   "studyflow": {
     "exportUsers": "Export users (CSV)",

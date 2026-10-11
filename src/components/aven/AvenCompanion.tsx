@@ -137,8 +137,45 @@ export default function AvenCompanion({
       setBusy(false);
     }
   };
+  const enableAven = async () => {
+    if (sending.current || busy) return;
+    sending.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const value = await featureRequest<{
+        preferences: Bootstrap["preferences"];
+      }>("/api/aven", { kind: "enableAven" });
+      setBootstrap((current) => ({
+        ...current,
+        preferences: value.preferences,
+      }));
+    } catch (error) {
+      const key = (error as Error).message;
+      setError(
+        t.has(`errors.${key}`)
+          ? t(`errors.${key}`)
+          : t("errors.serviceUnavailable"),
+      );
+    } finally {
+      sending.current = false;
+      setBusy(false);
+    }
+  };
   const send = async (text = input) => {
     if (sending.current || !text.trim()) return;
+    if (!bootstrap.preferences.ai.consent) {
+      setError(t("consentRequired"));
+      return;
+    }
+    if (!bootstrap.preferences.configured) {
+      setError(
+        t(
+          `errors.${bootstrap.preferences.configurationError ?? "aiNotConfigured"}`,
+        ),
+      );
+      return;
+    }
     sending.current = true;
     setBusy(true);
     setError("");
@@ -360,10 +397,27 @@ export default function AvenCompanion({
               )}
               {!bootstrap.preferences.ai.consent && (
                 <div className="text-secondary dark:text-secondary rounded-xl border border-brand-200 bg-brand-25 p-4 text-small dark:border-brand-800 dark:bg-brand-950/20">
+                  <p className="text-primary dark:text-primary mb-2 font-semibold">
+                    {t("consentRequired")}
+                  </p>
                   <p>{t("privacyHelp")}</p>
-                  <Button variant="outline" onClick={() => setTab("settings")}>
-                    {t("openSettings")}
-                  </Button>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      disabled={busy || !bootstrap.preferences.configured}
+                      onClick={() => {
+                        void enableAven();
+                      }}
+                    >
+                      {t("enableAven")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      disabled={busy}
+                      onClick={() => setTab("settings")}
+                    >
+                      {t("openSettings")}
+                    </Button>
+                  </div>
                 </div>
               )}
               <div
@@ -482,6 +536,14 @@ export default function AvenCompanion({
                 >
                   {t(busy ? "thinking" : "send")}
                 </Button>
+                {!bootstrap.preferences.ai.consent && (
+                  <p
+                    role="status"
+                    className="text-muted dark:text-muted text-small"
+                  >
+                    {t("consentRequired")}
+                  </p>
+                )}
               </form>
               {selected && (
                 <details className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
