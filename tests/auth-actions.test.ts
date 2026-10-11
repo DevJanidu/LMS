@@ -5,7 +5,7 @@ vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
 vi.mock("next-intl/server", () => ({ getLocale: async () => "en" }));
 vi.mock("@/i18n/navigation", () => ({ redirect: mocked.redirect }));
 vi.mock("@/lib/auth/limits", () => ({ requestAuthLimit: mocked.limit, reservePasswordReset: mocked.quota, releasePasswordReset: mocked.release }));
-vi.mock("@/lib/env", () => ({ getAccountEnv: mocked.getEnv }));
+vi.mock("@/lib/env", () => ({ getAccountEmailEnv: mocked.getEnv }));
 vi.mock("@/lib/db", () => ({ getDb: () => ({ select: () => ({ from: () => ({ where: mocked.readUser }) }) }) }));
 vi.mock("@/lib/services/workspace", () => ({ getSettings: async () => ({ minimumAge: 0 }) }));
 import { authenticate } from "@/app/[locale]/auth-actions";

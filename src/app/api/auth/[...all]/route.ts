@@ -1,6 +1,6 @@
 import { toNextJsHandler } from "better-auth/next-js";
 import { getAuth } from "@/lib/auth";
-import { getAccountEnv } from "@/lib/env";
+import { getAccountEnv, getAccountEmailEnv } from "@/lib/env";
 import { requestAuthLimit, reservePasswordReset, releasePasswordReset } from "@/lib/auth/limits";
 import { z } from "zod";
 import { authenticationFailureKind, authFeedback, verifySession } from "@/lib/auth/errors";
@@ -38,7 +38,7 @@ async function post(request: Request) {
     const input = await request.clone().json().catch(() => null) as { email?: unknown } | null;
     const email = z.string().trim().toLowerCase().pipe(z.email()).safeParse(input?.email);
     if (!email.success) return privateResponse(Response.json({ error: "invalidEmail" }, { status: 400 }));
-    const env = getAccountEnv();
+    const env = getAccountEmailEnv();
     if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return privateResponse(Response.json({ error: "emailUnavailable" }, { status: 503 }));
     const quota = await reservePasswordReset(email.data);
     if (quota.decision !== "allowed") return privateResponse(Response.json({ error: quota.decision === "limited" ? "passwordResetWeeklyLimit" : "authenticationUnavailable", retryAt: quota.retryAt }, { status: quota.decision === "limited" ? 429 : 503 }));

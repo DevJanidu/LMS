@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ allow: vi.fn(), post: vi.fn(), get: vi.fn(), session: vi.fn(), getEnv: vi.fn(), quota: vi.fn(), release: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ getAuth: () => ({ api: { getSession: mocks.session } }) }));
-vi.mock("@/lib/env", () => ({ getAccountEnv: mocks.getEnv }));
+vi.mock("@/lib/env", () => ({ getAccountEnv: mocks.getEnv, getAccountEmailEnv: mocks.getEnv }));
 vi.mock("@/lib/auth/limits", () => ({ requestAuthLimit: async (...args: unknown[]) => await mocks.allow(...args) ? "allowed" : "limited", reservePasswordReset: mocks.quota, releasePasswordReset: mocks.release }));
 vi.mock("better-auth/next-js", () => ({ toNextJsHandler: () => ({ POST: mocks.post, GET: mocks.get }) }));
 import { GET, POST } from "@/app/api/auth/[...all]/route";

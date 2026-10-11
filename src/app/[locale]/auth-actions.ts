@@ -4,7 +4,7 @@ import { getAuth, requireUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { getAccountEnv } from "@/lib/env";
+import { getAccountEmailEnv } from "@/lib/env";
 import { requestAuthLimit, reservePasswordReset, releasePasswordReset } from "@/lib/auth/limits";
 import { getSettings } from "@/lib/services/workspace";
 import { ageInYears } from "@/lib/validation/age";
@@ -46,7 +46,7 @@ export async function authenticate(input: unknown): Promise<AuthResult> {
     }
     else if (v.mode === "forgot-password") {
       if (!v.email) return { ok: false as const, error: "invalidInput" };
-      const env = getAccountEnv();
+      const env = getAccountEmailEnv();
       if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return { ok: false as const, error: "emailUnavailable" };
       const quota = await reservePasswordReset(v.email);
       if (quota.decision === "unavailable") return { ok: false, error: "authenticationUnavailable" };

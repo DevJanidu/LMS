@@ -3,7 +3,7 @@ export class AuthenticationUnavailable extends Error {
 }
 /** Map only documented provider codes; never expose provider messages to the browser. */
 export function authFeedback(error: unknown): { error: string; field?: "email" | "password" } {
-  const value = error as { body?: { code?: string }; name?: string; statusCode?: number } | null;
+  const value = error as { body?: { code?: string }; name?: string; statusCode?: number; fields?: string[] } | null;
   switch (value?.body?.code) {
     case "INVALID_EMAIL": return { error: "invalidEmail", field: "email" };
     case "INVALID_EMAIL_OR_PASSWORD":
@@ -17,6 +17,7 @@ export function authFeedback(error: unknown): { error: string; field?: "email" |
     case "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL": return { error: "emailAlreadyRegistered", field: "email" };
   }
   if (value?.name === "AccountEmailUnavailable") return { error: "emailDeliveryFailed" };
+  if (value?.name === "InvalidServerConfiguration" && value.fields?.some(field => ["EMAIL_FROM", "RESEND_API_KEY"].includes(field))) return { error: "emailUnavailable" };
   return { error: "authenticationUnavailable" };
 }
 /** Classify without logging cookies, SQL parameters, connection URLs or error text. */

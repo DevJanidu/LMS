@@ -7,7 +7,7 @@ const mocked = vi.hoisted(() => ({
   tasks: [] as (() => Promise<void>)[],
 }));
 vi.mock("resend", () => ({ Resend: class { emails = { send: mocked.send }; } }));
-vi.mock("@/lib/env", () => ({ getAccountEnv: mocked.getEnv }));
+vi.mock("@/lib/env", () => ({ getAccountEmailEnv: mocked.getEnv }));
 vi.mock("next/server", () => ({ after: (task: () => Promise<void>) => mocked.tasks.push(task) }));
 vi.mock("next-intl/server", () => ({ getLocale: mocked.getLocale, getTranslations: mocked.getTranslations }));
 import { sendWelcomeEmail, sendAccountEmail } from "@/lib/email";

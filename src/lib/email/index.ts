@@ -1,12 +1,12 @@
 import "server-only";
 import { Resend } from "resend";
-import { getAccountEnv } from "@/lib/env";
+import { getAccountEmailEnv } from "@/lib/env";
 import { getTranslations } from "next-intl/server";
 import { APP_NAME } from "@/lib/constants";
 import { AccountEmailUnavailable } from "./errors";
 
 export async function sendAccountEmail(to: string, kind: "reset" | "verify", url: string) {
-  const env = getAccountEnv();
+  const env = getAccountEmailEnv();
   if (!env.RESEND_API_KEY || !env.EMAIL_FROM) throw new Error("Account email is not configured.");
   const t = await getTranslations("studyflow");
   const subject = t(kind === "reset" ? "accountEmails.resetSubject" : "accountEmails.verifySubject", { appName: APP_NAME });
@@ -26,7 +26,7 @@ export interface WelcomeRecipient {
 }
 
 export async function sendWelcomeEmail(user: WelcomeRecipient, locale: string) {
-  const env = getAccountEnv();
+  const env = getAccountEmailEnv();
   if (!env.RESEND_API_KEY || !env.EMAIL_FROM) throw new Error("Account email is not configured.");
   const t = await getTranslations({ locale, namespace: "studyflow.accountEmails" });
   const result = await new Resend(env.RESEND_API_KEY).emails.send({

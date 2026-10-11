@@ -47,17 +47,26 @@ export type Environment = z.infer<typeof environmentSchema>;
 
 const accountSchema = z.object({
   DATABASE_URL: z.string().url(), AUTH_SECRET: z.string().min(32), APP_URL: z.string().url(),
-  RESEND_API_KEY: z.string().min(1).optional(), EMAIL_FROM: environmentSchema.shape.EMAIL_FROM,
+  RESEND_API_KEY: z.string().optional(), EMAIL_FROM: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(), GOOGLE_CLIENT_SECRET: z.string().optional(),
 });
 const databaseSchema = accountSchema.pick({ DATABASE_URL: true });
+const accountEmailSchema = accountSchema.extend({ RESEND_API_KEY: environmentSchema.shape.RESEND_API_KEY, EMAIL_FROM: environmentSchema.shape.EMAIL_FROM });
 const cacheSchema = z.object({
   DATABASE_URL: z.string().url(), UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   CACHE_NAMESPACE: z.enum(["development", "preview", "production", "test"]).default("development"),
 });
 function scopedEnvironment<T extends z.ZodType>(schema: T, input: Record<string, string | undefined>): z.infer<T> {
-  const normalized = Object.fromEntries(Object.entries(input).map(([key, value]) => [key, value === "" ? undefined : value]));
+  const normalized = Object.fromEntries(Object.entries(input).map(([key, value]) => {
+    // Dashboard paste often retains dotenv quotes. Normalize URLs/senders only;
+    // signing secrets and API tokens must keep their exact configured bytes.
+    if (value && (key.endsWith("_URL") || key === "EMAIL_FROM")) {
+      value = value.trim();
+      if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1, -1).trim();
+    }
+    return [key, value === "" ? undefined : value];
+  }));
   normalized.CACHE_NAMESPACE ??= input.VERCEL_ENV;
   const result = schema.safeParse(normalized);
   if (!result.success) throw new InvalidServerConfiguration("Missing or invalid service configuration.", [...new Set(result.error.issues.map(issue => String(issue.path[0] ?? "")))]);
@@ -66,6 +75,7 @@ function scopedEnvironment<T extends z.ZodType>(schema: T, input: Record<string,
 /** Account operations depend on account settings, not storage, cron or CLI settings. */
 export function validateAccountEnvironment(input: Record<string, string | undefined>) { return scopedEnvironment(accountSchema, input); }
 export function getAccountEnv() { return validateAccountEnvironment(process.env); }
+export function getAccountEmailEnv() { return scopedEnvironment(accountEmailSchema, process.env); }
 export function getDatabaseEnv() { return scopedEnvironment(databaseSchema, process.env); }
 export function getCacheEnv() { return scopedEnvironment(cacheSchema, process.env); }
 

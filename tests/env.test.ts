@@ -9,7 +9,16 @@ const core = {
 it("allows account operations with only their own required server settings", () => {
   const env = validateAccountEnvironment({ NODE_ENV: "production", DATABASE_URL: core.DATABASE_URL, AUTH_SECRET: core.AUTH_SECRET, APP_URL: core.APP_URL });
   expect(env.DATABASE_URL).toBe(core.DATABASE_URL);
+  expect(validateAccountEnvironment({ ...core, EMAIL_FROM: "invalid sender" }).DATABASE_URL).toBe(core.DATABASE_URL);
   expect(() => validateAccountEnvironment({ DATABASE_URL: core.DATABASE_URL, APP_URL: core.APP_URL })).toThrow("Missing or invalid service configuration");
+});
+it("accepts dashboard-pasted URL/sender quotes without altering signing secrets", () => {
+  const secret = '"fixture-secret-that-has-more-than-32-characters"';
+  const result = validateAccountEnvironment({ DATABASE_URL: `"${core.DATABASE_URL}"`, APP_URL: '"https://app.example.com"', AUTH_SECRET: secret, EMAIL_FROM: '"Fixture <fixture@example.com>"' });
+  expect(result.APP_URL).toBe("https://app.example.com");
+  expect(result.DATABASE_URL).toBe(core.DATABASE_URL);
+  expect(result.EMAIL_FROM).toBe("Fixture <fixture@example.com>");
+  expect(result.AUTH_SECRET).toBe(secret);
 });
 it("accepts core application configuration while email setup is pending", () => {
   const env = validateEnvironment(core);
