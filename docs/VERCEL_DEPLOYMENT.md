@@ -25,10 +25,12 @@ No `NEXT_PUBLIC_*` variables are needed. Do not import `SEED_USER_*`, test/audit
 1. Select the Next.js framework preset, the repository root, Node.js **24.x**, install command `npm ci`, build command `npm run build`, and the default output directory. `package.json` pins the supported Node major to 24.
 2. Import `.env.production` into **Settings > Environment Variables**, scoped to **Production**. Mark sensitive credentials as sensitive. Set these values before building; the storage endpoint is used to construct the Content Security Policy at build time. Redeploy after changing variables.
 3. Add `acadence.janidudev.com` under **Domains**, apply the DNS records Vercel provides, and verify HTTPS. This is the canonical origin used for authentication, origin checks and account email links.
-4. Use **Pro or Enterprise** for the current `vercel.json`: reminders run every 15 minutes and timers hourly. Hobby rejects schedules running more than once per day. Keep `CRON_SECRET` configured so Vercel's cron requests authenticate.
+4. The current `vercel.json` supports **Hobby**: reminders run daily at 00:00 UTC, timer cleanup at 01:00 UTC, storage cleanup at 03:00 UTC, and retention at 04:00 UTC. Hobby may invoke each job anywhere within its scheduled hour. Reminders and stale-timer cleanup are processed once daily; frequent or precisely timed background jobs require an external scheduler or Pro. Keep `CRON_SECRET` configured so Vercel's cron requests authenticate.
 5. Set the production Git branch and confirm the environment variables belong to that project. No connected Vercel project or account was available during this audit, so remote settings and DNS have not been verified.
 
 Vercel reads dashboard environment variables for Git deployments; the gitignored local file is an import artifact. See [Vercel environment variables](https://vercel.com/docs/environment-variables), [Node runtimes](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), and [cron scheduling limits](https://vercel.com/docs/cron-jobs/usage-and-pricing).
+
+Scheduled-block reminders currently inspect only the next 15 minutes. With daily invocation, blocks outside that window do not receive those reminders. Use a separate authenticated scheduler for timely block reminders; the Hobby configuration fixes deployment compatibility without changing reminder generation logic.
 
 ## Repeatable checks
 

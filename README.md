@@ -68,7 +68,7 @@ Cron -> bearer check -> reminders, timer sweep, storage cleanup, retention
 
 ## Deploy and verify
 
-Set Vercel's production variables and Node 24, connect the main branch and final domain, and run migrations as a protected release step before deployment. Previews need an independent Neon branch and matching storage endpoint. Configure Resend's domain, bucket CORS, Redis and CRON_SECRET. `vercel.json` defines job schedules; choose a plan supporting their frequency.
+Set Vercel's production variables and Node 24, connect the main branch and final domain, and run migrations as a protected release step before deployment. Previews need an independent Neon branch and matching storage endpoint. Configure Resend's domain, bucket CORS, Redis and CRON_SECRET. `vercel.json` uses Hobby-compatible daily schedules for reminders, timer cleanup, storage cleanup and retention; background processing runs once per day.
 
 GitHub Actions runs lint, generated-route typecheck, tests, migration checks, build and public browser checks on main pushes and PRs targeting main. Isolated Neon integration also requires dedicated CI Redis configuration; see [CI setup and failure diagnosis](docs/CI_SETUP.md). Deployment credentials are not in this repository.
 
