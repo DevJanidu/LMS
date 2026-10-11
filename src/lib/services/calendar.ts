@@ -1,6 +1,6 @@
 import "server-only";
 import { and, eq, inArray, sql, getTableColumns } from "drizzle-orm";
-import { getDb } from "@/lib/db";
+import { getDb, type DbTransaction } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import type { ScheduleBlock, ScheduleException, SubjectColor } from "@/types";
 import type { CalendarMutation } from "@/lib/validation/calendar";
@@ -41,8 +41,8 @@ const blockValues = (block: ScheduleBlock) => ({
 });
 
 /** No workspace reload, analytics, Redis call or route revalidation on this path. */
-export async function mutateCalendar(userId: string, input: CalendarMutation): Promise<CalendarChange> {
-  return getDb().transaction(async tx => {
+export async function mutateCalendar(userId: string, input: CalendarMutation, transaction?: DbTransaction): Promise<CalendarChange> {
+  const work = async (tx: DbTransaction) => {
     // Unique request IDs serialize retries. A rolled-back operation leaves no receipt.
     const receiptState = await tx.execute<{ authorized: boolean; inserted: boolean }>(sql`
       WITH actor AS (SELECT id, status, role FROM users WHERE id = ${userId}::uuid FOR SHARE),
@@ -104,5 +104,6 @@ export async function mutateCalendar(userId: string, input: CalendarMutation): P
     }
     await tx.update(s.calendarMutations).set({ result: change }).where(and(eq(s.calendarMutations.id, input.operationId), eq(s.calendarMutations.userId, userId)));
     return change;
-  });
+  };
+  return transaction ? work(transaction) : getDb().transaction(work);
 }

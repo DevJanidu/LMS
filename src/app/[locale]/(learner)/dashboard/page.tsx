@@ -5,6 +5,7 @@ import { users } from "@/lib/db/schema";
 import Dashboard from "@/components/dashboard/Dashboard";
 import DashboardGreeting from "@/components/dashboard/DashboardGreeting";
 import { Suspense } from "react";
+import GoalPriorities from "@/components/goals/GoalPriorities";
 
 type DashboardSection = "today" | "week";
 type Account = typeof users.$inferSelect;
@@ -36,6 +37,7 @@ export default async function Page({
       <Suspense fallback={<div data-workspace-loading className="h-60 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800" />}><StatsSection user={user} section="today" /></Suspense>
       <Suspense fallback={<div data-workspace-loading className="h-60 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800" />}><StatsSection user={user} section="week" /></Suspense>
     </header>
+    <Suspense fallback={<div className="my-6 h-40 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800" />}><GoalPriorities userId={user.id} /></Suspense>
     <Suspense fallback={<div className="sf-dashboard-body" data-workspace-loading><div className="h-80 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800" /><div className="h-80 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800" /></div>}><BodySection user={user} /></Suspense>
   </>;
 }

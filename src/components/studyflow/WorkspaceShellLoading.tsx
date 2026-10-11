@@ -6,6 +6,7 @@ import {
   BellIcon, CalenderIcon, FileIcon, FolderIcon, GridIcon,
   GroupIcon, ListIcon, MoonIcon, PieChartIcon, SearchIcon,
   StartPlayIcon, TimerIcon, SettingsIcon, CommandIcon,
+  TargetIcon, SparklesIcon,
 } from "@/icons";
 import { APP_NAME } from "@/lib/constants";
 import BrandLogo from "./BrandLogo";
@@ -21,6 +22,8 @@ const learnerItems = [
   ["calendar", "/calendar", CalenderIcon],
   ["analytics", "/analytics", PieChartIcon],
   ["resources", "/resources", FileIcon],
+  ["goals", "/goals", TargetIcon],
+  ["aven", "/aven", SparklesIcon],
 ] as const;
 const adminItems = [
   ["overview", "/admin", GridIcon],

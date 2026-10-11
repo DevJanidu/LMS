@@ -12,6 +12,13 @@ export function uploadUrl(key: string, mimeType: string, size: number) {
   return getSignedUrl(storage(), new PutObjectCommand({ Bucket: getEnv().OBJECT_STORAGE_BUCKET, Key: key, ContentType: mimeType, ContentLength: size }), { expiresIn: 300, signableHeaders: new Set(["content-length", "content-type"]) });
 }
 export function headObject(key: string) { return storage().send(new HeadObjectCommand({ Bucket: getEnv().OBJECT_STORAGE_BUCKET, Key: key })); }
+export async function readObjectContent(key: string, maximumBytes = 5 * 1024 * 1024) {
+  const object = await storage().send(new GetObjectCommand({ Bucket: getEnv().OBJECT_STORAGE_BUCKET, Key: key }), { abortSignal: AbortSignal.timeout(8000) });
+  if (!object.Body || (object.ContentLength ?? 0) > maximumBytes) throw new Error("resourceTooLarge");
+  const chunks: Uint8Array[] = []; let size = 0;
+  for await (const chunk of object.Body as AsyncIterable<Uint8Array>) { size += chunk.length; if (size > maximumBytes) throw new Error("resourceTooLarge"); chunks.push(chunk); }
+  return Buffer.concat(chunks);
+}
 export function deleteObject(key: string) { return storage().send(new DeleteObjectCommand({ Bucket: getEnv().OBJECT_STORAGE_BUCKET, Key: key })); }
 export function copyObject(source: string, target: string) {
   return storage().send(new CopyObjectCommand({ Bucket: getEnv().OBJECT_STORAGE_BUCKET, Key: target, CopySource: `${getEnv().OBJECT_STORAGE_BUCKET}/${source.split("/").map(encodeURIComponent).join("/")}`, MetadataDirective: "COPY" }));

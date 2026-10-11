@@ -17,3 +17,4 @@ export function getDb() {
   pool.on("error", () => { console.warn(JSON.stringify({ event: "database_pool_connection_failed" })); });
   return database = drizzle(pool, { schema, logger: { logQuery: recordQuery } });
 }
+export type DbTransaction = Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0];

@@ -2,6 +2,7 @@
 import { useTranslations } from "next-intl";
 import { ArrowRightIcon } from "@/icons";
 import Button from "@/components/ui/button/Button";
+import { Link } from "@/i18n/navigation";
 export type PlannerView = "timeGridDay" | "timeGridWeek" | "dayGridMonth";
 interface Props {
   month: string;
@@ -22,6 +23,7 @@ export default function PlannerToolbar({
   onSchedule,
 }: Props) {
   const t = useTranslations("studyflow");
+  const goals = useTranslations("goals");
   return (
     <header className="planner-toolbar">
       <div className="planner-title-row">
@@ -29,10 +31,10 @@ export default function PlannerToolbar({
           <h1>{t("calendar")}</h1>
           <p>{month}</p>
         </div>
-        <Button onClick={onSchedule}>
+        <div className="flex flex-wrap items-center gap-3"><Link href="/aven?intent=schedule" className="text-small text-brand-600 dark:text-brand-300">{goals("avenActions.schedule")}</Link><Button onClick={onSchedule}>
           <span aria-hidden="true">+</span>
           {t("scheduleStudy")}
-        </Button>
+        </Button></div>
       </div>
       <div className="planner-controls">
         <div className="planner-navigation">

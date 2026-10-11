@@ -1,10 +1,11 @@
 "use client";
-import Image from "next/image";
-import { FileIcon, LinkIcon, PlayIcon } from "@/icons";
+import { GridIcon, ListIcon } from "@/icons";
 import { useEffect, useRef, useState } from "react";
 import { queryResources, resourceDetail } from "@/lib/workspace/transport";
 import type { ResourcePage } from "@/lib/services/resources";
-import Pagination from "@/components/studyflow/Pagination";
+import LibraryPagination from "./LibraryPagination";
+import ResourceCard from "./ResourceCard";
+import { RESOURCE_PAGE_SIZE, type LibraryView } from "./resourcePresentation";
 import { useTranslations } from "next-intl";
 import { useModal } from "@/hooks/useModal";
 import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
@@ -27,20 +28,6 @@ interface Props {
   search?: string;
   initialPage?: ResourcePage;
 }
-function youtubeId(url: string): string | undefined {
-  try {
-    const value = new URL(url);
-    const id =
-      value.hostname === "youtu.be"
-        ? value.pathname.slice(1)
-        : ["youtube.com", "www.youtube.com"].includes(value.hostname)
-          ? value.searchParams.get("v")
-          : null;
-    return id && /^[\w-]{11}$/.test(id) ? id : undefined;
-  } catch {
-    return undefined;
-  }
-}
 /** Unified resource library and subject-scoped resource tab. */
 export default function Resources({
   initial,
@@ -59,12 +46,15 @@ export default function Resources({
   const [topic, setTopic] = useState("");
   const [type, setType] = useState("");
   const [sort, setSort] = useState("newest");
+  const [view, setView] = useState<LibraryView>("grid");
   const [editing, setEditing] = useState<Resource>();
   const [deleting, setDeleting] = useState<Resource>();
   const [opened, setOpened] = useState<Resource>();
   const [loadingIds, setLoadingIds] = useState<Set<string>>(() => new Set());
   const detailSequence = useRef(0);
   const detailRequests = useRef(new Set<string>());
+  const libraryRef = useRef<HTMLDivElement>(null);
+  const scrollResults = useRef(false);
   useEffect(() => () => { detailSequence.current++; }, []);
   const [error, setError] = useState("");
   const openResource = async (resource: Resource, edit: boolean) => {
@@ -112,7 +102,7 @@ export default function Resources({
     </Button>
   );
   const [page, setPage] = useState(1);
-  const [records, setRecords] = useState<ResourcePage>(initialPage ?? { total: fallback.length, rows: fallback.slice(0, 20) });
+  const [records, setRecords] = useState<ResourcePage>(initialPage ?? { total: fallback.length, rows: fallback.slice(0, RESOURCE_PAGE_SIZE) });
   const [loading, setLoading] = useState(false);
   const [observed, setObserved] = useState(0);
   const sync = useQueryRefresh();
@@ -126,13 +116,21 @@ export default function Resources({
       setLoading(true);
       void queryResources({ page, search: query, subjectId: subject || undefined, topicId: topic || undefined, type: type || undefined, sort }, data.user.id).then(result => {
         if (cancelled) return;
-        if (result.ok) { lastQuery.current = key; setRecords(result.data); setObserved(revision); setError(""); } else setError(t(result.error));
+        if (result.ok) {
+          const lastPage = Math.max(1, Math.ceil(result.data.total / RESOURCE_PAGE_SIZE));
+          if (page > lastPage) { setPage(lastPage); return; }
+          lastQuery.current = key; setRecords(result.data); setObserved(revision); setError("");
+          if (scrollResults.current) {
+            scrollResults.current = false;
+            requestAnimationFrame(() => libraryRef.current?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }));
+          }
+        } else setError(t(result.error));
       }).catch(() => { if (!cancelled) setError(t("saveFailed")); }).finally(() => { if (!cancelled) setLoading(false); });
     }, query ? 250 : 0);
     return () => { cancelled = true; clearTimeout(timeout); };
   }, [page, query, subject, topic, type, sort, data.resources, data.user.updatedAt, data.user.id, sync, t]);
   const resources = useProjectedCollection("resources", records.rows, observed).filter(row => (!subject || row.subjectId === subject) && (!topic || row.topicId === topic) && (!type || row.type === type) && (!query || row.title.toLowerCase().includes(query.toLowerCase())));
-  const pages = Math.max(1, Math.ceil(records.total / 20));
+  const pages = Math.max(1, Math.ceil(records.total / RESOURCE_PAGE_SIZE));
   const current = Math.min(page, pages);
   return (
     <>
@@ -221,97 +219,37 @@ export default function Resources({
         </SelectField>
       </div>
       {error && <p role="alert" className="mb-4 text-body text-error-600 dark:text-error-400">{error}</p>}
-      {resources.length ? (
-        <div aria-busy={loading} className="sf-library space-y-3">
-          {resources.map((resource) => {
-            const id =
-              resource.type === "video" && resource.url
-                ? youtubeId(resource.url)
-                : undefined;
-            return (
-              <article
-                key={resource.id}
-                className="sf-resource-row overflow-hidden"
-              >
-                <div className="sf-resource-preview">
-                  {id ? (
-                    <Image
-                      src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`}
-                      alt={resource.title}
-                      width={480}
-                      height={270}
-                      unoptimized
-                      className="sf-resource-image object-cover"
-                    />
-                  ) : resource.type === "link" ? (
-                    <LinkIcon className="size-5" />
-                  ) : resource.type === "video" ? (
-                    <PlayIcon className="size-5" />
-                  ) : (
-                    <FileIcon className="size-5" />
-                  )}
-                </div>
-                <div className="sf-resource-body p-6">
-                  <span className="text-caption text-muted">
-                    {t(resource.type)}
-                  </span>
-                  <h2 className="mt-2 text-h3">{resource.title}</h2>
-                  <p className="mt-2 text-caption text-muted dark:text-secondary">
-                    {
-                      data.subjects.find(
-                        (item) => item.id === resource.subjectId,
-                      )?.title
-                    }
-                    {resource.sizeBytes
-                      ? ` · ${(resource.sizeBytes / 1024 / 1024).toFixed(1)} MB`
-                      : ""}
-                  </p>
-                  <div className="sf-resource-actions flex gap-4 text-body-strong">
-                    {resource.type === "file" ? (<a href={`/api/files/${resource.id}`} target="_blank" rel="noopener noreferrer" className="text-brand-600 dark:text-brand-300">{t("open")}</a>) : resource.url && /^https?:\/\//i.test(resource.url) ? (
-                      <a
-                        href={resource.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-brand-600 dark:text-brand-300"
-                      >
-                        {t("open")}
-                      </a>
-                    ) : (
-                      <button
-                        disabled={loadingIds.has(resource.id)}
-                        onClick={() => { void openResource(resource, false); }}
-                        className="text-brand-600 dark:text-brand-300"
-                      >
-                        {t(loadingIds.has(resource.id) ? "loading" : "open")}
-                      </button>
-                    )}
-                    <button
-                      disabled={loadingIds.has(resource.id)}
-                      onClick={() => { void openResource(resource, true); }}
-                      className="text-muted dark:text-secondary"
-                    >
-                      {t("edit")}
-                    </button>
-                    <button
-                      onClick={() => setDeleting(resource)}
-                      className="text-error-600 dark:text-error-400"
-                    >
-                      {t("delete")}
-                    </button>
-                  </div>
-                </div>
-              </article>
-            );
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p role="status" className="text-small text-muted dark:text-muted">{loading ? t("loading") : t("library.count", { count: records.total })}</p>
+        <div role="group" aria-label={t("library.view")} className="flex gap-1 rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
+          {(["grid", "list"] as const).map(layout => {
+            const Icon = layout === "grid" ? GridIcon : ListIcon;
+            return <button key={layout} type="button" title={t(`library.${layout}`)} aria-label={t(`library.${layout}`)} aria-pressed={view === layout} onClick={() => setView(layout)} className="grid size-11 place-items-center rounded-lg text-secondary transition hover:bg-gray-100 aria-pressed:bg-brand-50 aria-pressed:text-brand-600 dark:text-secondary dark:hover:bg-gray-800 dark:aria-pressed:bg-brand-950/50 dark:aria-pressed:text-brand-300"><Icon aria-hidden="true" className="size-5" /></button>;
           })}
         </div>
-      ) : (
-        <EmptyState
-          title={t("noResources")}
-          description={t("noResourcesHelp")}
-          action={addButton}
-        />
-      )}{" "}
-      <Pagination page={current} pages={pages} onChange={setPage} />
+      </div>
+      {resources.length ? (
+        <div ref={libraryRef} aria-busy={loading} data-library-view={view} className={view === "grid" ? "grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" : "space-y-3"}>
+          {resources.map(resource => <ResourceCard
+            key={resource.id}
+            resource={resource}
+            subject={data.subjects.find(item => item.id === resource.subjectId)?.title}
+            topic={data.topics.find(item => item.id === resource.topicId)?.title}
+            view={view}
+            busy={loadingIds.has(resource.id)}
+            onOpen={() => { void openResource(resource, false); }}
+            onEdit={() => { void openResource(resource, true); }}
+            onDelete={() => setDeleting(resource)}
+          />)}
+        </div>
+      ) : loading ? <p role="status" className="py-12 text-center text-body text-secondary dark:text-secondary">{t("loading")}</p> : (
+        <EmptyState title={t("noResources")} description={t("noResourcesHelp")} action={addButton} />
+      )}
+      <LibraryPagination page={current} total={records.total} loading={loading} onChange={next => {
+        if (next === page) return;
+        scrollResults.current = true;
+        setPage(next);
+      }} />
       {modal.isOpen && (
         <ResourceModal
           key={editing?.id ?? "new"}

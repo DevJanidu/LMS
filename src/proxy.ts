@@ -7,7 +7,7 @@ import { safeReturnPath } from "@/lib/auth/return-path";
 const localize = createMiddleware(routing);
 export default function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname.replace(/^\/(en|ar|es|de)(?=\/|$)/, "");
-  const protectedRoute = /^\/(dashboard|subjects|study|calendar|analytics|resources|settings|admin|onboarding)(\/|$)/.test(path);
+  const protectedRoute = /^\/(dashboard|subjects|study|calendar|analytics|resources|goals|aven|settings|admin|onboarding)(\/|$)/.test(path);
   const cookie = request.cookies.get("better-auth.session_token") ?? request.cookies.get("__Secure-better-auth.session_token");
   if (protectedRoute && !cookie) {
     const destination = new URL("/login", request.url);

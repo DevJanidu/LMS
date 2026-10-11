@@ -18,7 +18,7 @@ export default function CalendarDropdown({ options = [], value, onChange, disabl
     }}
     onValueChange={next => onChange?.({ target: { value: next }, currentTarget: { value: next } } as ChangeEvent<HTMLSelectElement>)}
   >
-    <SelectTrigger ref={trigger} compact id={id} name={name} aria-label={ariaLabel} style={style} className={`h-8 w-auto min-w-0 text-small ${className ?? ""}`}>
+    <SelectTrigger ref={trigger} compact id={id} name={name} aria-label={ariaLabel} style={style} className={`h-8 !min-h-8 w-auto min-w-0 text-small ${className ?? ""}`}>
       <SelectValue />
     </SelectTrigger>
     <SelectContent container={container} compact sideOffset={4} collisionPadding={8} viewportClassName="custom-scrollbar overscroll-contain touch-pan-y">
