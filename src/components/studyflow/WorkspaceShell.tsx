@@ -30,6 +30,7 @@ import Field from "./FormFields";
 import EmptyState from "./EmptyState";
 import FocusLauncher from "@/components/study/FocusLauncher";
 import WorkspaceHeader from "./WorkspaceHeader";
+import AccountTimezoneSync from "@/components/common/AccountTimezoneSync";
 import SaveFeedback from "./SaveFeedback";
 interface Props {
   children: ReactNode;
@@ -175,6 +176,7 @@ export default function WorkspaceShell({
     <div
       className={`sf-shell ${admin ? "sf-admin" : ""} ${!isExpanded ? "sf-collapsed" : ""} min-h-dvh bg-gray-50 text-primary dark:bg-gray-950 dark:text-primary`}
     >
+      <AccountTimezoneSync initial={data} />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-99999 focus:rounded-lg focus:bg-brand-500 focus:p-3 focus:text-white"

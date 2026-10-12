@@ -261,11 +261,11 @@ export async function mutate(userId: string, operations: Operation[], preconditi
           const v = operation.value;
           if (expected.has(`profile:${userId}`)) {
             const [prefs] = await tx.select().from(s.preferences).where(eq(s.preferences.userId, userId));
-            check("profile", userId, { name: actor.name, timezone: actor.timezone, learningContext: actor.learningContext ?? undefined, weeklyTargetMinutes: prefs?.weeklyTargetMinutes ?? 0, theme: prefs?.theme ?? "auto", weekStartDay: prefs?.weekStartDay ?? 1, reminders: prefs?.reminders ?? true });
+            check("profile", userId, { name: actor.name, timezone: actor.timezone, timezoneMode: actor.timezoneMode, learningContext: actor.learningContext ?? undefined, weeklyTargetMinutes: prefs?.weeklyTargetMinutes ?? 0, theme: prefs?.theme ?? "auto", weekStartDay: prefs?.weekStartDay ?? 1, reminders: prefs?.reminders ?? true });
           }
-          await tx.update(s.users).set({ name: v.name, timezone: v.timezone, learningContext: v.learningContext ?? null, updatedAt: now }).where(eq(s.users.id, userId));
+          await tx.update(s.users).set({ name: v.name, timezone: v.timezone, timezoneMode: v.timezoneMode ?? (v.timezone === actor.timezone ? actor.timezoneMode : "manual"), learningContext: v.learningContext ?? null, updatedAt: now }).where(eq(s.users.id, userId));
           await tx.insert(s.preferences).values({ userId, weeklyTargetMinutes: v.weeklyTargetMinutes, theme: v.theme, weekStartDay: v.weekStartDay, reminders: v.reminders }).onConflictDoUpdate({ target: s.preferences.userId, set: { weeklyTargetMinutes: v.weeklyTargetMinutes, theme: v.theme, weekStartDay: v.weekStartDay, reminders: v.reminders } });
-          changes.profile = { name: v.name, timezone: v.timezone, learningContext: v.learningContext ?? null, weeklyTargetMinutes: v.weeklyTargetMinutes, theme: v.theme, weekStartDay: v.weekStartDay, reminders: v.reminders };
+          changes.profile = { name: v.name, timezone: v.timezone, timezoneMode: (v.timezoneMode ?? (v.timezone === actor.timezone ? actor.timezoneMode : "manual")) as "device" | "manual", learningContext: v.learningContext ?? null, weeklyTargetMinutes: v.weeklyTargetMinutes, theme: v.theme, weekStartDay: v.weekStartDay, reminders: v.reminders };
           break;
         }
         case "settings": {

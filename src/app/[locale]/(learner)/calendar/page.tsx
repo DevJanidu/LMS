@@ -13,7 +13,7 @@ export default async function Page({
   setRequestLocale(locale);
   const user = await requireLearner();
   const { add } = await searchParams;
-  return <StudyCalendar initial={await calendarPageWorkspace(user)} add={add === "1"} />;
+  return <StudyCalendar key={user.id + ":" + user.timezone} initial={await calendarPageWorkspace(user)} add={add === "1"} />;
 }
 
 export async function generateMetadata({

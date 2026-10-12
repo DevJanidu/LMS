@@ -72,7 +72,7 @@ export async function loadWorkspace(userId: string, options: { adminTargetId?: s
   const recentSessionRows = [...new Map([...sessionRows, ...subjectRecent].map(row => [row.id, row])).values()].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
   const mapUser = (row: typeof account): User => {
     const prefs = preferenceRows.find(p => p.userId === row.id);
-    return { id: row.id, name: row.name, email: row.email, role: row.role === "super_admin" ? "admin" : "learner", status: row.status === "active" ? "active" : "inactive", timezone: row.timezone, learningContext: row.learningContext ?? undefined, createdAt: iso(row.createdAt), updatedAt: iso(row.updatedAt), lastActiveAt: iso(row.lastActiveAt), weeklyTargetMinutes: prefs?.weeklyTargetMinutes ?? 0, theme: (prefs?.theme ?? "auto") as User["theme"], weekStartDay: (prefs?.weekStartDay ?? 1) as 0 | 1, reminders: prefs?.reminders ?? true, longestStreak: prefs?.highestStreak ?? 0 };
+    return { id: row.id, name: row.name, email: row.email, role: row.role === "super_admin" ? "admin" : "learner", status: row.status === "active" ? "active" : "inactive", timezone: row.timezone, timezoneMode: row.timezoneMode as "device" | "manual", learningContext: row.learningContext ?? undefined, createdAt: iso(row.createdAt), updatedAt: iso(row.updatedAt), lastActiveAt: iso(row.lastActiveAt), weeklyTargetMinutes: prefs?.weeklyTargetMinutes ?? 0, theme: (prefs?.theme ?? "auto") as User["theme"], weekStartDay: (prefs?.weekStartDay ?? 1) as 0 | 1, reminders: prefs?.reminders ?? true, longestStreak: prefs?.highestStreak ?? 0 };
   };
   const timer = timerRows[0];
   const [analytics, statistics, platform, adminLearnerAnalytics] = summaries;
@@ -114,7 +114,7 @@ export function shellBaseWorkspace(account: typeof s.users.$inferSelect): Worksp
   const admin = account.role === "super_admin";
   const user: User = {
     id: account.id, name: account.name, email: account.email,
-    role: admin ? "admin" : "learner", status: "active", timezone: account.timezone,
+    role: admin ? "admin" : "learner", status: "active", timezone: account.timezone, timezoneMode: account.timezoneMode as "device" | "manual",
     learningContext: account.learningContext ?? undefined,
     createdAt: iso(account.createdAt), updatedAt: iso(account.updatedAt), lastActiveAt: iso(account.lastActiveAt),
     weeklyTargetMinutes: 0, theme: "auto", weekStartDay: 1, reminders: true, longestStreak: 0,
@@ -165,7 +165,7 @@ export const getShellWorkspace = cache(async (authorizedAccount?: typeof s.users
   `));
   const row = result.rows[0], prefs = row.prefs, timer = row.timer;
   const user: User = { id: account.id, name: account.name, email: account.email,
-    role: admin ? "admin" : "learner", status: "active", timezone: account.timezone,
+    role: admin ? "admin" : "learner", status: "active", timezone: account.timezone, timezoneMode: account.timezoneMode as "device" | "manual",
     learningContext: account.learningContext ?? undefined, createdAt: iso(account.createdAt),
     updatedAt: iso(account.updatedAt), lastActiveAt: iso(account.lastActiveAt),
     weeklyTargetMinutes: Number(prefs?.weeklyTargetMinutes ?? 0), theme: prefs?.theme ?? "auto",

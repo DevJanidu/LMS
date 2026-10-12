@@ -298,7 +298,7 @@ async function refreshSnapshot() {
 }
 export async function reloadWorkspace() { dirtyGroups.add("resources"); await refreshSnapshot(); }
 /** Uploads have a separate binary transport but share cache reconciliation. */
-export function confirmWorkspaceChanges(initial: Workspace, confirmation: Confirmation) {
+export function confirmWorkspaceChanges(initial: Workspace, confirmation: Confirmation, refreshResources = true) {
   if (!confirmation.ok) return;
   const store = ensureJournal(initial);
   revision++; invalidateWorkspaceReads();
@@ -306,7 +306,7 @@ export function confirmWorkspaceChanges(initial: Workspace, confirmation: Confir
     const next = reconcileChanges(data, confirmation.changes);
     return { ...next, user: { ...next.user, updatedAt: confirmation.userUpdatedAt && confirmation.userUpdatedAt > data.user.updatedAt ? confirmation.userUpdatedAt : data.user.updatedAt } };
   });
-  dirtyGroups.add("resources"); void refreshSnapshot();
+  if (refreshResources) { dirtyGroups.add("resources"); void refreshSnapshot(); }
 }
 async function refreshShellSnapshot() {
   dirtyGroups.add("shell"); await refreshSnapshot();

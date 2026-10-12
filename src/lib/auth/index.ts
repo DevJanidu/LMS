@@ -49,6 +49,7 @@ function createAuth() {
       status: { type: "string", defaultValue: "active", input: false },
       acceptedTermsAt: { type: "date", input: false }, dateOfBirth: { type: "string", required: false },
       timezone: { type: "string", input: false },
+      timezoneMode: { type: "string", defaultValue: "device", input: false },
       learningContext: { type: "string", required: false, input: false },
       onboardingCompletedAt: { type: "date", required: false, input: false },
       lastActiveAt: { type: "date", input: false },
@@ -94,7 +95,7 @@ export const getCurrentUser = cache(async () => {
   return {
     id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified,
     image: user.image ?? null, role: user.role as "learner" | "super_admin",
-    status: user.status as "active", timezone: user.timezone,
+    status: user.status as "active", timezone: user.timezone, timezoneMode: user.timezoneMode,
     learningContext: user.learningContext ?? null,
     acceptedTermsAt: user.acceptedTermsAt ? new Date(user.acceptedTermsAt) : null,
     dateOfBirth: user.dateOfBirth ?? null,

@@ -34,7 +34,7 @@ export async function adminDetailWorkspace(id: string): Promise<Workspace | unde
     learnerAnalytics(id, account.timezone, (prefs?.weekStartDay ?? 1) as 0 | 1, shell.settings.streakMinutes, undefined, prefs?.highestStreak ?? 0, account.updatedAt.toISOString()),
   ]);
   const user = { id, name: account.name, email: account.email, role: "learner" as const, status: account.status === "active" ? "active" as const : "inactive" as const,
-    timezone: account.timezone, createdAt: account.createdAt.toISOString(), updatedAt: account.updatedAt.toISOString(), lastActiveAt: account.lastActiveAt.toISOString(),
+    timezone: account.timezone, timezoneMode: account.timezoneMode as "device" | "manual", createdAt: account.createdAt.toISOString(), updatedAt: account.updatedAt.toISOString(), lastActiveAt: account.lastActiveAt.toISOString(),
     weeklyTargetMinutes: prefs?.weeklyTargetMinutes ?? 0, theme: (prefs?.theme ?? "auto") as Workspace["user"]["theme"],
     weekStartDay: (prefs?.weekStartDay ?? 1) as 0 | 1, reminders: prefs?.reminders ?? true, longestStreak: prefs?.highestStreak ?? 0 };
   return { ...shell, shellOnly: false, scope: `admin:${id}`, loadedAt: new Date().toISOString(), users: [user],

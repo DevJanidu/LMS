@@ -1034,6 +1034,10 @@
     "passwordResetWeeklyLimit": "طلبت خمسة روابط لإعادة تعيين كلمة المرور خلال الأيام السبعة الماضية. يمكنك طلب رابط آخر في {date}.",
     "nextWeek": "الأسبوع القادم",
     "goals": "الأهداف",
-    "aven": "أفين AI"
+    "aven": "أفين AI",
+    "timezoneMode": "Timezone setting",
+    "timezoneDevice": "Automatic (use my device)",
+    "timezoneManual": "Choose a timezone",
+    "plannerCurrentTime": "Current time: {time}"
   }
 }

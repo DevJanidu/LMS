@@ -13,8 +13,18 @@ import themePlugin from "@fullcalendar/react/themes/classic";
 import { useModal } from "@/hooks/useModal";
 import { getSubjects, getTopics } from "@/lib/workspace/queries";
 import { useCalendar } from "@/lib/calendar/useCalendar";
-import { calendarOccurrences, occurrenceId } from "@/lib/calendar/model";
-import { localDay, shiftDay, wallTime, weekStart, zonedToUtc } from "@/lib/analytics";
+import {
+  calendarOccurrences,
+  occurrenceId,
+  calendarDisplayInstant,
+} from "@/lib/calendar/model";
+import {
+  localDay,
+  shiftDay,
+  wallTime,
+  weekStart,
+  zonedToUtc,
+} from "@/lib/analytics";
 import type { BlockOccurrence } from "@/lib/schedule";
 import type { Workspace } from "@/types";
 import PlannerToolbar, { type PlannerView } from "./PlannerToolbar";
@@ -23,7 +33,9 @@ import PlannerSkeleton from "./PlannerSkeleton";
 import StudyBlockModal from "./StudyBlockModal";
 import StudyBlockDetails from "./StudyBlockDetails";
 import { useTheme } from "@/context/ThemeContext";
-import CalendarActionDialog, { type CalendarAction } from "./CalendarActionDialog";
+import CalendarActionDialog, {
+  type CalendarAction,
+} from "./CalendarActionDialog";
 import CalendarDeleteTarget from "./CalendarDeleteTarget";
 const plugins = [dayGridPlugin, timeGridPlugin, interactionPlugin, themePlugin];
 const FullCalendar = dynamic(() => import("@fullcalendar/react"), {
@@ -43,9 +55,19 @@ export default function StudyCalendar({ initial, add = false }: Props) {
   const now = Date.parse(initial.loadedAt ?? initial.user.lastActiveAt);
   const today = localDay(now, initial.user.timezone);
   const initialWeekStart = weekStart(today, initial.user.weekStartDay);
-  const [range, setRange] = useState({ from: initialWeekStart, to: shiftDay(initialWeekStart, 7) });
-  const state = useCalendar(initial, { from: initialWeekStart, to: shiftDay(initialWeekStart, 7) }, range);
-  const data = useMemo(() => ({ ...initial, blocks: state.blocks }), [initial, state.blocks]);
+  const [range, setRange] = useState({
+    from: initialWeekStart,
+    to: shiftDay(initialWeekStart, 7),
+  });
+  const state = useCalendar(
+    initial,
+    { from: initialWeekStart, to: shiftDay(initialWeekStart, 7) },
+    range,
+  );
+  const data = useMemo(
+    () => ({ ...initial, blocks: state.blocks }),
+    [initial, state.blocks],
+  );
   const [selected, setSelected] = useState<BlockOccurrence>();
   const [date, setDate] = useState(today);
   const [slot, setSlot] = useState<string>();
@@ -63,50 +85,75 @@ export default function StudyCalendar({ initial, add = false }: Props) {
   const isOverDelete = (x: number, y: number) => {
     if (deleteTarget.current?.dataset.active !== "true") return false;
     const box = deleteTarget.current?.getBoundingClientRect();
-    return Boolean(box && x >= box.left && x <= box.right && y >= box.top && y <= box.bottom);
+    return Boolean(
+      box && x >= box.left && x <= box.right && y >= box.top && y <= box.bottom,
+    );
   };
   useEffect(() => {
     const media = window.matchMedia("(max-width: 639px)");
     const sync = () => {
       setCompact(media.matches);
-      if (media.matches && calendar.current?.getApi().view.type === "timeGridWeek") calendar.current.getApi().changeView("timeGridDay");
+      if (
+        media.matches &&
+        calendar.current?.getApi().view.type === "timeGridWeek"
+      )
+        calendar.current.getApi().changeView("timeGridDay");
     };
     sync();
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
   }, []);
-  const occurrences = useMemo(() => calendarOccurrences(state.blocks, range, data.user.timezone), [state.blocks, range, data.user.timezone]);
-  const byId = useMemo(() => new Map(occurrences.map(item => [occurrenceId(item), item])), [occurrences]);
-  const deadlines = useMemo(() => [
-    ...getSubjects(initial)
-      .filter((s) => s.targetDate)
-      .map((s) => ({
-        id: s.id,
-        title: `${t("deadline")}: ${s.title}`,
-        start: s.targetDate,
-        allDay: true,
-        editable: false,
+  const occurrences = useMemo(
+    () => calendarOccurrences(state.blocks, range, data.user.timezone),
+    [state.blocks, range, data.user.timezone],
+  );
+  const byId = useMemo(
+    () => new Map(occurrences.map((item) => [occurrenceId(item), item])),
+    [occurrences],
+  );
+  const deadlines = useMemo(
+    () => [
+      ...getSubjects(initial)
+        .filter((s) => s.targetDate)
+        .map((s) => ({
+          id: s.id,
+          title: `${t("deadline")}: ${s.title}`,
+          start: s.targetDate,
+          allDay: true,
+          editable: false,
+        })),
+      ...getTopics(initial)
+        .filter((s) => s.targetDate && s.status !== "completed")
+        .map((s) => ({
+          id: s.id,
+          title: `${t("deadline")}: ${s.title}`,
+          start: s.targetDate,
+          allDay: true,
+          editable: false,
+        })),
+    ],
+    [initial, t],
+  );
+  const projectedEvents = useMemo(
+    () => [
+      ...occurrences.map((item) => ({
+        id: occurrenceId(item),
+        title: item.title,
+        start: `${wallTime(item.startsAt, data.user.timezone)}:00Z`,
+        end: `${wallTime(item.endsAt, data.user.timezone)}:00Z`,
+        allDay: false,
       })),
-    ...getTopics(initial)
-      .filter((s) => s.targetDate && s.status !== "completed")
-      .map((s) => ({
-        id: s.id,
-        title: `${t("deadline")}: ${s.title}`,
-        start: s.targetDate,
-        allDay: true,
-        editable: false,
-      })),
-  ], [initial, t]);
-  const projectedEvents = useMemo(() => [
-    ...occurrences.map(item => ({ id: occurrenceId(item), title: item.title,
-      start: `${wallTime(item.startsAt, data.user.timezone)}:00Z`, end: `${wallTime(item.endsAt, data.user.timezone)}:00Z`,
-      allDay: false,
-    })), ...deadlines,
-  ], [occurrences, deadlines, data.user.timezone]);
+      ...deadlines,
+    ],
+    [occurrences, deadlines, data.user.timezone],
+  );
   // A receipt or range read may update metadata without changing rendered dates.
   // Keep the event input stable so FullCalendar does not rebuild dragged nodes.
   const eventsKey = JSON.stringify(projectedEvents);
-  const events = useMemo(() => JSON.parse(eventsKey) as typeof projectedEvents, [eventsKey]);
+  const events = useMemo(
+    () => JSON.parse(eventsKey) as typeof projectedEvents,
+    [eventsKey],
+  );
   const open = (occurrence?: BlockOccurrence, day = today, time?: string) => {
     setSelected(occurrence);
     setDate(day);
@@ -123,7 +170,11 @@ export default function StudyCalendar({ initial, add = false }: Props) {
     end: Date | null,
     revert: () => void,
   ) => {
-    if (suppressDrop.current === id) { suppressDrop.current = undefined; revert(); return; }
+    if (suppressDrop.current === id) {
+      suppressDrop.current = undefined;
+      revert();
+      return;
+    }
     const occurrence = byId.get(id);
     if (!occurrence || !start || !end) {
       revert();
@@ -133,32 +184,58 @@ export default function StudyCalendar({ initial, add = false }: Props) {
       start.toISOString().slice(0, 16),
       data.user.timezone,
     );
-    const resize = end.getTime() - start.getTime() !== Date.parse(`${wallTime(occurrence.endsAt, data.user.timezone)}:00Z`) - Date.parse(`${wallTime(occurrence.startsAt, data.user.timezone)}:00Z`);
-    const endsAt = resize ? zonedToUtc(end.toISOString().slice(0, 16), data.user.timezone)
-      : new Date(Date.parse(startsAt) + Date.parse(occurrence.endsAt) - Date.parse(occurrence.startsAt)).toISOString();
+    const resize =
+      end.getTime() - start.getTime() !==
+      Date.parse(`${wallTime(occurrence.endsAt, data.user.timezone)}:00Z`) -
+        Date.parse(`${wallTime(occurrence.startsAt, data.user.timezone)}:00Z`);
+    const endsAt = resize
+      ? zonedToUtc(end.toISOString().slice(0, 16), data.user.timezone)
+      : new Date(
+          Date.parse(startsAt) +
+            Date.parse(occurrence.endsAt) -
+            Date.parse(occurrence.startsAt),
+        ).toISOString();
     if (Date.parse(endsAt) <= Date.parse(startsAt)) {
       revert();
       return;
     }
-    if (occurrence.block.repeat === "weekly") setAction({ kind: "move", occurrence, startsAt, endsAt, revert });
-    else void state.store.mutate({ kind: "move", id: occurrence.block.id, date: occurrence.date, scope: "one", startsAt, endsAt }).then(saved => {
-      // FullCalendar owns the dragged DOM position. The optimistic store can
-      // restore React state, but it cannot move that DOM node back after a
-      // failed save, so explicitly invoke its rollback callback as well.
-      if (saved) setMessage(t("redesign.scheduleMoved"));
-      else {
-        revert();
-        // A controlled events update may have replaced FullCalendar's original
-        // drag snapshot. Restore from the current journal rather than a stale
-        // pointer snapshot, including any newer queued change to this event.
-        const current = calendarOccurrences(state.store.getSnapshot().blocks, range, data.user.timezone)
-          .find(item => occurrenceId(item) === id);
-        if (current) calendar.current?.getApi().getEventById(id)?.setDates(
-          `${wallTime(current.startsAt, data.user.timezone)}:00Z`,
-          `${wallTime(current.endsAt, data.user.timezone)}:00Z`,
-        );
-      }
-    });
+    if (occurrence.block.repeat === "weekly")
+      setAction({ kind: "move", occurrence, startsAt, endsAt, revert });
+    else
+      void state.store
+        .mutate({
+          kind: "move",
+          id: occurrence.block.id,
+          date: occurrence.date,
+          scope: "one",
+          startsAt,
+          endsAt,
+        })
+        .then((saved) => {
+          // FullCalendar owns the dragged DOM position. The optimistic store can
+          // restore React state, but it cannot move that DOM node back after a
+          // failed save, so explicitly invoke its rollback callback as well.
+          if (saved) setMessage(t("redesign.scheduleMoved"));
+          else {
+            revert();
+            // A controlled events update may have replaced FullCalendar's original
+            // drag snapshot. Restore from the current journal rather than a stale
+            // pointer snapshot, including any newer queued change to this event.
+            const current = calendarOccurrences(
+              state.store.getSnapshot().blocks,
+              range,
+              data.user.timezone,
+            ).find((item) => occurrenceId(item) === id);
+            if (current)
+              calendar.current
+                ?.getApi()
+                .getEventById(id)
+                ?.setDates(
+                  `${wallTime(current.startsAt, data.user.timezone)}:00Z`,
+                  `${wallTime(current.endsAt, data.user.timezone)}:00Z`,
+                );
+          }
+        });
   };
   const month = new Intl.DateTimeFormat(locale, {
     month: "long",
@@ -190,13 +267,37 @@ export default function StudyCalendar({ initial, add = false }: Props) {
         <p role="status" className="sr-only">
           {message}
         </p>
-        {state.error && <div role="alert" className="flex items-center gap-3 px-4 py-2 text-body text-error-600 dark:text-error-400">
-          {t.has(state.error) ? t(state.error) : t("saveFailed")}
-          <button type="button" onClick={() => state.canRetry ? void state.store.retry() : void state.store.load(range, true)} className="underline">{t("planner.retry")}</button>
-        </div>}
-        <p role="status" className="sr-only">{state.loading ? t("planner.loading") : ""}</p>
+        {state.error && (
+          <div
+            role="alert"
+            className="flex items-center gap-3 px-4 py-2 text-body text-error-600 dark:text-error-400"
+          >
+            {t.has(state.error) ? t(state.error) : t("saveFailed")}
+            <button
+              type="button"
+              onClick={() =>
+                state.canRetry
+                  ? void state.store.retry()
+                  : void state.store.load(range, true)
+              }
+              className="underline"
+            >
+              {t("planner.retry")}
+            </button>
+          </div>
+        )}
+        <p role="status" className="sr-only">
+          {state.loading ? t("planner.loading") : ""}
+        </p>
         <div className="planner-timetable relative" aria-busy={state.loading}>
-          {state.loading && <span role="status" className="pointer-events-none absolute end-3 top-2 z-9 rounded-lg bg-white/90 px-3 py-1 text-small text-muted dark:bg-gray-900/90 dark:text-secondary">{t("planner.loading")}</span>}
+          {state.loading && (
+            <span
+              role="status"
+              className="text-muted dark:text-secondary pointer-events-none absolute end-3 top-2 z-9 rounded-lg bg-white/90 px-3 py-1 text-small dark:bg-gray-900/90"
+            >
+              {t("planner.loading")}
+            </span>
+          )}
           <FullCalendar
             ref={calendar}
             plugins={plugins}
@@ -207,10 +308,22 @@ export default function StudyCalendar({ initial, add = false }: Props) {
             direction={locale === "ar" ? "rtl" : "ltr"}
             firstDay={data.user.weekStartDay}
             colorScheme={theme}
-            now={() =>
-              `${wallTime(new Date().toISOString(), data.user.timezone)}:00Z`
-            }
+            now={() => calendarDisplayInstant(Date.now(), data.user.timezone)}
             nowIndicator
+            nowIndicatorLineContent={(info) => (
+              <span
+                className="sr-only"
+                data-planner-now={info.date.toISOString().slice(11, 16)}
+              >
+                {t("plannerCurrentTime", {
+                  time: new Intl.DateTimeFormat(locale, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    timeZone: "UTC",
+                  }).format(info.date),
+                })}
+              </span>
+            )}
             tableHeaderSticky
             headerToolbar={false}
             className="planner-calendar-theme"
@@ -272,7 +385,11 @@ export default function StudyCalendar({ initial, add = false }: Props) {
             datesSet={(info) => {
               const from = info.startStr.slice(0, 10);
               const to = info.endStr.slice(0, 10);
-              setRange((current) => current.from === from && current.to === to ? current : { from, to });
+              setRange((current) =>
+                current.from === from && current.to === to
+                  ? current
+                  : { from, to },
+              );
               setView(info.view.type as PlannerView);
               const formatter = new Intl.DateTimeFormat(locale, {
                 month: "short",
@@ -306,16 +423,25 @@ export default function StudyCalendar({ initial, add = false }: Props) {
               else setDate(info.event.startStr.slice(0, 10));
             }}
             editable
-            eventDragStart={(info) => { suppressDrop.current = undefined; setDragged(byId.get(info.event.id)); }}
+            eventDragStart={(info) => {
+              suppressDrop.current = undefined;
+              setDragged(byId.get(info.event.id));
+            }}
             eventDragStop={(info) => {
               const item = byId.get(info.event.id);
-              if (item && isOverDelete(info.jsEvent.clientX, info.jsEvent.clientY)) {
+              if (
+                item &&
+                isOverDelete(info.jsEvent.clientX, info.jsEvent.clientY)
+              ) {
                 suppressDrop.current = info.event.id;
                 setAction({ kind: "delete", occurrence: item });
               }
               setDragged(undefined);
             }}
-            eventAllow={(span) => !span.allDay || calendar.current?.getApi().view.type === "dayGridMonth"}
+            eventAllow={(span) =>
+              !span.allDay ||
+              calendar.current?.getApi().view.type === "dayGridMonth"
+            }
             eventOverlap={false}
             eventDrop={(info) =>
               move(info.event.id, info.event.start, info.event.end, info.revert)
@@ -325,7 +451,11 @@ export default function StudyCalendar({ initial, add = false }: Props) {
             }
           />
         </div>
-        <CalendarDeleteTarget ref={deleteTarget} area={section} active={Boolean(dragged)} />
+        <CalendarDeleteTarget
+          ref={deleteTarget}
+          area={section}
+          active={Boolean(dragged)}
+        />
       </section>
       {modal.isOpen && (
         <StudyBlockModal
@@ -338,7 +468,7 @@ export default function StudyCalendar({ initial, add = false }: Props) {
           startLocal={slot}
           isOpen
           onClose={modal.closeModal}
-          onSave={command => state.store.mutate(command)}
+          onSave={(command) => state.store.mutate(command)}
         />
       )}
       {selected && (
@@ -347,7 +477,10 @@ export default function StudyCalendar({ initial, add = false }: Props) {
           occurrence={selected}
           isOpen={details.isOpen}
           onClose={details.closeModal}
-          onDelete={() => { details.closeModal(); setAction({ kind: "delete", occurrence: selected }); }}
+          onDelete={() => {
+            details.closeModal();
+            setAction({ kind: "delete", occurrence: selected });
+          }}
           onEdit={() => {
             details.closeModal();
             open(selected, selected.date);
@@ -369,13 +502,34 @@ export default function StudyCalendar({ initial, add = false }: Props) {
           }}
         />
       )}
-      {action && <CalendarActionDialog action={action} onClose={() => { action.revert?.(); setAction(undefined); }}
-        onConfirm={scope => {
-          const target = { id: action.occurrence.block.id, date: action.occurrence.date, scope, newSeriesId: crypto.randomUUID() };
-          void state.store.mutate(action.kind === "delete" ? { kind: "delete", ...target }
-            : { kind: "move", ...target, startsAt: action.startsAt!, endsAt: action.endsAt! });
-          setAction(undefined);
-        }} />}
+      {action && (
+        <CalendarActionDialog
+          action={action}
+          onClose={() => {
+            action.revert?.();
+            setAction(undefined);
+          }}
+          onConfirm={(scope) => {
+            const target = {
+              id: action.occurrence.block.id,
+              date: action.occurrence.date,
+              scope,
+              newSeriesId: crypto.randomUUID(),
+            };
+            void state.store.mutate(
+              action.kind === "delete"
+                ? { kind: "delete", ...target }
+                : {
+                    kind: "move",
+                    ...target,
+                    startsAt: action.startsAt!,
+                    endsAt: action.endsAt!,
+                  },
+            );
+            setAction(undefined);
+          }}
+        />
+      )}
     </>
   );
 }

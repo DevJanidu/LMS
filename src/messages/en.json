@@ -1034,6 +1034,10 @@
     "resetPasswordDescription": "Choose a new password with at least 8 characters, then enter it again to confirm.",
     "passwordResetComplete": "Your password has been updated. You can now sign in with your new password.",
     "passwordResetWeeklyLimit": "You have requested five password-reset links in the past seven days. You can request another on {date}.",
-    "nextWeek": "next week"
+    "nextWeek": "next week",
+    "timezoneMode": "Timezone setting",
+    "timezoneDevice": "Automatic (use my device)",
+    "timezoneManual": "Choose a timezone",
+    "plannerCurrentTime": "Current time: {time}"
   }
 }

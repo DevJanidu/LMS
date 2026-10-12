@@ -5,6 +5,7 @@ export interface User {
   email: string;
   role: "learner" | "admin";
   timezone: string;
+  timezoneMode?: "device" | "manual";
   learningContext?: string;
   status: "active" | "inactive";
   createdAt: string;

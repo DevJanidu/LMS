@@ -561,7 +561,11 @@
     "passwordResetWeeklyLimit": "Du hast in den letzten sieben Tagen fünf Links angefordert. Ab {date} kannst du einen weiteren anfordern.",
     "nextWeek": "nächste Woche",
     "goals": "Ziele",
-    "aven": "Aven AI"
+    "aven": "Aven AI",
+    "timezoneMode": "Timezone setting",
+    "timezoneDevice": "Automatic (use my device)",
+    "timezoneManual": "Choose a timezone",
+    "plannerCurrentTime": "Current time: {time}"
   },
   "goals": {
     "title": "Goals",

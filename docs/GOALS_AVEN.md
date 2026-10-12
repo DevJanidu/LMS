@@ -101,3 +101,9 @@ The chat layout and reminder setup passed browser checks at desktop and 375px mo
 Simple-goal QA verified the two-field manual form, completion/reopening across reloads, simple detail view, absence of chat memory controls, and sender bubble alignment. A real database test verified proposal approval, deadline persistence, explicit completion evidence, reopening, and cross-account completion denial.
 
 The inline Aven goal assistant also supports follow-up replies in the same persisted conversation, so a learner can answer a missing-detail question before approving the proposed goal.
+
+## Account timezone correction
+
+Migration `0007_account_timezone_mode.sql` adds automatic device timezone selection. Existing non-UTC timezone choices remain manual; legacy UTC defaults become automatic. The shared local/production database migration was applied successfully. Automatic detection persists the active browser timezone so calendar display, date boundaries, analytics, and background reminders agree. Settings offers Automatic (use my device) or a manual searchable selector covering all available Intl/IANA zones, including an explicit UTC override. Timezone changes invalidate account calendar/analytics caches and remount the calendar to discard stale ranges. Stored study sessions and schedule instants remain unchanged.
+
+The calendar intentionally renders projected local wall time in FullCalendar's UTC grid; swapping its internal grid directly to local time would apply offsets twice. Regression tests cover half-hour/quarter-hour offsets, positive/negative day boundaries, and northern/southern daylight-saving offsets.

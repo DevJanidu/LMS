@@ -7,7 +7,7 @@ const fields = {
   topic: ["subjectId", "title", "description", "status", "targetDate", "sortOrder", "archived", "updatedAt"],
   resource: ["subjectId", "topicId", "type", "title", "url", "textContent", "sizeBytes"],
   session: ["subjectId", "topicId", "startedAt", "endedAt", "durationSeconds", "note", "source"],
-  profile: ["name", "timezone", "learningContext", "weeklyTargetMinutes", "theme", "weekStartDay", "reminders"],
+  profile: ["name", "timezone", "timezoneMode", "learningContext", "weeklyTargetMinutes", "theme", "weekStartDay", "reminders"],
   block: ["updatedAt"],
   timer: ["subjectId", "topicId", "startedAt", "pausedAt", "pausedTotalSeconds", "confirmedUntilSeconds"],
   settings: ["streakMinutes", "maxFileSizeMB", "storagePerUserMB", "minimumAge"],

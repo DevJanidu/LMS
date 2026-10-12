@@ -19,7 +19,7 @@ export const users = pgTable("users", {
   id: id(), name: text("name").notNull(), email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false), image: text("image"),
   role: roleEnum("role").notNull().default("learner"), status: userStatusEnum("status").notNull().default("active"),
-  timezone: text("timezone").notNull().default("UTC"), learningContext: text("learning_context"),
+  timezone: text("timezone").notNull().default("UTC"), timezoneMode: text("timezone_mode").notNull().default("device"), learningContext: text("learning_context"),
   acceptedTermsAt: time("accepted_terms_at"), dateOfBirth: date("date_of_birth"), onboardingCompletedAt: time("onboarding_completed_at"),
   lastActiveAt: time("last_active_at").notNull().defaultNow(), createdAt: created(), updatedAt: updated(),
 });
