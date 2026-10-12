@@ -69,6 +69,7 @@ export interface StudySession {
   createdAt: string;
 }
 export interface ActiveTimer {
+  attendanceId?: string;
   focusGoal?: string;
   subjectId: string;
   topicId?: string;

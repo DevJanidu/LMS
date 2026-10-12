@@ -5,24 +5,34 @@ import { Link } from "@/i18n/navigation";
 import { useModal } from "@/hooks/useModal";
 import { timerElapsed } from "@/lib/analytics";
 import { getSubjects } from "@/lib/workspace/queries";
-import { runOperation, useNow, useWorkspace, useWorkspacePending } from "@/lib/workspace/store";
+import {
+  runOperation,
+  useNow,
+  useWorkspace,
+  useWorkspacePending,
+} from "@/lib/workspace/store";
 import { clockTime } from "@/lib/time";
 import type { Workspace } from "@/types";
-import { Modal } from "@/components/ui/modal";
+import FinishStudyDialog from "./FinishStudyDialog";
 import Button from "@/components/ui/button/Button";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageHeader from "@/components/studyflow/PageHeader";
 import EmptyState from "@/components/studyflow/EmptyState";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
-import Field, { TextField } from "@/components/studyflow/FormFields";
+import Field from "@/components/studyflow/FormFields";
 import { primaryLink } from "@/components/studyflow/styles";
 import StudySelectors from "./StudySelectors";
+import ScheduledStudySelector from "./ScheduledStudySelector";
+import type { BlockOccurrence } from "@/lib/schedule";
+import { canAttend } from "@/lib/study/attendance-model";
 interface Props {
   initial: Workspace;
   subject?: string;
   topic?: string;
   embedded?: boolean;
   onStarted?: () => void;
+  blockId?: string;
+  date?: string;
 }
 /** A single timestamp-based timer persisted on the server. */
 export default function TimerWidget({
@@ -31,6 +41,8 @@ export default function TimerWidget({
   topic = "",
   embedded = false,
   onStarted,
+  blockId,
+  date,
 }: Props) {
   const data = useWorkspace(initial);
   const pending = useWorkspacePending("timer");
@@ -40,29 +52,40 @@ export default function TimerWidget({
   const [topicId, setTopicId] = useState(topic);
   const [message, setMessage] = useState("");
   const [focusGoal, setFocusGoal] = useState("");
+  const [scheduled, setScheduled] = useState<BlockOccurrence | null>(null);
   const finish = useModal();
   const discard = useModal();
   const timer = data.timer;
-  const elapsed = timer && now ? Math.min(timerElapsed(timer, now), timer.confirmedUntilSeconds) : 0;
+  const elapsed =
+    timer && now
+      ? Math.min(timerElapsed(timer, now), timer.confirmedUntilSeconds)
+      : 0;
   const checkpoint = Boolean(timer && elapsed >= timer.confirmedUntilSeconds);
-  const pause = () => runOperation(initial, { kind: "timer", value: { command: "pause" } });
-  const resume = () => runOperation(initial, { kind: "timer", value: { command: "resume" } });
-  const confirm = () => runOperation(initial, { kind: "timer", value: { command: "confirm" } });
+  const pause = () =>
+    runOperation(initial, { kind: "timer", value: { command: "pause" } });
+  const resume = () =>
+    runOperation(initial, { kind: "timer", value: { command: "resume" } });
+  const confirm = () =>
+    runOperation(initial, { kind: "timer", value: { command: "confirm" } });
   return (
     <>
-      {!embedded && <PageHeader
-        title={t("study")}
-        description={t("studyDescription")}
-        action={
-          <Link
-            href="/study/history"
-            className="text-body text-brand-600 dark:text-brand-300"
-          >
-            {t("viewHistory")}
-          </Link>
-        }
-      />}
-      <div className={`sf-focus mx-auto max-w-3xl ${timer && !timer.pausedAt ? "is-focusing" : ""}`}>
+      {!embedded && (
+        <PageHeader
+          title={t("study")}
+          description={t("studyDescription")}
+          action={
+            <Link
+              href="/study/history"
+              className="text-body text-brand-600 dark:text-brand-300"
+            >
+              {t("viewHistory")}
+            </Link>
+          }
+        />
+      )}
+      <div
+        className={`sf-focus mx-auto max-w-3xl ${timer && !timer.pausedAt ? "is-focusing" : ""}`}
+      >
         <ComponentCard
           title={
             timer
@@ -83,7 +106,7 @@ export default function TimerWidget({
             />
           ) : timer ? (
             <div className="space-y-6 text-center">
-              <p className="text-body text-muted dark:text-secondary">
+              <p className="text-muted dark:text-secondary text-body">
                 {data.topics.find((item) => item.id === timer.topicId)?.title ??
                   t("focusedTime")}
               </p>
@@ -94,10 +117,15 @@ export default function TimerWidget({
               >
                 {clockTime(elapsed)}
               </output>
-              <p className="text-body text-muted dark:text-secondary">
+              <p className="text-muted dark:text-secondary text-body">
                 {t(timer.pausedAt ? "paused" : "timerRunning")}
               </p>
-              {timer.focusGoal && <div className="sf-focus-goal"><p className="sf-eyebrow">{t("redesign.todayGoal")}</p><p className="mt-2 text-body">{timer.focusGoal}</p></div>}
+              {timer.focusGoal && (
+                <div className="sf-focus-goal">
+                  <p className="sf-eyebrow">{t("redesign.todayGoal")}</p>
+                  <p className="mt-2 text-body">{timer.focusGoal}</p>
+                </div>
+              )}
               {checkpoint && (
                 <div
                   role="alert"
@@ -122,12 +150,17 @@ export default function TimerWidget({
                   disabled={pending}
                   onClick={async () => {
                     const result = await pause();
-                    if (result.ok) finish.openModal(); else setMessage(t(result.error));
+                    if (result.ok) finish.openModal();
+                    else setMessage(t(result.error));
                   }}
                 >
                   {t("finish")}
                 </Button>
-                <Button disabled={pending} variant="outline" onClick={discard.openModal}>
+                <Button
+                  disabled={pending}
+                  variant="outline"
+                  onClick={discard.openModal}
+                >
                   {t("discard")}
                 </Button>
               </div>
@@ -136,23 +169,98 @@ export default function TimerWidget({
             <form
               className="space-y-6"
               onSubmit={async (event) => {
-                event.preventDefault(); setMessage("");
-                const result = await runOperation(initial, { kind: "timer", value: { command: "start", subjectId, topicId: topicId || undefined, focusGoal: focusGoal.trim() || undefined } });
-                if (result.ok) onStarted?.(); else setMessage(t(result.error));
+                event.preventDefault();
+                setMessage("");
+                const result = await runOperation(initial, {
+                  kind: "timer",
+                  value: {
+                    command: "start",
+                    subjectId,
+                    topicId: topicId || undefined,
+                    focusGoal: focusGoal.trim() || undefined,
+                    schedule: scheduled
+                      ? {
+                          blockId: scheduled.block.id,
+                          date: scheduled.date,
+                          expectedStartsAt: scheduled.startsAt,
+                        }
+                      : undefined,
+                  },
+                });
+                if (result.ok) onStarted?.();
+                else setMessage(t(result.error));
               }}
             >
+              <ScheduledStudySelector
+                data={data}
+                blockId={blockId}
+                date={date}
+                selected={scheduled}
+                onSelect={(value) => {
+                  setScheduled(value);
+                  if (value) {
+                    setSubjectId(value.block.subjectId ?? "");
+                    setTopicId(value.block.topicId ?? "");
+                    setFocusGoal(value.title);
+                  }
+                }}
+              />
               <StudySelectors
                 data={data}
                 subjectId={subjectId}
                 topicId={topicId}
-                onSubjectChange={setSubjectId}
-                onTopicChange={setTopicId}
+                onSubjectChange={(value) => {
+                  setSubjectId(value);
+                  if (
+                    scheduled?.block.subjectId &&
+                    scheduled.block.subjectId !== value
+                  )
+                    setScheduled(null);
+                }}
+                onTopicChange={(value) => {
+                  setTopicId(value);
+                  if (
+                    scheduled?.block.topicId &&
+                    scheduled.block.topicId !== value
+                  )
+                    setScheduled(null);
+                }}
               />
-              <Field label={t("redesign.focusGoal")} placeholder={t("redesign.focusGoalHint")} value={focusGoal} onChange={event => setFocusGoal(event.target.value)} maxLength={200} />
-              <Button type="submit" disabled={!subjectId || pending} className="w-full">
-                {t("start")}
+              <Field
+                label={t("redesign.focusGoal")}
+                placeholder={t("redesign.focusGoalHint")}
+                value={focusGoal}
+                onChange={(event) => setFocusGoal(event.target.value)}
+                maxLength={200}
+              />
+              <Button
+                type="submit"
+                disabled={
+                  !subjectId ||
+                  pending ||
+                  Boolean(
+                    scheduled &&
+                    !canAttend(
+                      scheduled,
+                      now ||
+                        Date.parse(data.loadedAt ?? data.user.lastActiveAt),
+                    ),
+                  )
+                }
+                className="w-full"
+              >
+                {t(scheduled ? "attendAndStudy" : "start")}
               </Button>
-              <p className="text-center text-small text-muted dark:text-muted">
+              {scheduled &&
+                !canAttend(
+                  scheduled,
+                  now || Date.parse(data.loadedAt ?? data.user.lastActiveAt),
+                ) && (
+                  <p className="text-muted dark:text-muted text-small">
+                    {t("attendanceWindow")}
+                  </p>
+                )}
+              <p className="text-muted dark:text-muted text-center text-small">
                 {t("timerPersistence")}
               </p>
             </form>
@@ -167,33 +275,28 @@ export default function TimerWidget({
           )}
         </ComponentCard>
       </div>
-      <Modal
+      <FinishStudyDialog
+        initial={initial}
         isOpen={finish.isOpen}
         onClose={finish.closeModal}
-        title={t("whatStudied")}
-      >
-        <form
-          className="space-y-5"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            const note = String(new FormData(event.currentTarget).get("note") ?? "");
-            const result = await runOperation(initial, { kind: "timer", value: { command: "finish", note: note.trim() || undefined } });
-            setMessage(t(result.ok ? result.timerResult === "saved" ? "sessionSaved" : "sessionTooShort" : result.error));
-            if (result.ok) finish.closeModal();
-          }}
-        >
-          <TextField label={t("noteOptional")} name="note" />
-          <Button type="submit" disabled={pending}>{t(pending ? "loading" : "saveSession")}</Button>
-        </form>
-      </Modal>
+        onSaved={(saved) => {
+          setScheduled(null);
+          setMessage(t(saved ? "sessionSaved" : "sessionTooShort"));
+        }}
+      />
       <ConfirmDialog
+        background={false}
         isOpen={discard.isOpen}
         onClose={discard.closeModal}
         title={t("discardTimer")}
         description={t("discardWarning")}
-        onConfirm={() => {
-          void runOperation(initial, { kind: "timer", value: { command: "discard" } });
-          setMessage(t("timerDiscarded"));
+        onConfirm={async () => {
+          const result = await runOperation(initial, {
+            kind: "timer",
+            value: { command: "discard" },
+          });
+          setMessage(t(result.ok ? "timerDiscarded" : result.error));
+          return result.ok;
         }}
       />
     </>

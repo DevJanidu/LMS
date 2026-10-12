@@ -1,10 +1,11 @@
+import { recordAttendance } from "@/lib/study/attendance";
 import "server-only";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
-import { getCalendarBlock, mutateCalendar } from "@/lib/services/calendar";
+import { getCalendarBlock } from "@/lib/services/calendar";
 import { getOccurrences } from "@/lib/schedule";
-import { shiftDay } from "@/lib/analytics";
+import { localDay, shiftDay } from "@/lib/analytics";
 import { GoalError } from "@/lib/goals/service";
 import { notificationPreferenceSchema } from "./validation";
 import { applyCalendarProposal } from "./calendar-actions";
@@ -127,10 +128,11 @@ export async function notificationAction(
       if (!action?.value.blockId || !action.value.date)
         throw new GoalError("invalidInput");
       const block = await getCalendarBlock(userId, action.value.blockId);
+      const occurrenceDay = localDay(action.value.startsAt!, user.timezone);
       const occurrence = getOccurrences(
         [block],
-        shiftDay(action.value.date, -2),
-        shiftDay(action.value.date, 2),
+        shiftDay(occurrenceDay, -2),
+        shiftDay(occurrenceDay, 2),
       ).find((item) => item.date === action.value.date);
       if (!occurrence || occurrence.startsAt !== action.value.startsAt)
         throw new GoalError("conflict", 409);
@@ -158,31 +160,15 @@ export async function notificationAction(
           ],
         });
       else
-        await mutateCalendar(
+        await recordAttendance(
+          tx,
           userId,
           {
-            operationId: crypto.randomUUID(),
-            expectedUpdatedAt: block.updatedAt,
-            command:
-              kind === "skip"
-                ? {
-                    kind: "delete",
-                    id: block.id,
-                    date: action.value.date,
-                    scope: "one",
-                    newSeriesId: crypto.randomUUID(),
-                  }
-                : {
-                    kind: "move",
-                    id: block.id,
-                    date: action.value.date,
-                    scope: "one",
-                    startsAt: startsAt!,
-                    endsAt: endsAt!,
-                    newSeriesId: crypto.randomUUID(),
-                  },
+            blockId: block.id,
+            date: action.value.date,
+            expectedStartsAt: occurrence.startsAt,
           },
-          tx,
+          "skipped",
         );
       await tx
         .update(s.notificationActions)

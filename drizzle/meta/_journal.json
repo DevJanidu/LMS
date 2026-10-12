@@ -71,6 +71,13 @@
       "when": 1791794616365,
       "tag": "0009_aven_usage_retention",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791806670854,
+      "tag": "0010_study_attendance",
+      "breakpoints": true
     }
   ]
 }

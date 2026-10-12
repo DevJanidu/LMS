@@ -158,9 +158,9 @@ export default function AvenNotifications({ timezone }: { timezone: string }) {
             )}
             {item.action?.kind === "session" && !item.action.resolved && (
               <>
-                {item.action.subjectId && (
+                {item.action.blockId && (
                   <Link
-                    href={`/study?subject=${item.action.subjectId}&topic=${item.action.topicId ?? ""}`}
+                    href={`/study?block=${item.action.blockId}&date=${item.action.date}&subject=${item.action.subjectId ?? ""}&topic=${item.action.topicId ?? ""}`}
                     className="inline-flex items-center rounded-xl bg-brand-500 px-4 py-2 text-small text-white dark:bg-brand-500 dark:text-white"
                   >
                     {t("startNow")}

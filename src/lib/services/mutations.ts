@@ -13,6 +13,9 @@ import { subjectRecord, topicRecord, resourceRecord, sessionRecord, blockRecord,
 import { matchesPrecondition, type Precondition } from "@/lib/workspace/preconditions";
 import { blockAfterDeletion } from "@/lib/workspace/mutations";
 
+import { recordAttendance } from "@/lib/study/attendance";
+import { GoalError } from "@/lib/goals/service";
+
 export class DomainError extends Error {}
 export async function mutate(userId: string, operations: Operation[], preconditions: Precondition[] = []) {
   const db = getDb();
@@ -308,11 +311,20 @@ export async function mutate(userId: string, operations: Operation[], preconditi
             const subject = await ownSubject(command.subjectId, command.topicId);
             if (subject.status !== "active") throw new DomainError("recordUnavailable");
             if (timer) throw new DomainError("timerAlreadyRunning");
-            await tx.insert(s.activeTimers).values({ userId, subjectId: command.subjectId, topicId: command.topicId, focusGoal: command.focusGoal, startedAt: now });
+            let attendanceId: string | undefined;
+            if (command.schedule) {
+              try {
+                const attended = await recordAttendance(tx, userId, command.schedule, "attended", now.getTime());
+                if (attended.record.status === "completed") throw new DomainError("attendanceComplete");
+                if ((attended.occurrence.block.subjectId && attended.occurrence.block.subjectId !== command.subjectId) || (attended.occurrence.block.topicId && attended.occurrence.block.topicId !== command.topicId)) throw new DomainError("attendanceChanged");
+                attendanceId = attended.record.id;
+              } catch (error) { if (error instanceof GoalError) throw new DomainError(error.message);throw error; }
+            }
+            await tx.insert(s.activeTimers).values({ userId, subjectId: command.subjectId, topicId: command.topicId, focusGoal: command.focusGoal, startedAt: now, attendanceId });
             break;
           }
           if (!timer) throw new DomainError("recordUnavailable");
-          const elapsed = timerElapsed({ ...timer, startedAt: timer.startedAt.toISOString(), pausedAt: timer.pausedAt?.toISOString(), topicId: timer.topicId ?? undefined, focusGoal: timer.focusGoal ?? undefined }, now.getTime());
+          const elapsed = timerElapsed({ ...timer, attendanceId: timer.attendanceId ?? undefined, startedAt: timer.startedAt.toISOString(), pausedAt: timer.pausedAt?.toISOString(), topicId: timer.topicId ?? undefined, focusGoal: timer.focusGoal ?? undefined }, now.getTime());
           if (command.command === "pause" && !timer.pausedAt) await tx.update(s.activeTimers).set({ pausedAt: now }).where(eq(s.activeTimers.userId, userId));
           if (command.command === "resume" || command.command === "confirm") {
             await tx.update(s.activeTimers).set({ pausedAt: null, pausedTotalSeconds: timer.pausedTotalSeconds + (timer.pausedAt ? Math.floor((now.getTime() - timer.pausedAt.getTime()) / 1000) : 0) + (command.command === "confirm" ? Math.max(0, elapsed - timer.confirmedUntilSeconds) : 0), confirmedUntilSeconds: command.command === "confirm" ? Math.min(elapsed, timer.confirmedUntilSeconds) + 21600 : timer.confirmedUntilSeconds, needsConfirmation: false }).where(eq(s.activeTimers.userId, userId));
@@ -323,6 +335,7 @@ export async function mutate(userId: string, operations: Operation[], preconditi
               const [session] = await tx.insert(s.studySessions).values({ userId, subjectId: timer.subjectId, topicId: timer.topicId, startedAt: timer.startedAt, endedAt, durationSeconds, status: "valid", source: "timer", note: command.note }).returning();
               (changes.sessions ??= []).push(sessionRecord(session));
               timerResult = "saved";
+              if (timer.attendanceId) await tx.update(s.scheduleAttendance).set({ status: "completed", completedAt: now, sessionId: session.id, updatedAt: now }).where(and(eq(s.scheduleAttendance.id, timer.attendanceId), eq(s.scheduleAttendance.userId, userId), eq(s.scheduleAttendance.status, "attended")));
             } else timerResult = "discarded";
             await tx.delete(s.activeTimers).where(eq(s.activeTimers.userId, userId));
           }

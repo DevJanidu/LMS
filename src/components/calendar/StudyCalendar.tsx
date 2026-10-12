@@ -12,6 +12,7 @@ import interactionPlugin from "@fullcalendar/react/interaction";
 import themePlugin from "@fullcalendar/react/themes/classic";
 import { useModal } from "@/hooks/useModal";
 import { getSubjects, getTopics } from "@/lib/workspace/queries";
+import { useWorkspace } from "@/lib/workspace/store";
 import { useCalendar } from "@/lib/calendar/useCalendar";
 import {
   calendarOccurrences,
@@ -64,9 +65,10 @@ export default function StudyCalendar({ initial, add = false }: Props) {
     { from: initialWeekStart, to: shiftDay(initialWeekStart, 7) },
     range,
   );
+  const live = useWorkspace(initial);
   const data = useMemo(
-    () => ({ ...initial, blocks: state.blocks }),
-    [initial, state.blocks],
+    () => ({ ...live, blocks: state.blocks }),
+    [live, state.blocks],
   );
   const [selected, setSelected] = useState<BlockOccurrence>();
   const [date, setDate] = useState(today);

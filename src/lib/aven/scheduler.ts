@@ -10,13 +10,14 @@ import { aiPreferenceSchema, notificationPreferenceSchema } from "./validation";
 import {
   dueLocalTime,
   mayNotify,
-  missedStart,
   randomCheckInTime,
   sessionReminderDue,
   candidateEnabled,
 } from "./scheduler-model";
 import { deliverNotifications } from "./delivery";
 import { appendProactiveMessage } from "./proactive-conversations";
+import { attendanceList } from "@/lib/study/attendance";
+import { attendanceFor } from "@/lib/study/attendance-model";
 interface Candidate {
   kind: string;
   key: string;
@@ -87,6 +88,7 @@ export async function processAvenUser(userId: string, now: number) {
     goals,
     tasks,
     [studySummary],
+    attendance,
   ] = await Promise.all([
     db.select().from(s.users).where(eq(s.users.id, userId)),
     db
@@ -153,6 +155,7 @@ export async function processAvenUser(userId: string, now: number) {
           eq(s.studySessions.status, "valid"),
         ),
       ),
+    attendanceList(userId),
   ]);
   if (!user || user.status !== "active" || !preference) return 0;
   const prefs = notificationPreferenceSchema.parse(preference.value),
@@ -194,6 +197,8 @@ export async function processAvenUser(userId: string, now: number) {
   }));
   for (const item of occurrences) {
     const start = Date.parse(item.startsAt);
+    const status = attendanceFor(item, attendance)?.status;
+    if (status === "attended" || status === "completed") continue;
     const action = {
       kind: "session",
       blockId: item.block.id,
@@ -205,11 +210,12 @@ export async function processAvenUser(userId: string, now: number) {
     };
     if (
       prefs.sessionReminders &&
+      status !== "skipped" &&
       sessionReminderDue(now, start, prefs.leadMinutes)
     )
       candidates.push({
         kind: "session",
-        key: `session:${item.block.id}:${item.date}`,
+        key: `session:${item.block.id}:${item.date}:${item.startsAt}`,
         title: t("sessionTitle"),
         body: t("sessionBody", {
           title: item.title,
@@ -220,22 +226,17 @@ export async function processAvenUser(userId: string, now: number) {
     if (
       prefs.missedSessions &&
       !(timer && !timer.pausedAt) &&
-      item.block.subjectId &&
-      missedStart(
-        item.startsAt,
-        item.endsAt,
-        item.block.subjectId,
-        evidence,
-        timer,
-        now,
-        prefs.graceMinutes,
-      )
+      // Same-subject study at a nearby time cannot establish attendance at this occurrence.
+      now >= start + prefs.graceMinutes * 60000 &&
+      now <= Date.parse(item.endsAt) + 3600000
     )
       candidates.push({
         kind: "missed",
-        key: `missed:${item.block.id}:${item.date}`,
+        key: `missed:${item.block.id}:${item.date}:${item.startsAt}`,
         title: t("missedTitle"),
-        body: t("missedBody", { title: item.title }),
+        body: t(status === "skipped" ? "skippedBody" : "missedBody", {
+          title: item.title,
+        }),
         action,
       });
   }
@@ -426,6 +427,10 @@ export async function processAvenUser(userId: string, now: number) {
       .select()
       .from(s.activeTimers)
       .where(eq(s.activeTimers.userId, userId));
+    const currentAttendance = await tx
+      .select()
+      .from(s.scheduleAttendance)
+      .where(eq(s.scheduleAttendance.userId, userId));
     const from = zonedToUtc(`${today}T00:00`, user.timezone),
       to = zonedToUtc(`${shiftDay(today, 1)}T00:00`, user.timezone);
     const [{ count }] = await tx
@@ -441,6 +446,21 @@ export async function processAvenUser(userId: string, now: number) {
     let delivered = 0;
     for (const candidate of candidates) {
       if (!candidateEnabled(candidate.kind, effective)) continue;
+      if (candidate.action?.blockId) {
+        const report = currentAttendance.find(
+          (row) =>
+            row.blockId === candidate.action?.blockId &&
+            row.date === candidate.action?.date &&
+            row.startsAt.getTime() ===
+              Date.parse(candidate.action?.startsAt ?? ""),
+        );
+        if (
+          report?.status === "attended" ||
+          report?.status === "completed" ||
+          (report?.status === "skipped" && candidate.kind === "session")
+        )
+          continue;
+      }
       if (
         (candidate.kind === "checkIn" || candidate.kind === "missed") &&
         ((currentTimer && !currentTimer.pausedAt) || delivered > 0)

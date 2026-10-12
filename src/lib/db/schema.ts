@@ -77,6 +77,7 @@ export const resources = pgTable("resources", {
   foreignKey({ columns: [t.topicId, t.subjectId], foreignColumns: [topics.id, topics.subjectId] }).onDelete("cascade"),
   index("resources_owner_subject_idx").on(t.userId, t.subjectId), index("resources_topic_idx").on(t.topicId), check("resources_size_nonnegative", sql`${t.sizeBytes} >= 0`)]);
 export const activeTimers = pgTable("active_timers", {
+  attendanceId: uuid("attendance_id").references(() => scheduleAttendance.id, { onDelete: "set null" }),
   userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }), subjectId: uuid("subject_id").notNull(), topicId: uuid("topic_id"),
   startedAt: time("started_at").notNull().defaultNow(), pausedAt: time("paused_at"), pausedTotalSeconds: integer("paused_total_seconds").notNull().default(0),
   confirmedUntilSeconds: integer("confirmed_until_seconds").notNull().default(21600), focusGoal: text("focus_goal"), needsConfirmation: boolean("needs_confirmation").notNull().default(false),
@@ -97,7 +98,7 @@ export const scheduleBlocks = pgTable("schedule_blocks", {
   timezone: text("timezone").notNull(), note: text("note"), displayColor: text("display_color").notNull().default("brand"), createdAt: created(), updatedAt: updated(),
 }, t => [foreignKey({ columns: [t.subjectId, t.userId], foreignColumns: [subjects.id, subjects.userId] }).onDelete("cascade"),
   foreignKey({ columns: [t.topicId, t.subjectId], foreignColumns: [topics.id, topics.subjectId] }).onDelete("cascade"),
-  index("schedule_blocks_owner_start_idx").on(t.userId, t.startsAt), index("schedule_blocks_subject_idx").on(t.subjectId), index("schedule_blocks_topic_idx").on(t.topicId),
+  unique("schedule_blocks_owner_unique").on(t.id, t.userId), index("schedule_blocks_owner_start_idx").on(t.userId, t.startsAt), index("schedule_blocks_subject_idx").on(t.subjectId), index("schedule_blocks_topic_idx").on(t.topicId),
   check("block_end_after_start", sql`${t.endsAt} > ${t.startsAt}`), check("block_topic_requires_subject", sql`${t.topicId} IS NULL OR ${t.subjectId} IS NOT NULL`)]);
 export const scheduleExceptions = pgTable("schedule_exceptions", {
   overrides: jsonb("overrides").$type<{ subjectId?: string | null; topicId?: string | null; note?: string | null }>(),
@@ -109,6 +110,14 @@ export const scheduleExceptions = pgTable("schedule_exceptions", {
   foreignKey({ columns: [t.newTopicId, t.newSubjectId], foreignColumns: [topics.id, topics.subjectId] }).onDelete("cascade"),
   check("exception_topic_requires_subject", sql`${t.newTopicId} IS NULL OR ${t.newSubjectId} IS NOT NULL`),
   check("exception_end_after_start", sql`(${t.newStartsAt} IS NULL AND ${t.newEndsAt} IS NULL) OR (${t.newStartsAt} IS NOT NULL AND ${t.newEndsAt} IS NOT NULL AND ${t.newEndsAt} > ${t.newStartsAt})`)]);
+export const scheduleAttendance = pgTable("schedule_attendance", {
+  id: id(), userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), blockId: uuid("block_id").notNull(),
+  date: date("date").notNull(), startsAt: time("starts_at").notNull(), endsAt: time("ends_at").notNull(), title: text("title").notNull(),
+  status: text("status").$type<"attended" | "completed" | "skipped">().notNull(), attendedAt: time("attended_at"), completedAt: time("completed_at"),
+  sessionId: uuid("session_id").references(() => studySessions.id, { onDelete: "set null" }), updatedAt: updated(),
+}, t => [foreignKey({ columns: [t.blockId, t.userId], foreignColumns: [scheduleBlocks.id, scheduleBlocks.userId] }).onDelete("cascade"),
+  unique("schedule_attendance_occurrence_unique").on(t.userId, t.blockId, t.date), index("schedule_attendance_user_start_idx").on(t.userId, t.startsAt),
+  check("schedule_attendance_status", sql`${t.status} IN ('attended','completed','skipped')`)]);
 /** Committed responses make network retries safe, including deleted records. */
 export const calendarMutations = pgTable("calendar_mutations", {
   id: uuid("id").primaryKey(),

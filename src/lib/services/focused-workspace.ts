@@ -142,7 +142,7 @@ export const studyPageWorkspace = cache(async (account: Account, includePreferen
     status: "active" | "archived"; createdAt: string; updatedAt: string;
   }>; topics: SubjectRow["topics"]; timer: Array<{
     subjectId: string; topicId: string | null; startedAt: string; pausedAt: string | null;
-    pausedTotalSeconds: number; confirmedUntilSeconds: number; focusGoal: string | null;
+    pausedTotalSeconds: number; confirmedUntilSeconds: number; focusGoal: string | null; attendanceId: string | null;
   }>; preferences: { weeklyTargetMinutes?: number; weekStartDay?: 0 | 1; highestStreak?: number; theme?: "light" | "dark" | "auto"; reminders?: boolean } }>(sql`
     SELECT
       (SELECT coalesce(jsonb_agg(jsonb_build_object('id', id, 'title', title,
@@ -158,7 +158,7 @@ export const studyPageWorkspace = cache(async (account: Account, includePreferen
       (SELECT coalesce(jsonb_agg(jsonb_build_object('subjectId', subject_id,
         'topicId', topic_id, 'startedAt', started_at, 'pausedAt', paused_at,
         'pausedTotalSeconds', paused_total_seconds, 'confirmedUntilSeconds', confirmed_until_seconds,
-        'focusGoal', focus_goal)), '[]'::jsonb)
+        'focusGoal', focus_goal, 'attendanceId', attendance_id)), '[]'::jsonb)
         FROM active_timers WHERE user_id = ${account.id}::uuid) AS timer,
       ${includePreferences ? sql`(SELECT coalesce(jsonb_build_object('weeklyTargetMinutes', weekly_target_minutes,
         'weekStartDay', week_start_day, 'highestStreak', highest_streak, 'theme', theme, 'reminders', reminders), '{}'::jsonb)
@@ -180,7 +180,7 @@ export const studyPageWorkspace = cache(async (account: Account, includePreferen
     timer: timer ? { subjectId: timer.subjectId, topicId: timer.topicId ?? undefined,
       startedAt: new Date(timer.startedAt).toISOString(), pausedAt: timer.pausedAt ? new Date(timer.pausedAt).toISOString() : undefined,
       pausedTotalSeconds: timer.pausedTotalSeconds, confirmedUntilSeconds: timer.confirmedUntilSeconds,
-      focusGoal: timer.focusGoal ?? undefined } : null });
+      focusGoal: timer.focusGoal ?? undefined, attendanceId: timer.attendanceId ?? undefined } : null });
   if (includePreferences && row.preferences) {
     workspace.user = { ...workspace.user, weeklyTargetMinutes: row.preferences.weeklyTargetMinutes ?? workspace.user.weeklyTargetMinutes,
       weekStartDay: row.preferences.weekStartDay ?? 1, longestStreak: row.preferences.highestStreak ?? 0,

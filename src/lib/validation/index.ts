@@ -19,7 +19,7 @@ export const blockSchema = z.object({ id: uuidSchema, subjectId: optionalId, top
 export const profileSchema = z.object({ name: z.string().trim().min(1).max(150), timezone: timezoneSchema, timezoneMode: z.enum(["device", "manual"]).optional(), learningContext: z.enum(["school", "university", "exam", "selfStudy", "other"]).optional(), weeklyTargetMinutes: z.number().int().min(0).max(10080), theme: z.enum(["light", "dark", "auto"]), weekStartDay: z.union([z.literal(0), z.literal(1)]), reminders: z.boolean() });
 export const settingsSchema = z.object({ streakMinutes: z.number().int().min(1).max(1440), maxFileSizeMB: z.number().int().min(1).max(100), storagePerUserMB: z.number().int().min(1).max(10000), minimumAge: z.number().int().min(0).max(120).optional() });
 export const timerCommandSchema = z.discriminatedUnion("command", [
-  z.object({ command: z.literal("start"), subjectId: uuidSchema, topicId: optionalId, focusGoal: z.string().max(200).optional() }),
+  z.object({ command: z.literal("start"), subjectId: uuidSchema, topicId: optionalId, focusGoal: z.string().max(200).optional(), schedule: z.object({ blockId: uuidSchema, date: z.iso.date(), expectedStartsAt: z.iso.datetime() }).optional() }),
   z.object({ command: z.enum(["pause", "resume", "confirm", "discard"]) }),
   z.object({ command: z.literal("finish"), note: z.string().max(20000).optional() }),
 ]);

@@ -238,7 +238,7 @@
       "sessionTitle": "Your next study session",
       "sessionBody": "{title} begins in about {minutes} minutes.",
       "missedTitle": "A gentle study check-in",
-      "missedBody": "There is no recorded start for {title} yet. You can start, reschedule or skip this session.",
+      "missedBody": "No attendance is recorded for \"{title}\". It is time to study. Attend now, or reschedule if you need more time.",
       "morningTitle": "Make room for today's priorities",
       "morningBody": "Today: {sessions} planned sessions and {tasks} due tasks. A possible first action: {action}.",
       "firstStep": "Choose one small, achievable step",
@@ -255,7 +255,9 @@
       "goalDeadlineBody": "Your goal \"{title}\" is due {date}. What is one manageable step you can take today?",
       "taskDeadlineBody": "Your task \"{title}\" is due {date}. Could you make a little progress today?",
       "checkInProgress": "You recorded {minutes} minutes of study today. What would help with {title} next?",
-      "checkInUpcoming": "Your {title} session is at {time}. Need help preparing, or should we adjust your plan?"
+      "checkInUpcoming": "Your {title} session is at {time}. Need help preparing, or should we adjust your plan?",
+      "skippedBody": "You skipped \"{title}\". Would you like to attend now or find another time?",
+      "skipHelp": "Mark this session as skipped. It stays in your planner so Aven can help you catch up."
     },
     "settings": "Preferences",
     "conversations": "Conversations",
@@ -457,7 +459,12 @@
       "persistenceUnavailable": "The change could not be verified in the database. Nothing was committed.",
       "undoUnavailable": "This change cannot be undone automatically. You can update it through the planner or preferences.",
       "actionConfirmationRequired": "The changes are still proposals. Review the approval cards below; nothing has been applied.",
-      "clarificationRequired": "Please clarify the time before changing your schedule."
+      "clarificationRequired": "Please clarify the time before changing your schedule.",
+      "attendanceComplete": "Session completed",
+      "attendanceWindow": "Attend from 30 minutes before the session until 24 hours after it ends.",
+      "attendanceChanged": "This session was rescheduled. Refresh and try again.",
+      "attendanceInProgress": "Finish or discard the active study timer before skipping this session.",
+      "attendanceUnavailable": "Attendance could not be loaded or saved. Please try again."
     },
     "smartTitle": "Create a goal with Aven",
     "smartHelp": "Aven will help you choose a goal and due date. Answer any missing detail, then review and approve the goal.",
@@ -1115,6 +1122,24 @@
     "timezoneMode": "Timezone setting",
     "timezoneDevice": "Automatic (use my device)",
     "timezoneManual": "Choose a timezone",
-    "plannerCurrentTime": "Current time: {time}"
+    "plannerCurrentTime": "Current time: {time}",
+    "scheduledStudy": "What would you like to study?",
+    "studyMyChoice": "Choose my own subject and topic",
+    "attendSession": "Attend",
+    "attendAndStudy": "Attend and start studying",
+    "attendanceComplete": "Session completed",
+    "attendanceContinue": "Continue studying",
+    "attendanceSkipped": "Skipped",
+    "attendanceWindow": "Attend from 30 minutes before the session until 24 hours after it ends.",
+    "attendanceChanged": "This session was rescheduled. Refresh and try again.",
+    "attendanceInProgress": "Finish or discard the active study timer before skipping this session.",
+    "attendanceUnavailable": "Attendance could not be loaded or saved. Please try again.",
+    "attendanceStatus": {
+      "pending": "Scheduled",
+      "attended": "Attended",
+      "completed": "Completed",
+      "skipped": "Skipped",
+      "missed": "No attendance recorded"
+    }
   }
 }

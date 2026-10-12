@@ -39,7 +39,7 @@ export default function Dashboard({ initial, section }: { initial: Workspace; se
     data.blocks.filter((b) => b.userId === data.user.id),
     shiftDay(today, -1),
     shiftDay(today, 7),
-  ).filter((b) => Date.parse(b.endsAt) > now);
+  );
   const todaysBlocks = blocks.filter(
     (b) => localDay(b.startsAt, data.user.timezone) === today,
   );
@@ -115,7 +115,7 @@ export default function Dashboard({ initial, section }: { initial: Workspace; se
             data={data}
             today={today}
             blocks={todaysBlocks}
-            next={blocks[0]}
+            next={blocks.find((item) => Date.parse(item.startsAt) > now)}
           />
           <section className="min-w-0">
             <div className="sf-section-heading">

@@ -12,6 +12,8 @@ import {
 } from "@/lib/goals/service";
 import { getScheduleBlocksInRange } from "@/lib/services/lists";
 import { getCalendarBlock } from "@/lib/services/calendar";
+import { attendanceList } from "@/lib/study/attendance";
+import { attendanceFor, attendanceStatus } from "@/lib/study/attendance-model";
 import { getOccurrences } from "@/lib/schedule";
 import { localDay, shiftDay, wallTime } from "@/lib/analytics";
 import {
@@ -316,6 +318,7 @@ async function performAvenTool(
   if (name === "getNotificationPreferences")
     return (await getAvenPreferences(userId)).notifications;
   if (name === "getCalendar") {
+    const attendance = await attendanceList(userId);
     const { from, to: requestedTo } = args as { from: string; to: string };
     const to = requestedTo === from ? shiftDay(from, 1) : requestedTo;
     if (to < from || Date.parse(to) - Date.parse(from) > 366 * 86400000)
@@ -336,6 +339,8 @@ async function performAvenTool(
         blockId: item.block.id,
         localStartsAt: wallTime(item.startsAt, timezone),
         localEndsAt: wallTime(item.endsAt, timezone),
+        attendance: attendanceFor(item, attendance) ?? null,
+        attendanceStatus: attendanceStatus(item, attendance, Date.now()),
       })),
     };
   }
@@ -504,6 +509,7 @@ async function performAvenTool(
       .slice(0, 100);
   }
   if (name === "getStudySchedule") {
+    const attendance = await attendanceList(userId);
     const { days } = args as { days: number };
     const to = shiftDay(today, days);
     const sessions = calendarOccurrences(
@@ -520,6 +526,8 @@ async function performAvenTool(
         blockId: item.block.id,
         localStartsAt: wallTime(item.startsAt, timezone),
         localEndsAt: wallTime(item.endsAt, timezone),
+        attendance: attendanceFor(item, attendance) ?? null,
+        attendanceStatus: attendanceStatus(item, attendance, Date.now()),
       })),
     };
   }

@@ -7,14 +7,14 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ subject?: string; topic?: string }>;
+  searchParams: Promise<{ subject?: string; topic?: string; block?: string; date?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const user = await requireLearner();
-  const { subject, topic } = await searchParams;
+  const { subject, topic, block, date } = await searchParams;
   return (
-    <TimerWidget initial={await studyPageWorkspace(user)} subject={subject} topic={topic} />
+    <TimerWidget initial={await studyPageWorkspace(user)} subject={subject} topic={topic} blockId={block} date={date} />
   );
 }
 

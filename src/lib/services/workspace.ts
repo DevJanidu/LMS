@@ -97,7 +97,7 @@ export async function loadWorkspace(userId: string, options: { adminTargetId?: s
     blocks: blockRows.map(r => ({ id: r.id, userId: r.userId, subjectId: r.subjectId ?? undefined, topicId: r.topicId ?? undefined, title: r.title, startsAt: iso(r.startsAt), endsAt: iso(r.endsAt), repeat: r.recurrenceRule ? "weekly" : "once", weekdays: r.recurrenceRule?.weekdays ?? [], recurrenceUntil: r.recurrenceRule?.until, timezone: r.timezone, note: r.note ?? undefined, color: r.displayColor as SubjectColor, exceptions: exceptions.filter(e => e.blockId === r.id).map(e => ({ date: e.date, cancelled: e.isCancelled, overrides: e.overrides ?? undefined, title: e.newTitle ?? undefined, note: e.newNote ?? undefined, color: (e.newColor ?? undefined) as SubjectColor | undefined, subjectId: e.newSubjectId ?? undefined, topicId: e.newTopicId ?? undefined, startsAt: e.newStartsAt ? iso(e.newStartsAt) : undefined, endsAt: e.newEndsAt ? iso(e.newEndsAt) : undefined })), createdAt: iso(r.createdAt), updatedAt: iso(r.updatedAt) })),
     notifications: notificationRows.map(r => ({ ...r, type: r.type as Notification["type"], scheduledFor: iso(r.scheduledFor), readAt: r.readAt ? iso(r.readAt) : undefined, createdAt: iso(r.createdAt) })),
     auditLogs: auditRows.map(r => ({ id: r.id, actorUserId: r.actorUserId ?? "", action: r.action as AuditLog["action"], targetType: r.targetType as AuditLog["targetType"], targetId: r.targetId, createdAt: iso(r.createdAt) })),
-    timer: timer ? { subjectId: timer.subjectId, topicId: timer.topicId ?? undefined, startedAt: iso(timer.startedAt), pausedAt: timer.pausedAt ? iso(timer.pausedAt) : undefined, pausedTotalSeconds: timer.pausedTotalSeconds, confirmedUntilSeconds: timer.confirmedUntilSeconds, focusGoal: timer.focusGoal ?? undefined } : null,
+    timer: timer ? { attendanceId: timer.attendanceId ?? undefined, subjectId: timer.subjectId, topicId: timer.topicId ?? undefined, startedAt: iso(timer.startedAt), pausedAt: timer.pausedAt ? iso(timer.pausedAt) : undefined, pausedTotalSeconds: timer.pausedTotalSeconds, confirmedUntilSeconds: timer.confirmedUntilSeconds, focusGoal: timer.focusGoal ?? undefined } : null,
   };
 }
 export const getWorkspace = cache(async () => { const account = await requireUser(); return loadWorkspace(account.id, { account }); });
@@ -133,7 +133,7 @@ export const getShellWorkspace = cache(async (authorizedAccount?: typeof s.users
     prefs: { weeklyTargetMinutes: number; theme: User["theme"]; weekStartDay: number; reminders: boolean; highestStreak: number } | null;
     subjects: Array<{ id: string; title: string; displayColor: string; targetDate: string | null;
       status: "active" | "archived"; createdAt: string; updatedAt: string }>;
-    timer: { subjectId: string; topicId: string | null; startedAt: string; pausedAt: string | null;
+    timer: { attendanceId: string | null; subjectId: string; topicId: string | null; startedAt: string; pausedAt: string | null;
       pausedTotalSeconds: number; confirmedUntilSeconds: number; focusGoal: string | null } | null;
     notifications: Array<{ id: string; type: string; title: string; body: string;
       scheduledFor: string; readAt: string | null; createdAt: string }>;
@@ -150,7 +150,7 @@ export const getShellWorkspace = cache(async (authorizedAccount?: typeof s.users
         FROM (SELECT id, title, display_color, target_date, status, created_at, updated_at
           FROM subjects WHERE user_id = ${account.id}::uuid AND status = 'active'
           ORDER BY created_at DESC LIMIT 50) q) AS subjects,
-      (SELECT jsonb_build_object('subjectId', subject_id, 'topicId', topic_id,
+      (SELECT jsonb_build_object('attendanceId', attendance_id, 'subjectId', subject_id, 'topicId', topic_id,
         'startedAt', started_at, 'pausedAt', paused_at,
         'pausedTotalSeconds', paused_total_seconds, 'confirmedUntilSeconds', confirmed_until_seconds,
         'focusGoal', focus_goal)
@@ -186,7 +186,7 @@ export const getShellWorkspace = cache(async (authorizedAccount?: typeof s.users
       maxFileSizeMB: Number(row.settings.maxFileSizeMB ?? 10),
       storagePerUserMB: Number(row.settings.storagePerUserMB ?? 100),
       minimumAge: Number(row.settings.minimumAge ?? 0) },
-    timer: admin || !timer ? null : { subjectId: timer.subjectId, topicId: timer.topicId ?? undefined,
+    timer: admin || !timer ? null : { attendanceId: timer.attendanceId ?? undefined, subjectId: timer.subjectId, topicId: timer.topicId ?? undefined,
       startedAt: iso(new Date(timer.startedAt)), pausedAt: timer.pausedAt ? iso(new Date(timer.pausedAt)) : undefined,
       pausedTotalSeconds: timer.pausedTotalSeconds, confirmedUntilSeconds: timer.confirmedUntilSeconds,
       focusGoal: timer.focusGoal ?? undefined } };

@@ -601,7 +601,7 @@ describe.skipIf(!enabled)(
             eq(s.notifications.userId, a),
             eq(
               s.notifications.deduplicationKey,
-              `aven:missed:${blockId}:${today}`,
+              `aven:missed:${blockId}:${today}:${today}T10:00:00.000Z`,
             ),
           ),
         );
@@ -614,7 +614,7 @@ describe.skipIf(!enabled)(
           .where(
             eq(
               s.notifications.deduplicationKey,
-              `aven:missed:${blockId}:${today}`,
+              `aven:missed:${blockId}:${today}:${today}T10:00:00.000Z`,
             ),
           ),
       ).toHaveLength(1);

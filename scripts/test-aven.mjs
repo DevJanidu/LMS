@@ -14,7 +14,7 @@ console.log(
     ? "Verifying disposable fixtures and genuine provider/browser journeys. Keep the local app running; provider calls use the configured shared budget."
     : "Verifying Aven on disposable owned database fixtures. No provider calls.",
 );
-const files = ["tests/aven-upgrade.integration.test.ts"];
+const files = ["tests/aven-upgrade.integration.test.ts", "tests/study-attendance.integration.test.ts"];
 if (provider) files.push("tests/aven-provider.integration.test.ts");
 const child = spawn(
   process.execPath,
