@@ -1,7 +1,8 @@
 "use client";
 import { signOut } from "@/app/[locale]/auth-actions";
+import { AppUpdatedError, runServerAction } from "@/lib/client/server-actions";
 import { useRouter } from "@/i18n/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSidebar } from "@/context/SidebarContext";
 import { Link } from "@/i18n/navigation";
@@ -30,6 +31,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
   const router = useRouter();
   const t = useTranslations("studyflow");
   const locale = useLocale();
+  const [loggingOut, setLoggingOut] = useState(false), [logoutError, setLogoutError] = useState("");
   const data = useWorkspace(initial);
   const { isMobileOpen, toggleMobileSidebar, isExpanded, toggleSidebar } =
     useSidebar();
@@ -217,7 +219,14 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
                 {t("profileSettings")}
               </Link>
               <ThemeToggle label={t("toggleTheme")} onChange={saveTheme} stateLabels={{ light: t("light"), dark: t("dark") }}>{t("theme")}</ThemeToggle>
-              <button onClick={async () => { await signOut(); router.replace("/login"); }}>{t("logout")}</button>
+              <button disabled={loggingOut} onClick={async () => {
+                if (loggingOut) return;
+                setLoggingOut(true); setLogoutError("");
+                try { await runServerAction(() => signOut()); router.replace("/login"); }
+                catch (error) { setLogoutError(t(error instanceof AppUpdatedError ? "appUpdatedTitle" : "saveFailed")); }
+                finally { setLoggingOut(false); }
+              }}>{t("logout")}</button>
+              {logoutError && <p role="alert" className="px-3 py-2 text-small text-error-600 dark:text-error-400">{logoutError}</p>}
             </div>
           </details>
         </div>

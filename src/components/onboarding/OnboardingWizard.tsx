@@ -1,4 +1,5 @@
 "use client";
+import { runServerAction } from "@/lib/client/server-actions";
 import { useState } from "react";
 import { completeOnboarding } from "@/app/[locale]/actions";
 import { useTranslations } from "next-intl";
@@ -53,7 +54,7 @@ export default function OnboardingWizard({ initial, initialStep = 0 }: Props) {
     if (!parsed.success) { setError(t("invalidInput")); return; }
     setPending(true);
     try {
-      const result = await completeOnboarding(parsed.data);
+      const result = await runServerAction(() => completeOnboarding(parsed.data));
       if (!result.ok) { setError(t(result.error)); return; }
       router.replace("/dashboard");
     } catch { setError(t("saveFailed"));

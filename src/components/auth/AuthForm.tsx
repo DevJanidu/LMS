@@ -1,4 +1,5 @@
 "use client";
+import { runServerAction } from "@/lib/client/server-actions";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations, useFormatter } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -34,7 +35,7 @@ export default function AuthForm({ token, mode, returnTo, resetLinkError, passwo
     const validation = parseAuthInput(input);
     if (!validation.success) return validation.result;
     if (reset && fields.get("password") !== fields.get("confirmation")) return { ok: false, error: "passwordMismatch", field: "confirmation" };
-    try { return await authenticate(validation.data); }
+    try { return await runServerAction(() => authenticate(validation.data)); }
     catch (error) {
       // Next.js uses a redirect signal to navigate after successful actions.
       if ((error as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT;")) throw error;

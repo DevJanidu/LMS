@@ -18,6 +18,8 @@ const svgLoaderOptions = {
 };
 
 const nextConfig: NextConfig = {
+  // Keep each deployment's navigation, assets and action references together.
+  deploymentId: process.env.NEXT_DEPLOYMENT_ID || process.env.VERCEL_DEPLOYMENT_ID || process.env.VERCEL_URL || undefined,
   experimental: { staleTimes: { dynamic: 0, static: 180 } },
   logging: { incomingRequests: false, serverFunctions: false, browserToTerminal: false },
   // Isolate browser-test builds from a developer's running server.

@@ -1441,6 +1441,9 @@
       "skipped": "Skipped",
       "missed": "No attendance recorded"
     },
-    "primaryNavigation": "Primary"
+    "primaryNavigation": "Primary",
+    "appUpdatedTitle": "A new version is available",
+    "appUpdatedDescription": "Refresh this page to continue. This request could not be submitted. Close this message if you want to review or copy your changes first.",
+    "refreshPage": "Refresh page"
   }
 }

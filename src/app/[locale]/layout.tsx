@@ -12,6 +12,7 @@ import "../goals.css";
 import "../aven.css";
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/constants";
+import ServerActionRecovery from "@/components/common/ServerActionRecovery";
 export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
   description:
@@ -59,7 +60,10 @@ export default async function RootLayout({
       </head>
       <body className={"bg-gray-50 dark:bg-gray-900"}>
         <NextIntlClientProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            {children}
+            <ServerActionRecovery />
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

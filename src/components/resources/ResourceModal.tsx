@@ -1,4 +1,5 @@
 "use client";
+import { runServerAction } from "@/lib/client/server-actions";
 import { useEffect, useRef, useState } from "react";
 import { createUpload, finishUpload } from "@/app/[locale]/file-actions";
 import { useTranslations } from "next-intl";
@@ -116,11 +117,11 @@ export default function ResourceModal({
           if (type === "file" && file) {
             const finishWrite = beginWrite(data.user.id);
             try {
-              const upload = await createUpload({ subjectId: subject, topicId: topic || undefined, title, name: file.name, mimeType: file.type, sizeBytes: file.size });
+              const upload = await runServerAction(() => createUpload({ subjectId: subject, topicId: topic || undefined, title, name: file.name, mimeType: file.type, sizeBytes: file.size }));
               if (!upload.ok) { setError(t(upload.error)); return; }
               const sent = await fetch(upload.data.url, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
               if (!sent.ok) { setError(t("uploadFailed")); return; }
-              const confirmed = await finishUpload(upload.data.id);
+              const confirmed = await runServerAction(() => finishUpload(upload.data.id));
               if (!confirmed.ok) { setError(t(confirmed.error)); return; }
               confirmWorkspaceChanges(data, { ok: true, userUpdatedAt: confirmed.data.userUpdatedAt, changes: { resources: [confirmed.data.resource] } });
               finishWrite("saved");

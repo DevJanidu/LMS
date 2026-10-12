@@ -1,4 +1,5 @@
 "use client";
+import { runServerAction } from "@/lib/client/server-actions";
 import { useMemo, useState } from "react";
 import { deleteMyAccount } from "@/app/[locale]/actions";
 import { useTranslations } from "next-intl";
@@ -268,7 +269,7 @@ export default function Settings({ initial }: Props) {
         description={t("deleteAccountWarning")}
         onConfirm={async () => {
           try {
-            const result = await deleteMyAccount();
+            const result = await runServerAction(() => deleteMyAccount());
             if (!result.ok) {
               setError(t(result.error));
               return false;
