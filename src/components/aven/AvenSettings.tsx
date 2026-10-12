@@ -9,6 +9,7 @@ import Field, {
 } from "@/components/studyflow/FormFields";
 import Button from "@/components/ui/button/Button";
 import AvenSettingsSection from "./AvenSettingsSection";
+import { subscribeToPush } from "./browserPush";
 import RepeatWeekdays from "@/components/calendar/RepeatWeekdays";
 import { featureRequest } from "@/lib/goals/client";
 import type { avenBootstrap } from "@/lib/aven/conversations";
@@ -59,36 +60,12 @@ export default function AvenSettings({ initial, onSaved }: Props) {
   };
   const push = async () => {
     try {
-      if (
-        !("serviceWorker" in navigator) ||
-        !("PushManager" in window) ||
-        !initial.publicPushKey
-      )
-        throw new Error("pushUnavailable");
-      const granted = await Notification.requestPermission();
-      setPermission(granted);
-      if (granted !== "granted") throw new Error("pushPermissionDenied");
-      const registration =
-        await navigator.serviceWorker.register("/aven-sw.js");
-      const raw = atob(
-          initial.publicPushKey.replace(/-/g, "+").replace(/_/g, "/"),
-        ),
-        key = Uint8Array.from(raw, (char) => char.charCodeAt(0));
-      const subscription =
-        (await registration.pushManager.getSubscription()) ??
-        (await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: key,
-        }));
-      await featureRequest("/api/aven/push", {
-        kind: "subscribe",
-        subscription: subscription.toJSON(),
-      });
-      setPermission("granted");
+      setPermission(await subscribeToPush(initial.publicPushKey));
       setNotifications((current) => ({ ...current, push: true }));
       setNotice(t("pushEnabled"));
     } catch (error) {
       const key = (error as Error).message;
+      if (key === "pushPermissionDenied") setPermission("denied");
       setError(
         t.has(`errors.${key}`)
           ? t(`errors.${key}`)

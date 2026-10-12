@@ -100,8 +100,11 @@ export async function changeAvenPreferences(
         ...aiPreferenceSchema.parse(existing?.value ?? {}),
         consent: true,
         onboardingComplete: true,
-        ...(input.kind === "onboard" && input.locale
-          ? { locale: input.locale }
+        ...(input.kind === "onboard"
+          ? {
+              allowResourceContent: input.resourceContent,
+              ...(input.locale ? { locale: input.locale } : {}),
+            }
           : {}),
       };
       await tx
@@ -125,6 +128,17 @@ export async function changeAvenPreferences(
           weekly: true,
           randomized: true,
           dailyLimit: 6,
+          // Email and push are separate opt-ins and only stored when the channel is configured.
+          email:
+            input.email &&
+            Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM),
+          push:
+            input.push &&
+            Boolean(
+              process.env.VAPID_PUBLIC_KEY &&
+              process.env.VAPID_PRIVATE_KEY &&
+              process.env.VAPID_SUBJECT,
+            ),
         });
         await tx
           .insert(s.notificationPreferences)

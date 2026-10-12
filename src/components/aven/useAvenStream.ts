@@ -31,6 +31,7 @@ interface StreamEvent {
   name?: string;
   proposal?: ProposalRecord;
   cards?: GoalCard[];
+  actions?: unknown[];
 }
 interface Options {
   setMessages: Dispatch<SetStateAction<AvenMessageRecord[]>>;
@@ -181,6 +182,13 @@ export function useAvenStream(options: Options) {
               context: {
                 ...message.context,
                 goalCards: JSON.stringify(event.cards),
+              },
+            }));
+          else if (event.type === "nextActions" && event.actions)
+            patch(setMessages, assistantId, (message) => ({
+              context: {
+                ...message.context,
+                nextActions: JSON.stringify(event.actions),
               },
             }));
           else if (event.type === "error")

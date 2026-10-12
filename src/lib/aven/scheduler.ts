@@ -10,10 +10,23 @@ import { aiPreferenceSchema, notificationPreferenceSchema } from "./validation";
 import {
   dueLocalTime,
   mayNotify,
+  missedStart,
   randomCheckInTime,
   sessionReminderDue,
   candidateEnabled,
+  shiftClock,
 } from "./scheduler-model";
+import {
+  chooseCheckIn,
+  morningBriefing,
+  weeklyReview,
+  type MessagePart,
+} from "./companion-model";
+import { goalAlerts, weekKey } from "./goal-monitor";
+import { proposeAdaptiveSchedule } from "./planning";
+import { storeDraftProposal } from "./proposals";
+import { getGoalDetailsBatch } from "@/lib/goals/service";
+import { getNextBestActions } from "@/lib/goals/next-action-server";
 import { deliverNotifications } from "./delivery";
 import { appendProactiveMessage } from "./proactive-conversations";
 import { attendanceList } from "@/lib/study/attendance";
@@ -25,6 +38,10 @@ interface Candidate {
   body: string;
   jobId?: string;
   action?: (typeof s.notificationActions.$inferInsert)["value"];
+  /** Check-in variant, stored so the next check-in can differ. */
+  template?: string;
+  /** Private recovery draft saved with the message; it is only a proposal. */
+  draft?: unknown;
 }
 
 export async function enqueueNotification(
@@ -48,7 +65,8 @@ export async function enqueueNotification(
     })
     .onConflictDoNothing()
     .returning();
-  if (!notification) return null;
+  if (!notification)
+    return null as null | { id: string; conversationId: string };
   const context = action ?? { kind: "checkIn" };
   const conversationId = await appendProactiveMessage(
     tx,
@@ -75,7 +93,7 @@ export async function enqueueNotification(
         deliveredAt: channel === "inApp" ? new Date() : null,
       })),
     );
-  return notification.id;
+  return { id: notification.id, conversationId };
 }
 export async function processAvenUser(userId: string, now: number) {
   const db = getDb();
@@ -106,11 +124,11 @@ export async function processAvenUser(userId: string, now: number) {
       .where(
         and(
           eq(s.studySessions.userId, userId),
-          sql`${s.studySessions.startedAt} > ${new Date(now - 8 * 86400000)}`,
+          sql`${s.studySessions.startedAt} > ${new Date(now - 15 * 86400000)}`,
         ),
       )
       .orderBy(desc(s.studySessions.startedAt))
-      .limit(500),
+      .limit(1000),
     db
       .select()
       .from(s.goals)
@@ -226,9 +244,16 @@ export async function processAvenUser(userId: string, now: number) {
     if (
       prefs.missedSessions &&
       !(timer && !timer.pausedAt) &&
-      // Same-subject study at a nearby time cannot establish attendance at this occurrence.
-      now >= start + prefs.graceMinutes * 60000 &&
-      now <= Date.parse(item.endsAt) + 3600000
+      // Recorded same-subject study during the slot only suppresses the nudge; it never marks attendance.
+      missedStart(
+        item.startsAt,
+        item.endsAt,
+        item.block.subjectId,
+        evidence,
+        timer ?? undefined,
+        now,
+        prefs.graceMinutes,
+      )
     )
       candidates.push({
         kind: "missed",
@@ -288,18 +313,63 @@ export async function processAvenUser(userId: string, now: number) {
         item.endedAt.getTime() > now - 30 * 60000 &&
         item.endedAt.getTime() <= now,
     );
-  const first = tasks[0]?.title ?? todaySessions[0]?.title ?? t("firstStep");
-  if (prefs.morning && dueLocalTime(now, user.timezone, prefs.morningTime))
+  // Daily messages already sent today are not rebuilt on later runs within their catch-up window.
+  const sentToday = new Set(
+    (
+      await db
+        .select({ kind: s.scheduledCheckIns.kind })
+        .from(s.scheduledCheckIns)
+        .where(
+          and(
+            eq(s.scheduledCheckIns.userId, userId),
+            sql`${s.scheduledCheckIns.createdAt} >= ${zonedToUtc(`${today}T00:00`, user.timezone)}::timestamptz`,
+          ),
+        )
+    ).map((row) => row.kind),
+  );
+  const compose = (parts: MessagePart[]) =>
+    parts.map((part) => t(part.key, part.values)).join(" ");
+  const sessionFact = (item: (typeof todaySessions)[number]) => ({
+    title: item.title,
+    startsAt: item.startsAt,
+    localTime: wallTime(item.startsAt, user.timezone).slice(11, 16),
+  });
+  // The ranking engine is only consulted when a message that uses it is due.
+  let rankedAction:
+      Awaited<ReturnType<typeof getNextBestActions>>[number] | undefined,
+    ranked = false;
+  const nextAction = async () => {
+    if (!ranked) {
+      ranked = true;
+      rankedAction = (
+        await getNextBestActions(userId, { limit: 1 }).catch(() => [])
+      )[0];
+    }
+    return rankedAction;
+  };
+  if (
+    prefs.morning &&
+    !sentToday.has("morning") &&
+    dueLocalTime(now, user.timezone, prefs.morningTime)
+  )
     candidates.push({
       kind: "morning",
       key: `morning:${today}`,
       title: t("morningTitle"),
-      body: t("morningBody", {
-        sessions: todaySessions.length,
-        tasks: tasks.filter((task) => task.dueDate && task.dueDate <= today)
-          .length,
-        action: first,
-      }),
+      body: compose(
+        morningBriefing({
+          sessions: todaySessions
+            .filter((item) => Date.parse(item.startsAt) >= now - 3600000)
+            .map(sessionFact),
+          tasksDueToday: tasks.filter(
+            (task) => task.dueDate && task.dueDate <= today,
+          ).length,
+          tasksDueThisWeek: tasks.filter(
+            (task) => task.dueDate && task.dueDate <= shiftDay(today, 7),
+          ).length,
+          nextAction: await nextAction(),
+        }),
+      ),
       action: dailyAction,
     });
   if (prefs.evening && dueLocalTime(now, user.timezone, prefs.eveningTime))
@@ -313,6 +383,7 @@ export async function processAvenUser(userId: string, now: number) {
   const weekday = new Date(`${today}T12:00:00Z`).getUTCDay();
   if (
     prefs.weekly &&
+    !sentToday.has("weekly") &&
     weekday === prefs.weeklyDay &&
     dueLocalTime(now, user.timezone, prefs.eveningTime)
   ) {
@@ -327,18 +398,51 @@ export async function processAvenUser(userId: string, now: number) {
           sql`${s.goalTasks.completedAt} >= ${new Date(now - 7 * 86400000)}`,
         ),
       );
+    const week = (from: number, to: number) => {
+      const rows = evidence.filter(
+        (item) =>
+          item.status === "valid" &&
+          item.startedAt.getTime() >= from &&
+          item.startedAt.getTime() < to,
+      );
+      return {
+        minutes: Math.round(
+          rows.reduce((sum, item) => sum + item.durationSeconds, 0) / 60,
+        ),
+        sessions: rows.length,
+      };
+    };
+    const pastBlocks = await getScheduleBlocksInRange(
+      userId,
+      { from: shiftDay(today, -7), to: shiftDay(today, 1) },
+      user.timezone,
+    );
+    // A planned session counts as missed only when it ended with no attendance report at all.
+    const missedSessions = getOccurrences(
+      pastBlocks,
+      shiftDay(today, -7),
+      today,
+    ).filter(
+      (item) =>
+        Date.parse(item.endsAt) < now && !attendanceFor(item, attendance),
+    ).length;
     candidates.push({
       kind: "weekly",
       key: `weekly:${today}`,
       title: t("weeklyTitle"),
-      body: t("weeklyBody", {
-        hours: Number(studySummary.hours).toFixed(1),
-        goals: goals.length,
-        completed,
-        deadlines: tasks.filter(
-          (task) => task.dueDate && task.dueDate <= shiftDay(today, 7),
-        ).length,
-      }),
+      body: compose(
+        weeklyReview({
+          thisWeek: week(now - 7 * 86400000, now + 1),
+          lastWeek: week(now - 14 * 86400000, now - 7 * 86400000),
+          completedTasks: completed,
+          missedSessions,
+          activeGoals: goals.length,
+          deadlinesNextWeek: tasks.filter(
+            (task) => task.dueDate && task.dueDate <= shiftDay(today, 7),
+          ).length,
+          nextAction: await nextAction(),
+        }),
+      ),
       action: dailyAction,
     });
   }
@@ -354,43 +458,145 @@ export async function processAvenUser(userId: string, now: number) {
   );
   if (
     prefs.randomized &&
+    !sentToday.has("checkIn") &&
     !activeStudy &&
     (!recentNotification ||
       now - recentNotification.createdAt.getTime() >= 60 * 60000) &&
     clock >= prefs.allowedStart &&
     clock < prefs.allowedEnd &&
     dueLocalTime(now, user.timezone, randomTime)
-  )
-    candidates.push({
-      kind: "checkIn",
-      key: `checkIn:${today}`,
-      title: t("checkInTitle"),
-      body: (() => {
-        const upcoming = todaySessions.find(
-          (session) => Date.parse(session.startsAt) > now,
-        );
-        const recorded = evidence
+  ) {
+    const [last] = await db
+      .select({ value: s.scheduledCheckIns.value })
+      .from(s.scheduledCheckIns)
+      .where(
+        and(
+          eq(s.scheduledCheckIns.userId, userId),
+          eq(s.scheduledCheckIns.kind, "checkIn"),
+        ),
+      )
+      .orderBy(desc(s.scheduledCheckIns.createdAt))
+      .limit(1);
+    const upcoming = todaySessions.find(
+      (session) => Date.parse(session.startsAt) > now,
+    );
+    const suggestion = await nextAction();
+    const soonest = [
+      ...goals.map((goal) => ({ title: goal.title, date: goal.targetDate })),
+      ...tasks.flatMap((task) =>
+        task.dueDate ? [{ title: task.title, date: task.dueDate }] : [],
+      ),
+    ]
+      .filter((item) => item.date >= today && item.date <= shiftDay(today, 7))
+      .sort((a, b) => a.date.localeCompare(b.date))[0];
+    const choice = chooseCheckIn({
+      now,
+      recordedMinutesToday: Math.floor(
+        evidence
           .filter(
             (item) =>
               item.status === "valid" &&
               localDay(item.startedAt.getTime(), user.timezone) === today &&
               item.endedAt.getTime() <= now,
           )
-          .reduce((total, item) => total + item.durationSeconds, 0);
-        if (recorded > 0)
-          return t("checkInProgress", {
-            minutes: Math.floor(recorded / 60),
-            title: goals[0]?.title ?? t("learning"),
-          });
-        if (upcoming)
-          return t("checkInUpcoming", {
-            title: upcoming.title,
-            time: wallTime(upcoming.startsAt, user.timezone).slice(11, 16),
-          });
-        return t("checkInBody", { title: goals[0]?.title ?? t("learning") });
-      })(),
-      action: dailyAction,
+          .reduce((total, item) => total + item.durationSeconds, 0) / 60,
+      ),
+      upcoming: upcoming ? sessionFact(upcoming) : undefined,
+      nextAction: suggestion,
+      deadline: soonest
+        ? {
+            title: soonest.title,
+            days: Math.round(
+              (Date.parse(`${soonest.date}T00:00Z`) -
+                Date.parse(`${today}T00:00Z`)) /
+                86400000,
+            ),
+          }
+        : undefined,
+      lastTemplate: last?.value.template,
     });
+    // Without any verified context there is nothing useful to say, so no check-in is sent.
+    const part =
+      choice?.part ??
+      (goals[0]
+        ? { key: "checkInBody", values: { title: goals[0].title } }
+        : null);
+    if (part)
+      candidates.push({
+        kind: "checkIn",
+        key: `checkIn:${today}`,
+        title: t("checkInTitle"),
+        body: t(part.key, part.values),
+        template: choice?.template ?? "goal",
+        action: suggestion
+          ? { kind: "goals", goalId: suggestion.goalId }
+          : dailyAction,
+      });
+  }
+  // Goal monitoring: at most one alert per goal and kind each week, after the morning briefing.
+  if (
+    prefs.goalReminders &&
+    goals.length &&
+    !sentToday.has("goalAlert") &&
+    dueLocalTime(now, user.timezone, shiftClock(prefs.morningTime, 90))
+  ) {
+    const details = await getGoalDetailsBatch(
+      userId,
+      goals.slice(0, 20).map((goal) => goal.id),
+    ).catch(() => []);
+    const alert = goalAlerts(details, { today, now }).find(
+      // Goals due within three days already get the daily deadline reminder.
+      (item) => !(item.kind === "deadline" && item.daysLeft <= 3),
+    );
+    if (alert) {
+      const detail = details.find((item) => item.goal.id === alert.goalId)!;
+      let draft: unknown;
+      if (alert.recoverable && alert.kind !== "blocked") {
+        const horizon = shiftDay(today, 7);
+        const commitments = getOccurrences(
+          await getScheduleBlocksInRange(
+            userId,
+            { from: today, to: horizon },
+            user.timezone,
+          ),
+          today,
+          horizon,
+        );
+        const plan = proposeAdaptiveSchedule(
+          detail,
+          aiPrefs,
+          commitments,
+          user.timezone,
+          now,
+          Math.max(1, Math.min(7, alert.daysLeft + 1)),
+        );
+        if ("kind" in plan) {
+          const { unscheduledTasks, ...value } = plan;
+          draft = {
+            ...value,
+            explanation: t("recoveryDraftExplanation", {
+              sessions: value.sessions.length,
+              remaining: unscheduledTasks,
+              minutes: aiPrefs.dailyTargetMinutes,
+            }),
+          };
+        }
+      }
+      candidates.push({
+        kind: "goalAlert",
+        key: `goalAlert:${alert.goalId}:${alert.kind}:${weekKey(today)}`,
+        title: t(`goalAlert.${alert.kind}Title`),
+        body: `${t(`goalAlert.${alert.kind}`, {
+          title: alert.goalTitle,
+          days: alert.daysLeft,
+          tasks: alert.remainingTasks,
+          milestone: alert.milestoneTitle ?? "",
+        })} ${t(draft ? "goalAlert.draftReady" : "goalAlert.offer")}`,
+        action: { kind: "goals", goalId: alert.goalId },
+        draft,
+      });
+    }
+  }
   const latestStudy = studySummary.latest
     ? new Date(studySummary.latest)
     : null;
@@ -487,13 +693,17 @@ export async function processAvenUser(userId: string, now: number) {
               kind: candidate.kind,
               deduplicationKey: candidate.key,
               dueAt: new Date(now),
-              value: { title: candidate.title, body: candidate.body },
+              value: {
+                title: candidate.title,
+                body: candidate.body,
+                ...(candidate.template ? { template: candidate.template } : {}),
+              },
               status: "delivered",
             })
             .onConflictDoNothing()
             .returning({ id: s.scheduledCheckIns.id });
       if (!job) continue;
-      const id = await enqueueNotification(
+      const queued = await enqueueNotification(
         tx,
         userId,
         candidate.key,
@@ -502,64 +712,91 @@ export async function processAvenUser(userId: string, now: number) {
         effective,
         candidate.action,
       );
-      if (id) delivered++;
+      if (!queued) continue;
+      // The draft sits in the same companion conversation, ready for review when the learner replies.
+      if (candidate.draft)
+        await storeDraftProposal(
+          tx,
+          userId,
+          queued.conversationId,
+          candidate.draft,
+        );
+      delivered++;
     }
     return delivered;
   });
 }
+const BATCH_SIZE = 8,
+  SCHEDULER_BUDGET_MS = 35000;
 export async function runAvenScheduler() {
   const started = Date.now(),
     db = getDb();
   let generated = 0,
     processed = 0,
     failed = 0;
-  const claimed = await db.transaction(async (tx) => {
-    const rows = await tx
-      .select({ userId: s.notificationPreferences.userId })
-      .from(s.notificationPreferences)
-      .where(
-        and(
-          lte(s.notificationPreferences.nextCheckAt, new Date()),
-          sql`${s.notificationPreferences.value}->>'enabled' = 'true'`,
-        ),
-      )
-      .orderBy(asc(s.notificationPreferences.nextCheckAt))
-      .limit(12)
-      .for("update", { skipLocked: true });
-    if (rows.length)
-      await tx
-        .update(s.notificationPreferences)
-        .set({ nextCheckAt: new Date(Date.now() + 300000) })
+  let more = true;
+  // Claim small batches until the time budget is used; concurrent runs skip locked rows.
+  while (more && Date.now() - started < SCHEDULER_BUDGET_MS) {
+    const claimed = await db.transaction(async (tx) => {
+      const rows = await tx
+        .select({ userId: s.notificationPreferences.userId })
+        .from(s.notificationPreferences)
         .where(
-          inArray(
-            s.notificationPreferences.userId,
-            rows.map((row) => row.userId),
+          and(
+            lte(s.notificationPreferences.nextCheckAt, new Date()),
+            sql`${s.notificationPreferences.value}->>'enabled' = 'true'`,
           ),
-        );
-    return rows;
-  });
-  for (const row of claimed) {
-    if (Date.now() - started > 18000) {
-      await db
-        .update(s.notificationPreferences)
-        .set({ nextCheckAt: new Date() })
-        .where(eq(s.notificationPreferences.userId, row.userId));
-      continue;
-    }
-    try {
-      generated += await processAvenUser(row.userId, Date.now());
-      processed++;
-    } catch {
-      failed++;
-      await db
-        .update(s.notificationPreferences)
-        .set({ nextCheckAt: new Date(Date.now() + 60000) })
-        .where(eq(s.notificationPreferences.userId, row.userId));
+        )
+        .orderBy(asc(s.notificationPreferences.nextCheckAt))
+        .limit(BATCH_SIZE)
+        .for("update", { skipLocked: true });
+      if (rows.length)
+        await tx
+          .update(s.notificationPreferences)
+          .set({ nextCheckAt: new Date(Date.now() + 300000) })
+          .where(
+            inArray(
+              s.notificationPreferences.userId,
+              rows.map((row) => row.userId),
+            ),
+          );
+      return rows;
+    });
+    more = claimed.length === BATCH_SIZE;
+    // Each user is isolated: one failure is retried a minute later and never blocks others.
+    const results = await Promise.all(
+      claimed.map(async (row) => {
+        if (Date.now() - started > SCHEDULER_BUDGET_MS) {
+          await db
+            .update(s.notificationPreferences)
+            .set({ nextCheckAt: new Date() })
+            .where(eq(s.notificationPreferences.userId, row.userId));
+          more = true;
+          return null;
+        }
+        try {
+          return await processAvenUser(row.userId, Date.now());
+        } catch {
+          await db
+            .update(s.notificationPreferences)
+            .set({ nextCheckAt: new Date(Date.now() + 60000) })
+            .where(eq(s.notificationPreferences.userId, row.userId));
+          return -1;
+        }
+      }),
+    );
+    for (const result of results) {
+      if (result === null) continue;
+      if (result < 0) failed++;
+      else {
+        processed++;
+        generated += result;
+      }
     }
   }
   const deliveries =
-    Date.now() - started < 20000
-      ? await deliverNotifications(4, undefined, started + 26000)
+    Date.now() - started < 45000
+      ? await deliverNotifications(20, undefined, started + 52000)
       : { delivered: 0, failed: 0 };
   return {
     ok: failed === 0 && deliveries.failed === 0,
@@ -567,6 +804,6 @@ export async function runAvenScheduler() {
     generated,
     failed,
     deliveries,
-    remaining: claimed.length === 12,
+    remaining: more,
   };
 }

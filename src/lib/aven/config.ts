@@ -17,7 +17,9 @@ export function avenConfig(planning = false) {
   if (!result.success)
     throw new GoalError(avenStatus().code ?? "aiNotConfigured", 503);
   const value = result.data;
-  const model = planning ? value.OPENAI_PLANNING_MODEL : value.OPENAI_CHAT_MODEL;
+  const model = planning
+    ? value.OPENAI_PLANNING_MODEL
+    : value.OPENAI_CHAT_MODEL;
   return {
     key: value.OPENAI_API_KEY,
     model,
@@ -47,5 +49,6 @@ export function avenConfig(planning = false) {
 /** MAX_OUTPUT_TOKENS is the non-reasoning default; use avenConfig().maxOutputTokens for requests. */
 export const MAX_TOOL_ROUNDS = 6,
   MAX_OUTPUT_TOKENS = 4096,
-  MAX_INSTRUCTION_BYTES = 16000,
+  // Static guidance (~8 KB) plus bounded memory, summary and reminder context (~9.5 KB) must fit.
+  MAX_INSTRUCTION_BYTES = 24000,
   MAX_INPUT_BYTES = 24000;

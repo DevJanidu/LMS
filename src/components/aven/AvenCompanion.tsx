@@ -541,7 +541,7 @@ export default function AvenCompanion({
                 />
               ) : (
                 <AvenOnboarding
-                  available={preferences.configured}
+                  preferences={preferences}
                   onDone={(next) =>
                     setBootstrap((current) => ({
                       ...current,

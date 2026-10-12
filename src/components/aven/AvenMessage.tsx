@@ -2,7 +2,8 @@
 import { memo, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { RefreshIcon, SparklesIcon } from "@/icons";
-import { goalCardsSchema } from "@/lib/aven/validation";
+import { goalCardsSchema, nextActionsSchema } from "@/lib/aven/validation";
+import NextBestActionCard from "@/components/goals/NextBestActionCard";
 import AvenMarkdown from "./AvenMarkdown";
 import AvenCopyButton from "./AvenCopyButton";
 import GoalProgressCard from "./cards/GoalProgressCard";
@@ -18,11 +19,14 @@ interface Props {
   onRegenerate: (message: AvenMessageRecord) => void;
   onAsk: (notificationId: string) => void;
 }
-function parseCards(raw?: string) {
+function parseJson<T>(
+  raw: string | undefined,
+  schema: { safeParse: (value: unknown) => { success: boolean; data?: T } },
+): T | [] {
   if (!raw) return [];
   try {
-    const parsed = goalCardsSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : [];
+    const parsed = schema.safeParse(JSON.parse(raw));
+    return parsed.success && parsed.data ? parsed.data : [];
   } catch {
     return [];
   }
@@ -39,8 +43,12 @@ function AvenMessage({
 }: Props) {
   const t = useTranslations("aven");
   const cards = useMemo(
-    () => parseCards(message.context?.goalCards),
+    () => parseJson(message.context?.goalCards, goalCardsSchema),
     [message.context?.goalCards],
+  );
+  const actions = useMemo(
+    () => parseJson(message.context?.nextActions, nextActionsSchema),
+    [message.context?.nextActions],
   );
   const time = message.createdAt
     ? new Date(message.createdAt).toLocaleTimeString("en", {
@@ -111,6 +119,9 @@ function AvenMessage({
             <GoalProgressCard key={goal.id} goal={goal} />
           ))}
         </div>
+      )}
+      {actions.length > 0 && (
+        <NextBestActionCard actions={actions} askAven={false} />
       )}
       {notificationId && (
         <NotificationActions

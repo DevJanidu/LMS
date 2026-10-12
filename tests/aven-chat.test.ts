@@ -401,3 +401,90 @@ it("keeps a partial reply when the stop endpoint closed the turn first", async (
     "Partial answer",
   );
 });
+const luna = {
+  ...prepared,
+  reservation: {
+    id: "reservation",
+    config: {
+      key: "test-key",
+      model: "gpt-6-luna",
+      reasoningEffort: "medium",
+      maxOutputTokens: 25000,
+    },
+  },
+  planning: true,
+  intent: { intents: ["goal"], multiPart: true, planning: true },
+  goals: [
+    { id: "g", title: "Java", targetDate: "2026-12-01", status: "active" },
+  ],
+} as unknown as Prepared;
+it("sends GPT-6 reasoning settings, the output budget and turn guidance", async () => {
+  const fetch = vi.fn().mockResolvedValue(completed([], "A plan."));
+  vi.stubGlobal("fetch", fetch);
+  await streamChat(
+    "owner",
+    input,
+    luna,
+    () => {},
+    new AbortController().signal,
+  );
+  const body = JSON.parse(fetch.mock.calls[0][1].body);
+  expect(body.model).toBe("gpt-6-luna");
+  expect(body.reasoning).toEqual({ effort: "medium" });
+  expect(body.max_output_tokens).toBe(25000);
+  expect(body.store).toBe(false);
+  expect(body.instructions).toContain("proposeGoalHierarchy");
+  expect(body.instructions).toContain('"title":"Java"');
+});
+it("classifies an exhausted output budget separately from provider outages", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          `data: ${JSON.stringify({ type: "response.incomplete", response: { status: "incomplete", incomplete_details: { reason: "max_output_tokens" }, output: [] } })}\n\n`,
+        ),
+      ),
+  );
+  const events: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    luna,
+    (event) => events.push(event),
+    new AbortController().signal,
+  );
+  expect(events.at(-1)).toMatchObject({ type: "error", code: "aiOutputLimit" });
+});
+it("retries one transient provider failure, then gives up without looping", async () => {
+  const fetch = vi
+    .fn()
+    .mockResolvedValueOnce(new Response("{}", { status: 503 }))
+    .mockResolvedValueOnce(completed([], "Recovered."));
+  vi.stubGlobal("fetch", fetch);
+  const events: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    luna,
+    (event) => events.push(event),
+    new AbortController().signal,
+  );
+  expect(fetch).toHaveBeenCalledTimes(2);
+  expect(events.at(-1)).toMatchObject({ type: "done" });
+  const failing = vi
+    .fn()
+    .mockResolvedValue(new Response("{}", { status: 500 }));
+  vi.stubGlobal("fetch", failing);
+  const failed: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    luna,
+    (event) => failed.push(event),
+    new AbortController().signal,
+  );
+  expect(failing).toHaveBeenCalledTimes(2);
+  expect(failed.at(-1)).toMatchObject({ type: "error", code: "aiUnavailable" });
+});

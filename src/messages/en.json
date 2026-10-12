@@ -224,7 +224,23 @@
     "markComplete": "Mark complete",
     "reopenGoal": "Reopen goal",
     "existingStudyPlan": "Existing study plan (optional)",
-    "openGoalStatus": "To do"
+    "openGoalStatus": "To do",
+    "nextBestAction": {
+      "title": "Next best action",
+      "headline": "Complete {task} next.",
+      "estimate": "About {minutes} min left",
+      "openGoal": "Open goal",
+      "askAven": "Ask Aven why",
+      "reasons": {
+        "overdue": "It was due {date}.",
+        "dueSoon": "It is due {date}.",
+        "unblocks": "{count, plural, one {It will unblock {titles}.} other {It will unblock {titles} and more ({count} tasks).}}",
+        "inProgress": "You have already started it.",
+        "highPriority": "It is marked high priority.",
+        "goalAtRisk": "Its goal needs attention.",
+        "fitsToday": "It fits in your {minutes}-minute daily target."
+      }
+    }
   },
   "aven": {
     "title": "Aven AI",
@@ -236,17 +252,13 @@
       "sessionTitle": "Your next study session",
       "sessionBody": "{title} begins in about {minutes} minutes.",
       "missedTitle": "A gentle study check-in",
-      "missedBody": "No attendance is recorded for \"{title}\". It is time to study. Attend now, or reschedule if you need more time.",
+      "missedBody": "I haven't seen your \"{title}\" session start yet. Want to begin now, move it, or skip it?",
       "morningTitle": "Make room for today's priorities",
-      "morningBody": "Today: {sessions} planned sessions and {tasks} due tasks. A possible first action: {action}.",
-      "firstStep": "Choose one small, achievable step",
       "eveningTitle": "A moment to reflect",
       "eveningBody": "What did you complete today? What felt difficult, and what would help tomorrow?",
       "weeklyTitle": "Your weekly learning reflection",
-      "weeklyBody": "You recorded {hours} hours of study this week and completed {completed} tasks. You have {goals} active goals and {deadlines} open tasks due within the next week. Want to choose your next step?",
       "checkInTitle": "Aven checking in",
       "checkInBody": "How is {title} going? Open Aven if you'd like help with your next step.",
-      "learning": "your learning",
       "recoveryTitle": "A gentle restart",
       "recoveryBody": "Would a small restart plan help today? Open Aven to choose a manageable next step.",
       "goalDeadlineTitle": "A small step toward your goal",
@@ -255,7 +267,42 @@
       "checkInProgress": "You recorded {minutes} minutes of study today. What would help with {title} next?",
       "checkInUpcoming": "Your {title} session is at {time}. Need help preparing, or should we adjust your plan?",
       "skippedBody": "You skipped \"{title}\". Would you like to attend now or find another time?",
-      "skipHelp": "Mark this session as skipped. It stays in your planner so Aven can help you catch up."
+      "skipHelp": "Mark this session as skipped. It stays in your planner so Aven can help you catch up.",
+      "briefingSessionsOne": "You have {title} at {time} today.",
+      "briefingSessionsMany": "Your first session today is {title} at {time}, with {more} more planned.",
+      "briefingNoSessions": "No study sessions are planned today.",
+      "briefingDueToday": "{count, plural, one {# task is} other {# tasks are}} due today.",
+      "briefingDueWeek": "{count, plural, one {# task is} other {# tasks are}} due this week.",
+      "briefingFocus": "Want to focus on \"{task}\" today?",
+      "briefingFocusNone": "Want help choosing a first step?",
+      "weeklyStudied": "This week you recorded {hours} hours across {sessions, plural, one {# study session} other {# study sessions}}.",
+      "weeklyMoreSessions": "That's {count, plural, one {# more session} other {# more sessions}} than last week.",
+      "weeklyFewerSessions": "That's {count, plural, one {# session} other {# sessions}} fewer than last week.",
+      "weeklySameSessions": "That's the same number of sessions as last week.",
+      "weeklyTasks": "You completed {completed, plural, one {# task} other {# tasks}} across {goals, plural, one {# active goal} other {# active goals}}.",
+      "weeklyMissed": "{count, plural, one {# planned session has} other {# planned sessions have}} no attendance recorded.",
+      "weeklyDeadlines": "{count, plural, one {# task is} other {# tasks are}} due in the next seven days.",
+      "weeklyRecommend": "Recommended next: \"{task}\". Want to plan the week around it?",
+      "weeklyRecommendPlan": "Want to plan next week together?",
+      "checkInFreeTime": "Your {session} session starts in {minutes} minutes. If you have time before then, \"{task}\" needs about {taskMinutes} minutes. Want to start it?",
+      "checkInDeadline": "\"{title}\" {days, plural, =0 {is due today} one {is due tomorrow} other {is due in # days}}. Want a short revision session or a catch-up plan?",
+      "checkInProgressGeneral": "You've recorded {minutes} minutes of study today. Need help with anything you're working on?",
+      "checkInNextStep": "Have you had a chance to look at \"{task}\"? I can help you start it or adjust your plan.",
+      "recoveryDraftExplanation": "Catch-up draft: {sessions, plural, one {# session} other {# sessions}} within your preferred hours and {minutes}-minute daily target, avoiding existing commitments and respecting prerequisites. {remaining, plural, =0 {All open tasks fit.} one {# task still needs time.} other {# tasks still need time.}} Nothing changes until you approve.",
+      "goalAlert": {
+        "deadlineTitle": "A goal deadline is coming up",
+        "deadline": "\"{title}\" is due in {days} days and {tasks, plural, one {# task remains} other {# tasks remain}}.",
+        "missedMilestoneTitle": "A milestone needs a new plan",
+        "missedMilestone": "The milestone \"{milestone}\" in \"{title}\" passed its due date and isn't complete yet.",
+        "attentionTitle": "A goal needs attention",
+        "attention": "\"{title}\" needs attention: {tasks, plural, one {# task remains} other {# tasks remain}} before its target date.",
+        "blockedTitle": "A goal is waiting on prerequisites",
+        "blocked": "All remaining tasks in \"{title}\" are waiting on prerequisites.",
+        "inactiveTitle": "Picking a goal back up",
+        "inactive": "There's no recorded progress on \"{title}\" in the last week.",
+        "draftReady": "I drafted a realistic catch-up schedule for you to review here. Nothing changes unless you approve it.",
+        "offer": "Want me to help you plan the next step?"
+      }
     },
     "settings": "Settings",
     "conversations": "Conversations",
@@ -306,7 +353,8 @@
       "review": "Review the actual progress, deadlines and prerequisites for {title}.",
       "next": "What is the best next action for {title}?",
       "recovery": "Help me recover unfinished work for {title} without overloading my schedule. Propose changes for review.",
-      "schedule": "Propose a realistic study schedule for {title} using my preferred hours and existing commitments."
+      "schedule": "Propose a realistic study schedule for {title} using my preferred hours and existing commitments.",
+      "nextAction": "What should I work on next across my goals?"
     },
     "styles": {
       "supportive": "Supportive",
@@ -374,7 +422,8 @@
       "rejected": "Rejected",
       "expired": "Expired",
       "pending": "Awaiting review",
-      "undone": "Change undone."
+      "undone": "Change undone.",
+      "superseded": "Replaced by a newer proposal"
     },
     "channels": {
       "inApp": "In-app",
@@ -452,7 +501,9 @@
       "attendanceWindow": "Attend from 30 minutes before the session until 24 hours after it ends.",
       "attendanceChanged": "This session was rescheduled. Refresh and try again.",
       "attendanceInProgress": "Finish or discard the active study timer before skipping this session.",
-      "attendanceUnavailable": "Attendance could not be loaded or saved. Please try again."
+      "attendanceUnavailable": "Attendance could not be loaded or saved. Please try again.",
+      "duplicateGoal": "A goal with a very similar title already exists. Ask Aven to add this plan to that goal instead.",
+      "aiOutputLimit": "Aven ran out of room for this answer. Try a more focused request, such as one goal or one week at a time."
     },
     "smartTitle": "Create a goal with Aven",
     "smartHelp": "Aven will help you choose a goal and due date. Answer any missing detail, then review and approve the goal.",
@@ -662,7 +713,43 @@
       "edit": "Edit",
       "modify": "Modify",
       "cancel": "Cancel",
-      "modifyPrompt": "Please change the proposal “{title}”: "
+      "modifyPrompt": "Please change the proposal “{title}”: ",
+      "daily": "Every day",
+      "skippedConflicts": "{count, plural, one {# conflicting date skipped} other {# conflicting dates skipped}}",
+      "conflictsWith": "Conflicts with {title}, {start} – {end}",
+      "scope": {
+        "one": "This occurrence only",
+        "future": "This and all later occurrences",
+        "all": "Entire series"
+      },
+      "editPlan": "Edit plan",
+      "notNow": "Not now"
+    },
+    "decomposition": {
+      "suggested": "Suggested plan (AI-generated, review before saving): {milestones} milestones, {tasks} tasks, about {hours} hours of study.",
+      "deadlines": "Suggested deadlines spread the work by estimated effort between {from} and {to}.",
+      "capacity": "Verified: your daily target is {minutes} minutes on {days} days a week, about {hours} hours before the deadline.",
+      "recentPace": "Verified: you recorded about {hours} hours of study per week over the last four weeks.",
+      "noRecentPace": "No study time is recorded in the last four weeks, so the pace is based on your daily target only.",
+      "overloaded": "This plan needs more time than your current target allows. Consider a later deadline, fewer milestones or a higher daily target.",
+      "firstTask": "Recommended first task: {title}.",
+      "assumptions": "Assumptions Aven made:"
+    },
+    "onboarding": {
+      "dataTitle": "How Aven uses your data",
+      "consentRequired": "Required for chat. Aven reads only the records needed for each request, such as goals, study sessions and your schedule.",
+      "remindersTitle": "Proactive reminders",
+      "remindersHelp": "Aven can send a morning briefing, a reminder before planned sessions, a check-in when a session hasn't started, an evening reflection, a weekly review and occasional check-ins based on your goals. Routine reminders use your own records without calling the AI model. Quiet hours and a daily limit always apply.",
+      "inAppHelp": "Reminders appear in Aven and its notification center.",
+      "push": "Also notify me in this browser",
+      "pushHelp": "Your browser will ask for permission. You can allow it on each device separately.",
+      "pushUnavailable": "Browser notifications aren't set up for this workspace yet.",
+      "email": "Also send reminders by email",
+      "emailHelp": "Sent to your account email address.",
+      "emailUnavailable": "Email reminders aren't set up for this workspace yet.",
+      "resourcesTitle": "Your learning resources",
+      "resourcesHelp": "Optional. Without this, Aven sees resource titles only.",
+      "changeLater": "You can change any of these, pause reminders or turn them off entirely in Aven settings. Every reminder also has a snooze option."
     }
   },
   "studyflow": {

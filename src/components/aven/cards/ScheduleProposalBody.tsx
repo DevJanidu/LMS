@@ -44,14 +44,42 @@ export default function ScheduleProposalBody({
           <CardFact label={c("endTime")}>{format.time(value.endsAt)}</CardFact>
           <CardFact label={c("recurrence")}>
             {weekly
-              ? c("weeklyOn", {
-                  days: value.weekdays
-                    .map((day) => t(`weekdays.${day}`))
-                    .join(", "),
-                })
+              ? value.weekdays.length === 7
+                ? c("daily")
+                : c("weeklyOn", {
+                    days: value.weekdays
+                      .map((day) => t(`weekdays.${day}`))
+                      .join(", "),
+                  })
               : t("oneTime")}
           </CardFact>
+          {value.occurrences !== undefined && (
+            <CardFact label={c("sessions")}>
+              {c("sessionCount", { count: value.occurrences })}
+            </CardFact>
+          )}
         </dl>
+        {value.conflicts.length > 0 && (
+          <section>
+            <h4 className="aven-card-section">
+              {c("skippedConflicts", { count: value.skipDates.length })}
+            </h4>
+            <ul className="aven-card-list">
+              {value.conflicts.map((conflict) => (
+                <li key={`${conflict.date}:${conflict.startsAt}`}>
+                  <span>{format.day(conflict.startsAt)}</span>
+                  <span className="aven-card-meta">
+                    {c("conflictsWith", {
+                      title: conflict.title,
+                      start: format.time(conflict.startsAt),
+                      end: format.time(conflict.endsAt),
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <p className="aven-card-note">{c("conflictCheck")}</p>
       </>
     );

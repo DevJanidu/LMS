@@ -25,7 +25,17 @@ import { goalPlanSchema } from "./validation";
 import { getAvenPreferences } from "./preferences";
 import { proposeAdaptiveSchedule } from "./planning";
 import { calendarOccurrences } from "@/lib/calendar/model";
-import { moveSessionsProposal, localStudyInstant } from "./calendar-actions";
+import {
+  moveSessionsProposal,
+  studyScheduleProposal,
+} from "./calendar-actions";
+import {
+  buildGoalHierarchy,
+  findDuplicateGoals,
+  goalHierarchyInputSchema,
+  type GoalHierarchyInput,
+} from "./decomposition";
+import { getNextBestActions } from "@/lib/goals/next-action-server";
 import { resourceVersion } from "./extra-proposals";
 import { proposalSchema } from "./validation";
 import { storeProposal } from "./proposals";
@@ -52,6 +62,11 @@ const schemas = {
           localStartsAt: localTime.describe(
             "Destination date and time in the account timezone, YYYY-MM-DDTHH:mm.",
           ),
+          scope: z
+            .enum(["one", "future", "all"])
+            .describe(
+              "Recurring sessions only: 'one' for this occurrence (default choice), 'future' for this and later occurrences, 'all' for the whole series. Use future/all only when the student explicitly asked.",
+            ),
         }),
       )
       .min(1)
@@ -74,13 +89,40 @@ const schemas = {
   createStudySchedule: z.object({
     title: z.string().min(1).max(150),
     subjectId: z.uuid().nullable(),
+    subjectName: z
+      .string()
+      .max(150)
+      .nullable()
+      .describe(
+        "Subject named by the student; matched to an existing subject.",
+      ),
     topicId: z.uuid().nullable(),
-    localStartsAt: localTime,
+    localStartsAt: localTime.describe(
+      "First session start in account local time, YYYY-MM-DDTHH:mm.",
+    ),
     durationMinutes: z.number().int().min(15).max(240),
-    repeat: z.enum(["once", "weekly"]),
-    weekdays: z.array(z.number().int().min(0).max(6)).max(7),
-    until: z.iso.date().nullable(),
+    repeat: z
+      .enum(["once", "daily", "weekly"])
+      .describe("daily repeats every day; weekly repeats on weekdays."),
+    weekdays: z
+      .array(z.number().int().min(0).max(6))
+      .max(7)
+      .describe("0=Sunday. Required for weekly; ignored otherwise."),
+    until: z.iso
+      .date()
+      .nullable()
+      .describe("Last date (inclusive) for a repeating schedule."),
+    skipConflicts: z
+      .boolean()
+      .describe(
+        "Skip conflicting dates. Only true after the student agreed to skip them.",
+      ),
     explanation: z.string().min(1).max(4000),
+  }),
+  proposeGoalHierarchy: goalHierarchyInputSchema,
+  getNextBestAction: z.object({
+    goalId: z.uuid().nullable(),
+    limit: z.number().int().min(1).max(5),
   }),
   completeGoal: z.object({
     goalId: z.uuid(),
@@ -166,6 +208,7 @@ const writeTools = new Set<AvenToolName>([
   "rememberPreference",
   "proposeGoal",
   "proposeGoalPlan",
+  "proposeGoalHierarchy",
   "proposeStudySchedule",
   "createGoalTask",
   "updateGoalTask",
@@ -206,7 +249,9 @@ export const avenTools = Object.entries(schemas).map(([name, schema]) => ({
       ? "Read the user's actual study sessions in account local time. from is inclusive, to is exclusive, both YYYY-MM-DD. For one day use from=day and to=next day; equal dates also mean that single day. Use this for tomorrow's schedule before proposing a move."
       : name === "getUserGoals"
         ? "Read owned goals with progress. page starts at 1; search filters titles. Follow hasMore with the next page rather than assuming the first page is the whole account."
-        : `${name}: retrieve authenticated user's verified Acadence records.`,
+        : name === "getNextBestAction"
+          ? "Rank the most useful next tasks across active goals (or one goal) from deadlines, priority, dependencies, progress, recent activity and the daily target. Reasons are verified; explain them without reordering."
+          : `${name}: retrieve authenticated user's verified Acadence records.`,
   parameters: strictSchema(schema),
 }));
 export async function executeAvenTool(
@@ -346,7 +391,12 @@ async function performAvenTool(
   }
   if (name === "moveStudySessions") {
     const value = args as {
-      sessions: { blockId: string; date: string; localStartsAt: string }[];
+      sessions: {
+        blockId: string;
+        date: string;
+        localStartsAt: string;
+        scope: "one" | "future" | "all";
+      }[];
       explanation: string;
     };
     return proposal(
@@ -383,27 +433,97 @@ async function performAvenTool(
     });
   }
   if (name === "createStudySchedule") {
-    const value = args as {
-      title: string;
-      subjectId: string | null;
-      topicId: string | null;
-      localStartsAt: string;
-      durationMinutes: number;
-      repeat: "once" | "weekly";
-      weekdays: number[];
-      until: string | null;
-      explanation: string;
-    };
-    const startsAt = localStudyInstant(value.localStartsAt, timezone);
-    return proposal({
-      ...value,
-      kind: "calendarCreate",
-      startsAt,
-      endsAt: new Date(
-        Date.parse(startsAt) + value.durationMinutes * 60000,
-      ).toISOString(),
+    const planned = await studyScheduleProposal(
+      userId,
       timezone,
+      args as Parameters<typeof studyScheduleProposal>[2],
+    );
+    if (!planned.ready) return planned.result;
+    return proposal(planned.value);
+  }
+  if (name === "proposeGoalHierarchy") {
+    const value = args as GoalHierarchyInput;
+    const [existingGoals, references, preferences, [recent]] =
+      await Promise.all([
+        db
+          .select({
+            id: s.goals.id,
+            title: s.goals.title,
+            status: s.goals.status,
+            targetDate: s.goals.targetDate,
+            version: s.goals.version,
+          })
+          .from(s.goals)
+          .where(eq(s.goals.userId, userId))
+          .limit(500),
+        goalReferences(userId),
+        getAvenPreferences(userId),
+        db
+          .select({
+            seconds: sql<number>`coalesce(sum(${s.studySessions.durationSeconds}),0)::int`,
+          })
+          .from(s.studySessions)
+          .where(
+            and(
+              eq(s.studySessions.userId, userId),
+              eq(s.studySessions.status, "valid"),
+              sql`${s.studySessions.startedAt} >= now() - interval '28 days'`,
+            ),
+          ),
+      ]);
+    const target = value.goalId
+      ? existingGoals.find((goal) => goal.id === value.goalId)
+      : undefined;
+    if (value.goalId && !target) throw new GoalError("recordUnavailable", 404);
+    // Never propose a second copy of an existing goal unless the student asked for one.
+    const duplicates = value.goalId
+      ? []
+      : findDuplicateGoals(value.title, existingGoals);
+    if (duplicates.length && !value.allowDuplicate)
+      return {
+        proposalCreated: false,
+        duplicates: duplicates.slice(0, 5).map((goal) => ({
+          id: goal.id,
+          title: goal.title,
+          status: goal.status,
+          targetDate: goal.targetDate,
+        })),
+        next: "Tell the student a similar goal exists. Offer to extend it (call again with its goalId) or, only if they confirm, create a separate goal with allowDuplicate=true.",
+      };
+    const t = await getTranslations({
+      locale: preferences.ai.locale,
+      namespace: "aven.decomposition",
     });
+    let built: ReturnType<typeof buildGoalHierarchy>;
+    try {
+      built = buildGoalHierarchy(value, {
+        today,
+        subjects: references.subjects,
+        dailyTargetMinutes: preferences.ai.dailyTargetMinutes,
+        studyDays: preferences.ai.studyDays,
+        recentWeeklyMinutes: Math.round((recent?.seconds ?? 0) / 60 / 4),
+        expectedVersion: target?.version ?? 0,
+        translate: (key, values) => t(key, values),
+      });
+    } catch (error) {
+      throw new GoalError((error as Error).message);
+    }
+    return { ...(await proposal(built.proposal)), summary: built.summary };
+  }
+  if (name === "getNextBestAction") {
+    const { goalId, limit } = args as { goalId: string | null; limit: number };
+    const actions = await getNextBestActions(userId, { goalId, limit });
+    return {
+      actions,
+      ranking:
+        "Deterministic: overdue or due soon, goal and task priority, tasks it unblocks, work already started, recent activity, at-risk goals and fit with the daily target.",
+      ...(actions.length
+        ? {}
+        : {
+            empty:
+              "No unblocked open tasks in active goals. Suggest adding tasks or a goal.",
+          }),
+    };
   }
   if (name === "completeGoal" || name === "createGoalMilestone") {
     const value = args as {
@@ -570,9 +690,34 @@ async function performAvenTool(
           ),
         ),
     ]);
+    // A verified baseline for encouragement; comparisons are only meaningful when it has records.
+    const [previousWeek] =
+      name === "getWeeklyAnalytics"
+        ? await db
+            .select({
+              hours: sql<number>`coalesce(sum(${s.studySessions.durationSeconds}),0)::float / 3600`,
+              count: sql<number>`count(*)::int`,
+            })
+            .from(s.studySessions)
+            .where(
+              and(
+                eq(s.studySessions.userId, userId),
+                eq(s.studySessions.status, "valid"),
+                sql`${s.studySessions.startedAt} >= ${new Date(from.getTime() - 7 * 86400000)} AND ${s.studySessions.startedAt} < ${from}`,
+              ),
+            )
+        : [];
     return {
       period: { from: from.toISOString(), to: new Date().toISOString() },
       summary,
+      ...(previousWeek
+        ? {
+            previousWeek: {
+              ...previousWeek,
+              comparable: previousWeek.count > 0,
+            },
+          }
+        : {}),
       sessions,
     };
   }

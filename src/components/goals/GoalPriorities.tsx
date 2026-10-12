@@ -6,8 +6,11 @@ import { getGoalCards } from "@/lib/goals/service";
 import { Link } from "@/i18n/navigation";
 import ProgressBar from "@/components/studyflow/ProgressBar";
 import { SparklesIcon } from "@/icons";
+import { getNextBestActions } from "@/lib/goals/next-action-server";
+import NextBestActionCard from "./NextBestActionCard";
 export default async function GoalPriorities({ userId }: { userId: string }) {
   const t = await getTranslations("goals");
+  const actions = await getNextBestActions(userId).catch(() => []);
   const details = await (async () => {
     const rows = await getDb()
       .select({ id: goals.id })
@@ -36,6 +39,11 @@ export default async function GoalPriorities({ userId }: { userId: string }) {
     );
   return (
     <section className="my-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-dark">
+      {actions.length > 0 && (
+        <div className="mb-5">
+          <NextBestActionCard actions={actions} askAven={false} />
+        </div>
+      )}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-primary dark:text-primary text-h3">
           {t("dailyPriorities")}

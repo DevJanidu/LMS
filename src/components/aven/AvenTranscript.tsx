@@ -142,7 +142,13 @@ export default function AvenTranscript({
     if (message.role === "user") flush(time(message.createdAt));
     const key = messageKey(message);
     const streaming = key === streamingKey;
-    if (streaming && !message.content && !message.context?.goalCards) continue;
+    if (
+      streaming &&
+      !message.content &&
+      !message.context?.goalCards &&
+      !message.context?.nextActions
+    )
+      continue;
     items.push(
       <AvenMessage
         key={key}

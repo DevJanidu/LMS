@@ -6,7 +6,7 @@ import {
   aiPreferenceSchema,
   notificationPreferenceSchema,
 } from "@/lib/aven/validation";
-import { localDay, shiftDay, zonedToUtc } from "@/lib/analytics";
+import { localDay, shiftDay, wallTime, zonedToUtc } from "@/lib/analytics";
 import { randomCheckInTime } from "@/lib/aven/scheduler-model";
 vi.mock("next-intl/server", () => ({
   getTranslations: async ({ namespace }: { namespace: string }) =>
@@ -337,11 +337,13 @@ describe.skipIf(!enabled)(
             blockId: first.id,
             date: tomorrow,
             localStartsAt: `${tomorrow}T09:30`,
+            scope: "one",
           },
           {
             blockId: second.id,
             date: tomorrow,
             localStartsAt: `${tomorrow}T10:30`,
+            scope: "one",
           },
         ],
         explanation: "Move both",
@@ -389,11 +391,13 @@ describe.skipIf(!enabled)(
             blockId: first.id,
             date: tomorrow,
             localStartsAt: `${tomorrow}T09:30`,
+            scope: "one",
           },
           {
             blockId: second.id,
             date: tomorrow,
             localStartsAt: `${tomorrow}T10:30`,
+            scope: "one",
           },
         ],
         explanation: "Move both again",
@@ -405,11 +409,13 @@ describe.skipIf(!enabled)(
             blockId: first.id,
             date: tomorrow,
             localStartsAt: `${tomorrow}T12:00`,
+            scope: "one",
           },
           {
             blockId: second.id,
             date: tomorrow,
             localStartsAt: `${tomorrow}T12:30`,
+            scope: "one",
           },
         ],
         explanation: "Overlap",
@@ -428,6 +434,7 @@ describe.skipIf(!enabled)(
             blockId: first.id,
             date: tomorrow,
             localStartsAt: `${tomorrow}T12:00`,
+            scope: "one",
           },
         ],
         explanation: "Stale",
@@ -447,12 +454,14 @@ describe.skipIf(!enabled)(
       const pending = await tool("createStudySchedule", {
         title: "Evening Java",
         subjectId: subject,
+        subjectName: null,
         topicId: topic,
         localStartsAt: `${tomorrow}T18:00`,
         durationMinutes: 60,
         repeat: "weekly",
         weekdays: [0, 1, 2, 3, 4, 5, 6],
         until: null,
+        skipConflicts: false,
         explanation: "Daily practice",
       });
       const saved = await proposals.resolveProposal(a, pending.id, "approve");
@@ -484,6 +493,224 @@ describe.skipIf(!enabled)(
         .from(s.scheduleBlocks)
         .where(eq(s.scheduleBlocks.id, id!));
       expect(series).toBeTruthy();
+    }, 120000);
+    it("decomposes, revises and saves a goal hierarchy once, then ranks its next action", async () => {
+      const plan = (title: string, milestones: string[]) => ({
+        goalId: null,
+        title,
+        description: "",
+        category: "career",
+        targetDate: shiftDay(today, 60),
+        successCriteria: "Offer received",
+        assumptions: [],
+        allowDuplicate: false,
+        milestones: milestones.map((name, index) => ({
+          title: name,
+          description: "",
+          successCriteria: "",
+          estimatedHours: 10,
+          dueDate: null,
+          dependsOn: index ? [index] : [],
+          subjectName: "java",
+          tasks: [
+            {
+              title: `Learn ${name}`,
+              description: "",
+              estimatedMinutes: 60,
+              dueDate: null,
+              dependsOnPrevious: false,
+            },
+            {
+              title: `Practise ${name}`,
+              description: "",
+              estimatedMinutes: 60,
+              dueDate: null,
+              dependsOnPrevious: true,
+            },
+          ],
+        })),
+      });
+      const draft = await tool(
+        "proposeGoalHierarchy",
+        plan("Become a backend engineer", ["Core Java", "Spring Boot"]),
+      );
+      const revised = await tool(
+        "proposeGoalHierarchy",
+        plan("Become a backend engineer", [
+          "Core Java",
+          "Spring Boot",
+          "Docker",
+        ]),
+      );
+      const [old] = await db
+        .select({ status: s.aiPlanProposals.status })
+        .from(s.aiPlanProposals)
+        .where(eq(s.aiPlanProposals.id, draft.id));
+      expect(old.status).toBe("superseded");
+      expect(
+        (await proposals.resolveProposal(a, draft.id, "approve")).status,
+      ).toBe("superseded");
+      const saved = await proposals.resolveProposal(a, revised.id, "approve");
+      const goalId = saved.result?.goalId;
+      expect(goalId).toBeTruthy();
+      // A retried approval returns the stored result instead of saving again.
+      expect(
+        (await proposals.resolveProposal(a, revised.id, "approve")).result
+          ?.goalId,
+      ).toBe(goalId);
+      const milestones = await db
+        .select()
+        .from(s.goalMilestones)
+        .where(eq(s.goalMilestones.goalId, goalId!));
+      const tasks = await db
+        .select()
+        .from(s.goalTasks)
+        .where(eq(s.goalTasks.goalId, goalId!));
+      expect(milestones).toHaveLength(3);
+      expect(tasks).toHaveLength(6);
+      expect(tasks.every((task) => task.subjectId === subject)).toBe(true);
+      expect(
+        milestones.find((m) => m.title === "Docker")?.dependencyIds,
+      ).toEqual([milestones.find((m) => m.title === "Spring Boot")!.id]);
+      const duplicate = (await tool(
+        "proposeGoalHierarchy",
+        plan("Become backend engineer", ["Core Java"]),
+      )) as unknown as { proposalCreated: boolean; duplicates: unknown[] };
+      expect(duplicate.proposalCreated).toBe(false);
+      expect(duplicate.duplicates).toHaveLength(1);
+      const simple = await tool("proposeGoal", {
+        title: "Become a backend engineer",
+        targetDate: shiftDay(today, 30),
+        goalId: null,
+      });
+      await expect(
+        proposals.resolveProposal(a, simple.id, "approve"),
+      ).rejects.toMatchObject({ message: "duplicateGoal" });
+      const next = (await tool("getNextBestAction", {
+        goalId,
+        limit: 1,
+      })) as unknown as { actions: { taskTitle: string }[] };
+      expect(next.actions[0].taskTitle).toBe("Learn Core Java");
+    }, 120000);
+    it("previews daily schedule conflicts, skips agreed dates, and edits one, future or all occurrences", async () => {
+      const dayAfter = shiftDay(today, 2);
+      await createBlock(
+        "Seminar",
+        zonedToUtc(`${dayAfter}T19:30`, timezone),
+        zonedToUtc(`${dayAfter}T20:30`, timezone),
+      );
+      const request = {
+        title: "Evening Java practice",
+        subjectId: null,
+        subjectName: "Java",
+        topicId: null,
+        localStartsAt: `${tomorrow}T19:00`,
+        durationMinutes: 120,
+        repeat: "daily",
+        weekdays: [],
+        until: shiftDay(tomorrow, 6),
+        skipConflicts: false,
+        explanation: "Daily Java",
+      };
+      const preview = (await tool(
+        "createStudySchedule",
+        request,
+      )) as unknown as {
+        proposalCreated: boolean;
+        conflictCount: number;
+      };
+      expect(preview).toMatchObject({
+        proposalCreated: false,
+        conflictCount: 1,
+      });
+      const pending = await tool("createStudySchedule", {
+        ...request,
+        skipConflicts: true,
+      });
+      expect(pending.value).toMatchObject({
+        skipDates: [dayAfter],
+        subjectId: subject,
+        weekdays: [0, 1, 2, 3, 4, 5, 6],
+      });
+      const saved = await proposals.resolveProposal(a, pending.id, "approve");
+      const id = saved.result!.blockIds![0];
+      const rows = await db
+        .select()
+        .from(s.scheduleBlocks)
+        .where(eq(s.scheduleBlocks.title, "Evening Java practice"));
+      expect(rows).toHaveLength(1);
+      const [skipped] = await db
+        .select()
+        .from(s.scheduleExceptions)
+        .where(
+          and(
+            eq(s.scheduleExceptions.blockId, id),
+            eq(s.scheduleExceptions.date, dayAfter),
+          ),
+        );
+      expect(skipped.isCancelled).toBe(true);
+      const third = shiftDay(tomorrow, 2);
+      const one = await tool("moveStudySessions", {
+        sessions: [
+          {
+            blockId: id,
+            date: third,
+            localStartsAt: `${third}T06:00`,
+            scope: "one",
+          },
+        ],
+        explanation: "Earlier once",
+      });
+      await proposals.resolveProposal(a, one.id, "approve");
+      const all = await tool("moveStudySessions", {
+        sessions: [
+          {
+            blockId: id,
+            date: tomorrow,
+            localStartsAt: `${tomorrow}T21:00`,
+            scope: "all",
+          },
+        ],
+        explanation: "Whole series later",
+      });
+      expect(
+        (all.value as { changes: { affected: number }[] }).changes[0].affected,
+      ).toBeGreaterThan(1);
+      await proposals.resolveProposal(a, all.id, "approve");
+      const [series] = await db
+        .select()
+        .from(s.scheduleBlocks)
+        .where(eq(s.scheduleBlocks.id, id));
+      expect(wallTime(series.startsAt.toISOString(), timezone)).toBe(
+        `${tomorrow}T21:00`,
+      );
+      const fifth = shiftDay(tomorrow, 4);
+      const future = await tool("moveStudySessions", {
+        sessions: [
+          {
+            blockId: id,
+            date: fifth,
+            localStartsAt: `${fifth}T07:00`,
+            scope: "future",
+          },
+        ],
+        explanation: "Mornings from then on",
+      });
+      await proposals.resolveProposal(a, future.id, "approve");
+      const after = await db
+        .select()
+        .from(s.scheduleBlocks)
+        .where(eq(s.scheduleBlocks.userId, a));
+      const split = after.filter((row) =>
+        row.title.startsWith("Evening Java practice"),
+      );
+      expect(split).toHaveLength(2);
+      const history = (await tool("getStudyHistory", {
+        days: 7,
+      })) as unknown as {
+        summary: { count: number };
+      };
+      expect(history.summary.count).toBeGreaterThanOrEqual(0);
     }, 120000);
     it("applies narrow preferences, preserves consent, undoes safely and rejects an intervening edit", async () => {
       const value = {
@@ -677,6 +904,110 @@ describe.skipIf(!enabled)(
       expect(threads).toHaveLength(1);
       const messages = await conversations.getConversation(a, threads[0].id);
       expect(messages.messages.length).toBeGreaterThanOrEqual(2);
+    }, 120000);
+    it("alerts once a week about a missed milestone and attaches a private catch-up draft", async () => {
+      const { processAvenUser } = await import("@/lib/aven/scheduler");
+      await db
+        .update(s.notificationPreferences)
+        .set({
+          value: notificationPreferenceSchema.parse({
+            enabled: true,
+            inApp: true,
+            goalReminders: true,
+            morning: false,
+            evening: false,
+            weekly: false,
+            randomized: false,
+            sessionReminders: false,
+            missedSessions: false,
+            morningTime: "07:00",
+            quietStart: "00:00",
+            quietEnd: "00:00",
+            dailyLimit: 10,
+          }),
+        })
+        .where(eq(s.notificationPreferences.userId, a));
+      const pending = await tool("proposeGoalHierarchy", {
+        goalId: null,
+        title: "Pass the cloud certification",
+        description: "",
+        category: "certification",
+        targetDate: shiftDay(today, 40),
+        successCriteria: "",
+        assumptions: [],
+        allowDuplicate: false,
+        milestones: [
+          {
+            title: "Cloud fundamentals",
+            description: "",
+            successCriteria: "",
+            estimatedHours: 5,
+            dueDate: null,
+            dependsOn: [],
+            subjectName: null,
+            tasks: [
+              {
+                title: "Read the exam guide",
+                description: "",
+                estimatedMinutes: 45,
+                dueDate: null,
+                dependsOnPrevious: false,
+              },
+            ],
+          },
+        ],
+      });
+      const goalId = (await proposals.resolveProposal(a, pending.id, "approve"))
+        .result!.goalId!;
+      await db
+        .update(s.goalMilestones)
+        .set({ dueDate: shiftDay(today, -1) })
+        .where(eq(s.goalMilestones.goalId, goalId));
+      const now = Date.parse(zonedToUtc(`${today}T08:40`, timezone));
+      const before = await db
+        .select({ id: s.notifications.id })
+        .from(s.notifications)
+        .where(eq(s.notifications.userId, a));
+      expect(await processAvenUser(a, now)).toBe(1);
+      expect(await processAvenUser(a, now)).toBe(0);
+      const [alert] = await db
+        .select()
+        .from(s.notifications)
+        .where(
+          and(
+            eq(s.notifications.userId, a),
+            sql`${s.notifications.deduplicationKey} LIKE ${`aven:goalAlert:${goalId}:missedMilestone:%`}`,
+          ),
+        );
+      expect(alert.body).toContain("Cloud fundamentals");
+      expect(alert.body).toContain("Nothing changes unless you approve");
+      const [action] = await db
+        .select()
+        .from(s.notificationActions)
+        .where(eq(s.notificationActions.notificationId, alert.id));
+      const drafts = await db
+        .select()
+        .from(s.aiPlanProposals)
+        .where(
+          and(
+            eq(s.aiPlanProposals.userId, a),
+            eq(s.aiPlanProposals.conversationId, action.value.conversationId!),
+            eq(s.aiPlanProposals.status, "pending"),
+          ),
+        );
+      expect(
+        drafts.some(
+          (row) =>
+            row.value.kind === "schedule" &&
+            "goalId" in row.value &&
+            row.value.goalId === goalId,
+        ),
+      ).toBe(true);
+      const after = await db
+        .select({ id: s.notifications.id })
+        .from(s.notifications)
+        .where(eq(s.notifications.userId, a));
+      expect(after.length - before.length).toBe(1);
     }, 120000);
     it("keeps anonymous spending in the shared cap after account deletion", async () => {
       const owner = crypto.randomUUID(),

@@ -253,7 +253,8 @@ export async function getGoalDetail(
   };
 }
 /** Load card progress in batches; avoid a query fan-out per goal or leaking large note bodies. */
-export async function getGoalCards(
+/** Full details for several goals with one batched query set (descriptions and evidence omitted). */
+export async function getGoalDetailsBatch(
   userId: string,
   goalIds: string[],
 ): Promise<GoalDetail[]> {
@@ -353,20 +354,23 @@ export async function getGoalCards(
     snapshots: [],
     calendar: [],
   };
-  return Promise.all(
-    goalIds.map(async (id) => {
-      const detail = await getGoalDetail(userId, id, db, batch);
-      return {
-        ...detail,
-        tasks: detail.tasks.filter((t) => t.id === detail.progress.nextTaskId),
-        milestones: detail.milestones
-          .filter((m) => detail.progress.milestoneProgress[m.id] < 100)
-          .slice(0, 1),
-        activity: [],
-        sessions: [],
-      };
-    }),
-  );
+  return Promise.all(goalIds.map((id) => getGoalDetail(userId, id, db, batch)));
+}
+export async function getGoalCards(
+  userId: string,
+  goalIds: string[],
+): Promise<GoalDetail[]> {
+  return (await getGoalDetailsBatch(userId, goalIds)).map((detail) => {
+    return {
+      ...detail,
+      tasks: detail.tasks.filter((t) => t.id === detail.progress.nextTaskId),
+      milestones: detail.milestones
+        .filter((m) => detail.progress.milestoneProgress[m.id] < 100)
+        .slice(0, 1),
+      activity: [],
+      sessions: [],
+    };
+  });
 }
 export async function goalReferences(userId: string) {
   const db = getDb();

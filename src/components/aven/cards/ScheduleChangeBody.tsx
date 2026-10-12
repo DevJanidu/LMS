@@ -17,6 +17,8 @@ export default function ScheduleChangeBody({ value, format }: Props) {
       ? [
           {
             action: "move" as const,
+            scope: "one" as const,
+            affected: undefined,
             title: undefined,
             date: value.date,
             previousStartsAt: undefined,
@@ -30,7 +32,9 @@ export default function ScheduleChangeBody({ value, format }: Props) {
   return (
     <>
       <p className="aven-card-meta">
-        {c("affectedOccurrences", { count: changes.length })}
+        {c("affectedOccurrences", {
+          count: changes.reduce((sum, item) => sum + (item.affected ?? 1), 0),
+        })}
       </p>
       <ul className="aven-change-list">
         {changes.map((change, index) => (
@@ -38,6 +42,15 @@ export default function ScheduleChangeBody({ value, format }: Props) {
             <p className="aven-change-title">
               {change.title ?? formatDay(change.date)}
             </p>
+            {/* Series edits are labelled explicitly so a whole series is never changed silently. */}
+            {change.action === "move" && (
+              <p className="aven-card-meta" data-scope={change.scope}>
+                {c(`scope.${change.scope}`)}
+                {change.affected !== undefined &&
+                  change.scope !== "one" &&
+                  ` · ${c("affectedOccurrences", { count: change.affected })}`}
+              </p>
+            )}
             {change.action === "move" ? (
               <div className="aven-change-diff">
                 <div>

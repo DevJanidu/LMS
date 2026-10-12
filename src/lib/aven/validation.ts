@@ -83,6 +83,8 @@ export const goalPlanSchema = z.object({
       }),
     )
     .max(100),
+  /** Set only after the student confirmed a separate goal despite a similar existing one. */
+  allowDuplicate: z.boolean().default(false),
 });
 export const scheduleProposalSchema = z.object({
   kind: z.literal("schedule"),
@@ -112,6 +114,10 @@ export const proposalSchema = z.discriminatedUnion("kind", [
         z.discriminatedUnion("action", [
           z.object({
             action: z.literal("move"),
+            /** Recurring sessions: this occurrence, this and later ones, or the whole series. */
+            scope: z.enum(["one", "future", "all"]).default("one"),
+            /** Occurrences in the next year that the change affects (preview only). */
+            affected: z.number().int().min(0).optional(),
             title: z.string().max(200).optional(),
             previousStartsAt: z.iso.datetime().optional(),
             previousEndsAt: z.iso.datetime().optional(),
@@ -123,6 +129,7 @@ export const proposalSchema = z.discriminatedUnion("kind", [
           }),
           z.object({
             action: z.literal("cancel"),
+            affected: z.number().int().min(0).optional(),
             title: z.string().max(200).optional(),
             blockId: z.uuid(),
             date: z.iso.date(),
@@ -146,6 +153,20 @@ export const proposalSchema = z.discriminatedUnion("kind", [
     repeat: z.enum(["once", "weekly"]),
     weekdays: z.array(z.number().int().min(0).max(6)).max(7),
     until: z.iso.date().nullable(),
+    /** Conflicting occurrence dates the student agreed to skip; stored as cancelled exceptions. */
+    skipDates: z.array(z.iso.date()).max(400).default([]),
+    occurrences: z.number().int().min(0).optional(),
+    conflicts: z
+      .array(
+        z.object({
+          date: z.iso.date(),
+          title: z.string().max(200),
+          startsAt: z.iso.datetime(),
+          endsAt: z.iso.datetime(),
+        }),
+      )
+      .max(20)
+      .default([]),
   }),
   z.object({
     kind: z.literal("goalCompletion"),
@@ -267,7 +288,11 @@ export const preferenceMutationSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("enableAven") }),
   z.object({
     kind: z.literal("onboard"),
+    /** Each permission is a separate choice; only AI processing consent is implied by finishing. */
     reminders: z.boolean(),
+    email: z.boolean().default(false),
+    push: z.boolean().default(false),
+    resourceContent: z.boolean().default(false),
     locale: z.preprocess(() => "en", z.literal("en")).optional(),
   }),
   z.object({ kind: z.literal("enableReminders") }),
@@ -295,3 +320,39 @@ export const preferenceMutationSchema = z.discriminatedUnion("kind", [
     content: z.string().trim().max(2500),
   }),
 ]);
+/** Next Best Action results shown in chat; produced by the deterministic ranking engine. */
+export const nextActionsSchema = z
+  .array(
+    z.object({
+      goalId: z.uuid(),
+      goalTitle: z.string().max(200),
+      taskId: z.uuid(),
+      taskTitle: z.string().max(200),
+      milestoneTitle: z.string().max(200).nullable(),
+      dueDate: z.iso.date(),
+      remainingMinutes: z.number().int().min(0),
+      score: z.number(),
+      reasons: z
+        .array(
+          z.discriminatedUnion("code", [
+            z.object({ code: z.literal("overdue"), date: z.iso.date() }),
+            z.object({ code: z.literal("dueSoon"), date: z.iso.date() }),
+            z.object({
+              code: z.literal("unblocks"),
+              titles: z.array(z.string().max(200)).max(2),
+              count: z.number().int().min(1),
+            }),
+            z.object({ code: z.literal("inProgress") }),
+            z.object({ code: z.literal("highPriority") }),
+            z.object({ code: z.literal("goalAtRisk") }),
+            z.object({
+              code: z.literal("fitsToday"),
+              minutes: z.number().int().min(0),
+            }),
+          ]),
+        )
+        .max(7),
+    }),
+  )
+  .max(5);
+export type NextActionCard = z.infer<typeof nextActionsSchema>[number];

@@ -18,6 +18,8 @@ const categories: Record<string, string> = {
   getNotificationPreferences: "preferences",
   proposeStudySchedule: "studyPlan",
   proposeGoalPlan: "studyPlan",
+  proposeGoalHierarchy: "studyPlan",
+  getNextBestAction: "goals",
   createStudySchedule: "studyPlan",
   moveStudySessions: "conflicts",
   rescheduleStudySession: "conflicts",

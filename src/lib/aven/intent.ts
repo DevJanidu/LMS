@@ -5,6 +5,7 @@ export type AvenIntent =
   | "reschedule"
   | "progress"
   | "nextAction"
+  | "recovery"
   | "learn";
 export interface IntentResult {
   intents: AvenIntent[];
@@ -35,6 +36,10 @@ const patterns: [AvenIntent, RegExp][] = [
     /\b(what should i (do|study|work on|focus on)|next (step|task|action)|where (do|should) i start|prioriti[sz]e|plan my day)\b/i,
   ],
   [
+    "recovery",
+    /\b(fall(ing|en)? behind|behind (on|schedule)|catch[- ]up|recovery plan|get back on track|missed (my|a|the|several|some) (sessions?|classes|tasks?|deadlines?))\b/i,
+  ],
+  [
     "learn",
     /\b(explain|teach me|help me (learn|understand)|what is|how does|quiz me)\b/i,
   ],
@@ -51,8 +56,12 @@ export function classifyIntent(message: string): IntentResult {
   return {
     intents,
     multiPart,
+    // Reading progress on an existing goal does not need the planning model.
     planning:
-      multiPart || intents.includes("goal") || intents.includes("schedule"),
+      multiPart ||
+      intents.includes("schedule") ||
+      intents.includes("recovery") ||
+      (intents.includes("goal") && !intents.includes("progress")),
   };
 }
 const guidance: Record<AvenIntent, string> = {
@@ -65,6 +74,8 @@ const guidance: Record<AvenIntent, string> = {
     "Progress intent detected. Use getUserGoals or getGoalDetails for verified figures; do not estimate progress.",
   nextAction:
     "Next-action intent detected. Call getNextBestAction and explain its verified reasons briefly; you may add context but do not reorder its ranking.",
+  recovery:
+    "Recovery intent detected. Read incomplete work (getGoalDetails) and the calendar, check whether a catch-up draft already exists in this conversation, then use proposeStudySchedule for the goal. Keep the load within the daily target and stay encouraging without guilt.",
   learn:
     "Learning intent detected. Teach directly; use permitted resources when available and cite only processed sources.",
 };

@@ -102,6 +102,7 @@ export function candidateEnabled(kind: string, prefs: NotificationPreferences) {
     session: "sessionReminders",
     missed: "missedSessions",
     goalDeadline: "goalReminders",
+    goalAlert: "goalReminders",
     taskDeadline: "goalReminders",
     morning: "morning",
     evening: "evening",
@@ -110,4 +111,9 @@ export function candidateEnabled(kind: string, prefs: NotificationPreferences) {
     recovery: "goalReminders",
   };
   return !flag[kind] || prefs[flag[kind]!] === true;
+}
+/** Add minutes to an HH:mm clock, wrapping at midnight. */
+export function shiftClock(clock: string, delta: number) {
+  const value = (((minutes(clock) + delta) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(value / 60)).padStart(2, "0")}:${String(value % 60).padStart(2, "0")}`;
 }

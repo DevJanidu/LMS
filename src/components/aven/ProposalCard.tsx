@@ -152,7 +152,7 @@ function ProposalCard({
                   )
                 }
               >
-                {c(value.kind === "goalPlan" ? "edit" : "modify")}
+                {c(value.kind === "goalPlan" ? "editPlan" : "modify")}
               </Button>
               <Button
                 size="sm"
@@ -162,7 +162,7 @@ function ProposalCard({
                   void resolve("reject");
                 }}
               >
-                {c("cancel")}
+                {c(value.kind === "goalPlan" ? "notNow" : "cancel")}
               </Button>
             </>
           ) : (

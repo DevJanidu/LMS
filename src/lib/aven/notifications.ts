@@ -151,6 +151,7 @@ export async function notificationAction(
           changes: [
             {
               action: "move",
+              scope: "one",
               blockId: block.id,
               date: action.value.date,
               expectedUpdatedAt: block.updatedAt,

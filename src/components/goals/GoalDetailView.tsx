@@ -11,10 +11,16 @@ import GoalCard from "./GoalCard";
 import GoalEditor from "./GoalEditor";
 import AdvancedGoalDetailView from "./AdvancedGoalDetailView";
 interface Props {
+  /** Server-ranked next best action for this goal, rendered below the header. */
+  nextAction?: React.ReactNode;
   initial: GoalDetail;
   references: GoalReferences;
 }
-export default function GoalDetailView({ initial, references }: Props) {
+export default function GoalDetailView({
+  initial,
+  references,
+  nextAction,
+}: Props) {
   const t = useTranslations("goals"),
     router = useRouter();
   const [detail, setDetail] = useState(initial),
@@ -51,6 +57,7 @@ export default function GoalDetailView({ initial, references }: Props) {
   return (
     <>
       <PageHeader title={detail.goal.title} description={t("simpleGoalHelp")} />
+      {nextAction && <div className="mb-6 max-w-2xl">{nextAction}</div>}
       {error && (
         <p
           role="alert"

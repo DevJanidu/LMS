@@ -16,10 +16,16 @@ import GoalCard from "./GoalCard";
 import GoalEditor from "./GoalEditor";
 type GoalList = Awaited<ReturnType<typeof listGoals>>;
 interface Props {
+  /** Server-ranked next best action, rendered below the header. */
+  nextAction?: React.ReactNode;
   initial: GoalList;
   references: GoalReferences;
 }
-export default function GoalsDashboard({ initial, references }: Props) {
+export default function GoalsDashboard({
+  initial,
+  references,
+  nextAction,
+}: Props) {
   const t = useTranslations("goals"),
     router = useRouter();
   const [list, setList] = useState(initial),
@@ -139,6 +145,7 @@ export default function GoalsDashboard({ initial, references }: Props) {
         description={t("simpleGoalHelp")}
         action={<Button onClick={create}>{t("createGoal")}</Button>}
       />
+      {nextAction && <div className="mb-6">{nextAction}</div>}
       <div className="mb-6 grid gap-3 sm:grid-cols-2">
         {labels.map((key) => (
           <div

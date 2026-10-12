@@ -1,7 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { getDb } from "@/lib/db";
+import { getDb, type DbTransaction } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import {
   getGoalDetail,
@@ -19,6 +19,18 @@ import { validateSchedule } from "./planning";
 import { applyExtraProposal } from "./extra-proposals";
 import { calendarOccurrences } from "@/lib/calendar/model";
 import { captureUndo, undoProposal, type ProposalUndo } from "./undo";
+import { findDuplicateGoals, normalizeTitle } from "./decomposition";
+/**
+ * Goal plans for the same goal are revisions: a new one replaces the earlier pending one.
+ * Schedules are not keyed, because two different sessions may share a title.
+ */
+function revisionKey(value: import("./validation").AvenProposal) {
+  if (value.kind === "goalPlan")
+    return value.goalId
+      ? `goal:${value.goalId}`
+      : `goal:new:${normalizeTitle(value.goal.title)}`;
+  return null;
+}
 
 export async function storeProposal(
   userId: string,
@@ -65,15 +77,41 @@ export async function storeProposal(
       );
     if (!owned) throw new GoalError("recordUnavailable", 404);
   }
-  const [proposal] = await getDb()
-    .insert(s.aiPlanProposals)
-    .values({
-      userId,
-      conversationId,
-      value,
-      expiresAt: new Date(Date.now() + 86400000),
-    })
-    .returning();
+  const key = revisionKey(value);
+  const proposal = await getDb().transaction(async (tx) => {
+    // "Edit plan" produces a revised proposal; retire the earlier version so only one can be approved.
+    if (conversationId && key) {
+      const pending = await tx
+        .select({ id: s.aiPlanProposals.id, value: s.aiPlanProposals.value })
+        .from(s.aiPlanProposals)
+        .where(
+          and(
+            eq(s.aiPlanProposals.userId, userId),
+            eq(s.aiPlanProposals.conversationId, conversationId),
+            eq(s.aiPlanProposals.status, "pending"),
+          ),
+        )
+        .for("update");
+      const replaced = pending
+        .filter((row) => revisionKey(row.value) === key)
+        .map((row) => row.id);
+      if (replaced.length)
+        await tx
+          .update(s.aiPlanProposals)
+          .set({ status: "superseded", resolvedAt: new Date() })
+          .where(inArray(s.aiPlanProposals.id, replaced));
+    }
+    const [row] = await tx
+      .insert(s.aiPlanProposals)
+      .values({
+        userId,
+        conversationId,
+        value,
+        expiresAt: new Date(Date.now() + 86400000),
+      })
+      .returning();
+    return row;
+  });
   return {
     id: proposal.id,
     status: proposal.status,
@@ -119,6 +157,19 @@ export async function resolveProposal(
       const extra = await applyExtraProposal(tx, userId, user.timezone, value);
       if (extra !== undefined) Object.assign(result, extra);
       else if (value.kind === "goalPlan") {
+        // Retries and repeated proposals must not create a second copy of a goal.
+        if (!value.goalId && !value.allowDuplicate) {
+          const existing = await tx
+            .select({
+              id: s.goals.id,
+              title: s.goals.title,
+              status: s.goals.status,
+            })
+            .from(s.goals)
+            .where(eq(s.goals.userId, userId));
+          if (findDuplicateGoals(value.goal.title, existing).length)
+            throw new GoalError("duplicateGoal", 409);
+        }
         const goalId = value.goalId ?? randomUUID();
         let version = value.expectedVersion;
         const mIds = new Map(
@@ -281,6 +332,16 @@ export async function resolveProposal(
           .values({ goalId, action: "plan", targetId: id, version });
         const planned = await getGoalDetail(userId, goalId, tx),
           day = localDay(Date.now(), user.timezone);
+        // Verify the hierarchy inside the transaction before reporting success.
+        if (
+          milestoneValues.some(
+            (m) => !planned.milestones.some((saved) => saved.id === m.id),
+          ) ||
+          taskValues.some(
+            (t) => !planned.tasks.some((saved) => saved.id === t.id),
+          )
+        )
+          throw new GoalError("persistenceUnavailable", 503);
         await tx
           .insert(s.goalProgressSnapshots)
           .values({
@@ -477,8 +538,10 @@ export async function resolveProposal(
       decision === "approve" &&
       value.kind === "calendarChanges" &&
       value.changes.every(
+        // Series-wide moves split or shift whole series; only single-occurrence moves are reversible here.
         (change) =>
           change.action === "move" &&
+          change.scope === "one" &&
           change.previousStartsAt &&
           change.previousEndsAt,
       )
@@ -501,6 +564,7 @@ export async function resolveProposal(
         if (!saved) throw new GoalError("persistenceUnavailable", 503);
         changes.push({
           action: "move",
+          scope: "one",
           blockId: change.blockId,
           date: saved.recurrenceRule
             ? change.date
@@ -545,4 +609,27 @@ export async function proposalList(userId: string, conversationId?: string) {
     )
     .orderBy(sql`${s.aiPlanProposals.createdAt} DESC`)
     .limit(50);
+}
+/**
+ * A private draft created by the proactive scheduler inside its own transaction.
+ * It is only a pending proposal: nothing changes until the learner approves it.
+ */
+export async function storeDraftProposal(
+  tx: DbTransaction,
+  userId: string,
+  conversationId: string,
+  raw: unknown,
+) {
+  const parsed = proposalSchema.safeParse(raw);
+  if (!parsed.success) throw new GoalError("invalidProposal");
+  const [row] = await tx
+    .insert(s.aiPlanProposals)
+    .values({
+      userId,
+      conversationId,
+      value: parsed.data,
+      expiresAt: new Date(Date.now() + 86400000),
+    })
+    .returning({ id: s.aiPlanProposals.id });
+  return row.id;
 }

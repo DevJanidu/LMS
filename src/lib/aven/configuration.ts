@@ -34,7 +34,12 @@ const schema = z.object({
   AVEN_MONTHLY_TOKEN_LIMIT: z.coerce.number().int().min(0).default(0),
   OPENAI_CHAT_REASONING_EFFORT: effort.default("low"),
   OPENAI_PLANNING_REASONING_EFFORT: effort.default("medium"),
-  AVEN_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(1024).max(128000).optional(),
+  AVEN_MAX_OUTPUT_TOKENS: z.coerce
+    .number()
+    .int()
+    .min(1024)
+    .max(128000)
+    .optional(),
 });
 
 /** Pure resolver shared with the operator check; never return credentials to clients. */

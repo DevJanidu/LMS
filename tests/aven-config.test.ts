@@ -1,6 +1,8 @@
 import { expect, it } from "vitest";
 import {
   avenConfigurationStatus,
+  isReasoningModel,
+  outputTokenLimit,
   resolveAvenConfiguration,
 } from "@/lib/aven/configuration";
 import {
@@ -8,15 +10,37 @@ import {
   readProviderFailure,
 } from "@/lib/aven/provider-errors";
 
-it("enables the documented default models with only a private API key", () => {
+it("defaults chat and planning to the verified GPT-6 Luna model with only a private API key", () => {
   const result = resolveAvenConfiguration({ OPENAI_API_KEY: " fixture-key " });
   expect(result.success).toBe(true);
   if (!result.success) return;
   expect(result.data.OPENAI_API_KEY).toBe("fixture-key");
-  expect(result.data.OPENAI_CHAT_MODEL).toBe("gpt-4.1-mini");
-  expect(result.data.OPENAI_PLANNING_MODEL).toBe("gpt-4.1-mini");
-  expect(result.data.OPENAI_CHAT_INPUT_PRICE).toBe(0.4);
-  expect(result.data.OPENAI_PLANNING_OUTPUT_PRICE).toBe(1.6);
+  expect(result.data.OPENAI_CHAT_MODEL).toBe("gpt-6-luna");
+  expect(result.data.OPENAI_PLANNING_MODEL).toBe("gpt-6-luna");
+  expect(result.data.OPENAI_CHAT_INPUT_PRICE).toBe(0.1);
+  expect(result.data.OPENAI_PLANNING_OUTPUT_PRICE).toBe(0.5);
+  expect(result.data.OPENAI_CHAT_REASONING_EFFORT).toBe("low");
+  expect(result.data.OPENAI_PLANNING_REASONING_EFFORT).toBe("medium");
+});
+it("keeps a supported non-reasoning fallback and sizes output budgets per model", () => {
+  const fallback = resolveAvenConfiguration({
+    OPENAI_API_KEY: "fixture",
+    OPENAI_CHAT_MODEL: "gpt-4.1-mini",
+    OPENAI_PLANNING_MODEL: "gpt-4.1-mini",
+  });
+  expect(fallback.success && fallback.data.OPENAI_CHAT_INPUT_PRICE).toBe(0.4);
+  expect(isReasoningModel("gpt-6-luna")).toBe(true);
+  expect(isReasoningModel("gpt-4.1-mini")).toBe(false);
+  expect(outputTokenLimit("gpt-4.1-mini", true)).toBe(4096);
+  expect(outputTokenLimit("gpt-6-luna", false)).toBe(12000);
+  expect(outputTokenLimit("gpt-6-luna", true)).toBe(25000);
+  expect(outputTokenLimit("gpt-6-luna", true, 8000)).toBe(8000);
+  expect(
+    avenConfigurationStatus({
+      OPENAI_API_KEY: "fixture",
+      OPENAI_CHAT_REASONING_EFFORT: "extreme",
+    }).fields,
+  ).toEqual(["OPENAI_CHAT_REASONING_EFFORT"]);
 });
 it("normalizes empty optional env values but never invents a missing API key", () => {
   expect(avenConfigurationStatus({ OPENAI_API_KEY: " " }).code).toBe(
