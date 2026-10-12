@@ -750,7 +750,8 @@
       "resourcesTitle": "Your learning resources",
       "resourcesHelp": "Optional. Without this, Aven sees resource titles only.",
       "changeLater": "You can change any of these, pause reminders or turn them off entirely in Aven settings. Every reminder also has a snooze option."
-    }
+    },
+    "conversationHistory": "Conversation history"
   },
   "studyflow": {
     "exportUsers": "Export users (CSV)",
@@ -1336,6 +1337,7 @@
       "completed": "Completed",
       "skipped": "Skipped",
       "missed": "No attendance recorded"
-    }
+    },
+    "primaryNavigation": "Primary"
   }
 }

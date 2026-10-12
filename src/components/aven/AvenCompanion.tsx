@@ -25,7 +25,7 @@ import AvenNotifications from "./AvenNotifications";
 import { useAvenConversation } from "./useAvenConversation";
 import { useAvenStream, type SendRequest } from "./useAvenStream";
 import { useAvenDraft } from "./useAvenDraft";
-import { useLocalStorage, useMediaQuery } from "@/hooks/useBrowserState";
+import { useSidebar } from "@/context/SidebarContext";
 import {
   errorKey,
   type AvenMessageRecord,
@@ -42,9 +42,10 @@ interface Props {
   intent?: string;
   notification?: string;
   conversationId?: string;
+  /** Start a new conversation instead of reopening the last one in this tab. */
+  fresh?: boolean;
 }
 type Dialog = "settings" | "notifications" | null;
-const DESKTOP = "(min-width: 1024px)";
 export default function AvenCompanion({
   initial,
   references,
@@ -55,6 +56,7 @@ export default function AvenCompanion({
   intent,
   notification,
   conversationId: requestedConversation,
+  fresh = false,
 }: Props) {
   const t = useTranslations("aven"),
     router = useRouter();
@@ -62,7 +64,6 @@ export default function AvenCompanion({
     [error, setError] = useState(""),
     [dialog, setDialog] = useState<Dialog>(null),
     [deleting, setDeleting] = useState<string>(),
-    [mobileSidebar, setMobileSidebar] = useState(false),
     [loadingMore, setLoadingMore] = useState(false),
     [replyNotification, setReplyNotification] = useState<string>(),
     [planning, setPlanning] = useState(
@@ -70,12 +71,9 @@ export default function AvenCompanion({
     ),
     [announcement, setAnnouncement] = useState("");
   const composer = useRef<AvenComposerHandle>(null);
-  // Desktop keeps the history visible unless collapsed; on small screens it is a drawer.
-  // CSS picks the right default per viewport, so server markup never flashes an open drawer on phones.
-  const desktop = useMediaQuery(DESKTOP, true),
-    [sidebarPreference, setSidebarPreference] = useLocalStorage("aven-sidebar"),
-    collapsed = sidebarPreference === "closed",
-    sidebarOpen = desktop ? !collapsed : mobileSidebar;
+  // Conversation history lives in the single application sidebar; its state is global.
+  const { isExpanded, isMobileOpen, toggleSidebar, toggleMobileSidebar } =
+    useSidebar();
   const showError = useCallback(
     (code: string) => setError(t(errorKey(t, code))),
     [t],
@@ -201,7 +199,8 @@ export default function AvenCompanion({
     if (requestedConversation) return show(requestedConversation, true);
     // A prompt seeded from a goal page takes precedence over restoring earlier state.
     if (intent) return;
-    if (!goalId)
+    if (fresh) setUrl(null);
+    else if (!goalId)
       try {
         const saved = sessionStorage.getItem(`aven-selected:${initial.userId}`);
         if (saved && /^[0-9a-f-]{36}$/i.test(saved)) return show(saved, true);
@@ -210,6 +209,8 @@ export default function AvenCompanion({
   }, [
     notification,
     requestedConversation,
+    fresh,
+    setUrl,
     intent,
     goalId,
     initial.userId,
@@ -240,12 +241,9 @@ export default function AvenCompanion({
   }, []);
   const preferences = bootstrap.preferences,
     ready = preferences.configured && preferences.ai.consent;
-  const toggleSidebar = (next = !sidebarOpen) => {
-    if (desktop) setSidebarPreference(next ? null : "closed");
-    else setMobileSidebar(next);
-  };
+  // On phones the sidebar is a drawer: close it after choosing or starting a conversation.
   const closeOnMobile = () => {
-    if (!desktop) setMobileSidebar(false);
+    if (isMobileOpen) toggleMobileSidebar();
   };
   /** Explains why chat is unavailable; returns true when sending must not proceed. */
   const blocked = () => {
@@ -449,32 +447,24 @@ export default function AvenCompanion({
         loadingMore={loadingMore}
         selected={selected}
         disabled={generating}
-        open={mobileSidebar}
-        collapsed={collapsed}
         timezone={timezone}
-        onClose={() => toggleSidebar(false)}
         onNew={startNew}
         onSelect={select}
         onRename={rename}
         onDelete={setDeleting}
         onLoadMore={loadMore}
       />
-      {mobileSidebar && (
-        <button
-          type="button"
-          tabIndex={-1}
-          aria-hidden="true"
-          className="aven-scrim"
-          onClick={() => toggleSidebar(false)}
-        />
-      )}
-      <main className="aven-main" aria-label={t("title")}>
+      <section className="aven-main" aria-label={t("title")}>
         <AvenTopBar
           title={title}
           goalTitle={conversation.contextTitle}
-          sidebarOpen={sidebarOpen}
+          sidebarOpen={isMobileOpen || isExpanded}
           disabled={generating}
-          onToggleSidebar={() => toggleSidebar()}
+          onToggleSidebar={() => {
+            // Phones open the drawer; desktop expands or collapses the shared sidebar.
+            if (matchMedia("(min-width: 1024px)").matches) toggleSidebar();
+            else toggleMobileSidebar();
+          }}
           onNew={startNew}
           onNotifications={() => setDialog("notifications")}
           onSettings={openSettings}
@@ -557,7 +547,7 @@ export default function AvenCompanion({
         <p role="status" aria-live="polite" className="sr-only">
           {activity && generating ? t(`activity.${activity}`) : announcement}
         </p>
-      </main>
+      </section>
       <Modal
         isOpen={dialog === "notifications"}
         onClose={() => setDialog(null)}

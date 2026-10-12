@@ -41,7 +41,12 @@ export const adminNavigation: NavItem[] = [
   { key: "storage", href: "/admin/storage", icon: FileIcon, group: "system" },
 ];
 /** Destinations in the mobile bottom bar, in order. */
-export const mobileNavigationKeys = ["dashboard", "subjects", "study", "calendar"];
+export const mobileNavigationKeys = [
+  "dashboard",
+  "subjects",
+  "study",
+  "calendar",
+];
 export const navigationFor = (admin: boolean) =>
   admin ? adminNavigation : learnerNavigation;
 export const settingsHref = (admin: boolean) =>

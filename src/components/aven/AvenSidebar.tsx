@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CloseIcon, PlusIcon, SearchIcon, SparklesIcon } from "@/icons";
+import { PlusIcon, SearchIcon } from "@/icons";
+import SidebarContextSection from "@/components/navigation/SidebarContextSection";
 import { featureRequest } from "@/lib/goals/client";
 import { useLocalStorage } from "@/hooks/useBrowserState";
 import AvenConversationGroup from "./AvenConversationGroup";
@@ -12,10 +13,7 @@ interface Props {
   loadingMore: boolean;
   selected: string | null;
   disabled: boolean;
-  open: boolean;
-  collapsed: boolean;
   timezone: string;
-  onClose: () => void;
   onNew: () => void;
   onSelect: (id: string) => void;
   onRename: (id: string, title: string) => Promise<boolean>;
@@ -46,10 +44,7 @@ export default function AvenSidebar({
   loadingMore,
   selected,
   disabled,
-  open,
-  collapsed,
   timezone,
-  onClose,
   onNew,
   onSelect,
   onRename,
@@ -128,56 +123,34 @@ export default function AvenSidebar({
     onDelete,
   };
   return (
-    <aside
-      id="aven-sidebar"
-      aria-label={t("conversations")}
-      className="aven-sidebar"
-      data-open={open || undefined}
-      data-collapsed={collapsed || undefined}
-    >
-      <div className="aven-sidebar-head">
-        <div className="aven-identity">
-          <span className="aven-identity-mark">
-            <SparklesIcon className="size-4" />
-          </span>
-          <span>{t("title")}</span>
-        </div>
+    // Rendered into the application sidebar's contextual area: one sidebar, Aven history below the navigation.
+    <SidebarContextSection label={t("conversations")}>
+      <div className="aven-sidebar-tools">
         <button
           type="button"
-          className="aven-icon-button aven-mobile-only"
-          aria-label={t("hideConversations")}
-          onClick={onClose}
+          className="aven-new-chat"
+          disabled={disabled}
+          onClick={onNew}
         >
-          <CloseIcon className="size-4" />
+          <PlusIcon className="size-4" />
+          {t("newConversation")}
         </button>
+        <div className="aven-search">
+          <label htmlFor={searchId} className="sr-only">
+            {t("searchConversations")}
+          </label>
+          <SearchIcon className="size-4" aria-hidden="true" />
+          <input
+            id={searchId}
+            type="search"
+            value={query}
+            maxLength={80}
+            placeholder={t("searchConversations")}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
       </div>
-      <button
-        type="button"
-        className="aven-new-chat"
-        disabled={disabled}
-        onClick={onNew}
-      >
-        <PlusIcon className="size-4" />
-        {t("newConversation")}
-      </button>
-      <div className="aven-search">
-        <label htmlFor={searchId} className="sr-only">
-          {t("searchConversations")}
-        </label>
-        <SearchIcon className="size-4" aria-hidden="true" />
-        <input
-          id={searchId}
-          type="search"
-          value={query}
-          maxLength={80}
-          placeholder={t("searchConversations")}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </div>
-      <nav
-        className="aven-history custom-scrollbar"
-        aria-label={t("conversations")}
-      >
+      <nav className="aven-history" aria-label={t("conversationHistory")}>
         {results ? (
           <AvenConversationGroup
             label={t("searchResults")}
@@ -217,6 +190,6 @@ export default function AvenSidebar({
         )}
       </nav>
       <p className="aven-sidebar-foot">{t("privacyShort")}</p>
-    </aside>
+    </SidebarContextSection>
   );
 }

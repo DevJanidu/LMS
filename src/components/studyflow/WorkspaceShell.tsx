@@ -4,23 +4,17 @@ import { useTranslations } from "next-intl";
 import { queryAdminUsers, searchWorkspace } from "@/lib/workspace/transport";
 import { useSidebar } from "@/context/SidebarContext";
 import { Link, usePathname } from "@/i18n/navigation";
-import {
-  GridIcon,
-  FolderIcon,
-  TimerIcon,
-  CalenderIcon,
-  PieChartIcon,
-  FileIcon,
-  SettingsIcon,
-  GroupIcon,
-  CloseIcon,
-  TargetIcon,
-  SparklesIcon,
-} from "@/icons";
 import { APP_NAME } from "@/lib/constants";
-import BrandLogo from "./BrandLogo";
+import AppSidebar from "@/components/navigation/AppSidebar";
+import {
+  SidebarSlotProvider,
+  useSidebarSlotRef,
+} from "@/components/navigation/SidebarContextSection";
+import {
+  learnerNavigation,
+  mobileNavigationKeys,
+} from "@/components/navigation/navigation";
 import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
-import Badge from "@/components/ui/badge/Badge";
 import { useWorkspace } from "@/lib/workspace/store";
 import type { Workspace } from "@/types";
 import { useModal } from "@/hooks/useModal";
@@ -32,65 +26,91 @@ import FocusLauncher from "@/components/study/FocusLauncher";
 import WorkspaceHeader from "./WorkspaceHeader";
 import AccountTimezoneSync from "@/components/common/AccountTimezoneSync";
 import SaveFeedback from "./SaveFeedback";
+import AvenHistorySection from "@/components/aven/AvenHistorySection";
 interface Props {
   children: ReactNode;
   initial: Workspace;
   admin?: boolean;
   details?: ReactNode;
 }
-const learnerItems = [
-  ["dashboard", "/dashboard", GridIcon],
-  ["subjects", "/subjects", FolderIcon],
-  ["study", "/study", TimerIcon],
-  ["calendar", "/calendar", CalenderIcon],
-  ["analytics", "/analytics", PieChartIcon],
-  ["resources", "/resources", FileIcon],
-  ["goals", "/goals", TargetIcon],
-  ["aven", "/aven", SparklesIcon],
-] as const;
-const adminItems = [
-  ["overview", "/admin", GridIcon],
-  ["users", "/admin/users", GroupIcon],
-  ["analytics", "/admin/analytics", PieChartIcon],
-  ["storage", "/admin/storage", FileIcon],
-] as const;
-import { primaryLink } from "./styles";
+const mobileItems = learnerNavigation.filter((item) =>
+  mobileNavigationKeys.includes(item.key),
+);
 /** Responsive learner/admin chrome with shared search and timer state. */
-export default function WorkspaceShell({
-  children,
-  initial,
-  admin = false,
-  details,
-}: Props) {
+export default function WorkspaceShell(props: Props) {
+  // The slot provider wraps pages so they can add contextual sidebar sections.
+  return (
+    <SidebarSlotProvider>
+      <Shell {...props} />
+    </SidebarSlotProvider>
+  );
+}
+function Shell({ children, initial, admin = false, details }: Props) {
   const t = useTranslations("studyflow");
   const path = usePathname();
   const { isMobileOpen, toggleMobileSidebar, isExpanded } = useSidebar();
+  const slotRef = useSidebarSlotRef();
   const data = useWorkspace(initial);
   const search = useModal();
   const openSearch = search.openModal;
   const [query, setQuery] = useState("");
-  const [pendingLink, setPendingLink] = useState<{ from: string; href: string } | null>(null);
+  const [pendingLink, setPendingLink] = useState<{
+    from: string;
+    href: string;
+  } | null>(null);
   const pendingHref = pendingLink?.from === path ? pendingLink.href : null;
   useEffect(() => {
     const clear = setTimeout(() => setPendingLink(null), 0);
     return () => clearTimeout(clear);
   }, [path]);
-  const [serverHits, setServerHits] = useState<{ id: string; title: string; type: string; href: string }[]>([]);
+  const [serverHits, setServerHits] = useState<
+    { id: string; title: string; type: string; href: string }[]
+  >([]);
   useEffect(() => {
     if (!query.trim()) return;
     let cancelled = false;
     const timeout = setTimeout(() => {
-      const request = admin ? queryAdminUsers({ search: query }, data.user.id).then(result => result.ok ? result.data.rows.map(({ user }) => ({ id: user.id, title: `${user.name} · ${user.email}`, type: "learner", href: `/admin/users/${user.id}` })) : []) : searchWorkspace(query, data.user.id).then(result => [
-        ...result.subjects.map(row => ({ ...row, type: "subject", href: "/subjects/" + row.id })),
-        ...result.topics.map(row => ({ ...row, type: "topic", href: "/subjects/" + row.subjectId })),
-        ...result.resources.map(row => ({ ...row, type: "resource", href: "/resources?search=" + encodeURIComponent(row.title) })),
-      ]);
-      void request.then(result => {
-        if (cancelled) return;
-        setServerHits(result.slice(0, 12));
-      }).catch(() => { if (!cancelled) setServerHits([]); });
+      const request = admin
+        ? queryAdminUsers({ search: query }, data.user.id).then((result) =>
+            result.ok
+              ? result.data.rows.map(({ user }) => ({
+                  id: user.id,
+                  title: `${user.name} · ${user.email}`,
+                  type: "learner",
+                  href: `/admin/users/${user.id}`,
+                }))
+              : [],
+          )
+        : searchWorkspace(query, data.user.id).then((result) => [
+            ...result.subjects.map((row) => ({
+              ...row,
+              type: "subject",
+              href: "/subjects/" + row.id,
+            })),
+            ...result.topics.map((row) => ({
+              ...row,
+              type: "topic",
+              href: "/subjects/" + row.subjectId,
+            })),
+            ...result.resources.map((row) => ({
+              ...row,
+              type: "resource",
+              href: "/resources?search=" + encodeURIComponent(row.title),
+            })),
+          ]);
+      void request
+        .then((result) => {
+          if (cancelled) return;
+          setServerHits(result.slice(0, 12));
+        })
+        .catch(() => {
+          if (!cancelled) setServerHits([]);
+        });
     }, 250);
-    return () => { cancelled = true; clearTimeout(timeout); };
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [admin, query, data.user.id]);
   const sidebarRef = useRef<HTMLElement>(null);
   const pageWidth =
@@ -100,9 +120,7 @@ export default function WorkspaceShell({
         ? "focus"
         : !admin && path === "/settings"
           ? "standard"
-        : "wide";
-  const settingsHref = admin ? "/admin/settings" : "/settings";
-  const settingsActive = path === settingsHref || path.startsWith(`${settingsHref}/`);
+          : "wide";
   useEffect(() => {
     if (!isMobileOpen) return;
     const previous = document.activeElement;
@@ -141,40 +159,43 @@ export default function WorkspaceShell({
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   }, [openSearch]);
-  const hits = query.trim() ? serverHits : (
-    admin
-      ? data.users.map((user) => ({
-          id: user.id,
-          title: `${user.name} · ${user.email}`,
-          type: "learner",
-          href: `/admin/users/${user.id}`,
-        }))
-      : [
-          ...getSubjects(data).map((subject) => ({
-            id: subject.id,
-            title: subject.title,
-            type: "subject",
-            href: `/subjects/${subject.id}`,
-          })),
-          ...getTopics(data).map((topic) => ({
-            id: topic.id,
-            title: topic.title,
-            type: "topic",
-            href: `/subjects/${topic.subjectId}`,
-          })),
-          ...getResources(data).map((resource) => ({
-            id: resource.id,
-            title: resource.title,
-            type: "resource",
-            href: `/resources?search=${encodeURIComponent(resource.title)}`,
-          })),
-        ]
-  )
-    .filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
-    .slice(0, 12);
+  const hits = query.trim()
+    ? serverHits
+    : (admin
+        ? data.users.map((user) => ({
+            id: user.id,
+            title: `${user.name} · ${user.email}`,
+            type: "learner",
+            href: `/admin/users/${user.id}`,
+          }))
+        : [
+            ...getSubjects(data).map((subject) => ({
+              id: subject.id,
+              title: subject.title,
+              type: "subject",
+              href: `/subjects/${subject.id}`,
+            })),
+            ...getTopics(data).map((topic) => ({
+              id: topic.id,
+              title: topic.title,
+              type: "topic",
+              href: `/subjects/${topic.subjectId}`,
+            })),
+            ...getResources(data).map((resource) => ({
+              id: resource.id,
+              title: resource.title,
+              type: "resource",
+              href: `/resources?search=${encodeURIComponent(resource.title)}`,
+            })),
+          ]
+      )
+        .filter((item) =>
+          item.title.toLowerCase().includes(query.toLowerCase()),
+        )
+        .slice(0, 12);
   return (
     <div
-      className={`sf-shell ${admin ? "sf-admin" : ""} ${!isExpanded ? "sf-collapsed" : ""} min-h-dvh bg-gray-50 text-primary dark:bg-gray-950 dark:text-primary`}
+      className={`sf-shell ${admin ? "sf-admin" : ""} ${!isExpanded ? "sf-collapsed" : ""} text-primary dark:text-primary min-h-dvh bg-gray-50 dark:bg-gray-950`}
     >
       <AccountTimezoneSync initial={data} />
       <a
@@ -190,99 +211,20 @@ export default function WorkspaceShell({
           onClick={toggleMobileSidebar}
         />
       )}
-      <aside
-        ref={sidebarRef}
-        aria-label={t(admin ? "adminNavigation" : "learnerNavigation")}
-        className={`sf-sidebar fixed inset-y-0 start-0 z-999 flex w-64 flex-col border-e border-gray-200 bg-white px-5 py-7 transition-transform lg:translate-x-0 dark:border-gray-800 dark:bg-gray-900 ${isMobileOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full lg:rtl:translate-x-0"}`}
-      >
-        <div className="sf-sidebar-brand-row mb-7 flex items-center justify-between">
-          <Link
-            href={admin ? "/admin" : "/dashboard"}
-            className="sf-sidebar-brand flex items-center gap-3 text-h2"
-          >
-            <BrandLogo />
-          </Link>
-          <button
-            onClick={toggleMobileSidebar}
-            aria-label={t("closeMenu")}
-            className="p-1 lg:hidden"
-          >
-            <CloseIcon className="size-5" />
-          </button>
-        </div>
-        {admin ? (
-          <div className="mb-5">
-            <Badge>{t("admin")}</Badge>
-          </div>
-        ) : (
-          <FocusLauncher
-            initial={initial}
-            sidebar
-            className={`${primaryLink} sf-sidebar-cta mb-7`}
-            onOpen={() => {
-              if (isMobileOpen) toggleMobileSidebar();
-            }}
-          />
-        )}
-        <nav className="space-y-1">
-          {(admin ? adminItems : learnerItems).map(([key, href, Icon]) => {
-            const active =
-              path === href ||
-              (href !== "/admin" && path.startsWith(`${href}/`));
-            return (
-              <div key={href}>
-                {admin && ["users", "analytics", "storage"].includes(key) && (
-                  <p className="sf-nav-group sf-nav-label">
-                    {t(
-                      `redesign.${key === "users" ? "management" : key === "analytics" ? "insights" : "system"}`,
-                    )}
-                  </p>
-                )}
-                <Link
-                  href={href}
-                  prefetch={false}
-                  title={t(key)}
-                  aria-label={t(key)}
-                  aria-current={active ? "page" : undefined}
-                  aria-busy={pendingHref === href || undefined}
-                  data-pending={pendingHref === href || undefined}
-                  onClick={() => {
-                    if (!active) setPendingLink({ from: path, href });
-                    if (isMobileOpen) toggleMobileSidebar();
-                  }}
-                  className="sf-nav-item"
-                >
-                  <span className="sf-nav-icon">
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="sf-nav-label">{t(key)}</span>
-                </Link>
-              </div>
-            );
-          })}
-        </nav>
-        <div className="sf-sidebar-footer mt-auto">
-          <div className="sf-settings-group">
-            <Link href={settingsHref} prefetch={false} title={t("settings")} aria-label={t("settings")}
-              aria-current={settingsActive ? "page" : undefined}
-              aria-busy={pendingHref === settingsHref || undefined}
-              data-pending={pendingHref === settingsHref || undefined}
-              onClick={() => {
-                if (!settingsActive) setPendingLink({ from: path, href: settingsHref });
-                if (isMobileOpen) toggleMobileSidebar();
-              }} className="sf-nav-item">
-              <span className="sf-nav-icon"><SettingsIcon className="size-5" /></span>
-              <span className="sf-nav-label">{t("settings")}</span>
-            </Link>
-          </div>
-          <div className="sf-sidebar-bottom">
-            <p className="text-small text-muted dark:text-muted">
-              {t("workspaceTagline")}
-            </p>
-          </div>
-        </div>
-      </aside>
-      <div className="sf-main-column lg:ms-64">
+      <AppSidebar
+        admin={admin}
+        path={path}
+        mobileOpen={isMobileOpen}
+        onCloseMobile={toggleMobileSidebar}
+        pendingHref={pendingHref}
+        sidebarRef={sidebarRef}
+        slotRef={slotRef}
+        onNavigate={(href, active) => {
+          if (!active) setPendingLink({ from: path, href });
+          if (isMobileOpen) toggleMobileSidebar();
+        }}
+      />
+      <div className="sf-main-column">
         <WorkspaceHeader
           initial={initial}
           admin={admin}
@@ -297,7 +239,7 @@ export default function WorkspaceShell({
             {children}
           </div>
         </main>
-        <footer className="px-4 py-8 text-center text-small text-muted sm:px-8 dark:text-muted">
+        <footer className="text-muted dark:text-muted px-4 py-8 text-center text-small sm:px-8">
           {APP_NAME} · {t("footer")}
         </footer>
       </div>
@@ -305,7 +247,7 @@ export default function WorkspaceShell({
       {!admin && <ActiveTimerIndicator initial={initial} />}
       {!admin && (
         <nav className="sf-mobile-nav" aria-label={t("learnerNavigation")}>
-          {learnerItems.slice(0, 4).map(([key, href, Icon]) =>
+          {mobileItems.map(({ key, href, icon: Icon }) =>
             key === "study" ? (
               <FocusLauncher
                 key={key}
@@ -326,7 +268,9 @@ export default function WorkspaceShell({
                     ? "page"
                     : undefined
                 }
-                onClick={() => { if (path !== href) setPendingLink({ from: path, href }); }}
+                onClick={() => {
+                  if (path !== href) setPendingLink({ from: path, href });
+                }}
               >
                 <Icon className="size-5" />
                 <span>{t(key)}</span>
@@ -354,7 +298,7 @@ export default function WorkspaceShell({
               className="flex items-center justify-between gap-3 rounded-lg p-3 text-body hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <span>{hit.title}</span>
-              <span className="text-small text-muted dark:text-muted">
+              <span className="text-muted dark:text-muted text-small">
                 {t(hit.type)}
               </span>
             </Link>
@@ -363,6 +307,13 @@ export default function WorkspaceShell({
         </div>
       </Modal>
       {details}
+      {/* Aven history stays one click away everywhere; the Aven page renders its own live version. */}
+      {!admin && path !== "/aven" && (
+        <AvenHistorySection
+          userId={data.user.id}
+          timezone={data.user.timezone}
+        />
+      )}
     </div>
   );
 }

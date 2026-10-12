@@ -14,6 +14,7 @@ export default async function Page({
     intent?: string;
     notification?: string;
     conversation?: string;
+    new?: string;
   }>;
 }) {
   const { locale } = await params;
@@ -38,6 +39,7 @@ export default async function Page({
       goalTitle={detail?.goal.title}
       intent={query.intent}
       notification={query.notification}
+      fresh={query.new === "1"}
       conversationId={
         z.uuid().safeParse(query.conversation).success
           ? query.conversation

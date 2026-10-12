@@ -1,0 +1,58 @@
+@reference "./globals.css";
+/* The single application sidebar, styled after the Aven conversation sidebar:
+   a subtle surface, compact rows, and the "raised" current-row treatment. */
+
+.sf-shell { --sidebar-width: 16.5rem; }
+.sf-nav-icon { display: flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; flex: 0 0 1.25rem; line-height: 0; }
+.sf-nav-icon > svg { width: 1.125rem; height: 1.125rem; }
+
+.sf-sidebar { position: fixed; inset-block: 0; inset-inline-start: 0; z-index: 999; display: flex; flex-direction: column; width: var(--sidebar-width); padding: .75rem; background: var(--surface-subtle); border-inline-end: 1px solid var(--border); color: var(--text-primary); transition: width var(--motion-normal) var(--ease-standard), transform var(--motion-normal) var(--ease-standard), visibility var(--motion-normal); }
+.sf-sidebar-top { display: flex; flex-direction: column; flex-shrink: 0; gap: .25rem; }
+.sf-sidebar-brand-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-height: 2.75rem; padding: .25rem .25rem .75rem; }
+.sf-sidebar-brand { display: flex; align-items: center; min-height: 2.25rem; padding-inline: .375rem; border-radius: var(--radius-sm); }
+.sf-sidebar-brand .sf-brand-logo { width: 7.5rem; }
+.sf-sidebar-close { display: none; place-items: center; width: 2.25rem; height: 2.25rem; min-height: 2.25rem; border-radius: var(--radius-sm); color: var(--text-secondary); }
+.sf-sidebar-close:hover { background: var(--surface-hover); color: var(--text-primary); }
+.sf-sidebar-badge { @apply text-caption; padding: 0 .625rem .5rem; color: var(--primary); }
+.sf-sidebar-nav ul { display: flex; flex-direction: column; gap: .125rem; }
+.sf-nav-group { @apply text-caption; margin: .875rem .625rem .25rem; color: var(--text-muted); }
+
+.sf-nav-item { @apply text-small; position: relative; display: flex; align-items: center; gap: .625rem; min-height: 2.25rem; padding-inline: .625rem; border-radius: var(--radius-sm); color: var(--text-secondary); transition: background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast); }
+.sf-nav-item:hover { background: var(--surface-hover); color: var(--text-primary); }
+.sf-nav-item[aria-current=page], .sf-nav-item[data-pending=true] { background: var(--surface); color: var(--text-primary); font-weight: 500; box-shadow: var(--shadow-surface); }
+.sf-nav-item[aria-current=page] .sf-nav-icon, .sf-nav-item[data-pending=true] .sf-nav-icon { color: var(--primary); }
+.sf-nav-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* Contextual middle area: scrolls on its own so navigation and settings stay reachable. */
+.sf-sidebar-context { flex: 1; min-height: 0; overflow-y: auto; margin-block-start: .75rem; margin-inline: -.25rem; padding-inline: .25rem; scrollbar-width: thin; }
+.sf-sidebar-context:empty { overflow: hidden; }
+.sf-sidebar-section { display: flex; flex-direction: column; gap: .5rem; padding-block-start: .75rem; border-block-start: 1px solid var(--border); }
+.sf-sidebar-footer { flex-shrink: 0; margin-block-start: .5rem; padding-block-start: .5rem; border-block-start: 1px solid var(--border); }
+
+@media (min-width: 1024px) {
+  .sf-collapsed { --sidebar-width: 4.25rem; }
+  .sf-collapsed .sf-sidebar { overflow: visible; }
+  .sf-collapsed .sf-nav-label, .sf-collapsed .sf-sidebar-context, .sf-collapsed .sf-sidebar-badge { display: none; }
+  .sf-collapsed .sf-nav-item { justify-content: center; padding-inline: 0; }
+  .sf-collapsed .sf-sidebar-brand-row { justify-content: center; padding-inline: 0; }
+  .sf-collapsed .sf-sidebar-brand { padding: 0; }
+  .sf-collapsed .sf-sidebar-brand .sf-brand-logo { display: grid; place-items: start center; width: var(--space-11); height: var(--space-8); overflow: hidden; }
+  .sf-collapsed .sf-sidebar-brand .sf-brand-logo img { grid-area: 1 / 1; width: calc(var(--space-12) * 2); max-width: none; margin-block-start: calc(var(--space-2) * -1); }
+  .sf-collapsed .sf-sidebar-footer { margin-block-start: auto; }
+  /* Collapsed rows keep their accessible name (aria-label); this tooltip is the visual equivalent. */
+  .sf-collapsed .sf-nav-item:is(:hover, :focus-visible)::after { content: attr(data-tooltip); position: absolute; inset-inline-start: calc(100% + .625rem); top: 50%; translate: 0 -50%; z-index: 99999; padding: .25rem .5rem; border-radius: .375rem; background: var(--text-primary); color: var(--surface); box-shadow: var(--shadow-float); white-space: nowrap; pointer-events: none; @apply text-caption; }
+}
+
+/* Short screens: scroll the whole sidebar instead of nesting scrollbars. */
+@media (max-height: 640px) {
+  .sf-sidebar { overflow-y: auto; }
+  .sf-sidebar-context { flex: 1 0 auto; overflow: visible; }
+}
+
+@media (max-width: 1023px) {
+  .sf-sidebar { width: min(19rem, 85vw); overflow-y: auto; box-shadow: var(--shadow-float); transform: translateX(-100%); visibility: hidden; }
+  [dir="rtl"] .sf-sidebar { transform: translateX(100%); }
+  .sf-sidebar[data-mobile-open] { transform: none; visibility: visible; }
+  .sf-sidebar-close { display: grid; }
+  .sf-sidebar-context { flex: 1 0 auto; overflow: visible; }
+}

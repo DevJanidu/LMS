@@ -1,10 +1,5 @@
 "use client";
-import {
-  createContext,
-  useContext,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 /**
  * Pages contribute contextual sections to the single application sidebar through a portal.

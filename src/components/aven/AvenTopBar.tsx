@@ -33,7 +33,7 @@ export default function AvenTopBar({
       <button
         type="button"
         className="aven-icon-button"
-        aria-controls="aven-sidebar"
+        aria-controls="app-sidebar"
         aria-expanded={sidebarOpen}
         aria-label={t(sidebarOpen ? "hideConversations" : "showConversations")}
         title={t(sidebarOpen ? "hideConversations" : "showConversations")}

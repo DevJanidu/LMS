@@ -34,15 +34,3 @@ export function useLocalStorage(key: string) {
   );
   return [value, set] as const;
 }
-/** Matches a media query on the client; `fallback` is used for server rendering. */
-export function useMediaQuery(query: string, fallback = false) {
-  return useSyncExternalStore(
-    (callback) => {
-      const list = matchMedia(query);
-      list.addEventListener("change", callback);
-      return () => list.removeEventListener("change", callback);
-    },
-    () => matchMedia(query).matches,
-    () => fallback,
-  );
-}

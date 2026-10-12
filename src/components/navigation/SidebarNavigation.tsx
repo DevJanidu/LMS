@@ -68,6 +68,7 @@ export function SidebarLink({
       aria-current={active ? "page" : undefined}
       aria-busy={pending || undefined}
       data-pending={pending || undefined}
+      aria-label={label}
       data-tooltip={label}
       onClick={onClick}
       className="sf-nav-item"
