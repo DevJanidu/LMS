@@ -4,6 +4,9 @@ import { requireLearner } from "@/lib/auth";
 import { avenBootstrap } from "@/lib/aven/conversations";
 import { getGoalDetail, goalReferences } from "@/lib/goals/service";
 import AvenCompanion from "@/components/aven/AvenCompanion";
+import AvenUpgrade from "@/components/billing/AvenUpgrade";
+import { billingEnforced, getBillingOverview } from "@/lib/billing/entitlements";
+import { PLANS } from "@/lib/billing/plans";
 export default async function Page({
   params,
   searchParams,
@@ -23,6 +26,10 @@ export default async function Page({
   setRequestLocale(locale);
   const user = await requireLearner(),
     query = await searchParams;
+  if (billingEnforced()) {
+    const { plan } = await getBillingOverview(user.id);
+    if (!PLANS[plan].entitlements.aven) return <AvenUpgrade />;
+  }
   const goalId = z.uuid().safeParse(query.goal).success
     ? query.goal
     : undefined;

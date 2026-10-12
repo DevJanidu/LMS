@@ -216,7 +216,8 @@
       "aiModelUnavailable": "The selected AI model is unavailable. Ask your workspace administrator to check the model configuration.",
       "aiQuotaExceeded": "The OpenAI project has reached its billing or usage limit. Ask your workspace administrator to check its API billing.",
       "aiRequestInvalid": "Aven could not submit this request to the AI provider. Your message is saved; ask your workspace administrator to check the AI integration.",
-      "workspaceUsageLimit": "The shared monthly AI budget is fully allocated. Chat becomes available when pending requests finish or the budget resets next month. Your goals and reminders still work."
+      "workspaceUsageLimit": "The shared monthly AI budget is fully allocated. Chat becomes available when pending requests finish or the budget resets next month. Your goals and reminders still work.",
+      "planUpgradeRequired": "Aven is included with Pro and Plus. See plans in Billing to upgrade."
     },
     "dailyPriorities": "Today's goal priorities",
     "goalName": "Goal",
@@ -582,7 +583,8 @@
       "attendanceInProgress": "Finish or discard the active study timer before skipping this session.",
       "attendanceUnavailable": "Attendance could not be loaded or saved. Please try again.",
       "duplicateGoal": "A goal with a very similar title already exists. Ask Aven to add this plan to that goal instead.",
-      "aiOutputLimit": "Aven ran out of room for this answer. Try a more focused request, such as one goal or one week at a time."
+      "aiOutputLimit": "Aven ran out of room for this answer. Try a more focused request, such as one goal or one week at a time.",
+      "planUpgradeRequired": "Aven is included with Pro and Plus. See plans in Billing to upgrade."
     },
     "smartTitle": "Create a goal with Aven",
     "smartHelp": "Aven will help you choose a goal and due date. Answer any missing detail, then review and approve the goal.",
@@ -1445,5 +1447,1016 @@
     "appUpdatedTitle": "A new version is available",
     "appUpdatedDescription": "Refresh this page to continue. This request could not be submitted. Close this message if you want to review or copy your changes first.",
     "refreshPage": "Refresh page"
+  },
+  "marketing": {
+    "meta": {
+      "title": "Acadence — Learn. Focus. Progress.",
+      "description": "Your learning, goals and progress, finally in one place. Organize subjects, build study plans, track goals and stay consistent with Aven AI by your side."
+    },
+    "pricingMeta": {
+      "title": "Pricing",
+      "description": "Simple monthly plans in LKR. Start free with subjects, study planner, goals and analytics, then add Aven AI with Pro or Plus."
+    },
+    "nav": {
+      "label": "Main",
+      "home": "Acadence home",
+      "skip": "Skip to content",
+      "features": "Features",
+      "aven": "Aven AI",
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "login": "Log in",
+      "getStarted": "Get started free",
+      "theme": "Toggle color theme",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
+    },
+    "hero": {
+      "pillTag": "Aven AI",
+      "pill": "Meet your learning companion",
+      "title": "Make room for real progress.",
+      "description": "Organize subjects, build study plans, track your goals, and stay consistent—with Aven AI by your side.",
+      "primaryCta": "Get started free",
+      "secondaryCta": "Explore Aven AI",
+      "trust": "No credit card required for the free plan.",
+      "previewLabel": "The Acadence dashboard, showing today's study time, weekly rhythm, subjects in progress and upcoming deadlines."
+    },
+    "preview": {
+      "search": "Search your workspace",
+      "avatar": "AK",
+      "dashboard": {
+        "eyebrow": "Your learning space",
+        "greeting": "Good morning, Amaya",
+        "encouragement": "Three days in a row. Keep the rhythm going.",
+        "badge": "On a streak",
+        "todayLabel": "Today's study time",
+        "todayValue": "1h 25m",
+        "todayHint": "Every focused minute counts.",
+        "thisWeek": "This week",
+        "streakValue": "3 days",
+        "streakLabel": "Current streak",
+        "weekValue": "6h 10m",
+        "weekTarget": "of 10h weekly target",
+        "continueTitle": "Continue where you left off",
+        "allSubjects": "All subjects",
+        "upNext": "Up next",
+        "subjects": [
+          {
+            "name": "Data Structures",
+            "progress": 64,
+            "topics": "7/11 topics",
+            "next": "Balanced binary trees"
+          },
+          {
+            "name": "Spring Boot",
+            "progress": 30,
+            "topics": "3/10 topics",
+            "next": "REST controllers"
+          }
+        ],
+        "deadlinesTitle": "Upcoming deadlines",
+        "deadlines": [
+          {
+            "title": "Algorithms assignment",
+            "due": "Due Friday"
+          },
+          {
+            "title": "Spring Boot milestone",
+            "due": "Due in 9 days"
+          },
+          {
+            "title": "Database quiz",
+            "due": "Due Oct 28"
+          }
+        ]
+      },
+      "planner": {
+        "title": "Study Planner",
+        "range": "Week of Oct 13",
+        "recurring": "Repeats weekly",
+        "days": [
+          "Mon",
+          "Tue",
+          "Wed",
+          "Thu",
+          "Fri"
+        ],
+        "blocks": [
+          {
+            "day": 0,
+            "start": 0.5,
+            "length": 1,
+            "title": "Core Java",
+            "time": "9:00 – 11:00"
+          },
+          {
+            "day": 1,
+            "start": 0,
+            "length": 1.5,
+            "title": "Algorithms",
+            "time": "8:00 – 11:00",
+            "tone": "teal"
+          },
+          {
+            "day": 1,
+            "start": 3,
+            "length": 1,
+            "title": "Spring Boot",
+            "time": "14:00 – 16:00"
+          },
+          {
+            "day": 2,
+            "start": 0.5,
+            "length": 1,
+            "title": "Core Java",
+            "time": "9:00 – 11:00"
+          },
+          {
+            "day": 2,
+            "start": 2.5,
+            "length": 0.75,
+            "title": "Revision",
+            "time": "13:00 – 14:30",
+            "tone": "amber"
+          },
+          {
+            "day": 3,
+            "start": 1.5,
+            "length": 1.5,
+            "title": "Algorithms",
+            "time": "11:00 – 14:00",
+            "tone": "teal"
+          },
+          {
+            "day": 4,
+            "start": 0.5,
+            "length": 1,
+            "title": "Core Java",
+            "time": "9:00 – 11:00"
+          },
+          {
+            "day": 4,
+            "start": 3.25,
+            "length": 1,
+            "title": "Mock interview",
+            "time": "14:30 – 16:30",
+            "tone": "amber"
+          }
+        ]
+      },
+      "goals": {
+        "goal": "Become a Java software engineer",
+        "due": "Target · January 15",
+        "complete": "Complete",
+        "inProgress": "In progress",
+        "upcoming": "Upcoming",
+        "milestones": [
+          {
+            "title": "Core Java foundations",
+            "progress": 100,
+            "tasks": []
+          },
+          {
+            "title": "Advanced Java",
+            "progress": 45,
+            "tasks": [
+              {
+                "title": "Collections and generics",
+                "done": true
+              },
+              {
+                "title": "Streams and lambdas",
+                "done": true
+              },
+              {
+                "title": "Concurrency basics",
+                "done": false
+              }
+            ]
+          },
+          {
+            "title": "Spring Boot",
+            "progress": 0,
+            "tasks": []
+          }
+        ]
+      },
+      "analytics": {
+        "days": [
+          "M",
+          "T",
+          "W",
+          "T",
+          "F",
+          "S",
+          "S"
+        ],
+        "weekly": "Weekly activity",
+        "range": "This week",
+        "studyTime": {
+          "label": "Study time",
+          "value": "12h 45m",
+          "delta": "+2h vs last week"
+        },
+        "streak": {
+          "label": "Streak",
+          "value": "6 days",
+          "delta": "Best: 9 days"
+        },
+        "topics": {
+          "label": "Topics done",
+          "value": "14",
+          "delta": "+5 this month"
+        }
+      },
+      "library": {
+        "subject": "Database Systems",
+        "subjectMeta": "4 of 6 topics complete",
+        "inProgress": "In progress",
+        "resourcesTitle": "Resources",
+        "topics": [
+          {
+            "title": "Relational model",
+            "status": "completed"
+          },
+          {
+            "title": "SQL joins",
+            "status": "completed"
+          },
+          {
+            "title": "Normalization",
+            "status": "in_progress"
+          },
+          {
+            "title": "Transactions",
+            "status": "not_started"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Normalization lecture notes.pdf",
+            "meta": "PDF · 2.4 MB",
+            "type": "pdf"
+          },
+          {
+            "title": "SQL joins explained",
+            "meta": "Video · YouTube",
+            "type": "video"
+          },
+          {
+            "title": "PostgreSQL documentation",
+            "meta": "Link · postgresql.org",
+            "type": "link"
+          }
+        ]
+      }
+    },
+    "features": {
+      "eyebrow": "The product",
+      "title": "Everything you're learning, in one calm place.",
+      "description": "Acadence brings your subjects, plans, goals and progress together, so you spend less time organizing and more time learning.",
+      "workspace": {
+        "eyebrow": "Dashboard",
+        "title": "Your learning workspace",
+        "description": "Open Acadence and see what matters today: your study time, weekly rhythm, active subjects and what's due next.",
+        "points": [
+          "Today's priorities and next topics at a glance",
+          "Weekly study time against your own target",
+          "Pick up exactly where you left off"
+        ],
+        "visualLabel": "Dashboard showing study time, weekly progress and subjects in progress."
+      },
+      "planner": {
+        "eyebrow": "Study Planner",
+        "title": "Plan your learning",
+        "description": "Block out study time across your week. Set sessions to repeat, move them when life happens, and start a timer when it's time to focus.",
+        "points": [
+          "Recurring weekly study sessions",
+          "Flexible one-off sessions and changes",
+          "A built-in study timer that records your time"
+        ],
+        "visualLabel": "Weekly study planner with recurring sessions for Java, algorithms and Spring Boot."
+      },
+      "goals": {
+        "eyebrow": "Goals",
+        "title": "Turn ambitions into achievable goals",
+        "description": "Break a big ambition into milestones and small tasks. Track progress at every level and always know the next step.",
+        "points": [
+          "Goals, milestones and tasks in one hierarchy",
+          "Deadlines and progress for every milestone",
+          "Clear next actions, so you never stall"
+        ],
+        "action": "Let Aven draft a plan for you",
+        "visualLabel": "A goal broken into milestones, with tasks and progress for each milestone."
+      },
+      "analytics": {
+        "eyebrow": "Analytics",
+        "title": "Understand your progress",
+        "description": "See how much you've studied, how consistent you've been and what you've completed—so you can adjust before you fall behind.",
+        "points": [
+          "Weekly activity and total study time",
+          "Streaks that reward consistency",
+          "Completed topics across every subject"
+        ],
+        "visualLabel": "Analytics with weekly study activity, a six-day streak and completed topics."
+      },
+      "library": {
+        "eyebrow": "Subjects & Library",
+        "title": "Keep everything organized",
+        "description": "Every subject holds its topics and the material you study from—PDFs, notes, videos and links—right where you need them.",
+        "points": [
+          "Subjects with ordered topics and status",
+          "Upload PDFs and files, or save links and videos",
+          "Private to your account"
+        ],
+        "visualLabel": "A subject with topics and attached PDF, video and link resources."
+      }
+    },
+    "aven": {
+      "eyebrow": "Aven AI",
+      "title": "Meet Aven. Your learning companion.",
+      "description": "An assistant that helps you plan, stay focused, and make progress—without making you manage everything yourself.",
+      "exampleTag": "Product demonstration",
+      "disclaimer": "Examples are illustrative. Aven suggests; you approve every change before it's saved.",
+      "conversation": {
+        "title": "Natural conversation",
+        "description": "Tell Aven what you want to achieve in your own words. It asks about anything missing and works from your real goals and study history.",
+        "user": "I want to become a Java software engineer in three months.",
+        "aven": "Let's break that into milestones and build a realistic learning plan."
+      },
+      "planning": {
+        "title": "Intelligent planning",
+        "description": "Aven proposes milestones, tasks and study sessions that fit your time. Review the proposal, adjust it, and approve only what you want.",
+        "milestones": [
+          "Core Java",
+          "Advanced Java",
+          "Spring Boot",
+          "Microservices",
+          "DevOps",
+          "Portfolio preparation"
+        ]
+      },
+      "proactive": {
+        "title": "Proactive support",
+        "description": "Gentle reminders about upcoming sessions and deadlines, with offers to help you re-plan when things slip. You choose what Aven can remind you about.",
+        "notices": [
+          {
+            "title": "Starting soon",
+            "body": "Your Java session starts in 15 minutes."
+          },
+          {
+            "title": "Check-in",
+            "body": "You haven't recorded a study session today. Want to adjust your plan?"
+          },
+          {
+            "title": "Deadline ahead",
+            "body": "You're approaching your Spring Boot deadline. Want help prioritizing?"
+          }
+        ]
+      }
+    },
+    "demo": {
+      "title": "Try a planning conversation",
+      "subtitle": "See how Aven turns a goal into a plan you can act on.",
+      "progressLabel": "Demo progress",
+      "steps": {
+        "goal": "Goal",
+        "understand": "Understand",
+        "milestones": "Milestones",
+        "schedule": "Schedule",
+        "workspace": "Workspace"
+      },
+      "scenariosLabel": "Example goals",
+      "emptyChat": "Pick an example goal, then send it to Aven.",
+      "typing": "Aven is writing",
+      "composerPlaceholder": "Example conversation",
+      "send": "Send to Aven",
+      "note": "This demo uses pre-written examples. No AI is called and nothing is saved.",
+      "resultLabel": "Plan preview",
+      "tabs": {
+        "milestones": "Milestones",
+        "schedule": "Schedule",
+        "workspace": "Workspace"
+      },
+      "emptyResult": "Aven's proposal will appear here.",
+      "planning": "Drafting a plan…",
+      "proposalTitle": "Proposed milestones",
+      "awaitingReview": "Awaiting your review",
+      "accepted": "Approved",
+      "acceptMilestones": "Approve milestones",
+      "reviewNote": "Nothing is saved until you approve.",
+      "scheduleTitle": "Suggested weekly schedule",
+      "minutes": "{minutes} min",
+      "approveSchedule": "Approve schedule",
+      "active": "Active",
+      "upNext": "Up next",
+      "nextSession": "Next study session",
+      "doneMessage": "Your goal, milestones and study sessions are ready. I'll check in before your next session.",
+      "cta": "Create your own plan",
+      "replay": "Replay demo",
+      "exampleTag": "Example",
+      "disclaimer": "Responses in this demo are scripted to illustrate Aven. Real plans depend on your goals, time and progress.",
+      "scenarios": [
+        {
+          "id": "java",
+          "label": "Java engineer in 3 months",
+          "prompt": "I want to become a Java software engineer in three months.",
+          "interpretation": "Great goal. Here's what I understood—I'll plan around about 12 hours a week.",
+          "facts": [
+            {
+              "label": "Goal",
+              "value": "Java software engineer"
+            },
+            {
+              "label": "Timeline",
+              "value": "12 weeks"
+            },
+            {
+              "label": "Weekly time",
+              "value": "~12 hours"
+            },
+            {
+              "label": "Starting point",
+              "value": "Basic programming"
+            }
+          ],
+          "proposalIntro": "I've drafted six milestones, from Core Java to a portfolio you can show employers. Review them on the right.",
+          "milestones": [
+            {
+              "title": "Core Java",
+              "weeks": "Weeks 1–2",
+              "tasks": [
+                "Syntax and OOP",
+                "Exceptions",
+                "Collections"
+              ]
+            },
+            {
+              "title": "Advanced Java",
+              "weeks": "Weeks 3–4",
+              "tasks": [
+                "Generics",
+                "Streams",
+                "Concurrency basics"
+              ]
+            },
+            {
+              "title": "Spring Boot",
+              "weeks": "Weeks 5–7",
+              "tasks": [
+                "REST APIs",
+                "Spring Data JPA",
+                "Testing"
+              ]
+            },
+            {
+              "title": "Microservices",
+              "weeks": "Weeks 8–9",
+              "tasks": [
+                "Service design",
+                "Messaging",
+                "API gateway"
+              ]
+            },
+            {
+              "title": "DevOps",
+              "weeks": "Week 10",
+              "tasks": [
+                "Docker",
+                "CI pipeline",
+                "Deployment"
+              ]
+            },
+            {
+              "title": "Portfolio preparation",
+              "weeks": "Weeks 11–12",
+              "tasks": [
+                "Capstone project",
+                "README",
+                "Mock interviews"
+              ]
+            }
+          ],
+          "scheduleIntro": "Here's a weekly rhythm that fits around 12 hours. I avoided your weekends except one short review.",
+          "weeklyHours": "12 h / week",
+          "sessions": [
+            {
+              "day": "Mon",
+              "time": "7:00 – 9:00 PM",
+              "title": "Core Java · OOP practice",
+              "minutes": 120
+            },
+            {
+              "day": "Tue",
+              "time": "7:00 – 9:00 PM",
+              "title": "Core Java · Exercises",
+              "minutes": 120
+            },
+            {
+              "day": "Thu",
+              "time": "7:00 – 9:30 PM",
+              "title": "Collections deep dive",
+              "minutes": 150
+            },
+            {
+              "day": "Sat",
+              "time": "9:00 – 10:00 AM",
+              "title": "Weekly review",
+              "minutes": 60
+            }
+          ],
+          "goalTitle": "Become a Java software engineer",
+          "due": "12-week plan · 6 milestones"
+        },
+        {
+          "id": "ielts",
+          "label": "IELTS band 7.5",
+          "prompt": "Help me reach IELTS band 7.5 in ten weeks. Writing is my weakest skill.",
+          "interpretation": "Understood. I'll weight practice toward Writing while keeping the other skills warm.",
+          "facts": [
+            {
+              "label": "Goal",
+              "value": "IELTS band 7.5"
+            },
+            {
+              "label": "Timeline",
+              "value": "10 weeks"
+            },
+            {
+              "label": "Focus",
+              "value": "Writing"
+            },
+            {
+              "label": "Weekly time",
+              "value": "~8 hours"
+            }
+          ],
+          "proposalIntro": "I've organized this into four milestones, ending with full mock tests under exam timing.",
+          "milestones": [
+            {
+              "title": "Diagnostic and test strategy",
+              "weeks": "Week 1",
+              "tasks": [
+                "Baseline mock test",
+                "Band descriptors"
+              ]
+            },
+            {
+              "title": "Writing Task 1 & 2",
+              "weeks": "Weeks 2–5",
+              "tasks": [
+                "Essay structure",
+                "Coherence",
+                "Timed essays"
+              ]
+            },
+            {
+              "title": "Reading and Listening",
+              "weeks": "Weeks 6–7",
+              "tasks": [
+                "Skimming",
+                "Question types"
+              ]
+            },
+            {
+              "title": "Speaking and full mocks",
+              "weeks": "Weeks 8–10",
+              "tasks": [
+                "Speaking drills",
+                "3 full mock tests"
+              ]
+            }
+          ],
+          "scheduleIntro": "This schedule gives Writing three sessions a week, with short sessions for the other skills.",
+          "weeklyHours": "8 h / week",
+          "sessions": [
+            {
+              "day": "Mon",
+              "time": "6:30 – 8:00 PM",
+              "title": "Writing Task 2 · Structure",
+              "minutes": 90
+            },
+            {
+              "day": "Wed",
+              "time": "6:30 – 8:00 PM",
+              "title": "Writing Task 1 · Data",
+              "minutes": 90
+            },
+            {
+              "day": "Thu",
+              "time": "7:00 – 8:00 PM",
+              "title": "Reading practice",
+              "minutes": 60
+            },
+            {
+              "day": "Sat",
+              "time": "10:00 AM – 12:00 PM",
+              "title": "Timed essay + review",
+              "minutes": 120
+            }
+          ],
+          "goalTitle": "Reach IELTS band 7.5",
+          "due": "10-week plan · 4 milestones"
+        },
+        {
+          "id": "aws",
+          "label": "AWS certification",
+          "prompt": "I need to pass the AWS Solutions Architect Associate exam in eight weeks.",
+          "interpretation": "Got it. I'll cover the exam domains in order of weight and leave time for practice exams.",
+          "facts": [
+            {
+              "label": "Goal",
+              "value": "AWS SAA certification"
+            },
+            {
+              "label": "Timeline",
+              "value": "8 weeks"
+            },
+            {
+              "label": "Weekly time",
+              "value": "~10 hours"
+            },
+            {
+              "label": "Format",
+              "value": "65 questions"
+            }
+          ],
+          "proposalIntro": "Here are five milestones that follow the exam domains, finishing with practice exams.",
+          "milestones": [
+            {
+              "title": "Core services",
+              "weeks": "Weeks 1–2",
+              "tasks": [
+                "IAM",
+                "EC2",
+                "S3",
+                "VPC basics"
+              ]
+            },
+            {
+              "title": "Resilient architectures",
+              "weeks": "Weeks 3–4",
+              "tasks": [
+                "Multi-AZ",
+                "Auto Scaling",
+                "Load balancing"
+              ]
+            },
+            {
+              "title": "High-performing architectures",
+              "weeks": "Week 5",
+              "tasks": [
+                "Caching",
+                "Databases",
+                "Storage tiers"
+              ]
+            },
+            {
+              "title": "Security and cost",
+              "weeks": "Week 6",
+              "tasks": [
+                "KMS",
+                "Policies",
+                "Cost optimization"
+              ]
+            },
+            {
+              "title": "Practice exams",
+              "weeks": "Weeks 7–8",
+              "tasks": [
+                "Two full exams",
+                "Review weak areas"
+              ]
+            }
+          ],
+          "scheduleIntro": "Four focused sessions a week, with a longer weekend block for labs.",
+          "weeklyHours": "10 h / week",
+          "sessions": [
+            {
+              "day": "Mon",
+              "time": "8:00 – 10:00 PM",
+              "title": "IAM and EC2",
+              "minutes": 120
+            },
+            {
+              "day": "Wed",
+              "time": "8:00 – 10:00 PM",
+              "title": "S3 and storage classes",
+              "minutes": 120
+            },
+            {
+              "day": "Fri",
+              "time": "8:00 – 9:30 PM",
+              "title": "VPC networking",
+              "minutes": 90
+            },
+            {
+              "day": "Sun",
+              "time": "9:00 AM – 12:00 PM",
+              "title": "Hands-on lab",
+              "minutes": 180
+            }
+          ],
+          "goalTitle": "Pass AWS Solutions Architect Associate",
+          "due": "8-week plan · 5 milestones"
+        }
+      ]
+    },
+    "how": {
+      "eyebrow": "How it works",
+      "title": "From intention to progress in three steps.",
+      "description": "No complicated setup. Start with one goal or one subject and build from there.",
+      "stepLabel": "Step {step}",
+      "avenNote": "Aven can help with every step on Pro and Plus—or do it all yourself on Free.",
+      "direction": {
+        "title": "Set your direction",
+        "description": "Create a goal, add your subjects, or tell Aven what you want to achieve.",
+        "visual": "I want to pass my database exam in six weeks."
+      },
+      "routine": {
+        "title": "Build your routine",
+        "description": "Organize tasks, plan study sessions, and manage deadlines in one place.",
+        "visual": [
+          {
+            "time": "9:00",
+            "title": "Relational model review",
+            "done": true
+          },
+          {
+            "time": "14:00",
+            "title": "SQL joins practice",
+            "done": false
+          },
+          {
+            "time": "19:00",
+            "title": "Normalization quiz",
+            "done": false
+          }
+        ]
+      },
+      "progress": {
+        "title": "Make progress",
+        "description": "Study, track results, and adjust your plan as you learn.",
+        "visualLabel": "Database Systems",
+        "visualValue": "Milestone 2 of 3",
+        "visualCaption": "On track for your deadline"
+      }
+    },
+    "trust": {
+      "eyebrow": "Built on trust",
+      "title": "Designed to earn your trust, not demand it.",
+      "control": {
+        "title": "You stay in control",
+        "description": "Aven proposes changes to your goals and schedule. Nothing is applied until you review and approve it."
+      },
+      "private": {
+        "title": "Private by default",
+        "description": "Your notes and files belong to your account. Aven only processes your learning data after you turn it on."
+      },
+      "portable": {
+        "title": "Your data, your choice",
+        "description": "Export your study data whenever you like, or delete your account and its data from Settings."
+      },
+      "pricing": {
+        "title": "Honest pricing",
+        "description": "Clear monthly prices in LKR. The Free plan stays free and never asks for a card."
+      }
+    },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "title": "Start free. Add Aven when you're ready.",
+      "description": "Every plan includes the complete learning workspace. Pro and Plus add Aven AI.",
+      "recommended": "Recommended",
+      "currentPlan": "Current plan",
+      "perMonth": "/ month",
+      "notIncluded": "Not included:",
+      "currencyNote": "Prices in Sri Lankan rupees (LKR), billed monthly.",
+      "secureNote": "Payments are handled on our payment provider's secure checkout. Acadence never sees your card details.",
+      "checkoutPending": "Online checkout for Pro and Plus is opening soon. You can start on Free today—no payment is taken until checkout is live.",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "positioning": "Everything you need to organize your learning.",
+          "billingNote": "No time limit. No card required.",
+          "cta": "Get started free",
+          "features": [
+            "Subjects and topics",
+            "Study timer",
+            "Study planner",
+            "Goals and milestones",
+            "Task management",
+            "Basic analytics",
+            "Resource library"
+          ],
+          "excluded": [
+            "Aven AI"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "positioning": "Smarter planning. Better progress.",
+          "billingNote": "Billed monthly. Cancel anytime.",
+          "cta": "Choose Pro",
+          "includesPrevious": "Everything in Free, plus:",
+          "features": [
+            "Aven AI chat",
+            "AI goal planning",
+            "AI milestone generation",
+            "AI study schedule proposals",
+            "Advanced analytics",
+            "Proactive AI reminders (limited)",
+            "AI study recommendations"
+          ],
+          "excluded": []
+        },
+        "plus": {
+          "name": "Plus",
+          "positioning": "Your most complete learning companion.",
+          "billingNote": "Billed monthly. Cancel anytime.",
+          "cta": "Choose Plus",
+          "includesPrevious": "Everything in Pro, plus:",
+          "features": [
+            "Higher Aven AI usage allowance",
+            "Enhanced proactive check-ins",
+            "Adaptive recovery planning",
+            "Personalized weekly reviews",
+            "Priority AI usage allowance",
+            "Advanced goal coaching"
+          ],
+          "excluded": []
+        }
+      }
+    },
+    "compare": {
+      "toggle": "Compare all features",
+      "caption": "Feature comparison of the Free, Pro and Plus plans",
+      "feature": "Feature",
+      "included": "Included",
+      "notIncluded": "Not included",
+      "groups": {
+        "learning": "Learning management",
+        "planning": "Goals and planning",
+        "analytics": "Analytics",
+        "aven": "Aven AI",
+        "companion": "Proactive companion",
+        "resources": "Resources",
+        "support": "Account and data"
+      },
+      "rows": {
+        "subjects": "Subjects and topics",
+        "timer": "Study timer",
+        "history": "Study history",
+        "planner": "Study planner with recurring sessions",
+        "goals": "Goals and milestones",
+        "tasks": "Task management",
+        "basicAnalytics": "Study time, streaks and completed topics",
+        "advancedAnalytics": "Advanced analytics",
+        "chat": "Aven AI chat",
+        "goalPlanning": "AI goal and milestone planning",
+        "schedules": "AI study schedule proposals",
+        "recommendations": "AI study recommendations",
+        "allowance": "Monthly AI usage allowance",
+        "reminders": "Proactive AI reminders",
+        "recovery": "Adaptive recovery planning",
+        "weeklyReviews": "Personalized weekly reviews",
+        "coaching": "Advanced goal coaching",
+        "library": "Resource library",
+        "files": "PDF and file uploads",
+        "export": "Export your data",
+        "deletion": "Delete your account and data"
+      },
+      "values": {
+        "standard": "Standard",
+        "higher": "Higher",
+        "limited": "Limited",
+        "enhanced": "Enhanced"
+      }
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Questions, answered.",
+      "description": "Straight answers about plans, Aven and your data.",
+      "privacyLink": "For the details, read our <privacy>Privacy Policy</privacy> and <terms>Terms of Service</terms>.",
+      "items": {
+        "free": {
+          "question": "Is Acadence free?",
+          "answer": "Yes. The Free plan is free with no time limit, and signing up doesn't require a credit card. Pro and Plus are optional monthly upgrades that add Aven AI."
+        },
+        "freeIncludes": {
+          "question": "What's included in the Free plan?",
+          "answer": "The complete learning workspace: subjects and topics, the study timer, the study planner with recurring sessions, goals, milestones and tasks, study analytics, and the resource library for files, notes, videos and links. Aven AI is not included."
+        },
+        "aven": {
+          "question": "What can Aven AI do?",
+          "answer": "Aven can talk through your goals and progress, propose goals broken into milestones and tasks, suggest study sessions that fit your schedule, and send reminders about upcoming sessions and deadlines. Aven works from what you record in Acadence—it can't see what you do outside the app."
+        },
+        "proVsPlus": {
+          "question": "What's the difference between Pro and Plus?",
+          "answer": "Both include Aven AI. Plus has a higher monthly AI usage allowance, more proactive check-ins, adaptive recovery planning when you fall behind, personalized weekly reviews and advanced goal coaching."
+        },
+        "changePlan": {
+          "question": "Can I change my plan later?",
+          "answer": "Yes. You can move between plans from Billing in your account settings. A paid plan starts only after our payment provider confirms your payment."
+        },
+        "cancel": {
+          "question": "Can I cancel my subscription?",
+          "answer": "Yes, anytime. Cancelling stops future renewals. You keep your paid features until the end of the period you've already paid for, then your account moves to Free. Your subjects, goals and study history are kept."
+        },
+        "mobile": {
+          "question": "Does Acadence work on mobile?",
+          "answer": "Yes. Acadence runs in the browser on phones, tablets and computers, with a layout designed for small screens. There's no separate app to install."
+        },
+        "withoutAi": {
+          "question": "Can I use Acadence without AI?",
+          "answer": "Absolutely. Every core feature works without Aven, and the Free plan has no AI at all. On paid plans, Aven stays off until you choose to turn it on."
+        },
+        "data": {
+          "question": "How is my learning data handled?",
+          "answer": "Your notes and files are private to your account. Aven only processes your learning data after you enable it, and reading your resource content requires a separate permission. You can export your data or delete your account from Settings."
+        },
+        "autoChange": {
+          "question": "Can Aven automatically change my study schedule?",
+          "answer": "No. Aven proposes changes—like new study sessions or a catch-up plan—and nothing is applied until you review and approve it."
+        }
+      }
+    },
+    "finalCta": {
+      "title": "Your next achievement starts here.",
+      "description": "Bring your goals, study plans, and progress together in one place.",
+      "primary": "Start learning for free",
+      "secondary": "See pricing",
+      "trust": "Free plan · No credit card required"
+    },
+    "footer": {
+      "home": "Acadence home",
+      "tagline": "Learn. Focus. Progress. A personal learning workspace with an AI companion that helps you follow through.",
+      "brandLine": "Learn. Focus. Progress.",
+      "copyright": "© {year} {appName}. All rights reserved.",
+      "columns": {
+        "product": "Product",
+        "company": "Company",
+        "legal": "Legal",
+        "account": "Account"
+      },
+      "links": {
+        "features": "Features",
+        "aven": "Aven AI",
+        "pricing": "Pricing",
+        "howItWorks": "How it works",
+        "faq": "FAQ",
+        "contact": "Contact",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "cancellation": "Cancellation policy",
+        "login": "Log in",
+        "signup": "Sign up"
+      }
+    }
+  },
+  "billing": {
+    "title": "Plan & billing",
+    "description": "Your subscription, plan options and payment details.",
+    "settingsLink": "Plan & billing",
+    "currentTitle": "Current plan",
+    "currentPlanButton": "Current plan",
+    "comingSoon": "Checkout opening soon",
+    "status": {
+      "active": "Active",
+      "trialing": "Trial",
+      "past_due": "Payment failed",
+      "canceled": "Canceled",
+      "incomplete": "Incomplete"
+    },
+    "renewsOn": "Renews on {date}.",
+    "endsOn": "Cancelled. Paid features remain until {date}, then your account moves to Free.",
+    "pastDue": "Your last payment didn't go through. Update your payment method with our provider to restore paid features.",
+    "earlyAccess": "During early access, every account can use all features, including Aven. Plan limits apply once paid plans launch.",
+    "processing": "We're confirming your payment with our payment provider. Your plan updates automatically once it's confirmed—this page doesn't activate it.",
+    "selected": "You chose {plan}. Review the plan below to continue.",
+    "checkoutPending": "Online checkout isn't available yet. You won't be charged, and your selected plan is saved for when it opens.",
+    "checkoutUnavailable": "Checkout isn't available yet. Please try again later.",
+    "checkoutFailed": "We couldn't start checkout. Please try again.",
+    "redirecting": "Opening secure checkout…",
+    "choose": {
+      "pro": "Upgrade to Pro",
+      "plus": "Upgrade to Plus"
+    },
+    "downgradeNote": "To move to Free, cancel your paid plan. You keep paid features until the end of your billing period.",
+    "receiptsTitle": "Receipts and payment methods",
+    "receiptsBody": "Payments, receipts and card details are handled by our payment provider's secure pages. Acadence never stores your card details.",
+    "avenUpgrade": {
+      "title": "Aven is part of Pro and Plus",
+      "description": "Your Free plan includes the full learning workspace. Upgrade to add Aven, a companion that helps you plan and follow through.",
+      "benefits": [
+        "Turn a goal into milestones, tasks and study sessions",
+        "Get gentle reminders before sessions and deadlines",
+        "Ask about your progress and what to do next",
+        "Approve every change before it's saved"
+      ],
+      "cta": "See Pro and Plus",
+      "secondary": "Plan a goal yourself",
+      "note": "Your goals, planner and analytics keep working on Free."
+    }
   }
 }

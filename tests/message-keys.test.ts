@@ -7,6 +7,8 @@ const roots = [
   "src/components/navigation",
   "src/components/goals",
   "src/components/dashboard",
+  "src/components/marketing",
+  "src/components/billing",
   "src/app/[locale]/(learner)/dashboard",
 ];
 const files = (dir: string): string[] =>

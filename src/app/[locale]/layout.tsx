@@ -10,6 +10,7 @@ import "../sidebar.css";
 import "../dashboard.css";
 import "../goals.css";
 import "../aven.css";
+import "../marketing.css";
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/constants";
 import ServerActionRecovery from "@/components/common/ServerActionRecovery";

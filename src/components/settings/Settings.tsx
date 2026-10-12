@@ -3,7 +3,7 @@ import { runServerAction } from "@/lib/client/server-actions";
 import { useMemo, useState } from "react";
 import { deleteMyAccount } from "@/app/[locale]/actions";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import { useModal } from "@/hooks/useModal";
 import {
@@ -28,6 +28,7 @@ interface Props {
 export default function Settings({ initial }: Props) {
   const data = useWorkspace(initial);
   const t = useTranslations("studyflow");
+  const b = useTranslations("billing");
   const router = useRouter();
   const { themeMode, setThemeMode } = useTheme();
   const deletion = useModal();
@@ -75,6 +76,7 @@ export default function Settings({ initial }: Props) {
               </a>
             ),
           )}
+          <Link href="/billing">{b("settingsLink")}</Link>
         </nav>
         <div className="min-w-0 space-y-8">
           <section id="settings-profile">

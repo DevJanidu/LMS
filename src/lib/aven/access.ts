@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { users, aiUserPreferences, aiConversations } from "@/lib/db/schema";
 import { GoalError } from "@/lib/goals/service";
+import { assertEntitlement } from "@/lib/billing/entitlements";
 export async function assertAvenAccess(userId: string) {
   const [record] = await getDb()
     .select({
@@ -15,6 +16,7 @@ export async function assertAvenAccess(userId: string) {
     .where(and(eq(users.id, userId), eq(users.status, "active")));
   if (!record || record.role !== "learner")
     throw new GoalError("authenticationFailed", 403);
+  await assertEntitlement(userId, "aven");
   if (!record.preferences?.consent)
     throw new GoalError("aiConsentRequired", 403);
 }

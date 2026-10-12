@@ -11,6 +11,7 @@ import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
 import ProgressBar from "@/components/studyflow/ProgressBar";
 import Field, { SelectField, TextField } from "@/components/studyflow/FormFields";
+import { selectedPlanFromCookies } from "@/lib/billing/selection";
 
 interface Props { initial: Workspace; initialStep?: number; }
 type FormState = {
@@ -56,7 +57,7 @@ export default function OnboardingWizard({ initial, initialStep = 0 }: Props) {
     try {
       const result = await runServerAction(() => completeOnboarding(parsed.data));
       if (!result.ok) { setError(t(result.error)); return; }
-      router.replace("/dashboard");
+      router.replace(selectedPlanFromCookies(document.cookie) ? "/billing" : "/dashboard");
     } catch { setError(t("saveFailed"));
     } finally { setPending(false); }
   };

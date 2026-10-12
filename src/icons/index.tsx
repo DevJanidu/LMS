@@ -33,3 +33,5 @@ export { default as CopyIcon } from "./copy.svg";
 export { default as RefreshIcon } from "./refresh.svg";
 export { default as PanelIcon } from "./panel.svg";
 export { default as PlusIcon } from "./plus.svg";
+export { default as InfoIcon } from "./info.svg";
+export { default as LockIcon } from "./lock.svg";
