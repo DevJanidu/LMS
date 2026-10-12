@@ -14,11 +14,14 @@ export default function WorkspacePageLoading({ page }: { page: WorkspacePage }) 
   const t = useTranslations("studyflow");
   if (page === "dashboard") return (
     <div role="status" aria-label={t("loading")} data-workspace-loading>
+      {/* Mirrors the dashboard layout: overview, next action, journey panels, then learning. */}
       <div className="sf-hero sf-dashboard-hero">
         <div className="sf-dashboard-greeting"><Block className="h-4 w-28" /><Block className="mt-5 h-10 w-64 max-w-full" /><Block className="mt-4 h-5 w-48" /></div>
-        <Block className="h-60" /><Block className="h-60" />
+        <div className="sf-dashboard-progress"><Block className="h-36" /><Block className="h-36" /></div>
       </div>
-      <div className="sf-dashboard-body"><Block className="h-80" /><Block className="h-80" /></div>
+      <Block className="h-36" />
+      <div className="sf-journey"><Block className="h-64" /><Block className="h-64" /><Block className="h-64" /></div>
+      <div className="sf-dashboard-body"><Block className="h-64" /><Block className="h-64" /></div>
     </div>
   );
 

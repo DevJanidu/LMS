@@ -21,7 +21,7 @@ export default function SidebarNavigation({
   return (
     <nav aria-label={label} className="sf-sidebar-nav">
       <ul>
-        {items.map(({ key, href, icon: Icon, group }) => {
+        {items.map(({ key, labelKey = key, href, icon: Icon, group }) => {
           const active = isActiveRoute(path, href);
           return (
             <li key={href}>
@@ -32,7 +32,7 @@ export default function SidebarNavigation({
               )}
               <SidebarLink
                 href={href}
-                label={t(key)}
+                label={t(labelKey)}
                 active={active}
                 pending={pendingHref === href}
                 onClick={() => onNavigate?.(href, active)}

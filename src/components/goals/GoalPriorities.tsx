@@ -5,12 +5,12 @@ import { goals } from "@/lib/db/schema";
 import { getGoalCards } from "@/lib/goals/service";
 import { Link } from "@/i18n/navigation";
 import ProgressBar from "@/components/studyflow/ProgressBar";
-import { SparklesIcon } from "@/icons";
-import { getNextBestActions } from "@/lib/goals/next-action-server";
-import NextBestActionCard from "./NextBestActionCard";
+import DashboardPanel, {
+  PanelEmpty,
+} from "@/components/dashboard/DashboardPanel";
+/** The three nearest active goals with verified progress, next milestone and deadline. */
 export default async function GoalPriorities({ userId }: { userId: string }) {
-  const t = await getTranslations("goals");
-  const actions = await getNextBestActions(userId).catch(() => []);
+  const t = await getTranslations("studyflow.dashboard");
   const details = await (async () => {
     const rows = await getDb()
       .select({ id: goals.id })
@@ -28,71 +28,61 @@ export default async function GoalPriorities({ userId }: { userId: string }) {
       rows.map((row) => row.id),
     );
   })().catch(() => undefined);
-  if (!details)
-    return (
-      <Link
-        href="/goals"
-        className="my-6 inline-block text-small text-brand-600 dark:text-brand-300"
-      >
-        {t("title")}
-      </Link>
-    );
   return (
-    <section className="my-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-dark">
-      {actions.length > 0 && (
-        <div className="mb-5">
-          <NextBestActionCard actions={actions} askAven={false} />
-        </div>
-      )}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-primary dark:text-primary text-h3">
-          {t("dailyPriorities")}
-        </h2>
-        <Link
-          href="/aven?intent=today"
-          className="inline-flex items-center gap-2 text-small text-brand-600 dark:text-brand-300"
-        >
-          <SparklesIcon className="size-4" />
-          {t("askAven")}
-        </Link>
-      </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {details.map((detail) => (
-          <div key={detail.goal.id} className="space-y-2">
-            <Link
-              href={`/goals/${detail.goal.id}`}
-              className="text-primary dark:text-primary text-h3 hover:text-brand-600 dark:hover:text-brand-300"
-            >
-              {detail.goal.title}
-            </Link>
-            {detail.tasks.length > 0 && (
-              <>
-                {" "}
+    <DashboardPanel
+      title={t("goalsTitle")}
+      action={{ href: "/goals", label: t("allGoals") }}
+    >
+      {!details ? (
+        <PanelEmpty message={t("unavailable")} />
+      ) : details.length ? (
+        <ul className="sf-panel-list">
+          {details.map(({ goal, progress, milestones, tasks }) => {
+            const next =
+              milestones[0]?.title ??
+              tasks.find((task) => task.id === progress.nextTaskId)?.title;
+            return (
+              <li key={goal.id} className="sf-goal-row">
+                <div className="sf-row-head">
+                  <Link href={`/goals/${goal.id}`} className="sf-row-title">
+                    {goal.title}
+                  </Link>
+                  <span className="sf-row-figure">
+                    {Math.round(progress.percent)}%
+                  </span>
+                </div>
                 <ProgressBar
-                  value={detail.progress.percent}
-                  label={detail.goal.title}
+                  value={progress.percent}
+                  label={t("progressLabel", { title: goal.title })}
                 />
-                <p className="text-secondary dark:text-secondary text-small">
-                  {detail.tasks.find(
-                    (task) => task.id === detail.progress.nextTaskId,
-                  )?.title ?? t("noNextTask")}
+                <p className="sf-row-meta">
+                  {[
+                    next ? t("nextUp", { title: next }) : t("noNextStep"),
+                    progress.daysRemaining < 0
+                      ? t("overdue")
+                      : t("daysLeft", { days: progress.daysRemaining }),
+                  ].join(" · ")}
                 </p>
-              </>
-            )}
-            <p className="text-muted dark:text-muted text-caption">
-              {t("targetLabel", { date: detail.goal.targetDate })}
-            </p>
-          </div>
-        ))}
-      </div>
-      {!details.length && (
-        <Link
-          href="/goals"
-          className="text-small text-brand-600 dark:text-brand-300"
-        >
-          {t("createGoal")}
-        </Link>
+                <Link
+                  href={`/aven?goal=${goal.id}&intent=next`}
+                  className="sf-row-action"
+                >
+                  {t("planNext")}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <PanelEmpty
+          message={t("noGoals")}
+          action={
+            <Link href="/goals" className="sf-action-secondary">
+              {t("createGoal")}
+            </Link>
+          }
+        />
       )}
-    </section>
+    </DashboardPanel>
   );
 }

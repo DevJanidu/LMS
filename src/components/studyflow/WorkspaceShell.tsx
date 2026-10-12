@@ -247,7 +247,7 @@ function Shell({ children, initial, admin = false, details }: Props) {
       {!admin && <ActiveTimerIndicator initial={initial} />}
       {!admin && (
         <nav className="sf-mobile-nav" aria-label={t("learnerNavigation")}>
-          {mobileItems.map(({ key, href, icon: Icon }) =>
+          {mobileItems.map(({ key, labelKey = key, href, icon: Icon }) =>
             key === "study" ? (
               <FocusLauncher
                 key={key}
@@ -273,7 +273,7 @@ function Shell({ children, initial, admin = false, details }: Props) {
                 }}
               >
                 <Icon className="size-5" />
-                <span>{t(key)}</span>
+                <span>{t(labelKey)}</span>
               </Link>
             ),
           )}

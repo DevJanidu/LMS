@@ -6,6 +6,8 @@ const roots = [
   "src/components/aven",
   "src/components/navigation",
   "src/components/goals",
+  "src/components/dashboard",
+  "src/app/[locale]/(learner)/dashboard",
 ];
 const files = (dir: string): string[] =>
   readdirSync(dir).flatMap((name) => {
@@ -34,6 +36,9 @@ it("every literal translation key used by Aven, navigation and goals components 
     const translators = [
       ...source.matchAll(
         /(\w+)\s*=\s*(?:await\s+)?(?:useTranslations|getTranslations)\("([\w.]+)"\)/g,
+      ),
+      ...source.matchAll(
+        /(\w+)\s*=\s*await\s+getTranslations\(\{[^}]*namespace:\s*"([\w.]+)"[^}]*\}\)/g,
       ),
     ];
     for (const [, name, namespace] of translators)

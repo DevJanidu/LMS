@@ -329,6 +329,8 @@ export const nextActionsSchema = z
       taskId: z.uuid(),
       taskTitle: z.string().max(200),
       milestoneTitle: z.string().max(200).nullable(),
+      subjectId: z.uuid().nullable().optional(),
+      topicId: z.uuid().nullable().optional(),
       dueDate: z.iso.date(),
       remainingMinutes: z.number().int().min(0),
       score: z.number(),

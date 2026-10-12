@@ -3,7 +3,12 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
-import { greetingForDate, greetingImages, greetingName, type GreetingPeriod } from "@/lib/greeting";
+import {
+  greetingForDate,
+  greetingImages,
+  greetingName,
+  type GreetingPeriod,
+} from "@/lib/greeting";
 
 interface Props {
   name: string;
@@ -25,7 +30,9 @@ export default function DashboardGreeting({ name, children }: Props) {
     const check = () => setPeriod(greetingForDate(new Date()).period);
     const initialCheck = window.setTimeout(check, 0);
     const interval = window.setInterval(check, 60_000);
-    const onVisible = () => { if (document.visibilityState === "visible") check(); };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") check();
+    };
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       window.clearInterval(interval);
@@ -53,9 +60,19 @@ export default function DashboardGreeting({ name, children }: Props) {
         />
       )}
       <p className="sf-eyebrow">{t("redesign.personalWorkspace")}</p>
-      <h1>{period ? t(`redesign.${period}`, { name: displayName }) : "\u00a0"}</h1>
-      {period && <p className="sf-greeting-tagline">{t(`redesign.taglines.${period}`)}</p>}
-      {period && <span className="sf-greeting-badge">{t(`redesign.badges.${period}`)}</span>}
+      <h1>
+        {period ? t(`redesign.${period}`, { name: displayName }) : "\u00a0"}
+      </h1>
+      {period && (
+        <p className="sf-greeting-tagline">
+          {t(`redesign.taglines.${period}`)}
+        </p>
+      )}
+      {period && (
+        <span className="sf-greeting-badge">
+          {t(`redesign.badges.${period}`)}
+        </span>
+      )}
       {children}
     </div>
   );

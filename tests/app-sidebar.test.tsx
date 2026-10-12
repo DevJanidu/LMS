@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
 import en from "@/messages/en.json";
 vi.mock("@/i18n/navigation", () => ({
+  usePathname: () => "/dashboard",
   Link: ({
     href,
     children,
@@ -35,6 +36,12 @@ vi.mock("@/icons", () => {
       "SparklesIcon",
       "TargetIcon",
       "TimerIcon",
+      "BellIcon",
+      "ListIcon",
+      "MoonIcon",
+      "SearchIcon",
+      "CommandIcon",
+      "ArrowRightIcon",
     ].map((name) => [name, Icon]),
   );
 });
@@ -42,6 +49,11 @@ vi.mock("@/components/studyflow/BrandLogo", () => ({
   default: () => <span>Acadence</span>,
 }));
 import AppSidebar from "@/components/navigation/AppSidebar";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
+vi.mock("@/components/calendar/PlannerLoading", () => ({ default: () => null }));
+vi.mock("@/components/studyflow/LoadingSkeleton", () => ({ default: () => null }));
+vi.mock("@/components/studyflow/WorkspacePageLoading", () => ({ default: () => null }));
+import WorkspaceShellLoading from "@/components/studyflow/WorkspaceShellLoading";
 import {
   isActiveRoute,
   learnerNavigation,
@@ -54,6 +66,26 @@ const render = (path: string, admin = false) =>
     </NextIntlClientProvider>,
   );
 describe("unified application sidebar", () => {
+  it("renders the learner breadcrumb Home link without translation errors", () => {
+    const onError = vi.fn();
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider locale="en" messages={en} timeZone="UTC" onError={onError}>
+        <PageBreadCrumb pageTitle="Subjects" />
+      </NextIntlClientProvider>,
+    );
+    expect(onError).not.toHaveBeenCalled();
+    expect(html).toContain('<a href="/dashboard">Home</a>');
+  });
+  it("renders the loading shell and mobile Home label without translation errors", () => {
+    const onError = vi.fn();
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider locale="en" messages={en} timeZone="UTC" onError={onError}>
+        <WorkspaceShellLoading />
+      </NextIntlClientProvider>,
+    );
+    expect(onError).not.toHaveBeenCalled();
+    expect(html).toMatch(/sf-mobile-nav[\s\S]*href="\/dashboard"[\s\S]*<span>Home<\/span>/);
+  });
   it("renders one sidebar with every destination, a contextual area and settings at the bottom", () => {
     const html = render("/aven");
     expect(html.match(/<aside/g)).toHaveLength(1);
@@ -100,5 +132,16 @@ describe("unified application sidebar", () => {
     expect(new Set(learnerNavigation.map((item) => item.href)).size).toBe(
       learnerNavigation.length,
     );
+  });
+  it("resolves every navigation label to a string instead of a message namespace", () => {
+    for (const item of [...learnerNavigation, ...adminNavigation]) {
+      const message = (item.labelKey ?? item.key).split(".").reduce<unknown>(
+        (value, part) => value && typeof value === "object"
+          ? (value as Record<string, unknown>)[part]
+          : undefined,
+        en.studyflow,
+      );
+      expect(typeof message, item.key).toBe("string");
+    }
   });
 });

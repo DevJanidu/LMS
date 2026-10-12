@@ -12,6 +12,7 @@ export default async function Page({
   searchParams: Promise<{
     goal?: string;
     intent?: string;
+    task?: string;
     notification?: string;
     conversation?: string;
     new?: string;
@@ -38,6 +39,7 @@ export default async function Page({
       goalId={goalId}
       goalTitle={detail?.goal.title}
       intent={query.intent}
+      task={query.task?.trim().slice(0, 200) || undefined}
       notification={query.notification}
       fresh={query.new === "1"}
       conversationId={

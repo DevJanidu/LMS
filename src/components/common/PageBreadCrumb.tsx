@@ -27,7 +27,7 @@ export default function PageBreadCrumb({ pageTitle }: Props) {
       <ol className="flex flex-wrap items-center gap-2 text-small text-muted dark:text-muted">
         <li>
           <Link href={admin ? "/admin" : "/dashboard"}>
-            {t(admin ? "admin" : "dashboard")}
+            {t(admin ? "admin" : "dashboard.navLabel")}
           </Link>
         </li>
         <li aria-hidden="true">

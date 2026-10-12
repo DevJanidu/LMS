@@ -115,10 +115,10 @@ export default function WorkspaceShellLoading({
         <nav className="sf-mobile-nav" aria-label={t("learnerNavigation")}>
           {learnerNavigation
             .filter((item) => mobileNavigationKeys.includes(item.key))
-            .map(({ key, href, icon: Icon }) => (
+            .map(({ key, labelKey = key, href, icon: Icon }) => (
               <Link key={href} href={href} prefetch={false}>
                 <Icon className="size-5" />
-                <span>{t(key)}</span>
+                <span>{t(labelKey)}</span>
               </Link>
             ))}
         </nav>

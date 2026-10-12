@@ -40,6 +40,8 @@ interface Props {
   goalId?: string;
   goalTitle?: string;
   intent?: string;
+  /** Task title from a recommendation, used in the prefilled prompt. */
+  task?: string;
   notification?: string;
   conversationId?: string;
   /** Start a new conversation instead of reopening the last one in this tab. */
@@ -54,6 +56,7 @@ export default function AvenCompanion({
   goalId,
   goalTitle,
   intent,
+  task,
   notification,
   conversationId: requestedConversation,
   fresh = false,
@@ -67,7 +70,11 @@ export default function AvenCompanion({
     [loadingMore, setLoadingMore] = useState(false),
     [replyNotification, setReplyNotification] = useState<string>(),
     [planning, setPlanning] = useState(
-      intent === "plan" || intent === "recovery" || intent === "schedule",
+      intent === "plan" ||
+      intent === "recovery" ||
+      intent === "schedule" ||
+      intent === "rescheduleTask" ||
+      intent === "catchUp",
     ),
     [announcement, setAnnouncement] = useState("");
   const composer = useRef<AvenComposerHandle>(null);
@@ -98,7 +105,10 @@ export default function AvenCompanion({
   const draft = useAvenDraft(
     initial.userId,
     intent && t.has(`prompts.${intent}`)
-      ? t(`prompts.${intent}`, { title: goalTitle ?? t("myGoal") })
+      ? t(`prompts.${intent}`, {
+          title: goalTitle ?? t("myGoal"),
+          task: task ?? t("thisTask"),
+        })
       : "",
   );
   const { value: input, setValue: setInput } = draft;

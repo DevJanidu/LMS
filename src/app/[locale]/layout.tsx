@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import "../workspace.css";
 import "../sidebar.css";
+import "../dashboard.css";
 import "../aven.css";
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/constants";

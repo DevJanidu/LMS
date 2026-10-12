@@ -226,11 +226,10 @@
     "existingStudyPlan": "Existing study plan (optional)",
     "openGoalStatus": "To do",
     "nextBestAction": {
-      "title": "Next best action",
-      "headline": "Complete {task} next.",
-      "estimate": "About {minutes} min left",
-      "openGoal": "Open goal",
-      "askAven": "Ask Aven why",
+      "title": "Recommended next",
+      "estimate": "{minutes} min estimated",
+      "openGoal": "View goal",
+      "askAven": "Ask Aven",
       "reasons": {
         "overdue": "It was due {date}.",
         "dueSoon": "It is due {date}.",
@@ -239,7 +238,22 @@
         "highPriority": "It is marked high priority.",
         "goalAtRisk": "Its goal needs attention.",
         "fitsToday": "It fits in your {minutes}-minute daily target."
-      }
+      },
+      "towardGoal": "This moves you toward \"{goal}\".",
+      "due": "Due {date}",
+      "start": "Start studying",
+      "alsoConsider": "Also worth considering",
+      "ask": {
+        "startTask": "Help me start this task",
+        "whyNext": "Why should I study this next?",
+        "rescheduleTask": "Can you reschedule this?",
+        "catchUp": "Help me catch up"
+      },
+      "emptyTitle": "Nothing to recommend yet",
+      "emptyHelp": "Add tasks to a goal and Acadence will suggest the most useful thing to do next.",
+      "unavailableTitle": "Recommendations are unavailable right now",
+      "unavailableHelp": "Your goals are safe. Try again shortly, or ask Aven what to focus on.",
+      "createGoal": "Open goals"
     }
   },
   "aven": {
@@ -354,7 +368,11 @@
       "next": "What is the best next action for {title}?",
       "recovery": "Help me recover unfinished work for {title} without overloading my schedule. Propose changes for review.",
       "schedule": "Propose a realistic study schedule for {title} using my preferred hours and existing commitments.",
-      "nextAction": "What should I work on next across my goals?"
+      "nextAction": "What should I work on next across my goals?",
+      "startTask": "Help me start \"{task}\" for my goal \"{title}\". What's a good first step?",
+      "whyNext": "Why should I work on \"{task}\" next for \"{title}\"?",
+      "rescheduleTask": "Can you find time this week for \"{task}\" from my goal \"{title}\" without overloading my schedule?",
+      "catchUp": "I've fallen behind on \"{title}\". Help me catch up, starting with \"{task}\"."
     },
     "styles": {
       "supportive": "Supportive",
@@ -751,14 +769,38 @@
       "resourcesHelp": "Optional. Without this, Aven sees resource titles only.",
       "changeLater": "You can change any of these, pause reminders or turn them off entirely in Aven settings. Every reminder also has a snooze option."
     },
-    "conversationHistory": "Conversation history"
+    "conversationHistory": "Conversation history",
+    "thisTask": "this task"
   },
   "studyflow": {
     "exportUsers": "Export users (CSV)",
     "learner": "Learner",
     "nextStudyBlock": "Next study block",
     "breadcrumb": "Breadcrumb",
-    "dashboard": "Home",
+    "dashboard": {
+      "navLabel": "Home",
+      "goalsTitle": "Goal priorities",
+      "allGoals": "All goals",
+      "unavailable": "This section couldn't load right now. Your records are safe; refresh to try again.",
+      "progressLabel": "Progress for {title}",
+      "nextUp": "Next: {title}",
+      "noNextStep": "Add a task to see your next step",
+      "overdue": "Past target date",
+      "daysLeft": "{days, plural, =0 {Due today} one {# day left} other {# days left}}",
+      "planNext": "Plan next step with Aven",
+      "noGoals": "Set a goal to see your progress and next steps here.",
+      "createGoal": "Create a goal",
+      "deadlinesTitle": "Upcoming deadlines",
+      "highPriority": "High priority",
+      "dueToday": "Today",
+      "dueTomorrow": "Tomorrow",
+      "inDays": "In {days} days",
+      "noDeadlines": "Nothing due soon. A good moment to get ahead.",
+      "todayTitle": "Today's sessions",
+      "nothingToday": "No sessions planned today.",
+      "nothingTodayNext": "No sessions planned today. Next up: {title}, {when}.",
+      "noStudy": "no study recorded"
+    },
     "subjects": "Subjects",
     "study": "Study",
     "calendar": "Study Planner",

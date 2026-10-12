@@ -14,13 +14,15 @@ import {
 export interface NavItem {
   /** Translation key in the `studyflow` namespace. */
   key: string;
+  /** Label path when the destination key names a message namespace. */
+  labelKey?: string;
   href: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   /** Optional group heading (translation key under `studyflow.redesign`). */
   group?: string;
 }
 export const learnerNavigation: NavItem[] = [
-  { key: "dashboard", href: "/dashboard", icon: GridIcon },
+  { key: "dashboard", labelKey: "dashboard.navLabel", href: "/dashboard", icon: GridIcon },
   { key: "subjects", href: "/subjects", icon: FolderIcon },
   { key: "study", href: "/study", icon: TimerIcon },
   { key: "calendar", href: "/calendar", icon: CalenderIcon },

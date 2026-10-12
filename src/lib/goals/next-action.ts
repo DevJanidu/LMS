@@ -17,6 +17,9 @@ export interface NextAction {
   taskId: string;
   taskTitle: string;
   milestoneTitle: string | null;
+  /** The task's subject and topic, so the timer can start in the right place. */
+  subjectId?: string | null;
+  topicId?: string | null;
   dueDate: string;
   remainingMinutes: number;
   score: number;
@@ -121,6 +124,8 @@ function goalCandidates(detail: GoalDetail, context: NextActionContext) {
         taskId: task.id,
         taskTitle: task.title,
         milestoneTitle: milestone?.title ?? null,
+        subjectId: task.subjectId,
+        topicId: task.topicId,
         dueDate,
         remainingMinutes,
         score,

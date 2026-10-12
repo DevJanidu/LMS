@@ -1,126 +1,129 @@
 "use client";
-import TextLink from "@/components/studyflow/TextLink";
-
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Workspace } from "@/types";
 import type { BlockOccurrence } from "@/lib/schedule";
 import { useNow } from "@/lib/workspace/store";
 import { duration } from "@/lib/time";
-import { primaryLink } from "@/components/studyflow/styles";
 import AttendSessionButton from "@/components/study/AttendSessionButton";
 import useAttendance from "@/hooks/useAttendance";
 import { attendanceFor, attendanceStatus } from "@/lib/study/attendance-model";
+import DashboardPanel, { PanelEmpty } from "./DashboardPanel";
 interface Props {
   data: Workspace;
-  today: string;
   blocks: BlockOccurrence[];
   next?: BlockOccurrence;
 }
-export default function TodayPlan({ data, today, blocks, next }: Props) {
-  const t = useTranslations("studyflow");
+/** Today's planned sessions as a compact timeline; the next open session can be started directly. */
+export default function TodayPlan({ data, blocks, next }: Props) {
+  const t = useTranslations("studyflow"),
+    d = useTranslations("studyflow.dashboard");
   const locale = useLocale();
   const attendance = useAttendance(data.user.updatedAt);
-  const pendingBlocks = blocks.filter(
-    (item) => attendanceFor(item, attendance.records)?.status !== "completed",
-  );
   const now =
     useNow(60000) || Date.parse(data.loadedAt ?? data.user.lastActiveAt);
-  const featured =
-    pendingBlocks.find((item) => Date.parse(item.endsAt) > now) ??
-    pendingBlocks[0];
+  const status = (item: BlockOccurrence) =>
+    attendance.loading
+      ? null
+      : attendance.error
+        ? "unknown"
+        : attendanceStatus(item, attendance.records, now);
+  // The featured session is the first one that is still open and not finished.
+  const featured = blocks.find(
+    (item) =>
+      attendanceFor(item, attendance.records)?.status !== "completed" &&
+      Date.parse(item.endsAt) > now,
+  );
   const time = (value: string) =>
     new Intl.DateTimeFormat(locale, {
       hour: "numeric",
       minute: "2-digit",
       timeZone: data.user.timezone,
     }).format(new Date(value));
+  const subjectTitle = (item: BlockOccurrence) =>
+    data.subjects.find((subject) => subject.id === item.block.subjectId)
+      ?.title;
   return (
-    <section className="sf-today">
-      <div className="sf-today-heading">
-        <div>
-          <p className="sf-eyebrow">{t("today")}</p>
-          <p className="text-muted mt-1 text-body">
-            {new Intl.DateTimeFormat(locale, {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-              timeZone: "UTC",
-            }).format(new Date(`${today}T12:00:00Z`))}
-          </p>
-        </div>
-        <TextLink href="/calendar">{t("calendar")}</TextLink>
-      </div>
-      <div className="sf-next">
-        <div>
-          <p className="sf-eyebrow mb-2">
-            {t(featured ? "nextStudyBlock" : "redesign.openSpace")}
-          </p>
-          {featured && (
-            <p className="sf-next-time mb-2">{time(featured.startsAt)}</p>
-          )}
-          <h3>{featured?.title ?? t("redesign.makeProgress")}</h3>
-          {featured && (
-            <p className="text-muted dark:text-muted mt-2 text-small">
-              {attendance.loading
-                ? t("loading")
-                : attendance.error
-                  ? t(attendance.error)
-                  : t(
-                      `attendanceStatus.${attendanceStatus(featured, attendance.records, now)}`,
-                    )}
-            </p>
-          )}
-          <p className="text-muted mt-2 text-body">
-            {featured
-              ? `${data.subjects.find((s) => s.id === featured.block.subjectId)?.title ?? ""} · ${duration((Date.parse(featured.endsAt) - Date.parse(featured.startsAt)) / 1000)}`
-              : t("redesign.smallStep")}
-          </p>
-        </div>
-        <>
-          {featured ? (
-            <AttendSessionButton
-              data={data}
-              occurrence={featured}
-              status={attendanceFor(featured, attendance.records)?.status}
-              loading={attendance.loading || Boolean(attendance.error)}
-            />
-          ) : (
-            <Link href="/study" className={primaryLink}>
-              {t("startStudying")}
-            </Link>
-          )}
-        </>
-      </div>
-      {pendingBlocks
-        .filter((item) => item !== featured)
-        .slice(0, 3)
-        .map((item) => (
-          <Link
-            key={`${item.block.id}-${item.date}`}
-            href="/calendar"
-            className="sf-agenda-item"
-          >
-            <time>{time(item.startsAt)}</time>
-            <span className="text-body">
-              {item.title}
-              <span className="text-muted dark:text-muted ms-2 text-small">
-                {attendance.loading
-                  ? t("loading")
-                  : attendance.error
-                    ? t(attendance.error)
-                    : t(
-                        `attendanceStatus.${attendanceStatus(item, attendance.records, now)}`,
-                      )}
-              </span>
+    <DashboardPanel
+      title={d("todayTitle")}
+      action={{ href: "/calendar", label: t("calendar") }}
+    >
+      {blocks.length ? (
+        <ol className="sf-timeline">
+          {blocks.map((item) => {
+            const state = status(item);
+            const current = item === featured;
+            return (
+              <li
+                key={`${item.block.id}-${item.date}`}
+                className="sf-timeline-item"
+                data-current={current || undefined}
+                data-state={state ?? undefined}
+              >
+                <time dateTime={item.startsAt}>{time(item.startsAt)}</time>
+                <span className="sf-timeline-dot" aria-hidden="true" />
+                <div className="min-w-0">
+                  <p className="sf-row-title">{item.title}</p>
+                  <p className="sf-row-meta">
+                    {[
+                      subjectTitle(item),
+                      duration(
+                        (Date.parse(item.endsAt) - Date.parse(item.startsAt)) /
+                          1000,
+                      ),
+                      state && state !== "unknown"
+                        ? t(`attendanceStatus.${state}`)
+                        : state === "unknown"
+                          ? t(attendance.error!)
+                          : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                  {current && (
+                    <div className="sf-timeline-action">
+                      <AttendSessionButton
+                        data={data}
+                        occurrence={item}
+                        status={attendanceFor(item, attendance.records)?.status}
+                        loading={
+                          attendance.loading || Boolean(attendance.error)
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      ) : (
+        <PanelEmpty
+          message={
+            next
+              ? d("nothingTodayNext", {
+                  title: next.title,
+                  when: new Intl.DateTimeFormat(locale, {
+                    weekday: "short",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    timeZone: data.user.timezone,
+                  }).format(new Date(next.startsAt)),
+                })
+              : d("nothingToday")
+          }
+          action={
+            <span className="sf-panel-actions">
+              <Link href="/study" className="sf-action-secondary">
+                {t("startStudying")}
+              </Link>
+              <Link href="/calendar?add=1" className="sf-action-ghost">
+                {t("scheduleStudy")}
+              </Link>
             </span>
-          </Link>
-        ))}
-      {!featured && (
-        <TextLink href="/calendar?add=1" className="sf-agenda-item">
-          {next ? `${t("nextStudyBlock")}: ${next.title}` : t("scheduleStudy")}
-        </TextLink>
+          }
+        />
       )}
-    </section>
+    </DashboardPanel>
   );
 }
