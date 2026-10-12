@@ -30,3 +30,10 @@ export function boundedHistory<
   }
   return kept;
 }
+/** Context size without replayed encrypted reasoning, which is bounded by the output-token budget instead. */
+export const contextBytes = (value: unknown) =>
+  Buffer.byteLength(
+    JSON.stringify(value, (key, item) =>
+      key === "encrypted_content" ? undefined : item,
+    ) ?? "",
+  );

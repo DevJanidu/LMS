@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const signal = AbortSignal.any([
         request.signal,
         abort.signal,
-        AbortSignal.timeout(80000),
+        AbortSignal.timeout(110000),
       ]),
       encoder = new TextEncoder();
     const body = new ReadableStream<Uint8Array>({

@@ -1,7 +1,7 @@
 import "server-only";
 import { readObjectContent } from "@/lib/storage";
 import { GoalError } from "@/lib/goals/service";
-import { avenConfig, MAX_OUTPUT_TOKENS } from "./config";
+import { avenConfig } from "./config";
 import { reserveUsage, finishUsage } from "./usage";
 import { readProviderFailure } from "./provider-errors";
 import { assertResourceAccess } from "./access";
@@ -78,7 +78,10 @@ export async function processPdf(
         model: config.model,
         input,
         store: false,
-        max_output_tokens: MAX_OUTPUT_TOKENS,
+        max_output_tokens: config.maxOutputTokens,
+        ...(config.reasoningEffort
+          ? { reasoning: { effort: config.reasoningEffort } }
+          : {}),
       }),
       signal: AbortSignal.timeout(20000),
     });

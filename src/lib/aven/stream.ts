@@ -3,6 +3,7 @@ export interface ResponseEvent {
   delta?: string;
   response?: {
     status: string;
+    incomplete_details?: { reason?: string } | null;
     output: ResponseItem[];
     usage?: { input_tokens: number; output_tokens: number };
   };

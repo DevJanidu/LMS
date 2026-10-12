@@ -2,6 +2,8 @@ import "server-only";
 import {
   resolveAvenConfiguration,
   avenConfigurationStatus,
+  isReasoningModel,
+  outputTokenLimit,
 } from "./configuration";
 import { GoalError } from "@/lib/goals/service";
 export function avenConfigured() {
@@ -15,9 +17,20 @@ export function avenConfig(planning = false) {
   if (!result.success)
     throw new GoalError(avenStatus().code ?? "aiNotConfigured", 503);
   const value = result.data;
+  const model = planning ? value.OPENAI_PLANNING_MODEL : value.OPENAI_CHAT_MODEL;
   return {
     key: value.OPENAI_API_KEY,
-    model: planning ? value.OPENAI_PLANNING_MODEL : value.OPENAI_CHAT_MODEL,
+    model,
+    reasoningEffort: isReasoningModel(model)
+      ? planning
+        ? value.OPENAI_PLANNING_REASONING_EFFORT
+        : value.OPENAI_CHAT_REASONING_EFFORT
+      : null,
+    maxOutputTokens: outputTokenLimit(
+      model,
+      planning,
+      value.AVEN_MAX_OUTPUT_TOKENS,
+    ),
     inputPrice: planning
       ? value.OPENAI_PLANNING_INPUT_PRICE
       : value.OPENAI_CHAT_INPUT_PRICE,
@@ -31,6 +44,7 @@ export function avenConfig(planning = false) {
     monthlyTokens: value.AVEN_MONTHLY_TOKEN_LIMIT,
   };
 }
+/** MAX_OUTPUT_TOKENS is the non-reasoning default; use avenConfig().maxOutputTokens for requests. */
 export const MAX_TOOL_ROUNDS = 6,
   MAX_OUTPUT_TOKENS = 4096,
   MAX_INSTRUCTION_BYTES = 16000,

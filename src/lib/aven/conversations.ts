@@ -308,7 +308,8 @@ export async function beginConversationTurn(
       .update(s.aiConversations)
       .set({
         activeRequestId: requestId,
-        lockedUntil: new Date(Date.now() + 100000),
+        // Lease outlives the 110s request timeout so a live turn is never taken over.
+        lockedUntil: new Date(Date.now() + 130000),
         updatedAt: new Date(),
       })
       .where(eq(s.aiConversations.id, id));

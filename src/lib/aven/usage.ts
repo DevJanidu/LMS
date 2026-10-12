@@ -8,7 +8,6 @@ import {
   avenConfig,
   MAX_INPUT_BYTES,
   MAX_INSTRUCTION_BYTES,
-  MAX_OUTPUT_TOKENS,
   MAX_TOOL_ROUNDS,
 } from "./config";
 export async function reserveUsage(
@@ -23,11 +22,11 @@ export async function reserveUsage(
       measuredInputTokens ??
       MAX_INPUT_BYTES + schemaBytes + MAX_INSTRUCTION_BYTES,
     rounds = measuredInputTokens === undefined ? MAX_TOOL_ROUNDS : 1,
-    tokens = rounds * (inputBound + MAX_OUTPUT_TOKENS),
+    tokens = rounds * (inputBound + config.maxOutputTokens),
     costMicros = Math.ceil(
       rounds *
         (inputBound * config.inputPrice +
-          MAX_OUTPUT_TOKENS * config.outputPrice),
+          config.maxOutputTokens * config.outputPrice),
     );
   return getDb().transaction(async (tx) => {
     // Global lock precedes account locks so concurrent learners cannot overspend the shared cap.
