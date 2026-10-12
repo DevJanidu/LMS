@@ -65,7 +65,26 @@ it("uses the authenticated owner, ignoring a supplied owner identifier", async (
     1,
     "",
     "",
+    "deadline",
   );
+});
+it("combines search, status, pagination and server-wide sorting", async () => {
+  await GET(
+    new Request(
+      "https://acadence.example/api/goals?search=Java&status=active&page=2&sort=progress",
+    ),
+  );
+  expect(mocks.list).toHaveBeenCalledWith(
+    "00000000-0000-4000-8000-000000000001",
+    2,
+    "Java",
+    "active",
+    "progress",
+  );
+  expect(
+    (await GET(new Request("https://acadence.example/api/goals?sort=invalid")))
+      .status,
+  ).toBe(400);
 });
 it("protects all mutations against cross-origin requests and invalid schemas", async () => {
   expect(

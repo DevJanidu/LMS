@@ -17,6 +17,7 @@ const querySchema = z.object({
   page: z.coerce.number().int().min(1).max(100000).default(1),
   search: z.string().max(100).default(""),
   status: z.union([z.enum(goalStatuses), z.literal("")]).default(""),
+  sort: z.enum(["deadline", "progress", "updated"]).default("deadline"),
 });
 export async function GET(request: Request) {
   try {
@@ -32,7 +33,13 @@ export async function GET(request: Request) {
       ok: true,
       ...(query.id
         ? { detail: await getGoalDetail(user.id, query.id) }
-        : await listGoals(user.id, query.page, query.search, query.status)),
+        : await listGoals(
+            user.id,
+            query.page,
+            query.search,
+            query.status,
+            query.sort,
+          )),
     });
   } catch (error) {
     if (error instanceof z.ZodError)

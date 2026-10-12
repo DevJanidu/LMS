@@ -3,6 +3,7 @@ import { and, asc, desc, eq, inArray, sql, getTableColumns } from "drizzle-orm";
 import { getDb, type DbTransaction } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { localDay } from "@/lib/analytics";
+import { getGoalCalendar } from "@/lib/services/calendar";
 import {
   assertAcyclic,
   hierarchyDependencies,
@@ -207,25 +208,7 @@ export async function getGoalDetail(
   }));
   const calendar = batch
     ? batch.calendar.filter((c) => c.goalId === goalId)
-    : await db
-        .select({
-          blockId: s.scheduleBlocks.id,
-          taskId: s.goalScheduleLinks.taskId,
-          title: s.scheduleBlocks.title,
-          startsAt: s.scheduleBlocks.startsAt,
-          endsAt: s.scheduleBlocks.endsAt,
-        })
-        .from(s.goalScheduleLinks)
-        .innerJoin(
-          s.scheduleBlocks,
-          and(
-            eq(s.scheduleBlocks.id, s.goalScheduleLinks.blockId),
-            eq(s.scheduleBlocks.userId, userId),
-          ),
-        )
-        .where(eq(s.goalScheduleLinks.goalId, goalId))
-        .orderBy(asc(s.scheduleBlocks.startsAt))
-        .limit(100);
+    : await getGoalCalendar(userId, goalId, user?.timezone ?? "UTC", db);
   return {
     goal,
     tasks,
@@ -363,6 +346,12 @@ export async function getGoalCards(
   return (await getGoalDetailsBatch(userId, goalIds)).map((detail) => {
     return {
       ...detail,
+      taskCounts: {
+        completed: detail.tasks.filter((task) => task.status === "completed")
+          .length,
+        total: detail.tasks.filter((task) => task.status !== "cancelled")
+          .length,
+      },
       tasks: detail.tasks.filter((t) => t.id === detail.progress.nextTaskId),
       milestones: detail.milestones
         .filter((m) => detail.progress.milestoneProgress[m.id] < 100)
@@ -447,6 +436,7 @@ export async function listGoals(
   page = 1,
   search = "",
   status = "",
+  sort: "deadline" | "progress" | "updated" = "deadline",
 ) {
   const db = getDb();
   const pattern = `%${search.replace(/[\\%_]/g, "\\$&")}%`;
@@ -460,13 +450,19 @@ export async function listGoals(
     .from(s.goals)
     .where(where);
   const current = Math.max(1, Math.min(page, Math.ceil(total / 20)));
-  const rows = await db
+  const orderedQuery = db
     .select({ id: s.goals.id })
     .from(s.goals)
     .where(where)
-    .orderBy(asc(s.goals.targetDate), asc(s.goals.id))
-    .limit(20)
-    .offset((current - 1) * 20);
+    .orderBy(
+      sort === "updated" ? desc(s.goals.updatedAt) : asc(s.goals.targetDate),
+      asc(s.goals.id),
+    );
+  // Calculated progress depends on tasks, dependencies and verified study allocations.
+  // Rank the complete filtered set with the existing model, never a page-local estimate.
+  const rows = await (sort === "progress"
+    ? orderedQuery
+    : orderedQuery.limit(20).offset((current - 1) * 20));
   const [details, statistics] = await Promise.all([
     getGoalCards(
       userId,
@@ -479,16 +475,37 @@ export async function listGoals(
       attention: number;
       hours: number;
       weeklyRate: number;
+      tasksCompleted: number;
     }>(sql`
     SELECT count(*) FILTER (WHERE status = 'active')::int AS active, count(*) FILTER (WHERE status = 'completed')::int AS completed,
       count(*) FILTER (WHERE status IN ('active','planned') AND target_date BETWEEN (now() AT TIME ZONE (SELECT timezone FROM users WHERE id=${userId}::uuid))::date AND (now() AT TIME ZONE (SELECT timezone FROM users WHERE id=${userId}::uuid))::date + 7)::int AS upcoming,
       count(*) FILTER (WHERE status IN ('active','planned','missedTarget') AND (target_date < (now() AT TIME ZONE (SELECT timezone FROM users WHERE id=${userId}::uuid))::date OR EXISTS(SELECT 1 FROM goal_tasks t WHERE t.goal_id=goals.id AND t.due_date < current_date AND t.status NOT IN ('completed','cancelled'))))::int AS attention,
       coalesce((SELECT sum(least(l.allocated_seconds, floor(ss.duration_seconds::float*l.allocated_seconds/greatest(ss.duration_seconds,(SELECT sum(other.allocated_seconds) FROM goal_study_session_links other WHERE other.session_id=ss.id)))))::float / 3600 FROM goal_study_session_links l JOIN goals g ON g.id=l.goal_id JOIN study_sessions ss ON ss.id=l.session_id WHERE g.user_id=${userId}::uuid AND ss.user_id=${userId}::uuid AND ss.status='valid' AND ss.duration_seconds>0),0) AS hours,
+      (SELECT count(*)::int FROM goal_tasks t JOIN goals g ON g.id=t.goal_id WHERE g.user_id=${userId}::uuid AND t.status='completed') AS "tasksCompleted",
       coalesce((SELECT 100.0 * count(*) FILTER(WHERE t.status='completed') / nullif(count(*),0) FROM goal_tasks t JOIN goals g ON g.id=t.goal_id WHERE g.user_id=${userId}::uuid AND (t.completed_at >= now()-interval '7 days' OR t.due_date BETWEEN current_date-7 AND current_date)),0) AS "weeklyRate"
       FROM goals WHERE user_id=${userId}::uuid
   `),
   ]);
-  return { details, total, page: current, statistics: statistics.rows[0] };
+  const ranked =
+    sort === "progress"
+      ? details
+          .sort(
+            (a, b) =>
+              b.progress.percent - a.progress.percent ||
+              a.goal.targetDate.localeCompare(b.goal.targetDate) ||
+              a.goal.id.localeCompare(b.goal.id),
+          )
+          .slice((current - 1) * 20, current * 20)
+      : details;
+  return {
+    details: ranked,
+    total,
+    page: current,
+    search,
+    status,
+    sort,
+    statistics: statistics.rows[0],
+  };
 }
 
 export async function validateReferences(

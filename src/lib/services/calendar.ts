@@ -4,7 +4,8 @@ import { getDb, type DbTransaction } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import type { ScheduleBlock, ScheduleException, SubjectColor } from "@/types";
 import type { CalendarMutation } from "@/lib/validation/calendar";
-import { applyCalendarCommand, type CalendarChange } from "@/lib/calendar/model";
+import { applyCalendarCommand, calendarOccurrences, type CalendarChange } from "@/lib/calendar/model";
+import { localDay, shiftDay } from "@/lib/analytics";
 
 export class CalendarError extends Error {
   constructor(message: string, public status = 400) { super(message); }
@@ -32,6 +33,66 @@ export async function getCalendarBlock(userId: string, id: string) {
     .where(and(eq(s.scheduleBlocks.id, id), eq(s.scheduleBlocks.userId, userId)));
   if (!rows[0]) throw new CalendarError("recordUnavailable", 404);
   return toBlock(rows[0], normalizeExceptions(rows[0].exceptions));
+}
+/** Upcoming linked occurrences, including moved/cancelled exceptions, in one query. */
+export async function getGoalCalendar(
+  userId: string,
+  goalId: string,
+  timezone: string,
+  db: ReturnType<typeof getDb> | DbTransaction = getDb(),
+) {
+  const rows = await db
+    .select({
+      block: getTableColumns(s.scheduleBlocks),
+      exceptions: exceptionProjection,
+      taskId: s.goalScheduleLinks.taskId,
+      subjectTitle: s.subjects.title,
+    })
+    .from(s.goalScheduleLinks)
+    .innerJoin(
+      s.scheduleBlocks,
+      and(
+        eq(s.scheduleBlocks.id, s.goalScheduleLinks.blockId),
+        eq(s.scheduleBlocks.userId, userId),
+      ),
+    )
+    .leftJoin(
+      s.subjects,
+      and(
+        eq(s.subjects.id, s.scheduleBlocks.subjectId),
+        eq(s.subjects.userId, userId),
+      ),
+    )
+    .where(eq(s.goalScheduleLinks.goalId, goalId));
+  const today = localDay(Date.now(), timezone);
+  return rows
+    .flatMap((row) =>
+      calendarOccurrences(
+        [toBlock(row.block, normalizeExceptions(row.exceptions))],
+        {
+          from: localDay(row.block.startsAt.getTime(), timezone) > today ? localDay(row.block.startsAt.getTime(), timezone) : today,
+          to: shiftDay(localDay(row.block.startsAt.getTime(), timezone) > today ? localDay(row.block.startsAt.getTime(), timezone) : today, 30),
+        },
+        timezone,
+      )
+        .filter((item) => Date.parse(item.endsAt) > Date.now())
+        .map((item) => ({
+          blockId: row.block.id,
+          taskId: row.taskId,
+          title: item.title,
+          startsAt: new Date(item.startsAt),
+          endsAt: new Date(item.endsAt),
+          subjectId: item.block.subjectId,
+          subjectTitle:
+            item.block.subjectId === row.block.subjectId
+              ? row.subjectTitle
+              : null,
+          repeat: item.block.repeat,
+          occurrenceDate: item.date,
+        })),
+    )
+    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
+    .slice(0, 30);
 }
 const blockValues = (block: ScheduleBlock) => ({
   subjectId: block.subjectId ?? null, topicId: block.topicId ?? null, title: block.title,

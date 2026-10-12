@@ -10,6 +10,7 @@ interface Props {
   showGoal?: boolean;
   /** Offer the Aven menu (off inside Aven itself). */
   askAven?: boolean;
+  openGoal?: boolean;
 }
 const formatDay = (date: string) =>
   new Intl.DateTimeFormat("en", {
@@ -29,6 +30,7 @@ export default function NextBestActionCard({
   actions,
   showGoal = true,
   askAven = true,
+  openGoal = true,
 }: Props) {
   const t = useTranslations("goals.nextBestAction"),
     headingId = useId();
@@ -83,15 +85,21 @@ export default function NextBestActionCard({
           {t("start")}
         </Link>
         {askAven && (
-          <AskAvenMenu goalId={first.goalId} task={first.taskTitle} />
-        )}
-        <Link href={`/goals/${first.goalId}`} className="sf-action-ghost">
-          {t("openGoal")}
-          <ArrowRightIcon
-            className="size-4 rtl:rotate-180"
-            aria-hidden="true"
+          <AskAvenMenu
+            goalId={first.goalId}
+            task={first.taskTitle}
+            taskId={first.taskId}
           />
-        </Link>
+        )}
+        {openGoal && (
+          <Link href={`/goals/${first.goalId}`} className="sf-action-ghost">
+            {t("openGoal")}
+            <ArrowRightIcon
+              className="size-4 rtl:rotate-180"
+              aria-hidden="true"
+            />
+          </Link>
+        )}
       </div>
       {rest.length > 0 && (
         <div className="sf-nba-more">

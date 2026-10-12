@@ -3,10 +3,19 @@ import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Modal } from "@/components/ui/modal";
-import Field from "@/components/studyflow/FormFields";
+import Field, {
+  SelectField,
+  TextField,
+} from "@/components/studyflow/FormFields";
+import GoalLinksField from "./GoalLinksField";
 import Button from "@/components/ui/button/Button";
 import SmartGoalAssistant from "@/components/aven/SmartGoalAssistant";
-import { goalSchema, type GoalInput } from "@/lib/goals/validation";
+import {
+  goalSchema,
+  categories,
+  goalStatuses,
+  type GoalInput,
+} from "@/lib/goals/validation";
 import type { GoalRecord } from "@/lib/goals/model";
 import type { GoalReferences } from "@/lib/goals/service";
 import { localDay, shiftDay } from "@/lib/analytics";
@@ -27,6 +36,9 @@ export default function GoalEditor({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [draft, setDraft] = useState<Record<string, unknown>>();
+  const [subjectIds, setSubjectIds] = useState(goal?.subjectIds ?? []),
+    [topicIds, setTopicIds] = useState(goal?.topicIds ?? []),
+    [resourceIds, setResourceIds] = useState(goal?.resourceIds ?? []);
   const form = useRef<HTMLFormElement>(null);
   const today = localDay(Date.now(), references.timezone);
   return (
@@ -43,6 +55,13 @@ export default function GoalEditor({
             ...goal,
             title: fields.get("title"),
             targetDate,
+            description: fields.get("description"),
+            category: fields.get("category"),
+            status: fields.get("status"),
+            successCriteria: fields.get("successCriteria"),
+            subjectIds,
+            topicIds,
+            resourceIds,
             startDate:
               goal?.startDate && goal.startDate <= targetDate
                 ? goal.startDate
@@ -88,6 +107,63 @@ export default function GoalEditor({
           required
           defaultValue={goal?.targetDate ?? shiftDay(today, 30)}
         />
+        <details className="goal-editor-advanced">
+          <summary>{t("workspace.advancedDetails")}</summary>
+          <div className="space-y-4">
+            <TextField
+              label={t("fields.description")}
+              name="description"
+              defaultValue={goal?.description}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <SelectField
+                label={t("fields.category")}
+                name="category"
+                defaultValue={goal?.category ?? "academic"}
+              >
+                {categories.map((value) => (
+                  <option key={value} value={value}>
+                    {t("categories." + value)}
+                  </option>
+                ))}
+              </SelectField>
+              <SelectField
+                label={t("fields.status")}
+                name="status"
+                defaultValue={goal?.status ?? "active"}
+              >
+                {goalStatuses.map((value) => (
+                  <option key={value} value={value}>
+                    {t("statuses." + value)}
+                  </option>
+                ))}
+              </SelectField>
+            </div>
+            <TextField
+              label={t("fields.successCriteria")}
+              name="successCriteria"
+              defaultValue={goal?.successCriteria}
+            />
+            <GoalLinksField
+              label={t("fields.subjects")}
+              options={references.subjects}
+              value={subjectIds}
+              onChange={setSubjectIds}
+            />
+            <GoalLinksField
+              label={t("fields.topics")}
+              options={references.topics}
+              value={topicIds}
+              onChange={setTopicIds}
+            />
+            <GoalLinksField
+              label={t("fields.resources")}
+              options={references.resources}
+              value={resourceIds}
+              onChange={setResourceIds}
+            />
+          </div>
+        </details>
         <div className="flex flex-wrap gap-3">
           <Button type="submit" disabled={busy}>
             {t(busy ? "saving" : "save")}

@@ -33,6 +33,8 @@ export interface GoalSessionLink {
   title: string;
 }
 export interface GoalDetail {
+  /** List cards omit most task bodies; counts are captured before truncation. */
+  taskCounts?: { completed: number; total: number };
   goal: GoalRecord;
   tasks: GoalTask[];
   milestones: GoalMilestone[];
@@ -44,6 +46,10 @@ export interface GoalDetail {
     title: string;
     startsAt: string;
     endsAt: string;
+    subjectId?: string | null;
+    subjectTitle?: string | null;
+    repeat?: "once" | "weekly";
+    occurrenceDate?: string;
   }[];
   history: { id: string; action: string; version: number; createdAt: string }[];
   snapshots: { date: string; progress: number }[];

@@ -109,6 +109,64 @@ describe.skipIf(!enabled)(
         await db.delete(s.users).where(inArray(s.users.id, [a, b]));
       }
     });
+    it("sorts calculated progress before pagination and returns task counts", async () => {
+      const ids = Array.from({ length: 22 }, () => crypto.randomUUID());
+      await db
+        .insert(s.goals)
+        .values(
+          ids.map((id, index) => ({
+            id,
+            userId: a,
+            title: `Sort fixture ${index}`,
+            startDate: today,
+            targetDate: future,
+            category: value.category,
+            progressConfig: value.progressConfig,
+            progressMode: "tasks" as const,
+            updatedAt: new Date(Date.now() + index * 1000),
+          })),
+        );
+      await db
+        .insert(s.goalTasks)
+        .values(
+          ids.map((goalId, index) => ({
+            id: crypto.randomUUID(),
+            goalId,
+            title: "Ranked task",
+            status: index === 21 ? "completed" : "todo",
+            manualProgress: index * 4,
+          })),
+        );
+      const sorted = await service.listGoals(
+        a,
+        1,
+        "Sort fixture",
+        "active",
+        "progress",
+      );
+      expect(sorted.total).toBe(22);
+      expect(sorted.details).toHaveLength(20);
+      expect(sorted.details[0].goal.id).toBe(ids[21]);
+      expect(sorted.details[0].taskCounts).toEqual({ completed: 1, total: 1 });
+      expect(sorted.details[0].progress.percent).toBe(100);
+      const second = await service.listGoals(
+        a,
+        2,
+        "Sort fixture",
+        "active",
+        "progress",
+      );
+      expect(second.details.map((detail) => detail.progress.percent)).toEqual([
+        4, 0,
+      ]);
+      expect(
+        (await service.listGoals(a, 1, "Sort fixture", "active", "updated"))
+          .details[0].goal.id,
+      ).toBe(ids[21]);
+      expect(Number(sorted.statistics.tasksCompleted)).toBeGreaterThanOrEqual(
+        1,
+      );
+    });
     it("creates, edits, lists and deletes goals without requiring OpenAI", async () => {
       const detail = await create();
       const edited = await change(detail.goal.id, {
@@ -124,6 +182,71 @@ describe.skipIf(!enabled)(
       });
       await expect(
         service.getGoalDetail(a, detail.goal.id),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+    it("shows upcoming recurring study sessions and respects cancelled or moved dates", async () => {
+      const goal = await create();
+      const blockId = crypto.randomUUID();
+      const startsAt = new Date(Date.now() + 3600000),
+        endsAt = new Date(startsAt.getTime() + 1800000);
+      const day = startsAt.toISOString().slice(0, 10);
+      const shifted = (days: number) =>
+        new Date(Date.parse(`${day}T12:00:00Z`) + days * 86400000)
+          .toISOString()
+          .slice(0, 10);
+      await db
+        .insert(s.scheduleBlocks)
+        .values({
+          id: blockId,
+          userId: a,
+          subjectId: subjectA,
+          title: "Recurring goal study",
+          startsAt,
+          endsAt,
+          timezone: "UTC",
+          recurrenceRule: {
+            weekdays: [0, 1, 2, 3, 4, 5, 6],
+            until: shifted(7),
+          },
+        });
+      await db
+        .insert(s.goalScheduleLinks)
+        .values({ goalId: goal.goal.id, blockId });
+      await db.insert(s.scheduleExceptions).values([
+        { blockId, date: shifted(1), isCancelled: true },
+        {
+          blockId,
+          date: shifted(2),
+          newStartsAt: new Date(startsAt.getTime() + 3 * 86400000),
+          newEndsAt: new Date(endsAt.getTime() + 3 * 86400000),
+          newTitle: "Moved goal study",
+        },
+      ]);
+      const detail = await service.getGoalDetail(a, goal.goal.id);
+      expect(
+        detail.calendar?.some(
+          (item) => item.startsAt.slice(0, 10) === shifted(1),
+        ),
+      ).toBe(false);
+      expect(
+        detail.calendar?.some(
+          (item) => item.startsAt.slice(0, 10) === shifted(2),
+        ),
+      ).toBe(false);
+      expect(
+        detail.calendar?.some(
+          (item) =>
+            item.title === "Moved goal study" &&
+            item.startsAt.slice(0, 10) === shifted(3),
+        ),
+      ).toBe(true);
+      expect(detail.calendar?.[0]).toMatchObject({
+        subjectId: subjectA,
+        subjectTitle: "Owned subject A",
+        repeat: "weekly",
+      });
+      await expect(
+        service.getGoalDetail(b, goal.goal.id),
       ).rejects.toMatchObject({ status: 404 });
     });
     it("rejects reading, attaching, updating or deleting another account's records", async () => {
@@ -486,14 +609,13 @@ describe.skipIf(!enabled)(
     });
     it("enforces the shared monthly budget across concurrent learners", async () => {
       const { reserveUsage } = await import("@/lib/aven/usage");
-      const { avenConfig, MAX_OUTPUT_TOKENS } =
-        await import("@/lib/aven/config");
+      const { avenConfig } = await import("@/lib/aven/config");
       const config = avenConfig(false);
       const global = await db.execute<{ cost: number }>(
         sql`SELECT coalesce(sum(cost_micros),0)::bigint AS cost FROM ai_usage_records WHERE day>=date_trunc('month',now())::date`,
       );
       const cost = Math.ceil(
-        10 * config.inputPrice + MAX_OUTPUT_TOKENS * config.outputPrice,
+        10 * config.inputPrice + config.maxOutputTokens * config.outputPrice,
       );
       const previous = process.env.AVEN_GLOBAL_MONTHLY_BUDGET_USD;
       process.env.AVEN_GLOBAL_MONTHLY_BUDGET_USD = String(

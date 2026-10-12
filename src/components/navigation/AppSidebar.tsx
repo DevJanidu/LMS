@@ -49,7 +49,8 @@ export default function AppSidebar({
       <div className="sf-sidebar-top">
         <div className="sf-sidebar-brand-row">
           <Link href={homeHref(admin)} className="sf-sidebar-brand">
-            <BrandLogo />
+            <BrandLogo className="sf-sidebar-brand-full" />
+            <BrandLogo variant="mark" className="sf-sidebar-brand-mark" />
           </Link>
           {onCloseMobile && (
             <button

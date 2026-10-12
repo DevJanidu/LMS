@@ -8,9 +8,10 @@ const intents = ["startTask", "whyNext", "rescheduleTask", "catchUp"] as const;
 interface Props {
   goalId: string;
   task: string;
+  taskId?: string;
 }
 /** Menu button following the WAI-ARIA menu pattern: arrows move, Escape closes. */
-export default function AskAvenMenu({ goalId, task }: Props) {
+export default function AskAvenMenu({ goalId, task, taskId }: Props) {
   const t = useTranslations("goals.nextBestAction"),
     id = useId(),
     [open, setOpen] = useState(false),
@@ -74,7 +75,7 @@ export default function AskAvenMenu({ goalId, task }: Props) {
               key={intent}
               role="menuitem"
               tabIndex={-1}
-              href={`/aven?goal=${goalId}&intent=${intent}&task=${encodeURIComponent(task.slice(0, 200))}`}
+              href={`/aven?goal=${goalId}&intent=${intent}&${taskId ? `taskId=${taskId}` : `task=${encodeURIComponent(task.slice(0, 200))}`}`}
               onClick={() => setOpen(false)}
             >
               {t(`ask.${intent}`)}

@@ -89,135 +89,140 @@ export default function TaskEditor({
           required
           defaultValue={task?.title}
         />
-        <TextField
-          label={t("fields.description")}
-          name="description"
-          defaultValue={task?.description}
-        />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <SelectField
-            label={t("milestone")}
-            name="milestoneId"
-            defaultValue={task?.milestoneId ?? ""}
-          >
-            <option value="">{t("none")}</option>
-            {detail.milestones.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.title}
-              </option>
-            ))}
-          </SelectField>
-          <SelectField
-            label={t("fields.status")}
-            name="status"
-            defaultValue={task?.status ?? "todo"}
-          >
-            {["todo", "inProgress", "completed", "cancelled"].map((key) => (
-              <option key={key} value={key}>
-                {t(`taskStatuses.${key}`)}
-              </option>
-            ))}
-          </SelectField>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <SelectField
-            label={t("fields.priority")}
-            name="priority"
-            defaultValue={task?.priority ?? "normal"}
-          >
-            {priorities.map((key) => (
-              <option key={key} value={key}>
-                {t(`priorities.${key}`)}
-              </option>
-            ))}
-          </SelectField>
-          <Field
-            label={t("fields.dueDate")}
-            name="dueDate"
-            type="date"
-            defaultValue={task?.dueDate ?? ""}
-          />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field
-            label={t("fields.estimatedMinutes")}
-            name="estimatedMinutes"
-            type="number"
-            min={0}
-            defaultValue={task?.estimatedMinutes ?? 30}
-          />
-          <Field
-            label={t("fields.weight")}
-            name="weight"
-            type="number"
-            min={1}
-            max={1000}
-            defaultValue={task?.weight ?? 1}
-          />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <SelectField
-            label={t("fields.subjects")}
-            value={subject}
-            onChange={(e) => {
-              setSubject(e.target.value);
-              setTopic("");
-            }}
-          >
-            <option value="">{t("none")}</option>
-            {references.subjects.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title}
-              </option>
-            ))}
-          </SelectField>
-          <SelectField
-            label={t("fields.topics")}
-            value={topic}
-            disabled={!subject}
-            onChange={(e) => setTopic(e.target.value)}
-          >
-            <option value="">{t("none")}</option>
-            {references.topics
-              .filter((t) => t.subjectId === subject)
-              .map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.title}
-                </option>
-              ))}
-          </SelectField>
-        </div>
-        <GoalLinksField
-          label={t("fields.dependencies")}
-          options={detail.tasks.filter((t) => t.id !== task?.id)}
-          value={dependencies}
-          onChange={setDependencies}
-        />
-        <RepeatWeekdays weekdays={days} onChange={setDays} />
-        <p className="text-secondary dark:text-secondary text-small">
-          {t("habitHelp")}
-        </p>
-        <SelectField
-          label={t("fields.taskProgressMode")}
-          name="progressMode"
-          defaultValue={task?.progressMode ?? "manual"}
-        >
-          <option value="manual">{t("manualProgress")}</option>
-          <option value="derived">{t("derivedProgress")}</option>
-        </SelectField>
-        <Field
-          label={t("fields.manualProgress")}
-          name="manualProgress"
-          type="number"
-          min={0}
-          max={100}
-          defaultValue={task?.manualProgress ?? 0}
-        />
-        <TextField
-          label={t("fields.evidence")}
-          name="evidence"
-          defaultValue={task?.evidence}
-        />
+        <details className="goal-editor-advanced">
+          <summary>{t("workspace.advancedDetails")}</summary>
+          <div className="space-y-4">
+            <TextField
+              label={t("fields.description")}
+              name="description"
+              defaultValue={task?.description}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <SelectField
+                label={t("milestone")}
+                name="milestoneId"
+                defaultValue={task?.milestoneId ?? ""}
+              >
+                <option value="">{t("none")}</option>
+                {detail.milestones.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.title}
+                  </option>
+                ))}
+              </SelectField>
+              <SelectField
+                label={t("fields.status")}
+                name="status"
+                defaultValue={task?.status ?? "todo"}
+              >
+                {["todo", "inProgress", "completed", "cancelled"].map((key) => (
+                  <option key={key} value={key}>
+                    {t(`taskStatuses.${key}`)}
+                  </option>
+                ))}
+              </SelectField>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <SelectField
+                label={t("fields.priority")}
+                name="priority"
+                defaultValue={task?.priority ?? "normal"}
+              >
+                {priorities.map((key) => (
+                  <option key={key} value={key}>
+                    {t(`priorities.${key}`)}
+                  </option>
+                ))}
+              </SelectField>
+              <Field
+                label={t("fields.dueDate")}
+                name="dueDate"
+                type="date"
+                defaultValue={task?.dueDate ?? ""}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label={t("fields.estimatedMinutes")}
+                name="estimatedMinutes"
+                type="number"
+                min={0}
+                defaultValue={task?.estimatedMinutes ?? 30}
+              />
+              <Field
+                label={t("fields.weight")}
+                name="weight"
+                type="number"
+                min={1}
+                max={1000}
+                defaultValue={task?.weight ?? 1}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <SelectField
+                label={t("fields.subjects")}
+                value={subject}
+                onChange={(e) => {
+                  setSubject(e.target.value);
+                  setTopic("");
+                }}
+              >
+                <option value="">{t("none")}</option>
+                {references.subjects.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title}
+                  </option>
+                ))}
+              </SelectField>
+              <SelectField
+                label={t("fields.topics")}
+                value={topic}
+                disabled={!subject}
+                onChange={(e) => setTopic(e.target.value)}
+              >
+                <option value="">{t("none")}</option>
+                {references.topics
+                  .filter((t) => t.subjectId === subject)
+                  .map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.title}
+                    </option>
+                  ))}
+              </SelectField>
+            </div>
+            <GoalLinksField
+              label={t("fields.dependencies")}
+              options={detail.tasks.filter((t) => t.id !== task?.id)}
+              value={dependencies}
+              onChange={setDependencies}
+            />
+            <RepeatWeekdays weekdays={days} onChange={setDays} />
+            <p className="text-secondary dark:text-secondary text-small">
+              {t("habitHelp")}
+            </p>
+            <SelectField
+              label={t("fields.taskProgressMode")}
+              name="progressMode"
+              defaultValue={task?.progressMode ?? "manual"}
+            >
+              <option value="manual">{t("manualProgress")}</option>
+              <option value="derived">{t("derivedProgress")}</option>
+            </SelectField>
+            <Field
+              label={t("fields.manualProgress")}
+              name="manualProgress"
+              type="number"
+              min={0}
+              max={100}
+              defaultValue={task?.manualProgress ?? 0}
+            />
+            <TextField
+              label={t("fields.evidence")}
+              name="evidence"
+              defaultValue={task?.evidence}
+            />
+          </div>
+        </details>
         {error && (
           <p
             role="alert"

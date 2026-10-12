@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import type { GoalReferences, listGoals } from "@/lib/goals/service";
 import type { GoalDetail, GoalRecord } from "@/lib/goals/model";
 import { featureRequest, saveGoal } from "@/lib/goals/client";
-import { type GoalInput } from "@/lib/goals/validation";
+import { goalStatuses, type GoalInput } from "@/lib/goals/validation";
 import PageHeader from "@/components/studyflow/PageHeader";
 import Field, { SelectField } from "@/components/studyflow/FormFields";
 import Pagination from "@/components/studyflow/Pagination";
@@ -14,6 +14,7 @@ import EmptyState from "@/components/studyflow/EmptyState";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 import GoalCard from "./GoalCard";
 import GoalEditor from "./GoalEditor";
+import GoalMetrics from "./GoalMetrics";
 type GoalList = Awaited<ReturnType<typeof listGoals>>;
 interface Props {
   /** Server-ranked next best action, rendered below the header. */
@@ -29,33 +30,65 @@ export default function GoalsDashboard({
   const t = useTranslations("goals"),
     router = useRouter();
   const [list, setList] = useState(initial),
-    [query, setQuery] = useState(""),
-    [status, setStatus] = useState(""),
+    [query, setQuery] = useState(initial.search),
+    [status, setStatus] = useState(initial.status),
+    [sort, setSort] = useState(initial.sort),
     [page, setPage] = useState(initial.page),
     [revision, setRevision] = useState(0);
   const [editing, setEditing] = useState<GoalRecord | null | undefined>(),
     [deleting, setDeleting] = useState<GoalDetail>(),
     [loading, setLoading] = useState(false),
     [error, setError] = useState("");
-  const initialKey = useRef("1|||0");
+  const initialKey = useRef(
+    `${initial.page}|${initial.search}|${initial.status}|${initial.sort}|0`,
+  );
+  useEffect(() => {
+    const restore = () => {
+      const params = new URLSearchParams(window.location.search);
+      setQuery((params.get("search") ?? "").slice(0, 100));
+      const status = params.get("status") ?? "";
+      setStatus(goalStatuses.some((value) => value === status) ? status : "");
+      const sort = params.get("sort");
+      setSort(sort === "progress" || sort === "updated" ? sort : "deadline");
+      const page = Number(params.get("page") ?? 1);
+      setPage(Number.isInteger(page) && page > 0 ? page : 1);
+    };
+    window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  }, []);
   const newGoalId = useRef<string | null>(null);
   const create = () => {
     newGoalId.current = crypto.randomUUID();
     setEditing(null);
   };
   useEffect(() => {
-    const key = `${page}|${query}|${status}|${revision}`;
-    if (initialKey.current === key) return;
+    const key = `${page}|${query}|${status}|${sort}|${revision}`;
+    if (initialKey.current === key) {
+      const settled = setTimeout(() => setLoading(false), 0);
+      return () => clearTimeout(settled);
+    }
     const controller = new AbortController();
     const timeout = setTimeout(
       () => {
         setLoading(true);
+        const url = new URL(window.location.href);
+        for (const [key, value] of Object.entries({
+          page: page > 1 ? String(page) : "",
+          search: query,
+          status,
+          sort: sort === "deadline" ? "" : sort,
+        })) {
+          if (value) url.searchParams.set(key, value);
+          else url.searchParams.delete(key);
+        }
+        window.history.replaceState(null, "", url);
         void featureRequest<GoalList>(
-          `/api/goals?page=${page}&search=${encodeURIComponent(query)}&status=${status}`,
+          `/api/goals?page=${page}&search=${encodeURIComponent(query)}&status=${status}&sort=${sort}`,
           undefined,
           controller.signal,
         )
           .then((value) => {
+            if (controller.signal.aborted) return;
             initialKey.current = key;
             setList(value);
             setPage(value.page);
@@ -79,7 +112,7 @@ export default function GoalsDashboard({
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [page, query, status, revision, t]);
+  }, [page, query, status, sort, revision, t]);
   const save = async (value: GoalInput) => {
     const id = editing?.id ?? newGoalId.current ?? crypto.randomUUID();
     newGoalId.current = id;
@@ -137,31 +170,25 @@ export default function GoalsDashboard({
       setCompleting(undefined);
     }
   };
-  const labels = ["active", "completed"] as const;
   return (
     <>
       <PageHeader
         title={t("title")}
-        description={t("simpleGoalHelp")}
-        action={<Button onClick={create}>{t("createGoal")}</Button>}
-      />
-      {nextAction && <div className="mb-6">{nextAction}</div>}
-      <div className="mb-6 grid gap-3 sm:grid-cols-2">
-        {labels.map((key) => (
-          <div
-            key={key}
-            className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-dark"
-          >
-            <p className="text-secondary dark:text-secondary text-small">
-              {t(`summary.${key}`)}
-            </p>
-            <p className="text-primary dark:text-primary mt-2 text-stat">
-              {Number(list.statistics[key])}
-            </p>
+        description={t("workspace.description")}
+        action={
+          <div className="goal-actions">
+            <Link href="/aven?intent=plan" className="sf-action-secondary">
+              {t("workspace.planWithAven")}
+            </Link>
+            <Button onClick={create}>{t("createGoal")}</Button>
           </div>
-        ))}
-      </div>
-      <div className="sf-filter-bar mb-6 grid gap-4 sm:grid-cols-2">
+        }
+      />
+      <GoalMetrics statistics={list.statistics} />
+      {nextAction && (
+        <div className="goal-list-recommendation">{nextAction}</div>
+      )}
+      <div className="goal-filter-bar">
         <Field
           label={t("search")}
           value={query}
@@ -180,13 +207,32 @@ export default function GoalsDashboard({
           }}
         >
           <option value="">{t("allStatuses")}</option>
-          {(["active", "completed"] as const).map((key) => (
+          {goalStatuses.map((key) => (
             <option key={key} value={key}>
               {t(`statuses.${key}`)}
             </option>
           ))}
         </SelectField>
+        <SelectField
+          label={t("workspace.sort")}
+          value={sort}
+          onChange={(event) => {
+            setSort(event.target.value as typeof sort);
+            setPage(1);
+          }}
+        >
+          {(["deadline", "progress", "updated"] as const).map((key) => (
+            <option key={key} value={key}>
+              {t(`workspace.sorts.${key}`)}
+            </option>
+          ))}
+        </SelectField>
       </div>
+      <p className="goal-results" role="status">
+        {loading
+          ? t("workspace.loading")
+          : t("workspace.resultCount", { count: list.total })}
+      </p>
       {error && (
         <p
           role="alert"
@@ -195,10 +241,7 @@ export default function GoalsDashboard({
           {error}
         </p>
       )}
-      <div
-        aria-busy={loading}
-        className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
-      >
+      <div aria-busy={loading} className="goal-grid">
         {list.details.map((detail) => (
           <GoalCard
             key={detail.goal.id}
@@ -214,9 +257,38 @@ export default function GoalsDashboard({
       </div>
       {!list.details.length && (
         <EmptyState
-          title={t("empty")}
-          description={t("emptyHelp")}
-          action={<Button onClick={create}>{t("createGoal")}</Button>}
+          title={t(
+            query || status ? "workspace.noResults" : "workspace.emptyTitle",
+          )}
+          description={t(
+            query || status ? "workspace.noResultsHelp" : "workspace.emptyHelp",
+          )}
+          action={
+            <div className="goal-actions">
+              {query || status ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setQuery("");
+                    setStatus("");
+                    setPage(1);
+                  }}
+                >
+                  {t("workspace.clearFilters")}
+                </Button>
+              ) : (
+                <>
+                  <Button onClick={create}>{t("createGoal")}</Button>
+                  <Link
+                    href="/aven?intent=plan"
+                    className="sf-action-secondary"
+                  >
+                    {t("workspace.planWithAven")}
+                  </Link>
+                </>
+              )}
+            </div>
+          }
         />
       )}
       <Pagination
@@ -233,6 +305,7 @@ export default function GoalsDashboard({
         />
       )}
       <ConfirmDialog
+        background={false}
         isOpen={Boolean(deleting)}
         onClose={() => setDeleting(undefined)}
         title={t("deleteGoal")}
