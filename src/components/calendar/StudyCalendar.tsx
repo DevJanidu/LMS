@@ -305,7 +305,7 @@ export default function StudyCalendar({ initial, add = false }: Props) {
             initialDate={visibleDate}
             timeZone="UTC"
             locale={locale}
-            direction={locale === "ar" ? "rtl" : "ltr"}
+            direction="ltr"
             firstDay={data.user.weekStartDay}
             colorScheme={theme}
             now={() => calendarDisplayInstant(Date.now(), data.user.timezone)}

@@ -32,8 +32,8 @@ export async function getAvenPreferences(userId: string) {
         .where(eq(s.aiMemory.userId, userId))
         .orderBy(desc(s.aiMemory.updatedAt))
         .limit(50),
-      db.execute<{ tokens: number; costMicros: number }>(
-        sql`SELECT coalesce(sum(input_tokens+output_tokens),0)::int AS tokens, coalesce(sum(cost_micros),0)::int AS "costMicros" FROM ai_usage_records WHERE user_id=${userId}::uuid AND day >= date_trunc('month',now())::date`,
+      db.execute<{ tokens: number; costMicros: number; hadUsage: boolean }>(
+        sql`SELECT coalesce(sum(input_tokens+output_tokens),0)::int AS tokens, coalesce(sum(cost_micros),0)::int AS "costMicros" , EXISTS(SELECT 1 FROM ai_usage_records older WHERE older.user_id=${userId}::uuid) AS "hadUsage" FROM ai_usage_records WHERE user_id=${userId}::uuid AND day >= date_trunc('month',now())::date`,
       ),
       db
         .select({ timezone: s.users.timezone })
@@ -47,7 +47,14 @@ export async function getAvenPreferences(userId: string) {
     config = status.configured ? avenConfig() : null;
   return {
     timezone: account?.timezone ?? "UTC",
-    ai: aiPreferenceSchema.parse(ai?.value ?? {}),
+    ai: aiPreferenceSchema.parse({
+      ...ai?.value,
+      onboardingComplete: Boolean(
+        ai?.value.onboardingComplete ||
+        ai?.value.consent ||
+        usage.rows[0].hadUsage,
+      ),
+    }),
     notifications: notificationPreferenceSchema.parse(
       notifications?.value ?? {},
     ),
@@ -82,9 +89,9 @@ export async function changeAvenPreferences(
       .from(s.users)
       .where(eq(s.users.id, userId))
       .for("update");
-    if (user?.status !== "active")
+    if (user?.status !== "active" || user.role !== "learner")
       throw new GoalError("authenticationFailed", 403);
-    if (input.kind === "enableAven") {
+    if (input.kind === "enableAven" || input.kind === "onboard") {
       const [existing] = await tx
         .select()
         .from(s.aiUserPreferences)
@@ -92,6 +99,10 @@ export async function changeAvenPreferences(
       const value = {
         ...aiPreferenceSchema.parse(existing?.value ?? {}),
         consent: true,
+        onboardingComplete: true,
+        ...(input.kind === "onboard" && input.locale
+          ? { locale: input.locale }
+          : {}),
       };
       await tx
         .insert(s.aiUserPreferences)
@@ -100,6 +111,33 @@ export async function changeAvenPreferences(
           target: s.aiUserPreferences.userId,
           set: { value, updatedAt: new Date() },
         });
+      if (input.kind === "onboard" && input.reminders) {
+        const [existingNotifications] = await tx
+          .select()
+          .from(s.notificationPreferences)
+          .where(eq(s.notificationPreferences.userId, userId));
+        const notifications = notificationPreferenceSchema.parse({
+          ...existingNotifications?.value,
+          enabled: true,
+          inApp: true,
+          morning: true,
+          evening: true,
+          weekly: true,
+          randomized: true,
+          dailyLimit: 6,
+        });
+        await tx
+          .insert(s.notificationPreferences)
+          .values({ userId, value: notifications })
+          .onConflictDoUpdate({
+            target: s.notificationPreferences.userId,
+            set: {
+              value: notifications,
+              nextCheckAt: new Date(),
+              updatedAt: new Date(),
+            },
+          });
+      }
     } else if (input.kind === "enableReminders") {
       const [existing] = await tx
         .select()
@@ -127,12 +165,24 @@ export async function changeAvenPreferences(
           set: { value, nextCheckAt: new Date(), updatedAt: new Date() },
         });
     } else if (input.kind === "preferences") {
+      const [currentAi] = await tx
+        .select()
+        .from(s.aiUserPreferences)
+        .where(eq(s.aiUserPreferences.userId, userId));
+      const aiValue = {
+        ...input.ai,
+        onboardingComplete: Boolean(
+          input.ai.onboardingComplete ||
+          currentAi?.value.onboardingComplete ||
+          currentAi?.value.consent,
+        ),
+      };
       await tx
         .insert(s.aiUserPreferences)
-        .values({ userId, value: input.ai })
+        .values({ userId, value: aiValue })
         .onConflictDoUpdate({
           target: s.aiUserPreferences.userId,
-          set: { value: input.ai, updatedAt: new Date() },
+          set: { value: aiValue, updatedAt: new Date() },
         });
       await tx
         .insert(s.notificationPreferences)

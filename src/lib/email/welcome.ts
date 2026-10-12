@@ -1,6 +1,5 @@
 import "server-only";
 import { after } from "next/server";
-import { getLocale } from "next-intl/server";
 import { getAccountEmailEnv } from "@/lib/env";
 import { sendWelcomeEmail, type WelcomeRecipient } from "@/lib/email";
 
@@ -12,10 +11,8 @@ export async function scheduleWelcomeEmail(user: WelcomeRecipient) {
       console.warn(JSON.stringify({ event: "welcome_email_unconfigured" }));
       return;
     }
-    // Capture the language before leaving the registration request.
-    const locale = await getLocale();
     after(async () => {
-      try { await sendWelcomeEmail(user, locale); }
+      try { await sendWelcomeEmail(user); }
       catch { console.warn(JSON.stringify({ event: "welcome_email_failed" })); }
     });
   } catch { console.warn(JSON.stringify({ event: "welcome_email_scheduling_failed" })); }

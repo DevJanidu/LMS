@@ -28,11 +28,15 @@ export async function POST(request: Request) {
             );
           } catch {}
         };
-        void streamChat(user.id, input, prepared, emit, signal).finally(() => {
-          try {
-            controller.close();
-          } catch {}
-        });
+        void streamChat(user.id, input, prepared, emit, signal)
+          .catch(() => {
+            emit({ type: "error", code: "conversationUnavailable" });
+          })
+          .finally(() => {
+            try {
+              controller.close();
+            } catch {}
+          });
       },
       cancel() {
         abort.abort();

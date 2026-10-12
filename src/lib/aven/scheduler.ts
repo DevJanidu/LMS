@@ -13,8 +13,10 @@ import {
   missedStart,
   randomCheckInTime,
   sessionReminderDue,
+  candidateEnabled,
 } from "./scheduler-model";
 import { deliverNotifications } from "./delivery";
+import { appendProactiveMessage } from "./proactive-conversations";
 interface Candidate {
   kind: string;
   key: string;
@@ -44,12 +46,20 @@ export async function enqueueNotification(
       scheduledFor: new Date(),
     })
     .onConflictDoNothing()
-    .returning({ id: s.notifications.id });
+    .returning();
   if (!notification) return null;
-  if (action)
-    await tx
-      .insert(s.notificationActions)
-      .values({ notificationId: notification.id, value: action });
+  const context = action ?? { kind: "checkIn" };
+  const conversationId = await appendProactiveMessage(
+    tx,
+    userId,
+    notification,
+    context,
+    title,
+  );
+  await tx.insert(s.notificationActions).values({
+    notificationId: notification.id,
+    value: { ...context, conversationId },
+  });
   const deliveries = [
     ...(channels.inApp !== false ? ["inApp"] : []),
     ...(channels.email ? ["email"] : []),
@@ -209,6 +219,7 @@ export async function processAvenUser(userId: string, now: number) {
       });
     if (
       prefs.missedSessions &&
+      !(timer && !timer.pausedAt) &&
       item.block.subjectId &&
       missedStart(
         item.startsAt,
@@ -260,6 +271,22 @@ export async function processAvenUser(userId: string, now: number) {
   const todaySessions = occurrences.filter(
     (o) => localDay(o.startsAt, user.timezone) === today,
   );
+  const [recentNotification] = await db
+    .select({ createdAt: s.notifications.createdAt })
+    .from(s.notifications)
+    .where(
+      and(eq(s.notifications.userId, userId), eq(s.notifications.type, "aven")),
+    )
+    .orderBy(desc(s.notifications.createdAt))
+    .limit(1);
+  const activeStudy =
+    Boolean(timer && !timer.pausedAt) ||
+    evidence.some(
+      (item) =>
+        item.status === "valid" &&
+        item.endedAt.getTime() > now - 30 * 60000 &&
+        item.endedAt.getTime() <= now,
+    );
   const first = tasks[0]?.title ?? todaySessions[0]?.title ?? t("firstStep");
   if (prefs.morning && dueLocalTime(now, user.timezone, prefs.morningTime))
     candidates.push({
@@ -287,7 +314,18 @@ export async function processAvenUser(userId: string, now: number) {
     prefs.weekly &&
     weekday === prefs.weeklyDay &&
     dueLocalTime(now, user.timezone, prefs.eveningTime)
-  )
+  ) {
+    const [{ completed }] = await db
+      .select({ completed: sql<number>`count(*)::int` })
+      .from(s.goalTasks)
+      .innerJoin(s.goals, eq(s.goals.id, s.goalTasks.goalId))
+      .where(
+        and(
+          eq(s.goals.userId, userId),
+          eq(s.goalTasks.status, "completed"),
+          sql`${s.goalTasks.completedAt} >= ${new Date(now - 7 * 86400000)}`,
+        ),
+      );
     candidates.push({
       kind: "weekly",
       key: `weekly:${today}`,
@@ -295,9 +333,14 @@ export async function processAvenUser(userId: string, now: number) {
       body: t("weeklyBody", {
         hours: Number(studySummary.hours).toFixed(1),
         goals: goals.length,
+        completed,
+        deadlines: tasks.filter(
+          (task) => task.dueDate && task.dueDate <= shiftDay(today, 7),
+        ).length,
       }),
       action: dailyAction,
     });
+  }
   const clock = wallTime(new Date(now).toISOString(), user.timezone).slice(
     11,
     16,
@@ -310,6 +353,9 @@ export async function processAvenUser(userId: string, now: number) {
   );
   if (
     prefs.randomized &&
+    !activeStudy &&
+    (!recentNotification ||
+      now - recentNotification.createdAt.getTime() >= 60 * 60000) &&
     clock >= prefs.allowedStart &&
     clock < prefs.allowedEnd &&
     dueLocalTime(now, user.timezone, randomTime)
@@ -318,13 +364,40 @@ export async function processAvenUser(userId: string, now: number) {
       kind: "checkIn",
       key: `checkIn:${today}`,
       title: t("checkInTitle"),
-      body: t("checkInBody", { title: goals[0]?.title ?? t("learning") }),
+      body: (() => {
+        const upcoming = todaySessions.find(
+          (session) => Date.parse(session.startsAt) > now,
+        );
+        const recorded = evidence
+          .filter(
+            (item) =>
+              item.status === "valid" &&
+              localDay(item.startedAt.getTime(), user.timezone) === today &&
+              item.endedAt.getTime() <= now,
+          )
+          .reduce((total, item) => total + item.durationSeconds, 0);
+        if (recorded > 0)
+          return t("checkInProgress", {
+            minutes: Math.floor(recorded / 60),
+            title: goals[0]?.title ?? t("learning"),
+          });
+        if (upcoming)
+          return t("checkInUpcoming", {
+            title: upcoming.title,
+            time: wallTime(upcoming.startsAt, user.timezone).slice(11, 16),
+          });
+        return t("checkInBody", { title: goals[0]?.title ?? t("learning") });
+      })(),
       action: dailyAction,
     });
   const latestStudy = studySummary.latest
     ? new Date(studySummary.latest)
     : null;
   if (
+    prefs.goalReminders &&
+    prefs.morning &&
+    (goals.length > 0 || tasks.length > 0) &&
+    !activeStudy &&
     dueLocalTime(now, user.timezone, prefs.morningTime) &&
     (!latestStudy ||
       now - latestStudy.getTime() >= prefs.inactivityDays * 86400000)
@@ -349,6 +422,10 @@ export async function processAvenUser(userId: string, now: number) {
       .where(eq(s.notificationPreferences.userId, userId));
     if (actor?.status !== "active" || !current) return 0;
     const effective = notificationPreferenceSchema.parse(current.value);
+    const [currentTimer] = await tx
+      .select()
+      .from(s.activeTimers)
+      .where(eq(s.activeTimers.userId, userId));
     const from = zonedToUtc(`${today}T00:00`, user.timezone),
       to = zonedToUtc(`${shiftDay(today, 1)}T00:00`, user.timezone);
     const [{ count }] = await tx
@@ -363,6 +440,12 @@ export async function processAvenUser(userId: string, now: number) {
       );
     let delivered = 0;
     for (const candidate of candidates) {
+      if (!candidateEnabled(candidate.kind, effective)) continue;
+      if (
+        (candidate.kind === "checkIn" || candidate.kind === "missed") &&
+        ((currentTimer && !currentTimer.pausedAt) || delivered > 0)
+      )
+        continue;
       if (!mayNotify(effective, now, actor.timezone, count + delivered)) break;
       if (!effective.inApp && !effective.email && !effective.push) break;
       const [job] = candidate.jobId

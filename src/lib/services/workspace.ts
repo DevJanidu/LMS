@@ -14,7 +14,7 @@ import { timed } from "@/lib/perf";
 const iso = (value: Date) => value.toISOString();
 const preferenceRowsFor = cache((userId: string) => getDb().select().from(s.preferences).where(eq(s.preferences.userId, userId)));
 const timerRowsFor = cache((userId: string) => getDb().select().from(s.activeTimers).where(eq(s.activeTimers.userId, userId)));
-const notificationRowsFor = cache((userId: string) => getDb().select().from(s.notifications).where(eq(s.notifications.userId, userId)).orderBy(desc(s.notifications.scheduledFor)).limit(20));
+const notificationRowsFor = cache((userId: string) => getDb().select().from(s.notifications).where(and(eq(s.notifications.userId, userId), sql`(${s.notifications.type} <> 'aven' OR EXISTS(SELECT 1 FROM notification_deliveries d WHERE d.notification_id=${s.notifications.id} AND d.channel='inApp' AND d.status='delivered'))`)).orderBy(desc(s.notifications.scheduledFor)).limit(20));
 export { invalidateSettings } from "@/lib/cache";
 // Quotas and registration policy are a tiny authoritative table. Request-local
 // memoization avoids duplicates without trusting optional Redis invalidation.
@@ -159,7 +159,8 @@ export const getShellWorkspace = cache(async (authorizedAccount?: typeof s.users
         'title', q.title, 'body', q.body, 'scheduledFor', q.scheduled_for,
         'readAt', q.read_at, 'createdAt', q.created_at)), '[]'::jsonb)
         FROM (SELECT id, type, title, body, scheduled_for, read_at, created_at
-          FROM notifications WHERE user_id = ${account.id}::uuid
+          FROM notifications n WHERE user_id = ${account.id}::uuid
+          AND (type <> 'aven' OR EXISTS(SELECT 1 FROM notification_deliveries d WHERE d.notification_id=n.id AND d.channel='inApp' AND d.status='delivered'))
           ORDER BY scheduled_for DESC LIMIT 20) q) AS notifications,
       (SELECT coalesce(jsonb_object_agg(key, value), '{}'::jsonb) FROM app_settings) AS settings
   `));

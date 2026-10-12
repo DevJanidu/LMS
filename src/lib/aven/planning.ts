@@ -11,6 +11,25 @@ export function overlaps(a: Slot, b: Slot) {
     Date.parse(a.endsAt) > Date.parse(b.startsAt)
   );
 }
+export function committedMinutes(
+  day: string,
+  timezone: string,
+  commitments: Slot[],
+) {
+  const start = Date.parse(zonedToUtc(`${day}T00:00`, timezone)),
+    end = Date.parse(zonedToUtc(`${shiftDay(day, 1)}T00:00`, timezone));
+  return commitments.reduce(
+    (total, slot) =>
+      total +
+      Math.max(
+        0,
+        Math.min(end, Date.parse(slot.endsAt)) -
+          Math.max(start, Date.parse(slot.startsAt)),
+      ) /
+        60000,
+    0,
+  );
+}
 export function validateSchedule(
   sessions: Slot[],
   commitments: Slot[],
@@ -36,7 +55,9 @@ export function validateSchedule(
     )
       throw new Error("scheduleOverlap");
     const day = localDay(start, timezone),
-      total = (totals.get(day) ?? 0) + (end - start) / 60000;
+      total =
+        (totals.get(day) ?? committedMinutes(day, timezone, commitments)) +
+        (end - start) / 60000;
     if (total > dailyMinutes) throw new Error("scheduleOverloaded");
     totals.set(day, total);
   }
@@ -98,7 +119,7 @@ export function proposeAdaptiveSchedule(
     const end = Date.parse(
       zonedToUtc(`${day}T${preferences.preferredStudyEnd}`, timezone),
     );
-    let used = 0;
+    let used = committedMinutes(day, timezone, commitments);
     while (
       cursor + 15 * 60000 <= end &&
       used < preferences.dailyTargetMinutes &&

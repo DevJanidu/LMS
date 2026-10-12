@@ -19,7 +19,10 @@ export async function POST(request: Request) {
     const user = await learnerAccount(),
       input = await validatedBody(
         request,
-        z.object({ id: z.uuid(), decision: z.enum(["approve", "reject"]) }),
+        z.object({
+          id: z.uuid(),
+          decision: z.enum(["approve", "reject", "undo"]),
+        }),
       );
     return privateJson({
       ok: true,

@@ -1,3 +1,7 @@
+vi.mock("@/lib/aven/access", () => ({
+  assertAvenAccess: vi.fn().mockResolvedValue(undefined),
+  assertConversationActive: vi.fn().mockResolvedValue(undefined),
+}));
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   finish: vi.fn(),
@@ -26,8 +30,10 @@ vi.mock("@/lib/aven/usage", () => ({
 vi.mock("@/lib/aven/tools", () => ({
   avenTools: [],
   executeAvenTool: mocks.tool,
+  isAvenWriteTool: (name: string) => name.startsWith("create"),
 }));
 import { streamChat } from "@/lib/aven/chat";
+import { assertAvenAccess } from "@/lib/aven/access";
 type Prepared = Parameters<typeof streamChat>[2];
 const prepared = {
   preferences: { ai: { consent: true, locale: "en" }, memory: [] },
@@ -63,6 +69,77 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.finish.mockResolvedValue(undefined);
   mocks.usage.mockResolvedValue(undefined);
+  vi.mocked(assertAvenAccess).mockResolvedValue(undefined);
+});
+it("terminates an empty successful provider stream with a retryable saved error", async () => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(completed([])));
+  const events: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    prepared,
+    (event) => events.push(event),
+    new AbortController().signal,
+  );
+  expect(events.at(-1)).toMatchObject({ type: "error", code: "emptyResponse" });
+  expect(events.some((event) => event.type === "done")).toBe(false);
+});
+it("never emits success when the conversation persistence fence rejects a late answer", async () => {
+  mocks.finish.mockResolvedValue(false);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(completed([], "Late answer")),
+  );
+  const events: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    prepared,
+    (event) => events.push(event),
+    new AbortController().signal,
+  );
+  expect(events.at(-1)).toMatchObject({
+    type: "error",
+    code: "conversationUnavailable",
+  });
+});
+it("persists timed-out generation as cancelled and ends the stream", async () => {
+  const controller = new AbortController();
+  controller.abort(new DOMException("Timeout", "TimeoutError"));
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(controller.signal.reason));
+  const events: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    prepared,
+    (event) => events.push(event),
+    controller.signal,
+  );
+  expect(events.at(-1)).toMatchObject({
+    type: "error",
+    code: "generationTimedOut",
+  });
+  expect(mocks.finish).toHaveBeenCalledWith(
+    "owner",
+    "conversation",
+    "request",
+    "generationTimedOut",
+    "cancelled",
+  );
+});
+it("does not transmit another provider request after live consent is revoked", async () => {
+  vi.mocked(assertAvenAccess).mockRejectedValue(new Error("revoked"));
+  const fetch = vi.fn();
+  vi.stubGlobal("fetch", fetch);
+  await streamChat(
+    "owner",
+    input,
+    prepared,
+    () => {},
+    new AbortController().signal,
+  );
+  expect(fetch).not.toHaveBeenCalled();
+  expect(mocks.finish).toHaveBeenCalled();
 });
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -131,6 +208,57 @@ it("creates a pending proposal without running an approval operation", async () 
   const body = JSON.parse(fetch.mock.calls[0][1].body);
   expect(body.instructions).toContain("proposals ONLY");
   expect(body.store).toBe(false);
+});
+it("buffers a pending action reply and uses a real correction request before exposing an execution claim", async () => {
+  const corrected = "I prepared a goal proposal. Review the approval card.";
+  vi.stubGlobal(
+    "fetch",
+    vi
+      .fn()
+      .mockResolvedValueOnce(
+        completed([
+          {
+            type: "function_call",
+            name: "createGoalTask",
+            arguments: "{}",
+            call_id: "call",
+          },
+        ]),
+      )
+      .mockResolvedValueOnce(completed([], "I created a goal for you."))
+      .mockResolvedValueOnce(
+        completed(
+          [
+            {
+              type: "message",
+              content: [{ type: "output_text", text: corrected }],
+            },
+          ],
+          corrected,
+        ),
+      ),
+  );
+  mocks.tool.mockResolvedValue({
+    id: "proposal",
+    status: "pending",
+    value: { kind: "taskCreate" },
+  });
+  const events: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    prepared,
+    (event) => events.push(event),
+    new AbortController().signal,
+  );
+  expect(
+    events.some(
+      (event) =>
+        event.type === "delta" && String(event.text).includes("I created"),
+    ),
+  ).toBe(false);
+  expect(events).toContainEqual({ type: "replace", text: corrected });
+  expect(events.at(-1)?.type).toBe("done");
 });
 it("persists failures and retains conservative reservations only for uncertain upstream usage", async () => {
   vi.stubGlobal(

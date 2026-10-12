@@ -13,18 +13,103 @@ import {
 import { getScheduleBlocksInRange } from "@/lib/services/lists";
 import { getCalendarBlock } from "@/lib/services/calendar";
 import { getOccurrences } from "@/lib/schedule";
-import { localDay, shiftDay } from "@/lib/analytics";
-import { taskSchema, goalSchema } from "@/lib/goals/validation";
+import { localDay, shiftDay, wallTime } from "@/lib/analytics";
+import {
+  taskSchema,
+  goalSchema,
+  milestoneSchema,
+} from "@/lib/goals/validation";
 import { goalPlanSchema } from "./validation";
 import { getAvenPreferences } from "./preferences";
 import { proposeAdaptiveSchedule } from "./planning";
+import { calendarOccurrences } from "@/lib/calendar/model";
+import { moveSessionsProposal, localStudyInstant } from "./calendar-actions";
+import { resourceVersion } from "./extra-proposals";
+import { proposalSchema } from "./validation";
 import { storeProposal } from "./proposals";
 import { readLearningLink } from "./resource-network";
 import { processPdf } from "./documents";
+import { learnerAnalytics } from "@/lib/analytics/server";
 const empty = z.object({}),
   goalIdSchema = z.object({ goalId: z.uuid() });
+const localTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T[0-2]\d:[0-5]\d$/);
 const schemas = {
-  getUserGoals: empty,
+  getUserProfile: empty,
+  getNotificationPreferences: empty,
+  getCalendar: z.object({ from: z.iso.date(), to: z.iso.date() }),
+  moveStudySessions: z.object({
+    sessions: z
+      .array(
+        z.object({
+          blockId: z.uuid(),
+          date: z.iso
+            .date()
+            .describe(
+              "Original occurrence date from getCalendar.sessions[].date or notification action.date, not the destination date.",
+            ),
+          localStartsAt: localTime.describe(
+            "Destination date and time in the account timezone, YYYY-MM-DDTHH:mm.",
+          ),
+        }),
+      )
+      .min(1)
+      .max(30),
+    explanation: z.string().min(1).max(4000),
+  }),
+  cancelStudySessions: z.object({
+    sessions: z
+      .array(
+        z.object({
+          blockId: z.uuid(),
+          date: z.iso.date(),
+          scope: z.enum(["one", "future", "all"]),
+        }),
+      )
+      .min(1)
+      .max(30),
+    explanation: z.string().min(1).max(4000),
+  }),
+  createStudySchedule: z.object({
+    title: z.string().min(1).max(150),
+    subjectId: z.uuid().nullable(),
+    topicId: z.uuid().nullable(),
+    localStartsAt: localTime,
+    durationMinutes: z.number().int().min(15).max(240),
+    repeat: z.enum(["once", "weekly"]),
+    weekdays: z.array(z.number().int().min(0).max(6)).max(7),
+    until: z.iso.date().nullable(),
+    explanation: z.string().min(1).max(4000),
+  }),
+  completeGoal: z.object({
+    goalId: z.uuid(),
+    expectedVersion: z.number().int().positive(),
+    completed: z.boolean(),
+  }),
+  createGoalMilestone: z.object({
+    goalId: z.uuid(),
+    expectedVersion: z.number().int().positive(),
+    title: z.string().min(1).max(200),
+    description: z.string().max(4000),
+    dueDate: z.iso.date().nullable(),
+  }),
+  updateStudyPreferences: proposalSchema.options.find(
+    (option) => option.shape.kind.value === "studyPreferences",
+  )!,
+  updateReminderPreferences: proposalSchema.options.find(
+    (option) => option.shape.kind.value === "reminderPreferences",
+  )!,
+  organizeLearningResource: z.object({
+    resourceId: z.uuid(),
+    subjectId: z.uuid(),
+    topicId: z.uuid().nullable(),
+    title: z.string().max(150).nullable(),
+    explanation: z.string().max(4000),
+  }),
+  rememberPreference: z.object({ content: z.string().min(1).max(2000) }),
+  getUserGoals: z.object({
+    page: z.number().int().min(1).max(100000).default(1),
+    search: z.string().max(100).nullable().default(null),
+  }),
   getGoalDetails: goalIdSchema,
   getGoalProgress: goalIdSchema,
   getSubjects: empty,
@@ -48,12 +133,15 @@ const schemas = {
   createGoalTask: z.object({ goalId: z.uuid(), value: taskSchema }),
   updateGoalTask: z.object({
     goalId: z.uuid(),
+    expectedVersion: z.number().int().positive(),
     taskId: z.uuid(),
     value: taskSchema,
   }),
   rescheduleStudySession: z.object({
     blockId: z.uuid(),
-    date: z.iso.date(),
+    date: z.iso
+      .date()
+      .describe("Original occurrence date, not the destination date."),
     startsAt: z.iso.datetime(),
     endsAt: z.iso.datetime(),
   }),
@@ -65,6 +153,15 @@ const schemas = {
 } as const;
 export type AvenToolName = keyof typeof schemas;
 const writeTools = new Set<AvenToolName>([
+  "moveStudySessions",
+  "cancelStudySessions",
+  "createStudySchedule",
+  "completeGoal",
+  "createGoalMilestone",
+  "updateStudyPreferences",
+  "updateReminderPreferences",
+  "organizeLearningResource",
+  "rememberPreference",
   "proposeGoal",
   "proposeGoalPlan",
   "proposeStudySchedule",
@@ -73,6 +170,8 @@ const writeTools = new Set<AvenToolName>([
   "rescheduleStudySession",
   "createReminder",
 ]);
+export const isAvenWriteTool = (name: string) =>
+  writeTools.has(name as AvenToolName);
 export function validateToolInput(name: string, raw: unknown) {
   if (!Object.hasOwn(schemas, name)) throw new GoalError("invalidTool");
   const result = schemas[name as AvenToolName].safeParse(raw);
@@ -101,7 +200,11 @@ export const avenTools = Object.entries(schemas).map(([name, schema]) => ({
   strict: true,
   description: writeTools.has(name as AvenToolName)
     ? `${name}: create a reviewable proposal only. Never execute a change; the user must approve it in the application.`
-    : `${name}: retrieve authenticated user's verified Acadence records.`,
+    : name === "getCalendar"
+      ? "Read the user's actual study sessions in account local time. from is inclusive, to is exclusive, both YYYY-MM-DD. For one day use from=day and to=next day; equal dates also mean that single day. Use this for tomorrow's schedule before proposing a move."
+      : name === "getUserGoals"
+        ? "Read owned goals with progress. page starts at 1; search filters titles. Follow hasMore with the next page rather than assuming the first page is the whole account."
+        : `${name}: retrieve authenticated user's verified Acadence records.`,
   parameters: strictSchema(schema),
 }));
 export async function executeAvenTool(
@@ -110,19 +213,262 @@ export async function executeAvenTool(
   name: string,
   raw: unknown,
 ) {
+  try {
+    const result = await performAvenTool(userId, conversationId, name, raw);
+    await getDb()
+      .insert(s.auditLogs)
+      .values({
+        actorUserId: userId,
+        action: "aven.tool",
+        targetType: "aiConversation",
+        targetId: conversationId,
+        metadata: {
+          tool: name,
+          outcome: "success",
+          proposedWrite: writeTools.has(name as AvenToolName),
+        },
+      });
+    return result;
+  } catch (error) {
+    const code = error instanceof GoalError ? error.message : "toolUnavailable";
+    await getDb()
+      .insert(s.auditLogs)
+      .values({
+        actorUserId: userId,
+        action: "aven.tool",
+        targetType: "aiConversation",
+        targetId: conversationId,
+        metadata: {
+          tool: Object.hasOwn(schemas, name) ? name : "unknown",
+          outcome: "error",
+          code,
+        },
+      })
+      .catch(() => {});
+    console.warn(
+      JSON.stringify({
+        event: "aven_tool_failed",
+        tool: Object.hasOwn(schemas, name) ? name : "unknown",
+        code,
+        category: error instanceof Error ? error.name : "unknown",
+      }),
+    );
+    throw error;
+  }
+}
+async function performAvenTool(
+  userId: string,
+  conversationId: string,
+  name: string,
+  raw: unknown,
+) {
   const args = validateToolInput(name, raw),
     db = getDb();
   const [user] = await db.select().from(s.users).where(eq(s.users.id, userId));
-  if (!user || user.status !== "active")
+  if (!user || user.status !== "active" || user.role !== "learner")
     throw new GoalError("authenticationFailed", 403);
   const timezone = user.timezone,
     today = localDay(Date.now(), timezone);
   const proposal = (value: unknown) =>
     storeProposal(userId, conversationId, value);
+
+  if (name === "getUserProfile") {
+    const [[prefs], [timer]] = await Promise.all([
+      db.select().from(s.preferences).where(eq(s.preferences.userId, userId)),
+      db.select().from(s.activeTimers).where(eq(s.activeTimers.userId, userId)),
+    ]);
+    const [setting] = await db
+      .select()
+      .from(s.appSettings)
+      .where(eq(s.appSettings.key, "streakMinutes"));
+    const analytics = await learnerAnalytics(
+      userId,
+      timezone,
+      prefs?.weekStartDay === 0 ? 0 : 1,
+      Number(setting?.value ?? 10),
+      undefined,
+      prefs?.highestStreak ?? 0,
+    );
+    return {
+      name: user.name,
+      timezone,
+      today,
+      weekStartDay: prefs?.weekStartDay ?? 1,
+      weeklyTargetMinutes: prefs?.weeklyTargetMinutes ?? 0,
+      verifiedProgress: {
+        currentStreak: analytics.currentStreak,
+        longestStreak: analytics.longestStreak,
+        todayMinutes: Math.round(analytics.todaySeconds / 60),
+        weekMinutes: Math.round(analytics.weekSeconds / 60),
+        loggedSessions: analytics.sessionCount,
+      },
+      coaching: (await getAvenPreferences(userId)).ai,
+      activeTimer: timer
+        ? {
+            subjectId: timer.subjectId,
+            startedAt: timer.startedAt,
+            paused: Boolean(timer.pausedAt),
+            note: "A timer is not proof of focused study.",
+          }
+        : null,
+    };
+  }
+  if (name === "getNotificationPreferences")
+    return (await getAvenPreferences(userId)).notifications;
+  if (name === "getCalendar") {
+    const { from, to: requestedTo } = args as { from: string; to: string };
+    const to = requestedTo === from ? shiftDay(from, 1) : requestedTo;
+    if (to < from || Date.parse(to) - Date.parse(from) > 366 * 86400000)
+      throw new GoalError("invalidInput");
+    const sessions = calendarOccurrences(
+      await getScheduleBlocksInRange(userId, { from, to }, timezone),
+      { from, to },
+      timezone,
+    );
+    return {
+      timezone,
+      from,
+      to,
+      total: sessions.length,
+      truncated: sessions.length > 100,
+      sessions: sessions.slice(0, 100).map((item) => ({
+        ...item,
+        blockId: item.block.id,
+        localStartsAt: wallTime(item.startsAt, timezone),
+        localEndsAt: wallTime(item.endsAt, timezone),
+      })),
+    };
+  }
+  if (name === "moveStudySessions") {
+    const value = args as {
+      sessions: { blockId: string; date: string; localStartsAt: string }[];
+      explanation: string;
+    };
+    return proposal(
+      await moveSessionsProposal(
+        userId,
+        timezone,
+        value.sessions,
+        value.explanation,
+      ),
+    );
+  }
+  if (name === "cancelStudySessions") {
+    const value = args as {
+      sessions: {
+        blockId: string;
+        date: string;
+        scope: "one" | "future" | "all";
+      }[];
+      explanation: string;
+    };
+    const changes = [];
+    for (const item of value.sessions) {
+      const block = await getCalendarBlock(userId, item.blockId);
+      changes.push({
+        ...item,
+        action: "cancel" as const,
+        expectedUpdatedAt: block.updatedAt,
+      });
+    }
+    return proposal({
+      kind: "calendarChanges",
+      explanation: value.explanation,
+      changes,
+    });
+  }
+  if (name === "createStudySchedule") {
+    const value = args as {
+      title: string;
+      subjectId: string | null;
+      topicId: string | null;
+      localStartsAt: string;
+      durationMinutes: number;
+      repeat: "once" | "weekly";
+      weekdays: number[];
+      until: string | null;
+      explanation: string;
+    };
+    const startsAt = localStudyInstant(value.localStartsAt, timezone);
+    return proposal({
+      ...value,
+      kind: "calendarCreate",
+      startsAt,
+      endsAt: new Date(
+        Date.parse(startsAt) + value.durationMinutes * 60000,
+      ).toISOString(),
+      timezone,
+    });
+  }
+  if (name === "completeGoal" || name === "createGoalMilestone") {
+    const value = args as {
+      goalId: string;
+      expectedVersion: number;
+      completed: boolean;
+      title: string;
+      description: string;
+      dueDate: string | null;
+    };
+    const detail = await getGoalDetail(userId, value.goalId);
+    if (detail.goal.version !== value.expectedVersion)
+      throw new GoalError("conflict", 409);
+    return proposal(
+      name === "completeGoal"
+        ? {
+            kind: "goalCompletion",
+            goalId: value.goalId,
+            expectedVersion: value.expectedVersion,
+            completed: value.completed,
+            title: detail.goal.title,
+          }
+        : {
+            kind: "milestoneCreate",
+            goalId: value.goalId,
+            expectedVersion: value.expectedVersion,
+            value: milestoneSchema.parse({
+              title: value.title,
+              description: value.description,
+              dueDate: value.dueDate,
+              order: detail.milestones.length,
+            }),
+          },
+    );
+  }
+  if (name === "updateStudyPreferences" || name === "updateReminderPreferences")
+    return proposal(args);
+  if (name === "organizeLearningResource") {
+    const value = args as {
+      resourceId: string;
+      subjectId: string;
+      topicId: string | null;
+      title: string | null;
+      explanation: string;
+    };
+    const [resource] = await db
+      .select()
+      .from(s.resources)
+      .where(
+        and(
+          eq(s.resources.id, value.resourceId),
+          eq(s.resources.userId, userId),
+        ),
+      );
+    if (!resource) throw new GoalError("recordUnavailable", 404);
+    return proposal({
+      ...value,
+      kind: "resourceOrganization",
+      expectedHash: resourceVersion(resource),
+    });
+  }
+  if (name === "rememberPreference")
+    return proposal({ kind: "memory", ...(args as { content: string }) });
   if (name === "getUserGoals") {
-    const result = await listGoals(userId);
+    const { page, search } = args as { page: number; search: string | null };
+    const result = await listGoals(userId, page, search ?? "");
     return {
       total: result.total,
+      page: result.page,
+      hasMore: result.page < Math.ceil(result.total / 20),
       goals: result.details.map((d) => ({
         id: d.goal.id,
         title: d.goal.title,
@@ -160,11 +506,22 @@ export async function executeAvenTool(
   if (name === "getStudySchedule") {
     const { days } = args as { days: number };
     const to = shiftDay(today, days);
-    return getOccurrences(
+    const sessions = calendarOccurrences(
       await getScheduleBlocksInRange(userId, { from: today, to }, timezone),
-      today,
-      shiftDay(to, -1),
-    ).slice(0, 60);
+      { from: today, to },
+      timezone,
+    );
+    return {
+      timezone,
+      total: sessions.length,
+      truncated: sessions.length > 60,
+      sessions: sessions.slice(0, 60).map((item) => ({
+        ...item,
+        blockId: item.block.id,
+        localStartsAt: wallTime(item.startsAt, timezone),
+        localEndsAt: wallTime(item.endsAt, timezone),
+      })),
+    };
   }
   if (name === "getStudyHistory" || name === "getWeeklyAnalytics") {
     const days =
@@ -220,13 +577,22 @@ export async function executeAvenTool(
       topics: references.topics.filter(
         (t) => t.targetDate && t.targetDate >= today,
       ),
-      goals: (await listGoals(userId)).details
-        .filter((d) => d.goal.targetDate >= today)
-        .map((d) => ({
-          id: d.goal.id,
-          title: d.goal.title,
-          date: d.goal.targetDate,
-        })),
+      goals: await db
+        .select({
+          id: s.goals.id,
+          title: s.goals.title,
+          date: s.goals.targetDate,
+        })
+        .from(s.goals)
+        .where(
+          and(
+            eq(s.goals.userId, userId),
+            sql`${s.goals.targetDate} >= ${today}`,
+            sql`${s.goals.status} NOT IN ('completed','cancelled')`,
+          ),
+        )
+        .orderBy(s.goals.targetDate)
+        .limit(500),
     };
   }
   if (name === "getAssignments")
@@ -390,9 +756,15 @@ export async function executeAvenTool(
     const value = args as {
       goalId: string;
       taskId?: string;
+      expectedVersion?: number;
       value: z.infer<typeof taskSchema>;
     };
     const detail = await getGoalDetail(userId, value.goalId);
+    if (
+      name === "updateGoalTask" &&
+      detail.goal.version !== value.expectedVersion
+    )
+      throw new GoalError("conflict", 409);
     if (
       name === "updateGoalTask" &&
       !detail.tasks.some((task) => task.id === value.taskId)
@@ -417,6 +789,10 @@ export async function executeAvenTool(
     return proposal({
       kind: "reschedule",
       ...value,
+      date:
+        block.repeat === "once"
+          ? localDay(block.startsAt, block.timezone)
+          : value.date,
       expectedUpdatedAt: block.updatedAt,
     });
   }

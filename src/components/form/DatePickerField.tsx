@@ -2,8 +2,7 @@
 
 import { useId, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type Ref } from "react";
 import { format, isValid, parse } from "date-fns";
-import { useLocale } from "next-intl";
-import { ar, de, es, enUS } from "react-day-picker/locale";
+import { enUS } from "react-day-picker/locale";
 import { ChevronDownIcon } from "@/icons";
 import Label from "@/components/form/Label";
 import { Calendar } from "@/components/ui/Calendar";
@@ -23,7 +22,6 @@ const eventFor = (value: string) => ({ target: { value }, currentTarget: { value
 function DateControl({ value, onSelect, min, max, label, compact = false }: {
   value: string; onSelect: (value: string) => void; min?: string; max?: string; label: string; compact?: boolean;
 }) {
-  const locale = useLocale();
   const selected = value ? parseDate(value) : undefined;
   const minDate = min ? parseDate(min.slice(0, 10)) : undefined;
   const maxDate = max ? parseDate(max.slice(0, 10)) : undefined;
@@ -33,8 +31,8 @@ function DateControl({ value, onSelect, min, max, label, compact = false }: {
     onSelect={date => { if (date) onSelect(format(date, "yyyy-MM-dd")); }}
     disabled={[...(minDate ? [{ before: minDate }] : []), ...(maxDate ? [{ after: maxDate }] : [])]}
     aria-label={label}
-    locale={({ ar, de, es, en: enUS } as const)[locale as "ar" | "de" | "es" | "en"] ?? enUS}
-    dir={locale === "ar" ? "rtl" : "ltr"}
+    locale={enUS}
+    dir="ltr"
     captionLayout={compact ? "dropdown" : "label"}
     startMonth={compact ? minDate ?? new Date(new Date().getFullYear() - 120, 0) : undefined}
     endMonth={compact ? maxDate ?? new Date() : undefined}

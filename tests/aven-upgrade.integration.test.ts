@@ -1,0 +1,614 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { and, eq, inArray, sql } from "drizzle-orm";
+import { createTranslator } from "next-intl";
+import en from "@/messages/en.json";
+import {
+  aiPreferenceSchema,
+  notificationPreferenceSchema,
+} from "@/lib/aven/validation";
+import { localDay, shiftDay, zonedToUtc } from "@/lib/analytics";
+import { randomCheckInTime } from "@/lib/aven/scheduler-model";
+vi.mock("next-intl/server", () => ({
+  getTranslations: async ({ namespace }: { namespace: string }) =>
+    createTranslator({
+      locale: "en",
+      messages: en,
+      namespace: namespace as "aven.notifications",
+    }),
+}));
+vi.mock("@/i18n/navigation", () => ({
+  redirect: () => {
+    throw new Error("Unexpected redirect");
+  },
+}));
+const enabled =
+  Boolean(process.env.TEST_DATABASE_URL) &&
+  process.env.TEST_DATABASE_FIXTURES_ONLY === "true";
+describe.skipIf(!enabled)(
+  "Aven upgrade on disposable real database fixtures",
+  () => {
+    let db: ReturnType<typeof import("@/lib/db").getDb>,
+      s: typeof import("@/lib/db/schema"),
+      conversations: typeof import("@/lib/aven/conversations"),
+      proposals: typeof import("@/lib/aven/proposals"),
+      tools: typeof import("@/lib/aven/tools");
+    const a = crypto.randomUUID(),
+      b = crypto.randomUUID(),
+      subject = crypto.randomUUID(),
+      otherSubject = crypto.randomUUID(),
+      topic = crypto.randomUUID(),
+      thread = crypto.randomUUID();
+    const timezone = "Asia/Colombo",
+      today = localDay(Date.now(), timezone),
+      tomorrow = shiftDay(today, 1);
+    const instant = (hour: string) =>
+      zonedToUtc(`${tomorrow}T${hour}`, timezone);
+    const tool = (name: string, args: unknown) =>
+      tools.executeAvenTool(a, thread, name, args) as Promise<{
+        id: string;
+        value: unknown;
+      }>;
+    const createBlock = async (
+      title: string,
+      startsAt: string,
+      endsAt: string,
+    ) =>
+      (
+        await db
+          .insert(s.scheduleBlocks)
+          .values({
+            userId: a,
+            subjectId: subject,
+            title,
+            startsAt: new Date(startsAt),
+            endsAt: new Date(endsAt),
+            timezone,
+            displayColor: "orange",
+          })
+          .returning()
+      )[0];
+    beforeAll(async () => {
+      process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+      process.env.DATABASE_URL_UNPOOLED = process.env.TEST_DATABASE_URL;
+      db = (await import("@/lib/db")).getDb();
+      s = await import("@/lib/db/schema");
+      conversations = await import("@/lib/aven/conversations");
+      proposals = await import("@/lib/aven/proposals");
+      tools = await import("@/lib/aven/tools");
+      await db.insert(s.users).values([
+        {
+          id: a,
+          name: "Upgrade fixture",
+          email: `${a}@example.com`,
+          timezone,
+          timezoneMode: "manual",
+          acceptedTermsAt: new Date(),
+        },
+        {
+          id: b,
+          name: "Other fixture",
+          email: `${b}@example.com`,
+          acceptedTermsAt: new Date(),
+        },
+      ]);
+      await db.insert(s.preferences).values({ userId: a });
+      await db.insert(s.subjects).values([
+        { id: subject, userId: a, title: "Java", displayColor: "orange" },
+        { id: otherSubject, userId: b, title: "Private" },
+      ]);
+      await db
+        .insert(s.topics)
+        .values({ id: topic, subjectId: subject, title: "Java basics" });
+      await db
+        .insert(s.aiConversations)
+        .values({ id: thread, userId: a, title: "Upgrade fixture" });
+      await db.insert(s.aiUserPreferences).values({
+        userId: a,
+        value: aiPreferenceSchema.parse({
+          consent: true,
+          onboardingComplete: true,
+        }),
+      });
+    }, 60000);
+    afterAll(async () => {
+      if (db && s) {
+        await db
+          .delete(s.auditLogs)
+          .where(inArray(s.auditLogs.actorUserId, [a, b]));
+        await db.delete(s.users).where(inArray(s.users.id, [a, b]));
+      }
+    }, 60000);
+    it("retries without another user row, fences successful replay and rejects another account", async () => {
+      const request = crypto.randomUUID();
+      const turn = await conversations.beginConversationTurn(
+        a,
+        null,
+        null,
+        request,
+        "Help with Java",
+      );
+      await conversations.finishConversationTurn(
+        a,
+        turn.id,
+        request,
+        "aiUnavailable",
+        "error",
+      );
+      const retry = crypto.randomUUID();
+      await conversations.beginConversationTurn(
+        a,
+        turn.id,
+        null,
+        retry,
+        "Help with Java",
+        request,
+      );
+      await conversations.finishConversationTurn(
+        a,
+        turn.id,
+        retry,
+        "Persisted answer",
+        "complete",
+      );
+      const history = await conversations.getConversation(a, turn.id);
+      expect(
+        history.messages.filter((item) => item.role === "user"),
+      ).toHaveLength(1);
+      await expect(
+        conversations.beginConversationTurn(
+          a,
+          turn.id,
+          null,
+          crypto.randomUUID(),
+          "Help with Java",
+          request,
+        ),
+      ).rejects.toMatchObject({ message: "alreadyAnswered" });
+      await expect(
+        conversations.beginConversationTurn(
+          a,
+          turn.id,
+          null,
+          crypto.randomUUID(),
+          "Help with Java",
+          retry,
+        ),
+      ).rejects.toMatchObject({ message: "invalidInput" });
+      await expect(
+        conversations.getConversation(b, turn.id),
+      ).rejects.toMatchObject({ status: 404 });
+      await expect(
+        conversations.recoverRequestConversation(b, request),
+      ).resolves.toEqual({ found: false });
+    }, 60000);
+    it("persists cancellation, releases the lease, and prevents a stale completion", async () => {
+      const request = crypto.randomUUID();
+      const turn = await conversations.beginConversationTurn(
+        a,
+        null,
+        null,
+        request,
+        "Explain Java",
+      );
+      expect(
+        await conversations.finishConversationTurn(
+          a,
+          turn.id,
+          request,
+          "generationStopped",
+          "cancelled",
+        ),
+      ).toBe(true);
+      expect(
+        await conversations.finishConversationTurn(
+          a,
+          turn.id,
+          request,
+          "Late answer",
+          "complete",
+        ),
+      ).toBe(false);
+      const history = await conversations.getConversation(a, turn.id);
+      expect(history.messages.at(-1)?.status).toBe("cancelled");
+      expect(history.conversation.activeRequestId).toBeNull();
+    }, 60000);
+    it("moves two sessions atomically with duration/color preservation, and rejects stale/overlapping batches", async () => {
+      const first = await createBlock(
+          "Spring",
+          instant("10:00"),
+          instant("11:00"),
+        ),
+        second = await createBlock(
+          "Docker",
+          instant("15:00"),
+          instant("16:00"),
+        );
+      const pending = await tool("moveStudySessions", {
+        sessions: [
+          {
+            blockId: first.id,
+            date: tomorrow,
+            localStartsAt: `${tomorrow}T09:30`,
+          },
+          {
+            blockId: second.id,
+            date: tomorrow,
+            localStartsAt: `${tomorrow}T10:30`,
+          },
+        ],
+        explanation: "Move both",
+      });
+      const result = await proposals.resolveProposal(a, pending.id, "approve");
+      expect(result.status).toBe("approved");
+      const read = (await tools.executeAvenTool(a, thread, "getCalendar", {
+        from: tomorrow,
+        to: tomorrow,
+      })) as { total: number; sessions: { localStartsAt: string }[] };
+      expect(read.total).toBe(2);
+      expect(
+        read.sessions.some(
+          (item) => item.localStartsAt === `${tomorrow}T09:30`,
+        ),
+      ).toBe(true);
+      const rows = await db
+        .select()
+        .from(s.scheduleBlocks)
+        .where(inArray(s.scheduleBlocks.id, [first.id, second.id]));
+      expect(
+        rows.every(
+          (item) =>
+            item.endsAt.getTime() - item.startsAt.getTime() === 3600000 &&
+            item.displayColor === "orange",
+        ),
+      ).toBe(true);
+      expect(
+        rows.find((item) => item.id === first.id)?.startsAt.toISOString(),
+      ).toBe(instant("09:30"));
+      expect(
+        (await proposals.resolveProposal(a, pending.id, "approve")).status,
+      ).toBe("approved");
+      expect(
+        (await proposals.resolveProposal(a, pending.id, "undo")).status,
+      ).toBe("undone");
+      const restored = await db
+        .select()
+        .from(s.scheduleBlocks)
+        .where(eq(s.scheduleBlocks.id, first.id));
+      expect(restored[0].startsAt.toISOString()).toBe(instant("10:00"));
+      const again = await tool("moveStudySessions", {
+        sessions: [
+          {
+            blockId: first.id,
+            date: tomorrow,
+            localStartsAt: `${tomorrow}T09:30`,
+          },
+          {
+            blockId: second.id,
+            date: tomorrow,
+            localStartsAt: `${tomorrow}T10:30`,
+          },
+        ],
+        explanation: "Move both again",
+      });
+      await proposals.resolveProposal(a, again.id, "approve");
+      const overlap = await tool("moveStudySessions", {
+        sessions: [
+          {
+            blockId: first.id,
+            date: tomorrow,
+            localStartsAt: `${tomorrow}T12:00`,
+          },
+          {
+            blockId: second.id,
+            date: tomorrow,
+            localStartsAt: `${tomorrow}T12:30`,
+          },
+        ],
+        explanation: "Overlap",
+      });
+      await expect(
+        proposals.resolveProposal(a, overlap.id, "approve"),
+      ).rejects.toMatchObject({ message: "scheduleOverlap" });
+      const unchanged = await db
+        .select()
+        .from(s.scheduleBlocks)
+        .where(eq(s.scheduleBlocks.id, first.id));
+      expect(unchanged[0].startsAt.toISOString()).toBe(instant("09:30"));
+      const stale = await tool("moveStudySessions", {
+        sessions: [
+          {
+            blockId: first.id,
+            date: tomorrow,
+            localStartsAt: `${tomorrow}T12:00`,
+          },
+        ],
+        explanation: "Stale",
+      });
+      await db
+        .update(s.scheduleBlocks)
+        .set({ updatedAt: new Date(Date.now() + 1000) })
+        .where(eq(s.scheduleBlocks.id, first.id));
+      await expect(
+        proposals.resolveProposal(a, stale.id, "approve"),
+      ).rejects.toMatchObject({ message: "conflict" });
+      await expect(
+        proposals.resolveProposal(b, pending.id, "approve"),
+      ).rejects.toMatchObject({ status: 404 });
+    }, 120000);
+    it("creates an ongoing recurring schedule and cancels one occurrence with an owned approved proposal", async () => {
+      const pending = await tool("createStudySchedule", {
+        title: "Evening Java",
+        subjectId: subject,
+        topicId: topic,
+        localStartsAt: `${tomorrow}T18:00`,
+        durationMinutes: 60,
+        repeat: "weekly",
+        weekdays: [0, 1, 2, 3, 4, 5, 6],
+        until: null,
+        explanation: "Daily practice",
+      });
+      const saved = await proposals.resolveProposal(a, pending.id, "approve");
+      const id = saved.result?.blockIds?.[0];
+      expect(id).toBeTruthy();
+      const [row] = await db
+        .select()
+        .from(s.scheduleBlocks)
+        .where(eq(s.scheduleBlocks.id, id!));
+      expect(row.recurrenceRule?.weekdays).toHaveLength(7);
+      expect(row.displayColor).toBe("orange");
+      const cancel = await tool("cancelStudySessions", {
+        sessions: [{ blockId: id, date: tomorrow, scope: "one" }],
+        explanation: "Skip tomorrow",
+      });
+      await proposals.resolveProposal(a, cancel.id, "approve");
+      const [exception] = await db
+        .select()
+        .from(s.scheduleExceptions)
+        .where(
+          and(
+            eq(s.scheduleExceptions.blockId, id!),
+            eq(s.scheduleExceptions.date, tomorrow),
+          ),
+        );
+      expect(exception.isCancelled).toBe(true);
+      const [series] = await db
+        .select()
+        .from(s.scheduleBlocks)
+        .where(eq(s.scheduleBlocks.id, id!));
+      expect(series).toBeTruthy();
+    }, 120000);
+    it("applies narrow preferences, preserves consent, undoes safely and rejects an intervening edit", async () => {
+      const value = {
+        kind: "studyPreferences",
+        explanation: "One hour",
+        patch: {
+          dailyTargetMinutes: 60,
+          preferredStudyStart: null,
+          preferredStudyEnd: null,
+          studyDays: null,
+          coachingStyle: null,
+          learningPreferences: null,
+        },
+      };
+      const pending = await proposals.storeProposal(a, thread, value);
+      await proposals.resolveProposal(a, pending.id, "approve");
+      let [row] = await db
+        .select()
+        .from(s.aiUserPreferences)
+        .where(eq(s.aiUserPreferences.userId, a));
+      expect(row.value.consent).toBe(true);
+      expect(row.value.dailyTargetMinutes).toBe(60);
+      await proposals.resolveProposal(a, pending.id, "undo");
+      [row] = await db
+        .select()
+        .from(s.aiUserPreferences)
+        .where(eq(s.aiUserPreferences.userId, a));
+      expect(row.value.dailyTargetMinutes).toBe(90);
+      const next = await proposals.storeProposal(a, thread, value);
+      await proposals.resolveProposal(a, next.id, "approve");
+      await db
+        .update(s.aiUserPreferences)
+        .set({ value: { ...row.value, dailyTargetMinutes: 120 } })
+        .where(eq(s.aiUserPreferences.userId, a));
+      await expect(
+        proposals.resolveProposal(a, next.id, "undo"),
+      ).rejects.toMatchObject({ message: "conflict" });
+    }, 60000);
+    it("organizes owned resources without changing contents, enforces resource consent, and stores approved memory", async () => {
+      const [resource] = await db
+        .insert(s.resources)
+        .values({
+          userId: a,
+          subjectId: subject,
+          type: "note",
+          title: "Java notes",
+          textContent: "Private factual notes",
+        })
+        .returning();
+      const pending = await tool("organizeLearningResource", {
+        resourceId: resource.id,
+        subjectId: subject,
+        topicId: topic,
+        title: "Java revision",
+        explanation: "Organize",
+      });
+      await proposals.resolveProposal(a, pending.id, "approve");
+      const [saved] = await db
+        .select()
+        .from(s.resources)
+        .where(eq(s.resources.id, resource.id));
+      expect(saved.topicId).toBe(topic);
+      expect(saved.textContent).toBe("Private factual notes");
+      await expect(
+        tools.executeAvenTool(a, thread, "getStudyResources", {
+          resourceId: resource.id,
+        }),
+      ).rejects.toMatchObject({ message: "resourceConsentRequired" });
+      await expect(
+        tools.executeAvenTool(b, thread, "organizeLearningResource", {
+          resourceId: resource.id,
+          subjectId: otherSubject,
+          topicId: null,
+          title: null,
+          explanation: "Other",
+        }),
+      ).rejects.toMatchObject({ status: 404 });
+      const memory = await tool("rememberPreference", {
+        content: "I prefer practical examples.",
+      });
+      await proposals.resolveProposal(a, memory.id, "approve");
+      const rows = await db
+        .select()
+        .from(s.aiMemory)
+        .where(eq(s.aiMemory.userId, a));
+      expect(
+        rows.some((row) => row.content === "I prefer practical examples."),
+      ).toBe(true);
+    }, 60000);
+    it("delivers a missed-session event once, groups it in chat, scopes replies and supports snooze", async () => {
+      const { processAvenUser } = await import("@/lib/aven/scheduler");
+      const { notificationConversation } =
+        await import("@/lib/aven/proactive-conversations");
+      const { notificationAction } = await import("@/lib/aven/notifications");
+      await db.insert(s.notificationPreferences).values({
+        userId: a,
+        value: notificationPreferenceSchema.parse({
+          enabled: true,
+          inApp: true,
+          morning: false,
+          evening: false,
+          randomized: false,
+          goalReminders: false,
+          sessionReminders: false,
+          missedSessions: true,
+          quietStart: "00:00",
+          quietEnd: "00:00",
+          dailyLimit: 10,
+        }),
+      });
+      const now = Date.now();
+      const block = await createBlock(
+        "Missed fixture",
+        new Date(now - 20 * 60000).toISOString(),
+        new Date(now + 40 * 60000).toISOString(),
+      );
+      expect(await processAvenUser(a, now)).toBe(1);
+      expect(await processAvenUser(a, now)).toBe(0);
+      const [notification] = await db
+        .select()
+        .from(s.notifications)
+        .where(
+          and(
+            eq(s.notifications.userId, a),
+            sql`${s.notifications.deduplicationKey} LIKE ${"aven:missed:" + block.id + ":%"}`,
+          ),
+        );
+      expect(notification).toBeTruthy();
+      const reply = await notificationConversation(a, notification.id);
+      const history = await conversations.getConversation(
+        a,
+        reply.conversationId,
+      );
+      expect(
+        history.messages.some(
+          (row) =>
+            row.content === notification.body &&
+            row.context?.blockId === block.id,
+        ),
+      ).toBe(true);
+      await expect(
+        notificationConversation(b, notification.id),
+      ).rejects.toMatchObject({ status: 404 });
+      const snooze = await notificationAction(a, notification.id, "snooze");
+      expect(Date.parse(snooze.snoozedUntil!) - Date.now()).toBeGreaterThan(
+        59 * 60000,
+      );
+      expect(await processAvenUser(a, now + 5 * 60000)).toBe(0);
+    }, 120000);
+    it("suppresses random check-ins during study, then persists one contextual event and deduplicates it", async () => {
+      const { processAvenUser } = await import("@/lib/aven/scheduler");
+      const day = shiftDay(today, 2),
+        clock = randomCheckInTime(a, day, "12:00", "17:00"),
+        now = Date.parse(zonedToUtc(`${day}T${clock}`, timezone));
+      await db
+        .update(s.notificationPreferences)
+        .set({
+          value: notificationPreferenceSchema.parse({
+            enabled: true,
+            randomized: true,
+            morning: false,
+            evening: false,
+            weekly: false,
+            sessionReminders: false,
+            missedSessions: false,
+            goalReminders: false,
+            quietStart: "00:00",
+            quietEnd: "00:00",
+            dailyLimit: 10,
+          }),
+        })
+        .where(eq(s.notificationPreferences.userId, a));
+      await db.insert(s.activeTimers).values({
+        userId: a,
+        subjectId: subject,
+        startedAt: new Date(now - 5 * 60000),
+      });
+      expect(await processAvenUser(a, now)).toBe(0);
+      await db.delete(s.activeTimers).where(eq(s.activeTimers.userId, a));
+      expect(await processAvenUser(a, now)).toBe(1);
+      expect(await processAvenUser(a, now)).toBe(0);
+      const threads = await db
+        .select()
+        .from(s.aiConversations)
+        .where(
+          and(
+            eq(s.aiConversations.userId, a),
+            eq(s.aiConversations.sourceKey, "companion"),
+          ),
+        );
+      expect(threads).toHaveLength(1);
+      const messages = await conversations.getConversation(a, threads[0].id);
+      expect(messages.messages.length).toBeGreaterThanOrEqual(2);
+    }, 120000);
+    it("keeps anonymous spending in the shared cap after account deletion", async () => {
+      const owner = crypto.randomUUID(),
+        usage = crypto.randomUUID();
+      await db.insert(s.users).values({
+        id: owner,
+        name: "Usage retention fixture",
+        email: `${owner}@example.com`,
+      });
+      await db.insert(s.aiUsageRecords).values({
+        id: usage,
+        userId: owner,
+        requestId: crypto.randomUUID(),
+        model: "fixture-ledger",
+        day: today,
+        reservedTokens: 0,
+        inputTokens: 10,
+        outputTokens: 10,
+        costMicros: 25,
+        status: "complete",
+      });
+      try {
+        await db.delete(s.users).where(eq(s.users.id, owner));
+        const [retained] = await db
+          .select()
+          .from(s.aiUsageRecords)
+          .where(eq(s.aiUsageRecords.id, usage));
+        expect(retained.userId).toBeNull();
+        expect(retained.costMicros).toBe(25);
+      } finally {
+        await db
+          .delete(s.aiUsageRecords)
+          .where(
+            and(
+              eq(s.aiUsageRecords.id, usage),
+              eq(s.aiUsageRecords.model, "fixture-ledger"),
+            ),
+          );
+        await db.delete(s.users).where(eq(s.users.id, owner));
+      }
+    }, 60000);
+  },
+);

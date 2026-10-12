@@ -1,5 +1,4 @@
 import { ThemeProvider } from "@/context/ThemeContext";
-import { isRtl } from "@/i18n/languages";
 import { type Locale, routing } from "@/i18n/routing";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -41,7 +40,7 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   return (
-    <html className={`${inter.variable} font-sans`} suppressHydrationWarning lang={locale} dir={isRtl(locale as Locale) ? "rtl" : "ltr"}>
+    <html className={`${inter.variable} font-sans`} suppressHydrationWarning lang="en" dir="ltr">
       <head>
         <script dangerouslySetInnerHTML={{ __html: `(function(){var m=document.cookie.match(/(?:^|; )sf-theme=(dark|light|auto)(?:;|$)/);var v=m?m[1]:'light';var d=v==='dark'||(v==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.setAttribute('data-color-scheme',d?'dark':'light')})()` }} />
       </head>

@@ -99,6 +99,10 @@ describe.skipIf(!enabled)(
     });
     afterAll(async () => {
       if (db && s) {
+        // This suite never calls a provider; its budget-only reservations have no billable usage.
+        await db
+          .delete(s.aiUsageRecords)
+          .where(inArray(s.aiUsageRecords.userId, [a, b]));
         await db
           .delete(s.auditLogs)
           .where(inArray(s.auditLogs.actorUserId, [a, b]));
@@ -198,7 +202,7 @@ describe.skipIf(!enabled)(
         id: second,
       });
       expect(final.tasks).toHaveLength(0);
-    });
+    }, 240000); // Multiple real network transactions; the normal per-test allowance remains unchanged.
     it("deduplicates retries and rejects conflicting concurrent versions", async () => {
       const goal = await create(),
         input: GoalMutation = {

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { featureRequest } from "@/lib/goals/client";
 import type { listAvenNotifications } from "@/lib/aven/notifications";
 import Button from "@/components/ui/button/Button";
@@ -13,6 +14,7 @@ import { wallTime, zonedToUtc } from "@/lib/analytics";
 type NotificationList = Awaited<ReturnType<typeof listAvenNotifications>>;
 export default function AvenNotifications({ timezone }: { timezone: string }) {
   const t = useTranslations("aven"),
+    router = useRouter(),
     [list, setList] = useState<NotificationList>({
       rows: [],
       total: 0,
@@ -51,21 +53,31 @@ export default function AvenNotifications({ timezone }: { timezone: string }) {
       });
     return () => controller.abort();
   }, [page, revision, t]);
-  const act = async (id: string, kind: "read" | "skip" | "reschedule") => {
+  const act = async (
+    id: string,
+    kind: "read" | "skip" | "reschedule" | "reply" | "snooze",
+  ) => {
     if (busy) return;
     setBusy(true);
     setError("");
     try {
-      await featureRequest("/api/aven/notifications", {
-        id,
-        kind,
-        ...(kind === "reschedule"
-          ? {
-              startsAt: zonedToUtc(start, timezone),
-              endsAt: zonedToUtc(end, timezone),
-            }
-          : {}),
-      });
+      const result = await featureRequest<{ conversationId?: string }>(
+        "/api/aven/notifications",
+        {
+          id,
+          kind,
+          ...(kind === "reschedule"
+            ? {
+                startsAt: zonedToUtc(start, timezone),
+                endsAt: zonedToUtc(end, timezone),
+              }
+            : {}),
+        },
+      );
+      if (kind === "reply" && result.conversationId)
+        router.push(
+          `/aven?conversation=${result.conversationId}&notification=${id}`,
+        );
       setRevision((value) => value + 1);
       setRescheduling(undefined);
       return true;
@@ -103,7 +115,7 @@ export default function AvenNotifications({ timezone }: { timezone: string }) {
             {item.body}
           </p>
           <p className="text-muted dark:text-muted mt-3 text-caption">
-            {new Date(item.createdAt).toLocaleString(undefined, {
+            {new Date(item.createdAt).toLocaleString("en", {
               timeZone: timezone,
             })}{" "}
             ·{" "}
@@ -115,6 +127,24 @@ export default function AvenNotifications({ timezone }: { timezone: string }) {
               .join(" · ")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={() => {
+                void act(item.id, "reply");
+              }}
+            >
+              {t("reply")}
+            </Button>
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={() => {
+                void act(item.id, "snooze");
+              }}
+            >
+              {t("snoozeHour")}
+            </Button>
             {!item.readAt && (
               <Button
                 variant="outline"

@@ -39,7 +39,7 @@ src/
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack + webpack both configured) with **React 19** and strict **TypeScript**.
-- **next-intl v4** for internationalization (i18n), localized routing, and RTL support.
+- **next-intl v4** for English message keys and routing. Acadence is English-only; do not reintroduce other languages or language selectors.
 - Path alias: `@/*` → `src/*`.
 - Scripts: `npm run dev`, `npm run build`, `npm run lint`. Node >= 20.9.
 - This Next.js version may differ from your training data — read the relevant guide in `node_modules/next/dist/docs/` before writing code and heed deprecation notices.
@@ -51,20 +51,20 @@ src/
 - **New icon** → drop the `.svg` in `icons/`, export it from the `index.tsx` barrel with a PascalCase name. Never inline SVG markup in components.
 - Route groups: `(admin)` is the only group with the sidebar/header shell; `(full-width-pages)` renders pages without chrome; `(layouts-example)` holds alternative sidebar layouts.
 - Component files are **PascalCase** (`MonthlySalesChart.tsx`) with a **default export**; route files stay lowercase (`page.tsx`, `layout.tsx`); hooks are camelCase (`useModal.ts`).
-- Root `app/[locale]/layout.tsx` is a Server Component setting up `NextIntlClientProvider`, fonts, direction (`dir="ltr"|"rtl"`), and providers. The `(admin)` shell layout and interactive UI are Client Components — add `"use client"` whenever using hooks, event handlers, or browser APIs.
+- Root `app/[locale]/layout.tsx` is a Server Component setting up `NextIntlClientProvider`, fonts, English LTR direction, and providers. The `(admin)` shell layout and interactive UI are Client Components — add `"use client"` whenever using hooks, event handlers, or browser APIs.
 - Import via the alias (`@/context/...`, `@/icons/...`, `@/i18n/...`) for cross-folder imports; relative imports are fine within a feature folder.
 
 ## Internationalization (next-intl) rules
 
 - **Navigation & Routing**: Always import navigation primitives (`Link`, `useRouter`, `usePathname`, `redirect`) from `@/i18n/navigation`, never directly from `next/link` or `next/navigation`.
-- **Routing Configuration**: Locales (`en`, `ar`, `es`, `de`) and routing settings are centralized in `src/i18n/routing.ts` (`localePrefix: "never"`).
+- **Routing Configuration**: Only `en` is supported. Routing is centralized in `src/i18n/routing.ts` (`localePrefix: "never"`); locale detection and locale cookies are disabled.
 - **Translations**:
   - In Client Components: use `useTranslations("namespace")`.
   - In Server Components: use `getTranslations("namespace")` from `next-intl/server`.
   - Organize translation keys by nested feature namespaces (e.g. `t("customers")` under `ecommerce.metrics`).
-- **Translation Messages**: All translation dictionaries live in `src/messages/<locale>.json`. When adding or updating user-facing copy, maintain corresponding keys across all supported language files.
+- **Translation Messages**: English messages live in `src/messages/en.json`. Add and maintain English keys for user-facing copy.
 - **Static Rendering & Server Components**: Server layouts/pages inside `[locale]` must call `setRequestLocale(locale)` to enable static rendering with `generateStaticParams()`.
-- **RTL Support**: Arabic (`ar`) uses RTL direction (`dir="rtl"`) via `isRtl(locale)` in `src/i18n/languages.ts`. Ensure UI components handle RTL layouts gracefully using CSS logical properties and `rtl:` variants.
+- **Direction**: The product uses `lang="en"` and `dir="ltr"`. Continue using logical CSS properties for consistent layout; no language or RTL selector is required.
 
 ## Styling rules
 

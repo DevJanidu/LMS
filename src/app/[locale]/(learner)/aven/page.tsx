@@ -13,6 +13,7 @@ export default async function Page({
     goal?: string;
     intent?: string;
     notification?: string;
+    conversation?: string;
   }>;
 }) {
   const { locale } = await params;
@@ -36,6 +37,11 @@ export default async function Page({
       goalTitle={detail?.goal.title}
       intent={query.intent}
       notification={query.notification}
+      conversationId={
+        z.uuid().safeParse(query.conversation).success
+          ? query.conversation
+          : undefined
+      }
     />
   );
 }

@@ -5,7 +5,12 @@ import {
   validatedBody,
   featureFailure,
 } from "@/lib/goals/http";
-import { avenBootstrap, getConversation } from "@/lib/aven/conversations";
+import {
+  avenBootstrap,
+  getConversation,
+  recoverRequestConversation,
+  listConversations,
+} from "@/lib/aven/conversations";
 import { changeAvenPreferences } from "@/lib/aven/preferences";
 import { preferenceMutationSchema } from "@/lib/aven/validation";
 export async function GET(request: Request) {
@@ -14,6 +19,22 @@ export async function GET(request: Request) {
       params = new URL(request.url).searchParams,
       id = params.get("conversation"),
       before = params.get("before");
+    if (params.get("history") === "true")
+      return privateJson({
+        ok: true,
+        ...(await listConversations(
+          user.id,
+          before ? z.uuid().parse(before) : undefined,
+        )),
+      });
+    if (params.get("request"))
+      return privateJson({
+        ok: true,
+        ...(await recoverRequestConversation(
+          user.id,
+          z.uuid().parse(params.get("request")),
+        )),
+      });
     return privateJson({
       ok: true,
       ...(id

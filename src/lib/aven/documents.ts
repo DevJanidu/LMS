@@ -4,6 +4,7 @@ import { GoalError } from "@/lib/goals/service";
 import { avenConfig, MAX_OUTPUT_TOKENS } from "./config";
 import { reserveUsage, finishUsage } from "./usage";
 import { readProviderFailure } from "./provider-errors";
+import { assertResourceAccess } from "./access";
 export async function processPdf(
   userId: string,
   resource: {
@@ -40,6 +41,7 @@ export async function processPdf(
     Authorization: `Bearer ${config.key}`,
     "Content-Type": "application/json",
   };
+  await assertResourceAccess(userId);
   const counted = await fetch(
     "https://api.openai.com/v1/responses/input_tokens",
     {
@@ -65,8 +67,10 @@ export async function processPdf(
     count.input_tokens,
   );
   let settled = false;
-  let uncertain = true;
+  let uncertain = false;
   try {
+    await assertResourceAccess(userId);
+    uncertain = true;
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers,

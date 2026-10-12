@@ -6,22 +6,26 @@ import Button from "@/components/ui/button/Button";
 import { featureRequest } from "@/lib/goals/client";
 import type { AvenProposal } from "@/lib/aven/validation";
 import type { GoalReferences } from "@/lib/goals/service";
+import ProposalDetails from "./ProposalDetails";
+import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 export interface ProposalRecord {
   id: string;
   status: string;
   value: AvenProposal;
   expiresAt: string;
-  result?: { goalId?: string; blockIds?: string[] } | null;
+  result?: { goalId?: string; blockIds?: string[]; undo?: unknown } | null;
 }
 interface Props {
   proposal: ProposalRecord;
   references: GoalReferences;
   onResolved: (result?: ProposalRecord["result"]) => void;
+  locked?: boolean;
 }
 export default function ProposalCard({
   proposal,
   references,
   onResolved,
+  locked = false,
 }: Props) {
   const t = useTranslations("aven"),
     locale = useLocale(),
@@ -29,6 +33,10 @@ export default function ProposalCard({
     [resolvedResult, setResult] = useState<ProposalRecord["result"]>(),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const [confirming, setConfirming] = useState(false);
+  const destructive =
+    proposal.value.kind === "calendarChanges" &&
+    proposal.value.changes.some((item) => item.action === "cancel");
   const status =
       resolvedStatus ??
       (proposal.status === "pending" &&
@@ -41,8 +49,8 @@ export default function ProposalCard({
     value.kind === "goalPlan" &&
     !value.tasks.length &&
     !value.milestones.length;
-  const resolve = async (decision: "approve" | "reject") => {
-    if (busy) return;
+  const resolve = async (decision: "approve" | "reject" | "undo") => {
+    if (busy || locked) return;
     setBusy(true);
     setError("");
     try {
@@ -86,6 +94,7 @@ export default function ProposalCard({
         </p>
       )}
       <div className="custom-scrollbar my-4 max-h-96 space-y-3 overflow-y-auto">
+        <ProposalDetails value={value} date={date} references={references} />
         {value.kind === "goalPlan" && (
           <>
             <h4 className="text-primary dark:text-primary text-h3">
@@ -240,16 +249,19 @@ export default function ProposalCard({
       {status === "pending" ? (
         <div className="flex flex-wrap gap-2">
           <Button
-            disabled={busy || Date.parse(proposal.expiresAt) < Date.now()}
+            disabled={
+              busy || locked || Date.parse(proposal.expiresAt) < Date.now()
+            }
             onClick={() => {
-              void resolve("approve");
+              if (destructive) setConfirming(true);
+              else void resolve("approve");
             }}
           >
             {t(busy ? "saving" : "approve")}
           </Button>
           <Button
             variant="outline"
-            disabled={busy}
+            disabled={busy || locked}
             onClick={() => {
               void resolve("reject");
             }}
@@ -270,7 +282,20 @@ export default function ProposalCard({
           {t("openGoal")}
         </Link>
       )}
-      {result?.blockIds?.length ? (
+      {status === "approved" && Boolean(result?.undo) && (
+        <Button
+          variant="outline"
+          disabled={busy}
+          onClick={() => {
+            void resolve("undo");
+          }}
+        >
+          {t("undoChange")}
+        </Button>
+      )}
+      {result?.blockIds?.length ||
+      ((value.kind === "calendarChanges" || value.kind === "calendarCreate") &&
+        status === "approved") ? (
         <Link
           href="/calendar"
           className="mt-3 inline-block text-small text-brand-600 dark:text-brand-300"
@@ -278,6 +303,17 @@ export default function ProposalCard({
           {t("openPlanner")}
         </Link>
       ) : null}
+      <ConfirmDialog
+        isOpen={confirming}
+        onClose={() => setConfirming(false)}
+        title={t("confirmCancellation")}
+        description={t("confirmCancellationHelp")}
+        onConfirm={async () => {
+          await resolve("approve");
+          setConfirming(false);
+          return true;
+        }}
+      />
     </article>
   );
 }

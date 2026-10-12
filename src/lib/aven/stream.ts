@@ -12,7 +12,7 @@ export interface ResponseItem {
   name?: string;
   arguments?: string;
   call_id?: string;
-  content?: { type: string; text?: string }[];
+  content?: { type: string; text?: string; refusal?: string }[];
 }
 /** Parse arbitrarily split UTF-8/SSE chunks; never assume a network chunk is an event. */
 export async function* responseEvents(

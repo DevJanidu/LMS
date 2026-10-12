@@ -96,3 +96,18 @@ export function sessionReminderDue(
     now < start + (leadMinutes === 0 ? 300000 : 0)
   );
 }
+
+export function candidateEnabled(kind: string, prefs: NotificationPreferences) {
+  const flag: Partial<Record<string, keyof NotificationPreferences>> = {
+    session: "sessionReminders",
+    missed: "missedSessions",
+    goalDeadline: "goalReminders",
+    taskDeadline: "goalReminders",
+    morning: "morning",
+    evening: "evening",
+    weekly: "weekly",
+    checkIn: "randomized",
+    recovery: "goalReminders",
+  };
+  return !flag[kind] || prefs[flag[kind]!] === true;
+}

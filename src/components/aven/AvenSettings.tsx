@@ -38,6 +38,8 @@ export default function AvenSettings({ initial, onSaved }: Props) {
         body,
       );
       setMemory(result.preferences.memory);
+      setAi(result.preferences.ai);
+      setNotifications(result.preferences.notifications);
       onSaved(result.preferences);
       setNotice(t("saved"));
     } catch (error) {
@@ -196,131 +198,135 @@ export default function AvenSettings({ initial, onSaved }: Props) {
             />
             {t("settingsFields.allowResourceContent")}
           </label>
-          <SelectField
-            label={t("settingsFields.locale")}
-            value={ai.locale}
-            onChange={(e) =>
-              setAi((current) => ({
-                ...current,
-                locale: e.target.value as typeof ai.locale,
-              }))
-            }
-          >
-            {["en", "ar", "es", "de"].map((key) => (
-              <option key={key} value={key}>
-                {t(`languages.${key}`)}
-              </option>
-            ))}
-          </SelectField>
           <h3 className="text-primary dark:text-primary pt-3 text-h3">
             {t("notificationSettings")}
           </h3>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {(
-              [
-                "enabled",
-                "inApp",
-                "email",
-                "push",
-                "morning",
-                "sessionReminders",
-                "missedSessions",
-                "goalReminders",
-                "randomized",
-                "evening",
-                "weekly",
-              ] as const
-            ).map((key) => (
-              <label
-                key={key}
-                className="text-primary dark:text-primary flex items-center gap-2 text-small"
-              >
-                <Checkbox
-                  className="!min-h-0 !min-w-0"
-                  checked={notifications[key]}
-                  disabled={
-                    (key === "email" && !initial.emailConfigured) ||
-                    (key === "push" && !initial.pushConfigured)
-                  }
-                  onCheckedChange={(checked) =>
+          <label className="text-primary dark:text-primary flex items-center gap-2 text-small">
+            <Checkbox
+              checked={notifications.enabled}
+              onCheckedChange={(checked) =>
+                setNotifications((current) => ({
+                  ...current,
+                  enabled: checked === true,
+                }))
+              }
+            />
+            {t("settingsFields.enabled")}
+          </label>
+          <details className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+            <summary className="text-primary dark:text-primary cursor-pointer font-medium">
+              {t("advancedReminders")}
+            </summary>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {(
+                [
+                  "enabled",
+                  "inApp",
+                  "email",
+                  "push",
+                  "morning",
+                  "sessionReminders",
+                  "missedSessions",
+                  "goalReminders",
+                  "randomized",
+                  "evening",
+                  "weekly",
+                ] as const
+              ).map((key) => (
+                <label
+                  key={key}
+                  className="text-primary dark:text-primary flex items-center gap-2 text-small"
+                >
+                  <Checkbox
+                    className="!min-h-0 !min-w-0"
+                    checked={notifications[key]}
+                    disabled={
+                      (key === "email" && !initial.emailConfigured) ||
+                      (key === "push" && !initial.pushConfigured)
+                    }
+                    onCheckedChange={(checked) =>
+                      setNotifications((current) => ({
+                        ...current,
+                        [key]: checked === true,
+                      }))
+                    }
+                  />
+                  {t(`settingsFields.${key}`)}
+                </label>
+              ))}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {(
+                [
+                  "morningTime",
+                  "eveningTime",
+                  "quietStart",
+                  "quietEnd",
+                  "allowedStart",
+                  "allowedEnd",
+                ] as const
+              ).map((key) => (
+                <TimePickerField
+                  key={key}
+                  label={t(`settingsFields.${key}`)}
+                  value={notifications[key]}
+                  onChange={(value) =>
                     setNotifications((current) => ({
                       ...current,
-                      [key]: checked === true,
+                      [key]: value,
                     }))
                   }
                 />
-                {t(`settingsFields.${key}`)}
-              </label>
-            ))}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {(
-              [
-                "morningTime",
-                "eveningTime",
-                "quietStart",
-                "quietEnd",
-                "allowedStart",
-                "allowedEnd",
-              ] as const
-            ).map((key) => (
-              <TimePickerField
-                key={key}
-                label={t(`settingsFields.${key}`)}
-                value={notifications[key]}
-                onChange={(value) =>
-                  setNotifications((current) => ({ ...current, [key]: value }))
-                }
-              />
-            ))}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {(
-              [
-                "leadMinutes",
-                "graceMinutes",
-                "dailyLimit",
-                "inactivityDays",
-              ] as const
-            ).map((key) => (
-              <Field
-                key={key}
-                label={t(`settingsFields.${key}`)}
-                type="number"
-                min={key === "leadMinutes" ? 0 : 1}
-                value={notifications[key]}
-                onChange={(e) =>
-                  setNotifications((current) => ({
-                    ...current,
-                    [key]: Number(e.target.value),
-                  }))
-                }
-              />
-            ))}
-          </div>
-          <SelectField
-            label={t("settingsFields.weeklyDay")}
-            value={String(notifications.weeklyDay)}
-            onChange={(e) =>
-              setNotifications((current) => ({
-                ...current,
-                weeklyDay: Number(e.target.value),
-              }))
-            }
-          >
-            {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-              <option key={day} value={String(day)}>
-                {t(`days.d${day}`)}
-              </option>
-            ))}
-          </SelectField>
-          {notifications.snoozedUntil && (
-            <p className="text-secondary dark:text-secondary text-small">
-              {t("snoozedUntil", {
-                date: new Date(notifications.snoozedUntil).toLocaleString(),
-              })}
-            </p>
-          )}
+              ))}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {(
+                [
+                  "leadMinutes",
+                  "graceMinutes",
+                  "dailyLimit",
+                  "inactivityDays",
+                ] as const
+              ).map((key) => (
+                <Field
+                  key={key}
+                  label={t(`settingsFields.${key}`)}
+                  type="number"
+                  min={key === "leadMinutes" ? 0 : 1}
+                  value={notifications[key]}
+                  onChange={(e) =>
+                    setNotifications((current) => ({
+                      ...current,
+                      [key]: Number(e.target.value),
+                    }))
+                  }
+                />
+              ))}
+            </div>
+            <SelectField
+              label={t("settingsFields.weeklyDay")}
+              value={String(notifications.weeklyDay)}
+              onChange={(e) =>
+                setNotifications((current) => ({
+                  ...current,
+                  weeklyDay: Number(e.target.value),
+                }))
+              }
+            >
+              {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+                <option key={day} value={String(day)}>
+                  {t(`days.d${day}`)}
+                </option>
+              ))}
+            </SelectField>
+            {notifications.snoozedUntil && (
+              <p className="text-secondary dark:text-secondary text-small">
+                {t("snoozedUntil", {
+                  date: new Date(notifications.snoozedUntil).toLocaleString("en"),
+                })}
+              </p>
+            )}
+          </details>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={busy}>
               {t(busy ? "saving" : "saveSettings")}
@@ -401,71 +407,76 @@ export default function AvenSettings({ initial, onSaved }: Props) {
           )}
         </form>
       </ComponentCard>
-      <ComponentCard title={t("memory")}>
-        <p className="text-secondary dark:text-secondary mb-4 text-small">
-          {t("memoryHelp")}
-        </p>
-        {memory.map((item) => (
+      <details className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+        <summary className="text-primary dark:text-primary cursor-pointer font-medium">
+          {t("memory")}
+        </summary>
+        <ComponentCard title={t("memory")}>
+          <p className="text-secondary dark:text-secondary mb-4 text-small">
+            {t("memoryHelp")}
+          </p>
+          {memory.map((item) => (
+            <form
+              key={item.id}
+              className="mb-4 space-y-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void apply({
+                  kind: "memory",
+                  id: item.id,
+                  content: String(
+                    new FormData(event.currentTarget).get("content"),
+                  ),
+                });
+              }}
+            >
+              <TextField
+                label={t("memoryEntry")}
+                name="content"
+                defaultValue={item.content}
+                maxLength={2000}
+                required
+              />
+              <div className="flex gap-2">
+                <Button type="submit" variant="outline" disabled={busy}>
+                  {t("save")}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => {
+                    void apply({ kind: "deleteMemory", id: item.id });
+                  }}
+                >
+                  {t("delete")}
+                </Button>
+              </div>
+            </form>
+          ))}
           <form
-            key={item.id}
-            className="mb-4 space-y-2"
+            className="space-y-2"
             onSubmit={(event) => {
               event.preventDefault();
+              const form = event.currentTarget;
               void apply({
                 kind: "memory",
-                id: item.id,
-                content: String(
-                  new FormData(event.currentTarget).get("content"),
-                ),
-              });
+                id: crypto.randomUUID(),
+                content: String(new FormData(form).get("content")),
+              }).then(() => form.reset());
             }}
           >
             <TextField
-              label={t("memoryEntry")}
+              label={t("addMemory")}
               name="content"
-              defaultValue={item.content}
-              maxLength={2000}
               required
+              maxLength={2000}
             />
-            <div className="flex gap-2">
-              <Button type="submit" variant="outline" disabled={busy}>
-                {t("save")}
-              </Button>
-              <Button
-                variant="outline"
-                disabled={busy}
-                onClick={() => {
-                  void apply({ kind: "deleteMemory", id: item.id });
-                }}
-              >
-                {t("delete")}
-              </Button>
-            </div>
+            <Button type="submit" disabled={busy}>
+              {t("addMemory")}
+            </Button>
           </form>
-        ))}
-        <form
-          className="space-y-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const form = event.currentTarget;
-            void apply({
-              kind: "memory",
-              id: crypto.randomUUID(),
-              content: String(new FormData(form).get("content")),
-            }).then(() => form.reset());
-          }}
-        >
-          <TextField
-            label={t("addMemory")}
-            name="content"
-            required
-            maxLength={2000}
-          />
-          <Button type="submit" disabled={busy}>
-            {t("addMemory")}
-          </Button>
-        </form>
-      </ComponentCard>
+        </ComponentCard>
+      </details>
     </div>
   );
 }

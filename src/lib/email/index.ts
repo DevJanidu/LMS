@@ -25,10 +25,10 @@ export interface WelcomeRecipient {
   email: string;
 }
 
-export async function sendWelcomeEmail(user: WelcomeRecipient, locale: string) {
+export async function sendWelcomeEmail(user: WelcomeRecipient) {
   const env = getAccountEmailEnv();
   if (!env.RESEND_API_KEY || !env.EMAIL_FROM) throw new Error("Account email is not configured.");
-  const t = await getTranslations({ locale, namespace: "studyflow.accountEmails" });
+  const t = await getTranslations({ locale: "en", namespace: "studyflow.accountEmails" });
   const result = await new Resend(env.RESEND_API_KEY).emails.send({
     from: env.EMAIL_FROM,
     to: user.email,

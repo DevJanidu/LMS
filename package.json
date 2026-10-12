@@ -23,7 +23,8 @@
     "check:aven": "node scripts/check-aven.mjs",
     "check:production": "node scripts/check-production.mjs",
     "check:email": "node scripts/check-production.mjs --require-email --connections",
-    "check:storage": "node scripts/check-storage.mjs"
+    "check:storage": "node scripts/check-storage.mjs",
+    "test:aven": "node scripts/test-aven.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1146.0",

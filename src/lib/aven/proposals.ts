@@ -16,6 +16,9 @@ import { localDay, shiftDay } from "@/lib/analytics";
 import { proposalSchema, aiPreferenceSchema } from "./validation";
 import { assertAcyclic, hierarchyDependencies } from "@/lib/goals/model";
 import { validateSchedule } from "./planning";
+import { applyExtraProposal } from "./extra-proposals";
+import { calendarOccurrences } from "@/lib/calendar/model";
+import { captureUndo, undoProposal, type ProposalUndo } from "./undo";
 
 export async function storeProposal(
   userId: string,
@@ -25,8 +28,29 @@ export async function storeProposal(
   const parsed = proposalSchema.safeParse(raw);
   if (!parsed.success) throw new GoalError("invalidProposal");
   const value = parsed.data;
-  if ("goalId" in value && value.goalId)
-    await getGoalDetail(userId, value.goalId);
+  if (value.kind === "calendarChanges")
+    for (const change of value.changes) {
+      const block = await getCalendarBlock(userId, change.blockId);
+      const occurrence = calendarOccurrences(
+        [block],
+        { from: shiftDay(change.date, -2), to: shiftDay(change.date, 3) },
+        block.timezone,
+      ).find((item) => item.date === change.date);
+      if (!occurrence || block.updatedAt !== change.expectedUpdatedAt)
+        throw new GoalError("conflict", 409);
+      change.title = occurrence.title;
+      if (change.action === "move") {
+        change.previousStartsAt = occurrence.startsAt;
+        change.previousEndsAt = occurrence.endsAt;
+      }
+    }
+  if ("goalId" in value && value.goalId) {
+    const [ownedGoal] = await getDb()
+      .select({ id: s.goals.id })
+      .from(s.goals)
+      .where(and(eq(s.goals.id, value.goalId), eq(s.goals.userId, userId)));
+    if (!ownedGoal) throw new GoalError("recordUnavailable", 404);
+  }
   if (value.kind === "reschedule")
     await getCalendarBlock(userId, value.blockId);
   if (conversationId) {
@@ -60,7 +84,7 @@ export async function storeProposal(
 export async function resolveProposal(
   userId: string,
   id: string,
-  decision: "approve" | "reject",
+  decision: "approve" | "reject" | "undo",
 ) {
   return getDb().transaction(async (tx) => {
     const [user] = await tx
@@ -70,6 +94,7 @@ export async function resolveProposal(
       .for("update");
     if (user?.status !== "active" || user.role !== "learner")
       throw new GoalError("authenticationFailed", 403);
+    if (decision === "undo") return undoProposal(tx, userId, id);
     const [proposal] = await tx
       .select()
       .from(s.aiPlanProposals)
@@ -87,9 +112,13 @@ export async function resolveProposal(
         goalId?: string;
         blockIds?: string[];
         notificationId?: string;
+        undo?: ProposalUndo;
       } = {};
     if (decision === "approve") {
-      if (value.kind === "goalPlan") {
+      result.undo = await captureUndo(tx, userId, value);
+      const extra = await applyExtraProposal(tx, userId, user.timezone, value);
+      if (extra !== undefined) Object.assign(result, extra);
+      else if (value.kind === "goalPlan") {
         const goalId = value.goalId ?? randomUUID();
         let version = value.expectedVersion;
         const mIds = new Map(
@@ -157,7 +186,8 @@ export async function resolveProposal(
           tx,
         );
         version = saved.version;
-        const current = await getGoalDetail(userId, goalId, tx);
+        const current =
+          saved.detail ?? (await getGoalDetail(userId, goalId, tx));
         if (
           current.tasks.length + taskValues.length > 500 ||
           current.milestones.length + milestoneValues.length > 50
@@ -442,6 +472,46 @@ export async function resolveProposal(
           value: { title: value.title, body: value.body },
         });
       }
+    }
+    if (
+      decision === "approve" &&
+      value.kind === "calendarChanges" &&
+      value.changes.every(
+        (change) =>
+          change.action === "move" &&
+          change.previousStartsAt &&
+          change.previousEndsAt,
+      )
+    ) {
+      const changes: Extract<
+        import("./validation").AvenProposal,
+        { kind: "calendarChanges" }
+      >["changes"] = [];
+      for (const change of value.changes) {
+        if (change.action !== "move") continue;
+        const [saved] = await tx
+          .select()
+          .from(s.scheduleBlocks)
+          .where(
+            and(
+              eq(s.scheduleBlocks.id, change.blockId),
+              eq(s.scheduleBlocks.userId, userId),
+            ),
+          );
+        if (!saved) throw new GoalError("persistenceUnavailable", 503);
+        changes.push({
+          action: "move",
+          blockId: change.blockId,
+          date: saved.recurrenceRule
+            ? change.date
+            : localDay(change.startsAt, saved.timezone),
+          expectedUpdatedAt: saved.updatedAt.toISOString(),
+          startsAt: change.previousStartsAt!,
+          endsAt: change.previousEndsAt!,
+          title: change.title,
+        });
+      }
+      result.undo = { kind: "calendarMoves", timezone: user.timezone, changes };
     }
     await tx
       .insert(s.aiToolApprovals)

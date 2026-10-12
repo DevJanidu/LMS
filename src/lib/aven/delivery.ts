@@ -3,6 +3,7 @@ import { and, eq, inArray, lte, or, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { notificationPreferenceSchema } from "./validation";
+import { candidateEnabled } from "./scheduler-model";
 import { inQuietHours, retryAt } from "./scheduler-model";
 import { wallTime } from "@/lib/analytics";
 import { sendPush } from "./push";
@@ -71,6 +72,10 @@ export async function deliverNotifications(
         !user ||
         user.status !== "active" ||
         !prefs.enabled ||
+        !candidateEnabled(
+          notification.deduplicationKey.split(":")[1] ?? "manual",
+          prefs,
+        ) ||
         (row.channel === "email" && !prefs.email) ||
         (row.channel === "push" && !prefs.push)
       )

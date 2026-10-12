@@ -9,6 +9,8 @@ import type { GoalReferences } from "@/lib/goals/service";
 import { responseEvents } from "@/lib/aven/stream";
 import ProposalCard, { type ProposalRecord } from "./ProposalCard";
 import AvenMarkdown from "./AvenMarkdown";
+import AvenActivity from "./AvenActivity";
+import { featureRequest } from "@/lib/goals/client";
 interface Props {
   draft: Record<string, unknown>;
   goalId?: string;
@@ -31,14 +33,22 @@ export default function SmartGoalAssistant({
   const [conversationId, setConversationId] = useState<string | null>(null),
     [followUp, setFollowUp] = useState("");
   const abort = useRef<AbortController | null>(null);
+  const submitting = useRef(false),
+    activeRequest = useRef<{
+      id: string;
+      conversationId: string | null;
+    } | null>(null);
   useEffect(() => () => abort.current?.abort(), []);
   const generate = async (reply?: string) => {
-    if (busy) return;
+    if (submitting.current) return;
+    submitting.current = true;
     setBusy(true);
     setError("");
     setAnswer("");
     const controller = new AbortController();
     abort.current = controller;
+    const requestId = crypto.randomUUID();
+    activeRequest.current = { id: requestId, conversationId };
     try {
       const response = await fetch("/api/aven/chat", {
         method: "POST",
@@ -46,7 +56,7 @@ export default function SmartGoalAssistant({
         body: JSON.stringify({
           conversationId,
           goalId: goalId ?? null,
-          requestId: crypto.randomUUID(),
+          requestId,
           planning: true,
           message:
             reply ??
@@ -67,9 +77,13 @@ export default function SmartGoalAssistant({
           code?: string;
           proposal?: ProposalRecord;
         };
-        if (event.type === "conversation" && event.id)
+        if (event.type === "conversation" && event.id) {
           setConversationId(event.id);
+          activeRequest.current!.conversationId = event.id;
+          if (reply) setFollowUp((value) => (value === reply ? "" : value));
+        }
         if (event.type === "delta") setAnswer((value) => value + event.text);
+        if (event.type === "replace") setAnswer(event.text ?? "");
         if (event.type === "proposal" && event.proposal)
           setProposals((current) => [
             ...current.filter((p) => p.id !== event.proposal!.id),
@@ -81,11 +95,14 @@ export default function SmartGoalAssistant({
       }
       if (!completed) throw new Error("aiUnavailable");
     } catch (error) {
+      if (reply && !controller.signal.aborted)
+        setFollowUp((value) => value || reply);
       const key = (error as Error).message;
       setError(
         t.has(`errors.${key}`) ? t(`errors.${key}`) : t("errors.aiUnavailable"),
       );
     } finally {
+      submitting.current = false;
       setBusy(false);
     }
   };
@@ -96,14 +113,22 @@ export default function SmartGoalAssistant({
           {t("smartHelp")}
         </p>
         <Button
-          disabled={busy}
           onClick={() => {
-            void generate();
+            if (busy) {
+              const request = activeRequest.current;
+              if (request?.conversationId)
+                void featureRequest("/api/aven/chat/cancel", {
+                  conversationId: request.conversationId,
+                  requestId: request.id,
+                }).catch(() => {});
+              abort.current?.abort();
+            } else void generate();
           }}
         >
-          {t(busy ? "thinking" : "generatePlan")}
+          {t(busy ? "stopGeneration" : "generatePlan")}
         </Button>
         {answer && <AvenMarkdown text={answer} />}
+        {busy && !answer && <AvenActivity name="working" />}
         {conversationId && (
           <form
             className="space-y-3"
@@ -111,7 +136,6 @@ export default function SmartGoalAssistant({
               event.preventDefault();
               if (!followUp.trim()) return;
               const reply = followUp;
-              setFollowUp("");
               void generate(reply);
             }}
           >
@@ -148,6 +172,7 @@ export default function SmartGoalAssistant({
             key={proposal.id}
             proposal={proposal}
             references={references}
+            locked={busy}
             onResolved={(result) => {
               if (result?.goalId) onSaved(result.goalId);
             }}

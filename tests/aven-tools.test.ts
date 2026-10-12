@@ -26,7 +26,7 @@ it("exposes only registered, validated tools and rejects arbitrary code/query re
   expect(() =>
     validateToolInput("getGoalDetails", { goalId: "invalid" }),
   ).toThrow();
-  expect(avenTools).toHaveLength(18);
+  expect(avenTools).toHaveLength(30);
   expect(avenTools.every((tool) => tool.strict)).toBe(true);
 });
 it("marks all changing tools as proposals requiring application approval", () => {
@@ -38,6 +38,15 @@ it("marks all changing tools as proposals requiring application approval", () =>
     "createReminder",
     "proposeGoalPlan",
     "proposeStudySchedule",
+    "moveStudySessions",
+    "cancelStudySessions",
+    "createStudySchedule",
+    "completeGoal",
+    "createGoalMilestone",
+    "updateStudyPreferences",
+    "updateReminderPreferences",
+    "organizeLearningResource",
+    "rememberPreference",
   ])
     expect(avenTools.find((tool) => tool.name === name)?.description).toContain(
       "user must approve",

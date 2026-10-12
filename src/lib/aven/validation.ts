@@ -8,6 +8,7 @@ const clock = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 export const aiPreferenceSchema = z
   .object({
     consent: z.boolean().default(false),
+    onboardingComplete: z.boolean().default(false),
     coachingStyle: z
       .enum(["supportive", "direct", "analytical"])
       .default("supportive"),
@@ -21,7 +22,7 @@ export const aiPreferenceSchema = z
       .default([1, 2, 3, 4, 5]),
     learningPreferences: z.string().trim().max(2000).default(""),
     allowResourceContent: z.boolean().default(false),
-    locale: z.enum(["en", "ar", "es", "de"]).default("en"),
+    locale: z.preprocess(() => "en", z.literal("en")).default("en"),
   })
   .refine((v) => v.preferredStudyEnd > v.preferredStudyStart, {
     message: "invalidInput",
@@ -103,6 +104,110 @@ export const scheduleProposalSchema = z.object({
     .max(30),
 });
 export const proposalSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("calendarChanges"),
+    explanation: z.string().min(1).max(4000),
+    changes: z
+      .array(
+        z.discriminatedUnion("action", [
+          z.object({
+            action: z.literal("move"),
+            title: z.string().max(200).optional(),
+            previousStartsAt: z.iso.datetime().optional(),
+            previousEndsAt: z.iso.datetime().optional(),
+            blockId: z.uuid(),
+            date: z.iso.date(),
+            expectedUpdatedAt: z.iso.datetime(),
+            startsAt: z.iso.datetime(),
+            endsAt: z.iso.datetime(),
+          }),
+          z.object({
+            action: z.literal("cancel"),
+            title: z.string().max(200).optional(),
+            blockId: z.uuid(),
+            date: z.iso.date(),
+            expectedUpdatedAt: z.iso.datetime(),
+            scope: z.enum(["one", "future", "all"]),
+          }),
+        ]),
+      )
+      .min(1)
+      .max(30),
+  }),
+  z.object({
+    kind: z.literal("calendarCreate"),
+    explanation: z.string().min(1).max(4000),
+    title: z.string().trim().min(1).max(150),
+    subjectId: z.uuid().nullable(),
+    topicId: z.uuid().nullable(),
+    startsAt: z.iso.datetime(),
+    endsAt: z.iso.datetime(),
+    timezone: z.string().max(100),
+    repeat: z.enum(["once", "weekly"]),
+    weekdays: z.array(z.number().int().min(0).max(6)).max(7),
+    until: z.iso.date().nullable(),
+  }),
+  z.object({
+    kind: z.literal("goalCompletion"),
+    goalId: z.uuid(),
+    expectedVersion: z.number().int().positive(),
+    completed: z.boolean(),
+    title: z.string().max(200),
+  }),
+  z.object({
+    kind: z.literal("milestoneCreate"),
+    goalId: z.uuid(),
+    expectedVersion: z.number().int().positive(),
+    value: milestoneSchema,
+  }),
+  z.object({
+    kind: z.literal("studyPreferences"),
+    explanation: z.string().max(4000),
+    patch: z.object({
+      dailyTargetMinutes: z.number().int().min(15).max(240).nullable(),
+      preferredStudyStart: clock.nullable(),
+      preferredStudyEnd: clock.nullable(),
+      studyDays: z
+        .array(z.number().int().min(0).max(6))
+        .min(1)
+        .max(7)
+        .nullable(),
+      coachingStyle: z.enum(["supportive", "direct", "analytical"]).nullable(),
+      learningPreferences: z.string().max(2000).nullable(),
+    }),
+  }),
+  z.object({
+    kind: z.literal("reminderPreferences"),
+    explanation: z.string().max(4000),
+    patch: z.object({
+      enabled: z.boolean().nullable(),
+      morning: z.boolean().nullable(),
+      evening: z.boolean().nullable(),
+      weekly: z.boolean().nullable(),
+      randomized: z.boolean().nullable(),
+      sessionReminders: z.boolean().nullable(),
+      missedSessions: z.boolean().nullable(),
+      goalReminders: z.boolean().nullable(),
+      quietStart: clock.nullable(),
+      quietEnd: clock.nullable(),
+      morningTime: clock.nullable(),
+      eveningTime: clock.nullable(),
+      dailyLimit: z.number().int().min(1).max(10).nullable(),
+    }),
+  }),
+  z.object({
+    kind: z.literal("resourceOrganization"),
+    resourceId: z.uuid(),
+    expectedHash: z.string().length(64),
+    title: z.string().trim().min(1).max(150).nullable(),
+    subjectId: z.uuid(),
+    topicId: z.uuid().nullable(),
+    explanation: z.string().max(4000),
+  }),
+  z.object({
+    kind: z.literal("memory"),
+    content: z.string().trim().min(1).max(2000),
+  }),
   goalPlanSchema,
   scheduleProposalSchema,
   z.object({
@@ -140,9 +245,16 @@ export const chatSchema = z.object({
   goalId: z.uuid().nullable(),
   message: z.string().trim().min(1).max(6000),
   planning: z.boolean().default(false),
+  retryRequestId: z.uuid().nullable().optional(),
+  notificationId: z.uuid().nullable().optional(),
 });
 export const preferenceMutationSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("enableAven") }),
+  z.object({
+    kind: z.literal("onboard"),
+    reminders: z.boolean(),
+    locale: z.preprocess(() => "en", z.literal("en")).optional(),
+  }),
   z.object({ kind: z.literal("enableReminders") }),
   z.object({
     kind: z.literal("preferences"),

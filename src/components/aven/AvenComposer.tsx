@@ -1,7 +1,7 @@
 "use client";
 import { useId, useEffect, useRef, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowRightIcon } from "@/icons";
+import { ArrowRightIcon, CloseIcon } from "@/icons";
 import Button from "@/components/ui/button/Button";
 import { controlClass } from "@/components/studyflow/FormFields";
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
   busy: boolean;
   enabled: boolean;
   consent: boolean;
+  onStop?: () => void;
 }
 export default function AvenComposer({
   value,
@@ -19,6 +20,7 @@ export default function AvenComposer({
   busy,
   enabled,
   consent,
+  onStop,
 }: Props) {
   const t = useTranslations("aven"),
     id = useId();
@@ -51,7 +53,6 @@ export default function AvenComposer({
           aria-describedby={`${id}-help`}
           value={value}
           maxLength={6000}
-          disabled={busy}
           required
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={(event) => {
@@ -66,14 +67,21 @@ export default function AvenComposer({
           }}
         />
         <Button
-          type="submit"
-          aria-label={t(busy ? "thinking" : "send")}
-          disabled={busy || !value.trim() || !enabled || !consent}
+          type={busy ? "button" : "submit"}
+          aria-label={t(busy ? "stopGeneration" : "send")}
+          onClick={busy ? onStop : undefined}
+          disabled={!busy && (!value.trim() || !enabled || !consent)}
           className="shrink-0"
-          endIcon={<ArrowRightIcon className="size-4 rtl:rotate-180" />}
+          endIcon={
+            busy ? (
+              <CloseIcon className="size-4" />
+            ) : (
+              <ArrowRightIcon className="size-4 rtl:rotate-180" />
+            )
+          }
         >
           <span className="hidden sm:inline">
-            {t(busy ? "thinking" : "send")}
+            {t(busy ? "stopGeneration" : "send")}
           </span>
         </Button>
       </div>
@@ -81,7 +89,7 @@ export default function AvenComposer({
         id={`${id}-help`}
         className={`text-muted dark:text-muted mt-2 text-caption ${consent && !busy ? "hidden sm:block" : ""}`}
       >
-        {t(!consent ? "consentRequired" : busy ? "thinking" : "composerHelp")}
+        {t(!consent ? "consentRequired" : "composerHelp")}
       </p>
     </form>
   );

@@ -6,6 +6,14 @@ import { safeReturnPath } from "@/lib/auth/return-path";
 
 const localize = createMiddleware(routing);
 export default function proxy(request: NextRequest) {
+  if (/^\/(ar|es|de)(?=\/|$)/.test(request.nextUrl.pathname)) {
+    const destination = request.nextUrl.clone();
+    destination.pathname = destination.pathname.replace(/^\/(ar|es|de)(?=\/|$)/, "") || "/";
+    const response = NextResponse.redirect(destination);
+    response.cookies.delete("NEXT_LOCALE");
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  }
   const path = request.nextUrl.pathname.replace(/^\/(en|ar|es|de)(?=\/|$)/, "");
   const protectedRoute = /^\/(dashboard|subjects|study|calendar|analytics|resources|goals|aven|settings|admin|onboarding)(\/|$)/.test(path);
   const cookie = request.cookies.get("better-auth.session_token") ?? request.cookies.get("__Secure-better-auth.session_token");
@@ -13,8 +21,6 @@ export default function proxy(request: NextRequest) {
     const destination = new URL("/login", request.url);
     destination.searchParams.set("returnTo", safeReturnPath(path + request.nextUrl.search) ?? "/dashboard");
     const response = NextResponse.redirect(destination);
-    const locale = request.nextUrl.pathname.match(/^\/(en|ar|es|de)(?=\/|$)/)?.[1];
-    if (locale) response.cookies.set("NEXT_LOCALE", locale, { sameSite: "lax", path: "/" });
     response.headers.set("Cache-Control", "private, no-store");
     return response;
   }

@@ -54,6 +54,7 @@ export const aiConversations = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     goalId: uuid("goal_id"),
     title: text("title").notNull(),
+    sourceKey: text("source_key"),
     summary: text("summary").notNull().default(""),
     summaryMessageCount: integer("summary_message_count").notNull().default(0),
     activeRequestId: uuid("active_request_id"),
@@ -64,6 +65,7 @@ export const aiConversations = pgTable(
   (t) => [
     index("ai_conversations_owner_idx").on(t.userId, t.updatedAt),
     unique("ai_conversations_owner_unique").on(t.id, t.userId),
+    unique("ai_conversations_source_unique").on(t.userId, t.sourceKey),
     foreignKey({
       columns: [t.goalId, t.userId],
       foreignColumns: [goals.id, goals.userId],
@@ -81,6 +83,7 @@ export const aiMessages = pgTable(
     role: text("role").notNull(),
     content: text("content").notNull(),
     status: text("status").notNull().default("complete"),
+    context: jsonb("context").$type<Record<string, string>>(),
     createdAt: created(),
   },
   (t) => [
@@ -126,6 +129,7 @@ export const aiPlanProposals = pgTable(
       goalId?: string;
       blockIds?: string[];
       notificationId?: string;
+      undo?: import("@/lib/aven/undo").ProposalUndo;
     }>(),
     expiresAt: time("expires_at").notNull(),
     createdAt: created(),
@@ -158,9 +162,9 @@ export const aiUsageRecords = pgTable(
   "ai_usage_records",
   {
     id: id(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     requestId: uuid("request_id").notNull(),
     model: text("model").notNull(),
     day: date("day").notNull(),
@@ -234,6 +238,7 @@ export const notificationActions = pgTable("notification_actions", {
       startsAt?: string;
       endsAt?: string;
       resolved?: string;
+      conversationId?: string;
     }>()
     .notNull(),
 });

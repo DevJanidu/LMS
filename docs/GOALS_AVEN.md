@@ -1,3 +1,5 @@
+> Current upgrade details and verification: [Aven implementation report](AVEN_IMPLEMENTATION_REPORT.md). This document also records the earlier release.
+
 # Goals and Aven implementation
 
 ## Delivered behavior

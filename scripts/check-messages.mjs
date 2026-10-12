@@ -14,14 +14,6 @@ const messages = JSON.parse(
 ).studyflow;
 const expected = keys(messages).sort();
 const available = new Set(expected);
-for (const locale of ["ar", "es", "de"])
-  assert.deepEqual(
-    keys(
-      JSON.parse(readFileSync(`src/messages/${locale}.json`, "utf8")).studyflow,
-    ).sort(),
-    expected,
-    `${locale} message keys`,
-  );
 function inspectDirectory(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
@@ -34,5 +26,5 @@ function inspectDirectory(directory) {
 }
 inspectDirectory("src");
 console.log(
-  `PASS localized key parity and literal references (${expected.length} messages)`,
+  `PASS English message references (${expected.length} messages)`,
 );

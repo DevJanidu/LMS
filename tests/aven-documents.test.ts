@@ -1,4 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+vi.mock("@/lib/aven/access", () => ({
+  assertResourceAccess: vi.fn().mockResolvedValue(undefined),
+}));
 const mocks = vi.hoisted(() => ({
   read: vi.fn(),
   reserve: vi.fn(),

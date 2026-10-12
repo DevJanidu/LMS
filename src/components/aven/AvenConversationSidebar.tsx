@@ -8,6 +8,8 @@ interface Props {
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onClose: () => void;
+  hasMore?: boolean;
+  onLoadMore?: () => void;
 }
 export default function AvenConversationSidebar({
   conversations,
@@ -16,6 +18,8 @@ export default function AvenConversationSidebar({
   onSelect,
   onDelete,
   onClose,
+  hasMore,
+  onLoadMore,
 }: Props) {
   const t = useTranslations("aven");
   return (
@@ -64,6 +68,16 @@ export default function AvenConversationSidebar({
           <p className="text-muted dark:text-muted text-small">
             {t("noConversations")}
           </p>
+        )}
+        {hasMore && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onLoadMore}
+            className="w-full rounded-lg p-3 text-small text-brand-600 dark:text-brand-300"
+          >
+            {t("loadMoreConversations")}
+          </button>
         )}
       </div>
       <p className="text-muted dark:text-muted mt-4 text-caption">

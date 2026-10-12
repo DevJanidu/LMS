@@ -6,6 +6,8 @@ import { getCalendarBlock, mutateCalendar } from "@/lib/services/calendar";
 import { getOccurrences } from "@/lib/schedule";
 import { shiftDay } from "@/lib/analytics";
 import { GoalError } from "@/lib/goals/service";
+import { notificationPreferenceSchema } from "./validation";
+import { applyCalendarProposal } from "./calendar-actions";
 export async function listAvenNotifications(userId: string, page = 1) {
   const db = getDb(),
     where = and(
@@ -65,7 +67,7 @@ export async function listAvenNotifications(userId: string, page = 1) {
 export async function notificationAction(
   userId: string,
   id: string,
-  kind: "read" | "skip" | "reschedule",
+  kind: "read" | "skip" | "reschedule" | "snooze",
   startsAt?: string,
   endsAt?: string,
 ) {
@@ -74,8 +76,8 @@ export async function notificationAction(
       .select()
       .from(s.users)
       .where(eq(s.users.id, userId))
-      .for("share");
-    if (user?.status !== "active")
+      .for("update");
+    if (user?.status !== "active" || user.role !== "learner")
       throw new GoalError("authenticationFailed", 403);
     const [notification] = await tx
       .select()
@@ -89,6 +91,33 @@ export async function notificationAction(
       )
       .for("update");
     if (!notification) throw new GoalError("recordUnavailable", 404);
+    if (kind === "snooze") {
+      const [current] = await tx
+        .select()
+        .from(s.notificationPreferences)
+        .where(eq(s.notificationPreferences.userId, userId));
+      const snoozedUntil = new Date(Date.now() + 3600000).toISOString();
+      await tx
+        .insert(s.notificationPreferences)
+        .values({
+          userId,
+          value: notificationPreferenceSchema.parse({
+            ...current?.value,
+            snoozedUntil,
+          }),
+        })
+        .onConflictDoUpdate({
+          target: s.notificationPreferences.userId,
+          set: {
+            value: notificationPreferenceSchema.parse({
+              ...current?.value,
+              snoozedUntil,
+            }),
+            updatedAt: new Date(),
+          },
+        });
+      return { resolved: "snooze", snoozedUntil };
+    }
     if (kind !== "read") {
       const [action] = await tx
         .select()
@@ -113,32 +142,48 @@ export async function notificationAction(
           Date.parse(startsAt) < Date.now())
       )
         throw new GoalError("invalidSchedule");
-      await mutateCalendar(
-        userId,
-        {
-          operationId: crypto.randomUUID(),
-          expectedUpdatedAt: block.updatedAt,
-          command:
-            kind === "skip"
-              ? {
-                  kind: "delete",
-                  id: block.id,
-                  date: action.value.date,
-                  scope: "one",
-                  newSeriesId: crypto.randomUUID(),
-                }
-              : {
-                  kind: "move",
-                  id: block.id,
-                  date: action.value.date,
-                  scope: "one",
-                  startsAt: startsAt!,
-                  endsAt: endsAt!,
-                  newSeriesId: crypto.randomUUID(),
-                },
-        },
-        tx,
-      );
+      if (kind === "reschedule")
+        await applyCalendarProposal(tx, userId, user.timezone, {
+          kind: "calendarChanges",
+          explanation: "User rescheduled from notification",
+          changes: [
+            {
+              action: "move",
+              blockId: block.id,
+              date: action.value.date,
+              expectedUpdatedAt: block.updatedAt,
+              startsAt: startsAt!,
+              endsAt: endsAt!,
+            },
+          ],
+        });
+      else
+        await mutateCalendar(
+          userId,
+          {
+            operationId: crypto.randomUUID(),
+            expectedUpdatedAt: block.updatedAt,
+            command:
+              kind === "skip"
+                ? {
+                    kind: "delete",
+                    id: block.id,
+                    date: action.value.date,
+                    scope: "one",
+                    newSeriesId: crypto.randomUUID(),
+                  }
+                : {
+                    kind: "move",
+                    id: block.id,
+                    date: action.value.date,
+                    scope: "one",
+                    startsAt: startsAt!,
+                    endsAt: endsAt!,
+                    newSeriesId: crypto.randomUUID(),
+                  },
+          },
+          tx,
+        );
       await tx
         .update(s.notificationActions)
         .set({ value: { ...action.value, resolved: kind } })
