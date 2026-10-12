@@ -115,6 +115,29 @@ export default function ProposalDetails({
       {value.kind === "memory" && (
         <p className="whitespace-pre-wrap">{value.content}</p>
       )}
+      {(value.kind === "taskCreate" || value.kind === "taskUpdate") && (
+        <>
+          <p className="text-primary dark:text-primary font-medium">
+            {value.value.title}
+          </p>
+          {value.value.description && (
+            <p className="whitespace-pre-wrap">{value.value.description}</p>
+          )}
+          <p>
+            {t("taskEffort", { minutes: value.value.estimatedMinutes })}
+            {value.value.dueDate && ` · ${value.value.dueDate}`}
+          </p>
+        </>
+      )}
+      {value.kind === "reminder" && (
+        <>
+          <p className="text-primary dark:text-primary font-medium">
+            {value.title}
+          </p>
+          <p>{value.body}</p>
+          <p>{date(value.scheduledFor)}</p>
+        </>
+      )}
     </div>
   );
 }

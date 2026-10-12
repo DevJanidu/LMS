@@ -1,57 +1,76 @@
 "use client";
-import { useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { memo, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/button/Button";
+import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 import { featureRequest } from "@/lib/goals/client";
 import type { AvenProposal } from "@/lib/aven/validation";
 import type { GoalReferences } from "@/lib/goals/service";
 import ProposalDetails from "./ProposalDetails";
-import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
+import AvenActivity from "./AvenActivity";
+import ActionCard from "./cards/ActionCard";
+import GoalProposalBody from "./cards/GoalProposalBody";
+import ScheduleProposalBody from "./cards/ScheduleProposalBody";
+import ScheduleChangeBody from "./cards/ScheduleChangeBody";
+import { zonedFormatters } from "./cards/formatters";
+import { errorKey } from "./types";
 export interface ProposalRecord {
   id: string;
   status: string;
   value: AvenProposal;
   expiresAt: string;
+  createdAt?: string;
   result?: { goalId?: string; blockIds?: string[]; undo?: unknown } | null;
 }
 interface Props {
   proposal: ProposalRecord;
   references: GoalReferences;
   onResolved: (result?: ProposalRecord["result"]) => void;
+  onModify: (prompt: string) => void;
   locked?: boolean;
 }
-export default function ProposalCard({
+const approveLabels: Partial<Record<AvenProposal["kind"], string>> = {
+  goalPlan: "createGoal",
+  schedule: "approveSchedule",
+  calendarCreate: "approveSchedule",
+  calendarChanges: "confirmChanges",
+  reschedule: "confirmChanges",
+};
+function ProposalCard({
   proposal,
   references,
   onResolved,
+  onModify,
   locked = false,
 }: Props) {
   const t = useTranslations("aven"),
-    locale = useLocale(),
+    c = useTranslations("aven.cards"),
     [resolvedStatus, setStatus] = useState<string>(),
     [resolvedResult, setResult] = useState<ProposalRecord["result"]>(),
-    [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
-  const [confirming, setConfirming] = useState(false);
-  const destructive =
-    proposal.value.kind === "calendarChanges" &&
-    proposal.value.changes.some((item) => item.action === "cancel");
+    [busy, setBusy] = useState<"approve" | "reject" | "undo">(),
+    [error, setError] = useState(""),
+    [confirming, setConfirming] = useState(false);
+  const format = useMemo(
+    () => zonedFormatters(references.timezone),
+    [references.timezone],
+  );
+  const { value } = proposal;
+  const expired = Date.parse(proposal.expiresAt) < Date.now();
   const status =
       resolvedStatus ??
-      (proposal.status === "pending" &&
-      Date.parse(proposal.expiresAt) < Date.now()
-        ? "expired"
-        : proposal.status),
+      (proposal.status === "pending" && expired ? "expired" : proposal.status),
     result = resolvedResult ?? proposal.result;
-  const { value } = proposal;
+  const destructive =
+    value.kind === "calendarChanges" &&
+    value.changes.some((item) => item.action === "cancel");
   const simpleGoal =
     value.kind === "goalPlan" &&
     !value.tasks.length &&
     !value.milestones.length;
   const resolve = async (decision: "approve" | "reject" | "undo") => {
     if (busy || locked) return;
-    setBusy(true);
+    setBusy(decision);
     setError("");
     try {
       const response = await featureRequest<{
@@ -61,248 +80,140 @@ export default function ProposalCard({
       setStatus(response.status);
       setResult(response.result);
       onResolved(response.result);
-    } catch (error) {
-      const key = (error as Error).message;
-      setError(
-        t.has(`errors.${key}`)
-          ? t(`errors.${key}`)
-          : t("errors.serviceUnavailable"),
-      );
+    } catch (failure) {
+      setError(t(errorKey(t, (failure as Error).message)));
     } finally {
-      setBusy(false);
+      setBusy(undefined);
     }
   };
-  const date = (date: string) =>
-    new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: references.timezone,
-    }).format(new Date(date));
+  const title =
+    value.kind === "goalPlan"
+      ? value.goal.title
+      : value.kind === "calendarCreate"
+        ? value.title
+        : t(simpleGoal ? "simpleGoalProposal" : `proposalKinds.${value.kind}`);
+  const body =
+    value.kind === "goalPlan" ? (
+      <GoalProposalBody value={value} />
+    ) : value.kind === "schedule" || value.kind === "calendarCreate" ? (
+      <ScheduleProposalBody
+        value={value}
+        references={references}
+        format={format}
+      />
+    ) : value.kind === "calendarChanges" || value.kind === "reschedule" ? (
+      <ScheduleChangeBody value={value} format={format} />
+    ) : (
+      <ProposalDetails
+        value={value}
+        date={format.dateTime}
+        references={references}
+      />
+    );
+  const explanation =
+    "explanation" in value && !simpleGoal ? value.explanation : "";
   return (
-    <article className="rounded-2xl border border-brand-200 bg-brand-25 p-5 dark:border-brand-800 dark:bg-brand-950/20">
-      <h3 className="text-primary dark:text-primary text-h3">
-        {simpleGoal
-          ? t("simpleGoalProposal")
-          : t(`proposalKinds.${value.kind}`)}
-      </h3>
-      <p className="text-secondary dark:text-secondary mt-2 text-small">
-        {t("reviewHelp")}
-      </p>
-      {"explanation" in value && (
-        <p className="text-secondary dark:text-secondary mt-3 text-small whitespace-pre-wrap">
-          {value.explanation}
-        </p>
+    <ActionCard
+      eyebrow={t(
+        simpleGoal ? "simpleGoalProposal" : `proposalKinds.${value.kind}`,
       )}
-      <div className="custom-scrollbar my-4 max-h-96 space-y-3 overflow-y-auto">
-        <ProposalDetails value={value} date={date} references={references} />
-        {value.kind === "goalPlan" && (
-          <>
-            <h4 className="text-primary dark:text-primary text-h3">
-              {value.goal.title}
-            </h4>
-            {simpleGoal ? (
-              <p className="text-secondary dark:text-secondary text-small">
-                {t("goalDue", { date: value.goal.targetDate })}
-              </p>
-            ) : (
-              <>
-                {" "}
-                <p className="text-secondary dark:text-secondary text-small whitespace-pre-wrap">
-                  {value.goal.description}
-                </p>
-                <p className="text-secondary dark:text-secondary text-small">
-                  {value.goal.startDate} → {value.goal.targetDate}
-                </p>
-                <p className="text-secondary dark:text-secondary text-small">
-                  {value.goal.successCriteria}
-                </p>
-                <p className="text-secondary dark:text-secondary text-small">
-                  {value.goal.motivation}
-                </p>
-                <p className="text-secondary dark:text-secondary text-small">
-                  {t("planMetrics", {
-                    mode: value.goal.progressMode,
-                    hours: value.goal.progressConfig.hoursTarget,
-                    quantity: value.goal.progressConfig.quantityTarget,
-                  })}
-                </p>
-                {references.subjects
-                  .filter((s) => value.goal.subjectIds.includes(s.id))
-                  .map((s) => (
-                    <p
-                      key={s.id}
-                      className="text-secondary dark:text-secondary text-small"
-                    >
-                      {s.title}
-                    </p>
-                  ))}
-              </>
-            )}
-            {value.milestones.map((m) => (
-              <div
-                key={m.key}
-                className="rounded-lg border border-brand-100 p-3 dark:border-brand-900"
+      title={title}
+      status={
+        <span className="aven-pill" data-tone={status}>
+          {t(`proposalStatuses.${status}`)}
+        </span>
+      }
+      footer={
+        <>
+          {status === "pending" ? (
+            <>
+              <Button
+                size="sm"
+                disabled={Boolean(busy) || locked || expired}
+                onClick={() => {
+                  if (destructive) setConfirming(true);
+                  else void resolve("approve");
+                }}
               >
-                <h4 className="text-primary dark:text-primary text-small">
-                  {m.value.title}
-                </h4>
-                <p className="text-secondary dark:text-secondary text-small">
-                  {m.value.description}
-                </p>
-                {m.value.dueDate && (
-                  <p className="text-muted dark:text-muted text-caption">
-                    {m.value.dueDate}
-                  </p>
-                )}
-              </div>
-            ))}
-            {value.tasks.map((task) => (
-              <div
-                key={task.key}
-                className="border-s-2 border-brand-300 ps-3 dark:border-brand-700"
+                {t(`cards.${approveLabels[value.kind] ?? "approve"}`)}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={Boolean(busy) || locked}
+                onClick={() =>
+                  onModify(
+                    c("modifyPrompt", {
+                      title:
+                        typeof title === "string"
+                          ? title
+                          : t(`proposalKinds.${value.kind}`),
+                    }),
+                  )
+                }
               >
-                <p className="text-primary dark:text-primary text-small">
-                  {task.value.title}
-                </p>
-                <p className="text-secondary dark:text-secondary text-small">
-                  {task.value.description}
-                </p>
-                <p className="text-muted dark:text-muted text-caption">
-                  {t("taskEffort", { minutes: task.value.estimatedMinutes })}
-                  {task.value.dueDate && ` · ${task.value.dueDate}`}
-                </p>
-                {task.dependencyKeys.length > 0 && (
-                  <p className="text-secondary dark:text-secondary text-caption">
-                    {t("dependsOn", {
-                      tasks: task.dependencyKeys
-                        .map(
-                          (key) =>
-                            value.tasks.find((t) => t.key === key)?.value
-                              .title ?? key,
-                        )
-                        .join(", "),
-                    })}
-                  </p>
-                )}
-              </div>
-            ))}
-          </>
-        )}
-        {value.kind === "schedule" &&
-          value.sessions.map((session, index) => (
-            <div
-              key={index}
-              className="rounded-lg border border-brand-100 p-3 dark:border-brand-900"
-            >
-              <p className="text-primary dark:text-primary text-small">
-                {session.title}
-              </p>
-              <p className="text-secondary dark:text-secondary text-small">
-                {date(session.startsAt)} → {date(session.endsAt)}
-              </p>
-            </div>
-          ))}
-        {(value.kind === "taskCreate" || value.kind === "taskUpdate") && (
-          <>
-            <p className="text-primary dark:text-primary text-h3">
-              {value.value.title}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small whitespace-pre-wrap">
-              {value.value.description}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small">
-              {t("taskEffort", { minutes: value.value.estimatedMinutes })} ·{" "}
-              {value.value.dueDate}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small">
-              {value.value.evidence}
-            </p>
-          </>
-        )}
-        {value.kind === "reschedule" && (
-          <p className="text-secondary dark:text-secondary text-small">
-            {date(value.startsAt)} → {date(value.endsAt)}
-          </p>
-        )}
-        {value.kind === "reminder" && (
-          <>
-            <p className="text-primary dark:text-primary text-h3">
-              {value.title}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small">
-              {value.body}
-            </p>
-            <p className="text-secondary dark:text-secondary text-small">
-              {date(value.scheduledFor)}
-            </p>
-          </>
-        )}
-      </div>
+                {c(value.kind === "goalPlan" ? "edit" : "modify")}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={Boolean(busy) || locked}
+                onClick={() => {
+                  void resolve("reject");
+                }}
+              >
+                {c("cancel")}
+              </Button>
+            </>
+          ) : (
+            <>
+              {result?.goalId && (
+                <Link
+                  href={`/goals/${result.goalId}`}
+                  className="aven-text-button"
+                >
+                  {t("openGoal")}
+                </Link>
+              )}
+              {(result?.blockIds?.length ||
+                ((value.kind === "calendarChanges" ||
+                  value.kind === "calendarCreate") &&
+                  status === "approved")) && (
+                <Link href="/calendar" className="aven-text-button">
+                  {t("openPlanner")}
+                </Link>
+              )}
+              {status === "approved" && Boolean(result?.undo) && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={Boolean(busy)}
+                  onClick={() => {
+                    void resolve("undo");
+                  }}
+                >
+                  {t("undoChange")}
+                </Button>
+              )}
+            </>
+          )}
+        </>
+      }
+    >
+      {explanation && <p className="aven-card-text">{explanation}</p>}
+      {body}
+      {busy === "approve" && <AvenActivity name="applying" />}
       {error && (
         <p
           role="alert"
-          className="mb-3 text-small text-error-600 dark:text-error-400"
+          className="text-small text-error-600 dark:text-error-400"
         >
           {error}
         </p>
       )}
-      {status === "pending" ? (
-        <div className="flex flex-wrap gap-2">
-          <Button
-            disabled={
-              busy || locked || Date.parse(proposal.expiresAt) < Date.now()
-            }
-            onClick={() => {
-              if (destructive) setConfirming(true);
-              else void resolve("approve");
-            }}
-          >
-            {t(busy ? "saving" : "approve")}
-          </Button>
-          <Button
-            variant="outline"
-            disabled={busy || locked}
-            onClick={() => {
-              void resolve("reject");
-            }}
-          >
-            {t("reject")}
-          </Button>
-        </div>
-      ) : (
-        <p className="text-secondary dark:text-secondary text-small">
-          {t(`proposalStatuses.${status}`)}
-        </p>
+      {status === "pending" && (
+        <p className="aven-card-note">{t("reviewHelp")}</p>
       )}
-      {result?.goalId && (
-        <Link
-          href={`/goals/${result.goalId}`}
-          className="mt-3 inline-block text-small text-brand-600 dark:text-brand-300"
-        >
-          {t("openGoal")}
-        </Link>
-      )}
-      {status === "approved" && Boolean(result?.undo) && (
-        <Button
-          variant="outline"
-          disabled={busy}
-          onClick={() => {
-            void resolve("undo");
-          }}
-        >
-          {t("undoChange")}
-        </Button>
-      )}
-      {result?.blockIds?.length ||
-      ((value.kind === "calendarChanges" || value.kind === "calendarCreate") &&
-        status === "approved") ? (
-        <Link
-          href="/calendar"
-          className="mt-3 inline-block text-small text-brand-600 dark:text-brand-300"
-        >
-          {t("openPlanner")}
-        </Link>
-      ) : null}
       <ConfirmDialog
         isOpen={confirming}
         onClose={() => setConfirming(false)}
@@ -314,6 +225,7 @@ export default function ProposalCard({
           return true;
         }}
       />
-    </article>
+    </ActionCard>
   );
 }
+export default memo(ProposalCard);

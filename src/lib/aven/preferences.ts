@@ -256,6 +256,19 @@ export async function changeAvenPreferences(
             eq(s.aiConversations.userId, userId),
           ),
         );
+    else if (input.kind === "renameConversation") {
+      const renamed = await tx
+        .update(s.aiConversations)
+        .set({ title: input.title })
+        .where(
+          and(
+            eq(s.aiConversations.id, input.id),
+            eq(s.aiConversations.userId, userId),
+          ),
+        )
+        .returning({ id: s.aiConversations.id });
+      if (!renamed.length) throw new GoalError("recordUnavailable", 404);
+    }
   });
   return getAvenPreferences(userId);
 }

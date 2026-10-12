@@ -1,58 +1,55 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslations } from "next-intl";
-import { CommandIcon, ListIcon, EditIcon, BellIcon } from "@/icons";
 import { useRouter } from "@/i18n/navigation";
 import { featureRequest } from "@/lib/goals/client";
-import { responseEvents } from "@/lib/aven/stream";
-import type { avenBootstrap } from "@/lib/aven/conversations";
 import type { GoalReferences } from "@/lib/goals/service";
-import AvenConversationSidebar from "./AvenConversationSidebar";
-import AvenComposer from "./AvenComposer";
-import AvenNavigation from "./AvenNavigation";
-import AvenActivity from "./AvenActivity";
-import Button from "@/components/ui/button/Button";
+import { Modal } from "@/components/ui/modal";
 import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
-import AvenMarkdown from "./AvenMarkdown";
-import AvenSettings from "./AvenSettings";
+import Button from "@/components/ui/button/Button";
+import AvenSidebar from "./AvenSidebar";
+import AvenTopBar from "./AvenTopBar";
+import AvenTranscript from "./AvenTranscript";
+import AvenComposer, { type AvenComposerHandle } from "./AvenComposer";
+import AvenWelcome from "./AvenWelcome";
+import AvenSuggestions from "./AvenSuggestions";
 import AvenOnboarding from "./AvenOnboarding";
+import AvenSettings from "./AvenSettings";
 import AvenNotifications from "./AvenNotifications";
-import ProposalCard, { type ProposalRecord } from "./ProposalCard";
-type Bootstrap = Awaited<ReturnType<typeof avenBootstrap>>;
-interface Message {
-  id: string;
-  role: string;
-  content: string;
-  status: string;
-  requestId?: string;
-  createdAt?: string;
-  context?: Record<string, string> | null;
-}
-interface ConversationResult {
-  hasOlder: boolean;
-  conversation: {
-    id: string;
-    goalId: string | null;
-    goalTitle: string | null;
-    summary: string;
-  };
-  messages: Message[];
-  proposals: ProposalRecord[];
-}
+import { useAvenConversation } from "./useAvenConversation";
+import { useAvenStream, type SendRequest } from "./useAvenStream";
+import { useAvenDraft } from "./useAvenDraft";
+import { useLocalStorage, useMediaQuery } from "@/hooks/useBrowserState";
+import {
+  errorKey,
+  type AvenMessageRecord,
+  type Bootstrap,
+  type ConversationSummary,
+} from "./types";
 interface Props {
   initial: Bootstrap;
   references: GoalReferences;
   timezone: string;
+  userName: string;
   goalId?: string;
   goalTitle?: string;
   intent?: string;
   notification?: string;
   conversationId?: string;
 }
+type Dialog = "settings" | "notifications" | null;
+const DESKTOP = "(min-width: 1024px)";
 export default function AvenCompanion({
   initial,
   references,
   timezone,
+  userName,
   goalId,
   goalTitle,
   intent,
@@ -61,788 +58,540 @@ export default function AvenCompanion({
 }: Props) {
   const t = useTranslations("aven"),
     router = useRouter();
-  const [replyNotification, setReplyNotification] = useState(notification);
   const [bootstrap, setBootstrap] = useState(initial),
-    [tab, setTab] = useState<"chat" | "settings" | "notifications">("chat"),
-    [selected, setSelected] = useState<string | null>(
-      requestedConversation ?? null,
-    ),
-    [activeGoal, setActiveGoal] = useState(goalId ?? null),
-    [messages, setMessages] = useState<Message[]>([]),
-    [proposals, setProposals] = useState<ProposalRecord[]>([]),
-    [input, setInput] = useState(
-      intent && t.has(`prompts.${intent}`)
-        ? t(`prompts.${intent}`, { title: goalTitle ?? t("myGoal") })
-        : "",
-    ),
-    [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
+    [dialog, setDialog] = useState<Dialog>(null),
     [deleting, setDeleting] = useState<string>(),
-    [lastMessage, setLastMessage] = useState("");
-  const [generating, setGenerating] = useState(false),
-    [actionBusy, setActionBusy] = useState(false),
-    [activity, setActivity] = useState<string>(),
-    [notificationRevision, setNotificationRevision] = useState(0);
-  const restored = useRef(false),
-    stopped = useRef(false);
-  const lastAttempt = useRef<{
-    message: string;
-    requestId: string;
-    originalRequestId: string;
-    conversationId: string | null;
-    accepted: boolean;
-    failed: boolean;
-  } | null>(null);
-  useEffect(() => {
-    if (restored.current) return;
-    restored.current = true;
-    if (requestedConversation || intent || goalId) return;
-    try {
-      const saved = sessionStorage.getItem("aven-selected:" + initial.userId);
-      if (saved && /^[0-9a-f-]{36}$/i.test(saved)) setSelected(saved);
-    } catch {}
-  }, [initial, requestedConversation, intent, goalId]);
-  useEffect(() => {
-    if (selected)
-      try {
-        sessionStorage.setItem("aven-selected:" + initial.userId, selected);
-      } catch {}
-  }, [selected, initial.userId]);
-  const [planning, setPlanning] = useState(
-    intent === "plan" || intent === "recovery" || intent === "schedule",
+    [mobileSidebar, setMobileSidebar] = useState(false),
+    [loadingMore, setLoadingMore] = useState(false),
+    [replyNotification, setReplyNotification] = useState<string>(),
+    [planning, setPlanning] = useState(
+      intent === "plan" || intent === "recovery" || intent === "schedule",
+    ),
+    [announcement, setAnnouncement] = useState("");
+  const composer = useRef<AvenComposerHandle>(null);
+  // Desktop keeps the history visible unless collapsed; on small screens it is a drawer.
+  // CSS picks the right default per viewport, so server markup never flashes an open drawer on phones.
+  const desktop = useMediaQuery(DESKTOP, true),
+    [sidebarPreference, setSidebarPreference] = useLocalStorage("aven-sidebar"),
+    collapsed = sidebarPreference === "closed",
+    sidebarOpen = desktop ? !collapsed : mobileSidebar;
+  const showError = useCallback(
+    (code: string) => setError(t(errorKey(t, code))),
+    [t],
   );
-  const [contextTitle, setContextTitle] = useState(goalTitle),
-    [hasOlder, setHasOlder] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const chatScroll = useRef<HTMLDivElement>(null),
-    followLatest = useRef(true);
+  const conversation = useAvenConversation({
+    goalId: goalId ?? null,
+    goalTitle,
+    onError: showError,
+  });
+  const {
+    selected,
+    messages,
+    setMessages,
+    proposals,
+    setProposals,
+    open,
+    adopt,
+    reload,
+    reset,
+    forget,
+  } = conversation;
+  const draft = useAvenDraft(
+    initial.userId,
+    intent && t.has(`prompts.${intent}`)
+      ? t(`prompts.${intent}`, { title: goalTitle ?? t("myGoal") })
+      : "",
+  );
+  const { value: input, setValue: setInput } = draft;
+  const setUrl = useCallback(
+    (id: string | null) => {
+      // Update the address without a server navigation so switching stays instant.
+      const params = new URLSearchParams();
+      if (id) params.set("conversation", id);
+      else if (goalId) params.set("goal", goalId);
+      const query = params.toString();
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${query ? `?${query}` : ""}`,
+      );
+      try {
+        if (id) sessionStorage.setItem(`aven-selected:${initial.userId}`, id);
+        else sessionStorage.removeItem(`aven-selected:${initial.userId}`);
+      } catch {}
+    },
+    [goalId, initial.userId],
+  );
+  const upsertConversation = useCallback(
+    (row: Pick<ConversationSummary, "id"> & Partial<ConversationSummary>) =>
+      setBootstrap((current) => {
+        const existing = current.conversations.find(
+          (item) => item.id === row.id,
+        );
+        const next: ConversationSummary = {
+          title: "",
+          goalId: null,
+          ...existing,
+          ...row,
+          updatedAt: new Date().toISOString(),
+        };
+        return {
+          ...current,
+          conversations: [
+            next,
+            ...current.conversations.filter((item) => item.id !== row.id),
+          ],
+        };
+      }),
+    [],
+  );
+  const stream = useAvenStream({
+    setMessages,
+    setProposals,
+    reload,
+    onAccepted: (id, text) => {
+      if (!selected) {
+        draft.adopt(id);
+        adopt(id);
+        setUrl(id);
+      }
+      upsertConversation(
+        selected
+          ? { id }
+          : { id, title: text.slice(0, 80), goalId: conversation.activeGoal },
+      );
+    },
+    onRecovered: (value) => {
+      adopt(value.conversation.id);
+      setUrl(value.conversation.id);
+      setMessages(value.messages);
+      setProposals(value.proposals);
+      upsertConversation({ id: value.conversation.id });
+    },
+  });
+  const { generating, activity, streamingKey } = stream;
+  const { switchTo } = draft;
+  /** Show a conversation, its draft and its address without a page navigation. */
+  const show = useCallback(
+    (id: string, restoring = false) => {
+      open(id);
+      setUrl(id);
+      switchTo(id, !restoring);
+    },
+    [open, setUrl, switchTo],
+  );
+  // Initial selection: explicit link, notification reply, or the last conversation in this tab.
+  const started = useRef(false);
   useEffect(() => {
-    try {
-      setSidebarOpen(localStorage.getItem("aven-conversations") === "open");
-    } catch {}
-  }, []);
-  const toggleSidebar = (open: boolean) => {
-    setSidebarOpen(open);
-    try {
-      localStorage.setItem("aven-conversations", open ? "open" : "closed");
-    } catch {}
-  };
-  const sending = useRef(false),
-    abort = useRef<AbortController | null>(null),
-    end = useRef<HTMLDivElement>(null);
-  useEffect(() => () => abort.current?.abort(), []);
-  useEffect(() => {
-    if (!notification) return;
-    let live = true;
-    void featureRequest<{ conversationId: string }>("/api/aven/notifications", {
-      id: notification,
-      kind: "reply",
-    })
-      .then((value) => {
-        if (!live) return;
-        setSelected(value.conversationId);
-        setReplyNotification(notification);
-        setTab("chat");
-        setNotificationRevision((value) => value + 1);
-      })
-      .catch(() => {
-        if (live) setError(t("errors.recordUnavailable"));
-      });
-    return () => {
-      live = false;
-    };
-  }, [notification, requestedConversation, t]);
-  useEffect(() => {
-    if (followLatest.current && chatScroll.current)
-      chatScroll.current.scrollTop = chatScroll.current.scrollHeight;
-  }, [messages, proposals]);
-  useEffect(() => {
-    if (!selected || sending.current) {
-      setBusy(false);
+    if (started.current) return;
+    started.current = true;
+    if (notification) {
+      void featureRequest<{ conversationId: string }>(
+        "/api/aven/notifications",
+        { id: notification, kind: "reply" },
+      )
+        .then((value) => {
+          setReplyNotification(notification);
+          show(value.conversationId, true);
+        })
+        .catch(() => showError("recordUnavailable"));
       return;
     }
-    setBusy(true);
-    const controller = new AbortController();
-    void featureRequest<ConversationResult>(
-      `/api/aven?conversation=${selected}`,
-      undefined,
-      controller.signal,
-    )
-      .then((value) => {
-        if (controller.signal.aborted) return;
-        setHasOlder(value.hasOlder);
-        setMessages(value.messages);
-        setProposals(value.proposals);
-        setActiveGoal(value.conversation.goalId);
-        setContextTitle(value.conversation.goalTitle ?? undefined);
-      })
-      .catch((error) => {
-        if (!controller.signal.aborted)
-          setError(
-            t.has(`errors.${error.message}`)
-              ? t(`errors.${error.message}`)
-              : t("errors.serviceUnavailable"),
-          );
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setBusy(false);
-      });
-    return () => controller.abort();
-  }, [selected, notificationRevision, t]);
+    if (requestedConversation) return show(requestedConversation, true);
+    // A prompt seeded from a goal page takes precedence over restoring earlier state.
+    if (intent) return;
+    if (!goalId)
+      try {
+        const saved = sessionStorage.getItem(`aven-selected:${initial.userId}`);
+        if (saved && /^[0-9a-f-]{36}$/i.test(saved)) return show(saved, true);
+      } catch {}
+    switchTo(null, false);
+  }, [
+    notification,
+    requestedConversation,
+    intent,
+    goalId,
+    initial.userId,
+    show,
+    switchTo,
+    showError,
+  ]);
+  // Preferences can change in another tab (e.g. consent); refresh them when the tab regains focus.
   useEffect(() => {
-    const refreshPreferences = () => {
+    const refresh = () => {
       if (document.visibilityState !== "visible") return;
       void featureRequest<Bootstrap>("/api/aven")
         .then((next) =>
           setBootstrap((current) => ({
             ...current,
             preferences: next.preferences,
+            hasGoals: next.hasGoals,
           })),
         )
         .catch(() => {});
     };
-    window.addEventListener("focus", refreshPreferences);
-    document.addEventListener("visibilitychange", refreshPreferences);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
     return () => {
-      window.removeEventListener("focus", refreshPreferences);
-      document.removeEventListener("visibilitychange", refreshPreferences);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
     };
   }, []);
-  const reload = async (id: string) => {
-    const [conversation, next] = await Promise.all([
-      featureRequest<ConversationResult>(`/api/aven?conversation=${id}`),
-      featureRequest<Bootstrap>("/api/aven"),
-    ]);
-    setHasOlder(conversation.hasOlder);
-    setContextTitle(conversation.conversation.goalTitle ?? undefined);
-    setMessages(conversation.messages);
-    setProposals(conversation.proposals);
-    setBootstrap(next);
+  const preferences = bootstrap.preferences,
+    ready = preferences.configured && preferences.ai.consent;
+  const toggleSidebar = (next = !sidebarOpen) => {
+    if (desktop) setSidebarPreference(next ? null : "closed");
+    else setMobileSidebar(next);
   };
-  const loadOlder = async () => {
-    if (!selected || busy || generating || !messages[0]) return;
-    setBusy(true);
-    try {
-      const older = await featureRequest<ConversationResult>(
-        `/api/aven?conversation=${selected}&before=${messages[0].id}`,
-      );
-      setMessages((current) => [...older.messages, ...current]);
-      setHasOlder(older.hasOlder);
-    } catch {
-      setError(t("errors.serviceUnavailable"));
-    } finally {
-      setBusy(false);
+  const closeOnMobile = () => {
+    if (!desktop) setMobileSidebar(false);
+  };
+  /** Explains why chat is unavailable; returns true when sending must not proceed. */
+  const blocked = () => {
+    if (preferences.ai.consent && preferences.configured) return false;
+    showError(
+      !preferences.ai.consent
+        ? "aiConsentRequired"
+        : (preferences.configurationError ?? "aiNotConfigured"),
+    );
+    return true;
+  };
+  const run = async (
+    request: Omit<SendRequest, "conversationId" | "goalId">,
+  ) => {
+    if (blocked()) return;
+    setError("");
+    setAnnouncement("");
+    const outcome = await stream.send({
+      ...request,
+      conversationId: selected,
+      goalId: conversation.activeGoal,
+    });
+    if (outcome.ok) setAnnouncement(t("replyReady"));
+    else if (outcome.code && outcome.code !== "generationStopped") {
+      if (!outcome.accepted && !request.retryOf)
+        setInput((current) => current || request.text);
+      if (!outcome.accepted) showError(outcome.code);
     }
+    return outcome;
   };
-  const enableReminders = async () => {
-    if (actionBusy) return;
-    setActionBusy(true);
+  const submit = (text = input, nextPlanning = planning) => {
+    const value = text.trim();
+    if (!value || generating || blocked()) return;
+    setInput("");
+    const notificationId = replyNotification;
+    setReplyNotification(undefined);
+    setPlanning(false);
+    void run({ text: value, planning: nextPlanning, notificationId });
+  };
+  const sourceOf = (message: AvenMessageRecord) => {
+    const requestId = message.context?.replyTo ?? message.requestId;
+    return messages.find(
+      (item) => item.role === "user" && item.requestId === requestId,
+    );
+  };
+  const retry = useRef<(message: AvenMessageRecord) => void>(() => {}),
+    regenerate = useRef<(message: AvenMessageRecord) => void>(() => {});
+  // Stable callbacks keep memoized messages from re-rendering while a reply streams.
+  useLayoutEffect(() => {
+    retry.current = (message) => {
+      const source = sourceOf(message);
+      if (!source?.requestId) return;
+      // Retry is only offered on the latest exchange, so it can safely replace any partial reply.
+      void run({
+        text: source.content,
+        planning: false,
+        retryOf: source.requestId,
+        regenerate: true,
+      });
+    };
+    regenerate.current = (message) => {
+      const source = sourceOf(message);
+      if (!source?.requestId) return;
+      // Hide the reply being replaced; the server marks it superseded once the new reply completes.
+      setMessages((current) =>
+        current.map((item) =>
+          item === message ? { ...item, status: "superseded" } : item,
+        ),
+      );
+      void run({
+        text: source.content,
+        planning: false,
+        retryOf: source.requestId,
+        regenerate: true,
+      }).then((outcome) => {
+        if (!outcome?.ok && selected) void reload(selected).catch(() => {});
+      });
+    };
+  });
+  const onRetry = useCallback(
+    (message: AvenMessageRecord) => retry.current(message),
+    [],
+  );
+  const onRegenerate = useCallback(
+    (message: AvenMessageRecord) => regenerate.current(message),
+    [],
+  );
+  const onAsk = useCallback((notificationId: string) => {
+    setReplyNotification(notificationId);
+    composer.current?.focus();
+  }, []);
+  const onModify = useCallback(
+    (prompt: string) => {
+      setInput(prompt);
+      requestAnimationFrame(() => composer.current?.focus());
+    },
+    [setInput],
+  );
+  const onProposalResolved = useCallback(
+    (result?: { goalId?: string } | null) => {
+      if (selected) void reload(selected).catch(() => {});
+      if (result?.goalId)
+        setBootstrap((current) => ({ ...current, hasGoals: true }));
+      router.refresh();
+    },
+    [selected, reload, router],
+  );
+  const startNew = () => {
+    if (generating) return;
+    reset();
+    setUrl(null);
+    switchTo(null);
+    setReplyNotification(undefined);
+    setError("");
+    closeOnMobile();
+    requestAnimationFrame(() => composer.current?.focus());
+  };
+  const select = (id: string) => {
+    if (generating) return;
+    setError("");
+    setReplyNotification(undefined);
+    if (id !== selected) show(id);
+    closeOnMobile();
+  };
+  const rename = async (id: string, title: string) => {
     try {
-      const value = await featureRequest<{
-        preferences: Bootstrap["preferences"];
-      }>("/api/aven", { kind: "enableReminders" });
+      await featureRequest("/api/aven", {
+        kind: "renameConversation",
+        id,
+        title,
+      });
       setBootstrap((current) => ({
         ...current,
-        preferences: value.preferences,
+        conversations: current.conversations.map((item) =>
+          item.id === id ? { ...item, title } : item,
+        ),
       }));
-    } catch {
-      setError(t("errors.serviceUnavailable"));
-    } finally {
-      setActionBusy(false);
+      return true;
+    } catch (failure) {
+      showError((failure as Error).message);
+      return false;
     }
   };
-  const send = async (text = input, retry = false) => {
-    if (sending.current || busy || !text.trim()) return;
-    const submission = text.trim();
-    const prior = lastAttempt.current;
-    retry ||= Boolean(prior?.failed && prior.message === submission);
-    if (!bootstrap.preferences.ai.consent) {
-      setError(t("consentRequired"));
-      return;
-    }
-    if (!bootstrap.preferences.configured) {
-      setError(
-        t(
-          `errors.${bootstrap.preferences.configurationError ?? "aiNotConfigured"}`,
-        ),
-      );
-      return;
-    }
-    sending.current = true;
-    stopped.current = false;
-    setGenerating(true);
-    setActivity("working");
-    setError("");
-    setLastMessage(submission);
-    followLatest.current = true;
-    const requestId = crypto.randomUUID(),
-      assistantId = `${requestId}-assistant`;
-    const acceptedRetry = retry && Boolean(prior?.accepted);
-    lastAttempt.current = {
-      message: submission,
-      requestId,
-      originalRequestId: acceptedRetry ? prior!.originalRequestId : requestId,
-      conversationId: acceptedRetry ? prior!.conversationId : selected,
-      accepted: acceptedRetry,
-      failed: false,
-    };
-    setMessages((current) => [
-      ...current.filter((message) => message.status !== "notSent"),
-      ...(acceptedRetry
-        ? []
-        : [
-            {
-              id: requestId,
-              requestId,
-              role: "user",
-              content: submission,
-              status: "pending",
-              createdAt: new Date().toISOString(),
-            },
-          ]),
-      {
-        id: assistantId,
-        requestId,
-        role: "assistant",
-        content: "",
-        status: "streaming",
-        createdAt: new Date().toISOString(),
-      },
-    ]);
-    const controller = new AbortController();
-    abort.current = controller;
-    let conversationId = lastAttempt.current.conversationId,
-      completed = false;
-    try {
-      const response = await fetch("/api/aven/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId,
-          notificationId: replyNotification ?? null,
-          retryRequestId: acceptedRetry ? prior!.originalRequestId : null,
-          goalId: activeGoal,
-          requestId,
-          message: submission,
-          planning,
-        }),
-        signal: controller.signal,
-      });
-      if (!response.ok || !response.body) {
-        const value = await response.json();
-        throw new Error(value.error ?? "aiUnavailable");
-      }
-      for await (const raw of responseEvents(response.body)) {
-        const event = raw as unknown as {
-          type: string;
-          id?: string;
-          text?: string;
-          code?: string;
-          name?: string;
-          proposal?: ProposalRecord;
-        };
-        if (event.type === "conversation" && event.id) {
-          conversationId = event.id;
-          setSelected(event.id);
-          if (lastAttempt.current) {
-            lastAttempt.current.accepted = true;
-            lastAttempt.current.conversationId = event.id;
-          }
-          setInput((current) => (current.trim() === submission ? "" : current));
-          setMessages((current) =>
-            current.map((message) =>
-              message.id === requestId
-                ? { ...message, status: "complete" }
-                : message,
+  const loadMore = () => {
+    const cursor = bootstrap.conversations.at(-1)?.id;
+    if (!cursor || loadingMore) return;
+    setLoadingMore(true);
+    void featureRequest<
+      Pick<Bootstrap, "conversations" | "hasMoreConversations">
+    >(`/api/aven?history=true&before=${cursor}`)
+      .then((value) =>
+        setBootstrap((current) => ({
+          ...current,
+          hasMoreConversations: value.hasMoreConversations,
+          conversations: [
+            ...current.conversations,
+            ...value.conversations.filter(
+              (row) =>
+                !current.conversations.some((item) => item.id === row.id),
             ),
-          );
-        }
-        if (event.type === "tool") setActivity(event.name ?? "working");
-        if (event.type === "replace") {
-          setActivity(undefined);
-          setMessages((current) =>
-            current.map((message) =>
-              message.id === assistantId
-                ? { ...message, content: event.text ?? "" }
-                : message,
-            ),
-          );
-        }
-        if (event.type === "delta") {
-          setActivity(undefined);
-          setMessages((current) =>
-            current.map((message) =>
-              message.id === assistantId
-                ? { ...message, content: message.content + event.text }
-                : message,
-            ),
-          );
-          if (followLatest.current && chatScroll.current)
-            chatScroll.current.scrollTop = chatScroll.current.scrollHeight;
-        }
-        if (event.type === "proposal" && event.proposal)
-          setProposals((current) => [
-            ...current.filter((proposal) => proposal.id !== event.proposal!.id),
-            event.proposal!,
-          ]);
-        if (event.type === "error")
-          throw new Error(event.code ?? "aiUnavailable");
-        if (event.type === "done") completed = true;
-      }
-      if (!completed) throw new Error("aiUnavailable");
-      if (lastAttempt.current) lastAttempt.current.failed = false;
-      setMessages((current) =>
-        current.map((message) =>
-          message.id === assistantId
-            ? { ...message, status: "complete" }
-            : message,
-        ),
-      );
-      if (conversationId)
-        await reload(conversationId).catch(() =>
-          setError(t("errors.historyRefreshFailed")),
-        );
-    } catch (error) {
-      const key = stopped.current
-        ? "generationStopped"
-        : (error as Error).message;
-      if (lastAttempt.current) lastAttempt.current.failed = !stopped.current;
-      if (!stopped.current) setInput((current) => current || submission);
-      setError(
-        t.has("errors." + key) ? t("errors." + key) : t("errors.aiUnavailable"),
-      );
-      if (!conversationId) {
-        try {
-          const recovered = await featureRequest<
-            ConversationResult & { found: boolean }
-          >("/api/aven?request=" + requestId);
-          if (recovered.found) {
-            conversationId = recovered.conversation.id;
-            setSelected(conversationId);
-            setActiveGoal(recovered.conversation.goalId);
-            setMessages(recovered.messages);
-            if (lastAttempt.current) {
-              lastAttempt.current.accepted = true;
-              lastAttempt.current.conversationId = conversationId;
-            }
-          }
-        } catch {}
-      }
-      if (conversationId) await reload(conversationId).catch(() => {});
-      else
-        setMessages((current) =>
-          current.map((message) =>
-            message.id === assistantId
-              ? {
-                  ...message,
-                  status: stopped.current ? "cancelled" : "error",
-                  content: key,
-                }
-              : message.role === "user" && message.id === requestId
-                ? { ...message, status: "notSent" }
-                : message,
-          ),
-        );
-    } finally {
-      sending.current = false;
-      setGenerating(false);
-      setActivity(undefined);
-      abort.current = null;
-    }
+          ],
+        })),
+      )
+      .catch(() => showError("historyRefreshFailed"))
+      .finally(() => setLoadingMore(false));
   };
+  const openSettings = () => {
+    setDialog("settings");
+    // Usage and budget figures change with every reply; fetch them when the panel opens.
+    void featureRequest<Bootstrap>("/api/aven")
+      .then((next) =>
+        setBootstrap((current) => ({
+          ...current,
+          preferences: next.preferences,
+        })),
+      )
+      .catch(() => {});
+  };
+  const empty = !selected && !messages.length;
+  const title = selected
+    ? (bootstrap.conversations.find((item) => item.id === selected)?.title ??
+      t("title"))
+    : t("newConversation");
+  const notice = !preferences.configured ? (
+    <p role="status" className="aven-notice" data-tone="warning">
+      {t(`errors.${preferences.configurationError ?? "aiNotConfigured"}`)}
+    </p>
+  ) : !preferences.ai.consent && preferences.ai.onboardingComplete ? (
+    <div role="status" className="aven-notice">
+      <p>{t("privacyPaused")}</p>
+      <Button size="sm" variant="outline" onClick={openSettings}>
+        {t("openSettings")}
+      </Button>
+    </div>
+  ) : null;
   return (
-    <div className="aven-page flex min-h-0 flex-col">
-      <header className="mb-3 flex shrink-0 items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-primary dark:text-primary text-h2">
-            {t("title")}
-          </h1>
-          <p className="text-muted dark:text-muted mt-1 hidden text-caption sm:block">
-            {contextTitle
-              ? t("goalContext", { title: contextTitle })
-              : t("description")}
-          </p>
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2">
-          <AvenNavigation tab={tab} onChange={setTab} />
-          {tab === "chat" && (
-            <button
-              type="button"
-              aria-expanded={sidebarOpen}
-              aria-label={t(
-                sidebarOpen ? "hideConversations" : "showConversations",
-              )}
-              aria-controls="aven-conversations"
-              onClick={() => toggleSidebar(!sidebarOpen)}
-              className="text-secondary dark:text-secondary inline-flex min-h-11 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 text-small dark:border-gray-700 dark:bg-gray-dark"
-            >
-              <ListIcon className="size-4" />
-              <span className="hidden sm:inline">
-                {t(sidebarOpen ? "hideConversations" : "showConversations")}
-              </span>
-            </button>
-          )}{" "}
-          <Button
-            aria-label={t("newConversation")}
-            variant="outline"
-            disabled={busy || generating}
-            onClick={() => {
-              setReplyNotification(undefined);
-              router.replace(goalId ? `/aven?goal=${goalId}` : "/aven");
-              try {
-                sessionStorage.removeItem("aven-selected:" + initial.userId);
-              } catch {}
-              lastAttempt.current = null;
-              setBusy(false);
-              setSelected(null);
-              setActiveGoal(goalId ?? null);
-              setContextTitle(goalTitle);
-              setMessages([]);
-              setProposals([]);
-              setError("");
-              setInput("");
-            }}
-          >
-            <EditIcon className="size-4 sm:hidden" />
-            <span className="hidden sm:inline">{t("newConversation")}</span>
-          </Button>
-        </div>
-      </header>
-      {tab === "chat" && (
-        <div className="text-muted dark:text-muted mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 text-caption">
-          <span title={t("budgetHelp")} className="hidden sm:inline">
-            {t("budgetSummary", {
-              used: bootstrap.preferences.budget.usedUsd.toFixed(2),
-              limit: bootstrap.preferences.budget.monthlyUsd.toFixed(2),
-            })}
-          </span>
-          <span className="sm:hidden">
-            {t("budgetShort", {
-              used: bootstrap.preferences.budget.usedUsd.toFixed(2),
-              limit: bootstrap.preferences.budget.monthlyUsd.toFixed(2),
-            })}
-          </span>
-          {bootstrap.preferences.notifications.enabled ? (
-            <button
-              type="button"
-              aria-label={t("remindersActive")}
-              onClick={() => setTab("settings")}
-              className="text-brand-600 dark:text-brand-300"
-            >
-              <BellIcon className="size-4 sm:hidden" />
-              <span className="hidden sm:inline">{t("remindersActive")}</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              aria-label={t("enableStudyReminders")}
-              disabled={busy}
-              onClick={() => {
-                void enableReminders();
-              }}
-              className="text-brand-600 dark:text-brand-300"
-              title={t("reminderSetupHelp")}
-            >
-              <BellIcon className="size-4 sm:hidden" />
-              <span className="hidden sm:inline">
-                {t("enableStudyReminders")}
-              </span>
-            </button>
-          )}
-        </div>
+    <div className="aven-workspace">
+      <AvenSidebar
+        conversations={bootstrap.conversations}
+        hasMore={bootstrap.hasMoreConversations}
+        loadingMore={loadingMore}
+        selected={selected}
+        disabled={generating}
+        open={mobileSidebar}
+        collapsed={collapsed}
+        timezone={timezone}
+        onClose={() => toggleSidebar(false)}
+        onNew={startNew}
+        onSelect={select}
+        onRename={rename}
+        onDelete={setDeleting}
+        onLoadMore={loadMore}
+      />
+      {mobileSidebar && (
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-hidden="true"
+          className="aven-scrim"
+          onClick={() => toggleSidebar(false)}
+        />
       )}
-      <div
-        id={`aven-${tab}`}
-        role="tabpanel"
-        aria-labelledby={`aven-tab-${tab}`}
-        className={tab === "chat" ? "flex min-h-0 flex-1 flex-col" : undefined}
-      >
-        {tab === "settings" ? (
-          <AvenSettings
-            initial={bootstrap.preferences}
-            onSaved={(preferences) =>
-              setBootstrap((current) => ({ ...current, preferences }))
-            }
-          />
-        ) : tab === "notifications" ? (
-          <AvenNotifications timezone={timezone} />
+      <main className="aven-main" aria-label={t("title")}>
+        <AvenTopBar
+          title={title}
+          goalTitle={conversation.contextTitle}
+          sidebarOpen={sidebarOpen}
+          disabled={generating}
+          onToggleSidebar={() => toggleSidebar()}
+          onNew={startNew}
+          onNotifications={() => setDialog("notifications")}
+          onSettings={openSettings}
+        />
+        {empty ? (
+          <AvenWelcome name={userName} timezone={timezone}>
+            {notice}
+          </AvenWelcome>
         ) : (
-          <div className="aven-workspace relative flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-dark">
-            {sidebarOpen && (
-              <AvenConversationSidebar
-                conversations={bootstrap.conversations}
-                hasMore={bootstrap.hasMoreConversations}
-                onLoadMore={() => {
-                  const cursor = bootstrap.conversations.at(-1)?.id;
-                  if (!cursor || busy || generating) return;
-                  setBusy(true);
-                  void featureRequest<
-                    Pick<Bootstrap, "conversations" | "hasMoreConversations">
-                  >("/api/aven?history=true&before=" + cursor)
-                    .then((value) =>
-                      setBootstrap((current) => ({
-                        ...current,
-                        hasMoreConversations: value.hasMoreConversations,
-                        conversations: [
-                          ...current.conversations,
-                          ...value.conversations.filter(
-                            (row) =>
-                              !current.conversations.some(
-                                (existing) => existing.id === row.id,
-                              ),
-                          ),
-                        ],
-                      })),
-                    )
-                    .catch(() => setError(t("errors.historyRefreshFailed")))
-                    .finally(() => setBusy(false));
-                }}
-                selected={selected}
-                busy={busy || generating}
-                onSelect={(id) => {
-                  setReplyNotification(undefined);
-                  lastAttempt.current = null;
-                  setError("");
-                  router.replace(`/aven?conversation=${id}`);
-                  followLatest.current = true;
-                  setSelected(id);
-                  if (window.innerWidth < 1024) toggleSidebar(false);
-                }}
-                onDelete={setDeleting}
-                onClose={() => toggleSidebar(false)}
-              />
+          <AvenTranscript
+            conversationKey={selected ?? "new"}
+            messages={messages}
+            proposals={proposals}
+            references={references}
+            timezone={timezone}
+            loading={conversation.loading}
+            generating={generating}
+            streamingKey={streamingKey}
+            activity={activity}
+            hasOlder={conversation.hasOlder}
+            loadingOlder={conversation.loadingOlder}
+            onLoadOlder={() => {
+              void conversation.loadOlder();
+            }}
+            onRetry={onRetry}
+            onRegenerate={onRegenerate}
+            onAsk={onAsk}
+            onProposalResolved={onProposalResolved}
+            onModify={onModify}
+          />
+        )}
+        <div className="aven-dock" data-empty={empty || undefined}>
+          <div className="aven-column">
+            {!empty && notice}
+            {error && (
+              <p role="alert" className="aven-notice" data-tone="error">
+                {error}
+              </p>
             )}
-            <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-              {!bootstrap.preferences.configured && (
-                <p
-                  role="status"
-                  className="rounded-xl border border-warning-200 bg-warning-25 p-4 text-small text-warning-700 dark:border-warning-800 dark:bg-warning-950/20 dark:text-warning-300"
-                >
-                  {t(
-                    `errors.${bootstrap.preferences.configurationError ?? "aiNotConfigured"}`,
-                  )}
-                </p>
-              )}
-              {!bootstrap.preferences.ai.onboardingComplete ? (
-                <AvenOnboarding
-                  available={bootstrap.preferences.configured}
-                  onDone={(preferences) =>
-                    setBootstrap((current) => ({ ...current, preferences }))
+            <AvenComposer
+              ref={composer}
+              value={input}
+              onChange={setInput}
+              onSubmit={() => submit()}
+              onStop={stream.stop}
+              generating={generating}
+              enabled={ready && !conversation.loading}
+              consent={preferences.ai.consent}
+              replying={Boolean(replyNotification)}
+              onCancelReply={() => setReplyNotification(undefined)}
+            />
+          </div>
+        </div>
+        {empty && (
+          <div className="aven-welcome-tail">
+            <div className="aven-column">
+              {preferences.ai.onboardingComplete ? (
+                <AvenSuggestions
+                  hasGoals={bootstrap.hasGoals}
+                  disabled={!ready || generating}
+                  onPick={(prompt, nextPlanning) =>
+                    submit(prompt, nextPlanning)
                   }
                 />
               ) : (
-                !bootstrap.preferences.ai.consent && (
-                  <div className="text-secondary dark:text-secondary p-4 text-small">
-                    <p>{t("privacyPaused")}</p>
-                    <Button
-                      variant="outline"
-                      onClick={() => setTab("settings")}
-                    >
-                      {t("openSettings")}
-                    </Button>
-                  </div>
-                )
+                <AvenOnboarding
+                  available={preferences.configured}
+                  onDone={(next) =>
+                    setBootstrap((current) => ({
+                      ...current,
+                      preferences: next,
+                    }))
+                  }
+                />
               )}
-              <div
-                ref={chatScroll}
-                onScroll={(event) => {
-                  const node = event.currentTarget;
-                  followLatest.current =
-                    node.scrollHeight - node.scrollTop - node.clientHeight < 80;
-                }}
-                aria-live="polite"
-                aria-busy={generating}
-                className="aven-chat-scroll custom-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6"
-              >
-                {hasOlder && selected && (
-                  <Button
-                    variant="outline"
-                    disabled={busy}
-                    onClick={() => {
-                      void loadOlder();
-                    }}
-                  >
-                    {t("loadOlder")}
-                  </Button>
-                )}
-                {!messages.length && (
-                  <div className="py-5">
-                    <CommandIcon className="mb-3 size-8 text-brand-500 dark:text-brand-300" />
-                    <h2 className="text-primary dark:text-primary text-h3">
-                      {t("welcome")}
-                    </h2>
-                    <p className="text-secondary dark:text-secondary mt-2 text-body">
-                      {t("welcomeHelp")}
-                    </p>
-                  </div>
-                )}
-                {busy && selected && !generating && (
-                  <AvenActivity name="history" />
-                )}
-                {messages
-                  .filter(
-                    (message) =>
-                      message.status !== "streaming" || message.content,
-                  )
-                  .map((message) => (
-                    <article
-                      key={message.id}
-                      data-role={message.role}
-                      className={`w-fit min-w-0 rounded-xl p-4 ${message.role === "user" ? "ms-auto max-w-3xl bg-brand-50 dark:bg-brand-950/30" : "me-auto max-w-5xl bg-gray-50 dark:bg-gray-900"}`}
-                    >
-                      <p className="text-muted dark:text-muted mb-2 text-overline">
-                        {t(message.role === "user" ? "you" : "title")}
-                      </p>
-                      {(message.status === "error" ||
-                        message.status === "cancelled") &&
-                      t.has(`errors.${message.content}`) ? (
-                        <p className="text-small text-error-600 dark:text-error-400">
-                          {t(`errors.${message.content}`)}
-                        </p>
-                      ) : (
-                        <AvenMarkdown
-                          text={
-                            message.content ||
-                            (message.status === "streaming"
-                              ? t("activity.working")
-                              : t("errors.emptyResponse"))
-                          }
-                        />
-                      )}
-                      {message.createdAt && (
-                        <time
-                          dateTime={message.createdAt}
-                          className="text-muted dark:text-muted mt-2 block text-caption"
-                        >
-                          {new Date(message.createdAt).toLocaleTimeString("en",
-                            {
-                              hour: "numeric",
-                              minute: "2-digit",
-                              timeZone: timezone,
-                            },
-                          )}
-                          {(message.status === "error" ||
-                            message.status === "cancelled") &&
-                            message ===
-                              messages.findLast(
-                                (item) => item.role === "assistant",
-                              ) &&
-                            (() => {
-                              const source = messages.findLast(
-                                (item) =>
-                                  item.role === "user" &&
-                                  item.requestId ===
-                                    (message.context?.replyTo ??
-                                      message.requestId),
-                              );
-                              return source?.requestId ? (
-                                <Button
-                                  variant="outline"
-                                  disabled={busy || generating}
-                                  onClick={() => {
-                                    lastAttempt.current = {
-                                      message: source.content,
-                                      requestId: source.requestId!,
-                                      originalRequestId: source.requestId!,
-                                      conversationId: selected,
-                                      accepted: true,
-                                      failed: true,
-                                    };
-                                    void send(source.content, true);
-                                  }}
-                                >
-                                  {t("retry")}
-                                </Button>
-                              ) : null;
-                            })()}
-                        </time>
-                      )}
-                    </article>
-                  ))}
-                {proposals.map((proposal) => (
-                  <ProposalCard
-                    key={proposal.id}
-                    proposal={proposal}
-                    references={references}
-                    locked={generating}
-                    onResolved={() => {
-                      if (selected) void reload(selected);
-                      router.refresh();
-                    }}
-                  />
-                ))}
-                {activity && generating && <AvenActivity name={activity} />}
-                <div ref={end} />
-              </div>
-              <div className="no-scrollbar flex shrink-0 gap-2 overflow-x-auto px-4 pb-3 whitespace-nowrap">
-                {["today", "weekly", "plan", "recovery"].map((key) => (
-                  <button
-                    type="button"
-                    key={key}
-                    disabled={busy}
-                    onClick={() => {
-                      setPlanning(
-                        key === "plan" ||
-                          key === "recovery" ||
-                          key === "weekly",
-                      );
-                      setInput(
-                        t(`prompts.${key}`, {
-                          title: contextTitle ?? t("myGoal"),
-                        }),
-                      );
-                    }}
-                    className="text-secondary dark:text-secondary shrink-0 rounded-full border border-gray-200 bg-white px-3 py-2 text-small hover:border-brand-300 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-dark dark:hover:border-brand-700 dark:hover:text-brand-300"
-                  >
-                    {t(`quick.${key}`)}
-                  </button>
-                ))}
-              </div>
-              {error && (
-                <div
-                  role="alert"
-                  className="text-small text-error-600 dark:text-error-400"
-                >
-                  <p>{error}</p>
-                  {lastMessage && lastAttempt.current?.failed && (
-                    <Button
-                      variant="outline"
-                      disabled={busy}
-                      onClick={() => {
-                        void send(lastMessage, true);
-                      }}
-                    >
-                      {t("retry")}
-                    </Button>
-                  )}
-                </div>
-              )}
-              <AvenComposer
-                value={input}
-                onChange={setInput}
-                onSubmit={() => {
-                  void send();
-                }}
-                busy={generating}
-                onStop={() => {
-                  stopped.current = true;
-                  const attempt = lastAttempt.current;
-                  if (attempt?.accepted && attempt.conversationId)
-                    void featureRequest("/api/aven/chat/cancel", {
-                      conversationId: attempt.conversationId,
-                      requestId: attempt.requestId,
-                    })
-                      .then(() => reload(attempt.conversationId!))
-                      .catch(() => {});
-                  abort.current?.abort();
-                }}
-                enabled={bootstrap.preferences.configured && !busy}
-                consent={bootstrap.preferences.ai.consent}
-              />
-            </section>
+            </div>
           </div>
         )}
-      </div>
+        {/* Announces activity and completion, never individual streamed tokens. */}
+        <p role="status" aria-live="polite" className="sr-only">
+          {activity && generating ? t(`activity.${activity}`) : announcement}
+        </p>
+      </main>
+      <Modal
+        isOpen={dialog === "notifications"}
+        onClose={() => setDialog(null)}
+        title={t("notificationCenter")}
+        size="wide"
+      >
+        {dialog === "notifications" && (
+          <AvenNotifications
+            timezone={timezone}
+            onReply={(conversationId, notificationId) => {
+              setDialog(null);
+              setReplyNotification(notificationId);
+              forget(conversationId);
+              show(conversationId);
+              requestAnimationFrame(() => composer.current?.focus());
+            }}
+          />
+        )}
+      </Modal>
+      <Modal
+        isOpen={dialog === "settings"}
+        onClose={() => setDialog(null)}
+        title={t("settings")}
+        size="wide"
+      >
+        {dialog === "settings" && (
+          <AvenSettings
+            initial={preferences}
+            onSaved={(next) =>
+              setBootstrap((current) => ({ ...current, preferences: next }))
+            }
+          />
+        )}
+      </Modal>
       <ConfirmDialog
         isOpen={Boolean(deleting)}
         onClose={() => setDeleting(undefined)}
@@ -855,16 +604,18 @@ export default function AvenCompanion({
               kind: "deleteConversation",
               id: deleting,
             });
-            if (selected === deleting) {
-              setSelected(null);
-              setMessages([]);
-              setProposals([]);
-            }
-            setBootstrap(await featureRequest<Bootstrap>("/api/aven"));
+            forget(deleting);
+            if (selected === deleting) startNew();
+            setBootstrap((current) => ({
+              ...current,
+              conversations: current.conversations.filter(
+                (item) => item.id !== deleting,
+              ),
+            }));
             setDeleting(undefined);
             return true;
           } catch {
-            setError(t("errors.serviceUnavailable"));
+            showError("serviceUnavailable");
             return false;
           }
         }}

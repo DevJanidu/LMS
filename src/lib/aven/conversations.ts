@@ -1,11 +1,16 @@
 import "server-only";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { GoalError, getGoalDetail } from "@/lib/goals/service";
 import { proposalList } from "./proposals";
 import { getAvenPreferences } from "./preferences";
-export async function listConversations(userId: string, before?: string) {
+export async function listConversations(
+  userId: string,
+  before?: string,
+  search?: string,
+) {
+  const pattern = search ? `%${search.replace(/[\\%_]/g, "\\$&")}%` : undefined;
   const [cursor] = before
     ? await getDb()
         .select()
@@ -32,6 +37,7 @@ export async function listConversations(userId: string, before?: string) {
         cursor
           ? sql`(${s.aiConversations.updatedAt},${s.aiConversations.id}) < (SELECT updated_at,id FROM ai_conversations WHERE id=${cursor.id}::uuid)`
           : undefined,
+        pattern ? sql`${s.aiConversations.title} ILIKE ${pattern}` : undefined,
       ),
     )
     .orderBy(desc(s.aiConversations.updatedAt), desc(s.aiConversations.id))
@@ -78,6 +84,32 @@ export async function getConversation(
       .limit(101),
     proposalList(userId, id),
   ]);
+  const page = messages.slice(0, 100).reverse();
+  // Proactive messages keep an insert-time snapshot; merge the current outcome so resolved actions are not offered again.
+  const notificationIds = page
+    .map((message) => message.context?.notificationId)
+    .filter((value): value is string => Boolean(value));
+  const actions = notificationIds.length
+    ? await getDb()
+        .select({
+          id: s.notificationActions.notificationId,
+          value: s.notificationActions.value,
+        })
+        .from(s.notificationActions)
+        .innerJoin(
+          s.notifications,
+          eq(s.notifications.id, s.notificationActions.notificationId),
+        )
+        .where(
+          and(
+            eq(s.notifications.userId, userId),
+            inArray(s.notificationActions.notificationId, notificationIds),
+          ),
+        )
+    : [];
+  const resolved = new Map(
+    actions.map((action) => [action.id, action.value.resolved]),
+  );
   const [goal] = conversation.goalId
     ? await getDb()
         .select({ title: s.goals.title })
@@ -89,17 +121,37 @@ export async function getConversation(
   return {
     conversation: { ...conversation, goalTitle: goal?.title ?? null },
     hasOlder: messages.length > 100,
-    messages: messages.slice(0, 100).reverse(),
+    messages: page.map((message) => {
+      const outcome = message.context?.notificationId
+        ? resolved.get(message.context.notificationId)
+        : undefined;
+      return outcome
+        ? { ...message, context: { ...message.context, resolved: outcome } }
+        : message;
+    }),
     proposals,
   };
 }
 export async function avenBootstrap(userId: string) {
-  const [history, preferences] = await Promise.all([
+  const [history, preferences, [goal]] = await Promise.all([
     listConversations(userId),
     getAvenPreferences(userId),
+    getDb()
+      .select({ id: s.goals.id })
+      .from(s.goals)
+      .where(eq(s.goals.userId, userId))
+      .limit(1),
   ]);
-  return JSON.parse(JSON.stringify({ userId, ...history, preferences })) as {
+  return JSON.parse(
+    JSON.stringify({
+      userId,
+      ...history,
+      preferences,
+      hasGoals: Boolean(goal),
+    }),
+  ) as {
     userId: string;
+    hasGoals: boolean;
     hasMoreConversations: boolean;
     conversations: {
       id: string;
@@ -143,6 +195,7 @@ export async function beginConversationTurn(
   requestId: string,
   message: string,
   retryRequestId?: string | null,
+  regenerate = false,
 ) {
   if (goalId) await getGoalDetail(userId, goalId);
   return getDb().transaction(async (tx) => {
@@ -203,24 +256,41 @@ export async function beginConversationTurn(
         );
       if (!prior.some((row) => row.role === "user" && row.content === message))
         throw new GoalError("invalidInput");
-      if (
+      if (regenerate) {
+        // Only the latest exchange may be regenerated so history never branches.
+        const [latest] = await tx
+          .select({ requestId: s.aiMessages.requestId })
+          .from(s.aiMessages)
+          .where(
+            and(
+              eq(s.aiMessages.conversationId, id),
+              eq(s.aiMessages.role, "user"),
+            ),
+          )
+          .orderBy(desc(s.aiMessages.createdAt), desc(s.aiMessages.id))
+          .limit(1);
+        if (latest?.requestId !== retryRequestId)
+          throw new GoalError("invalidInput");
+      } else if (
         prior.some(
           (row) => row.role === "assistant" && row.status === "complete",
         )
       )
         throw new GoalError("alreadyAnswered", 409);
-      const [answeredRetry] = await tx
-        .select({ id: s.aiMessages.id })
-        .from(s.aiMessages)
-        .where(
-          and(
-            eq(s.aiMessages.conversationId, id),
-            eq(s.aiMessages.role, "assistant"),
-            eq(s.aiMessages.status, "complete"),
-            sql`${s.aiMessages.context}->>'replyTo' = ${retryRequestId}`,
-          ),
-        )
-        .limit(1);
+      const [answeredRetry] = regenerate
+        ? []
+        : await tx
+            .select({ id: s.aiMessages.id })
+            .from(s.aiMessages)
+            .where(
+              and(
+                eq(s.aiMessages.conversationId, id),
+                eq(s.aiMessages.role, "assistant"),
+                eq(s.aiMessages.status, "complete"),
+                sql`${s.aiMessages.context}->>'replyTo' = ${retryRequestId}`,
+              ),
+            )
+            .limit(1);
       if (answeredRetry) throw new GoalError("alreadyAnswered", 409);
       const original = prior.find((row) => row.role === "user")!;
       await tx
@@ -252,13 +322,19 @@ export async function beginConversationTurn(
       .select({ count: sql<number>`count(*)::int` })
       .from(s.aiMessages)
       .where(eq(s.aiMessages.conversationId, id));
+    // A regenerated reply must not see the answer it replaces.
+    const replaced = (row: (typeof history)[number]) =>
+      regenerate &&
+      row.role === "assistant" &&
+      (row.requestId === retryRequestId ||
+        row.context?.replyTo === retryRequestId);
     return {
       id,
       goalId: conversation.goalId,
       summary: conversation.summary,
       summaryMessageCount: conversation.summaryMessageCount,
       messageCount: count,
-      history: history.reverse(),
+      history: history.reverse().filter((row) => !replaced(row)),
     };
   });
 }
@@ -270,6 +346,7 @@ export async function finishConversationTurn(
   status: "complete" | "error" | "cancelled",
   summary?: string,
   summaryCount?: number,
+  extraContext?: Record<string, string>,
 ) {
   return getDb().transaction(async (tx) => {
     const [conversation] = await tx
@@ -300,9 +377,29 @@ export async function finishConversationTurn(
         role: "assistant",
         content,
         status,
-        context: retrySource ? { replyTo: retrySource.requestId } : null,
+        context:
+          retrySource || extraContext
+            ? {
+                ...extraContext,
+                ...(retrySource ? { replyTo: retrySource.requestId } : {}),
+              }
+            : null,
       })
       .onConflictDoNothing();
+    // A completed retry or regeneration supersedes earlier replies to the same message.
+    if (retrySource && status === "complete")
+      await tx
+        .update(s.aiMessages)
+        .set({ status: "superseded" })
+        .where(
+          and(
+            eq(s.aiMessages.conversationId, id),
+            eq(s.aiMessages.role, "assistant"),
+            eq(s.aiMessages.status, "complete"),
+            sql`${s.aiMessages.requestId} <> ${requestId}::uuid`,
+            sql`(${s.aiMessages.requestId} = ${retrySource.requestId}::uuid OR ${s.aiMessages.context}->>'replyTo' = ${retrySource.requestId})`,
+          ),
+        );
     await tx
       .update(s.aiConversations)
       .set({
@@ -320,4 +417,25 @@ export async function finishConversationTurn(
       .where(eq(s.aiConversations.id, id));
     return true;
   });
+}
+/** Replace the stop placeholder with the partial reply the server streamed before cancellation. */
+export async function keepStoppedAnswer(
+  userId: string,
+  id: string,
+  requestId: string,
+  content: string,
+) {
+  await getDb()
+    .update(s.aiMessages)
+    .set({ content })
+    .where(
+      and(
+        eq(s.aiMessages.conversationId, id),
+        eq(s.aiMessages.requestId, requestId),
+        eq(s.aiMessages.role, "assistant"),
+        eq(s.aiMessages.status, "cancelled"),
+        eq(s.aiMessages.content, "generationStopped"),
+        sql`EXISTS (SELECT 1 FROM ai_conversations c WHERE c.id = ${id}::uuid AND c.user_id = ${userId}::uuid)`,
+      ),
+    );
 }

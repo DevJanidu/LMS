@@ -176,6 +176,7 @@ export default function SmartGoalAssistant({
             onResolved={(result) => {
               if (result?.goalId) onSaved(result.goalId);
             }}
+            onModify={setFollowUp}
           />
         ))}
       </div>

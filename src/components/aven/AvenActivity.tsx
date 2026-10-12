@@ -1,17 +1,40 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { CommandIcon } from "@/icons";
+/** Maps real backend tool events to user-facing phrases; tool arguments are never shown. */
+const categories: Record<string, string> = {
+  getUserGoals: "goals",
+  getGoalDetails: "goals",
+  getGoalProgress: "goals",
+  getCalendar: "calendar",
+  getStudySchedule: "calendar",
+  getUpcomingDeadlines: "calendar",
+  getAssignments: "calendar",
+  getStudyHistory: "history",
+  getWeeklyAnalytics: "history",
+  getSubjects: "resources",
+  getTopics: "resources",
+  getStudyResources: "resources",
+  getUserProfile: "preferences",
+  getNotificationPreferences: "preferences",
+  proposeStudySchedule: "studyPlan",
+  proposeGoalPlan: "studyPlan",
+  createStudySchedule: "studyPlan",
+  moveStudySessions: "conflicts",
+  rescheduleStudySession: "conflicts",
+  cancelStudySessions: "conflicts",
+};
+export const activityCategory = (tool: string) =>
+  categories[tool] ?? (tool === "working" ? "working" : "changes");
 export default function AvenActivity({ name }: { name: string }) {
-  const t = useTranslations("aven");
+  const t = useTranslations("aven.activity");
   return (
-    <p
-      role="status"
-      className="text-muted dark:text-muted flex items-center gap-2 py-2 text-small"
-    >
-      <CommandIcon className="size-4 animate-pulse text-brand-500 dark:text-brand-300" />
-      {t.has(`activity.${name}`)
-        ? t(`activity.${name}`)
-        : t("activity.working")}
-    </p>
+    <div className="aven-activity" aria-hidden="true">
+      <span className="aven-activity-dots">
+        <span />
+        <span />
+        <span />
+      </span>
+      <span>{t(name)}</span>
+    </div>
   );
 }

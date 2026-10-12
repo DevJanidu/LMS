@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { TimePickerField } from "@/components/form/DatePickerField";
@@ -8,7 +8,7 @@ import Field, {
   TextField,
 } from "@/components/studyflow/FormFields";
 import Button from "@/components/ui/button/Button";
-import ComponentCard from "@/components/common/ComponentCard";
+import AvenSettingsSection from "./AvenSettingsSection";
 import RepeatWeekdays from "@/components/calendar/RepeatWeekdays";
 import { featureRequest } from "@/lib/goals/client";
 import type { avenBootstrap } from "@/lib/aven/conversations";
@@ -28,7 +28,11 @@ export default function AvenSettings({ initial, onSaved }: Props) {
     [memory, setMemory] = useState(initial.memory),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [notice, setNotice] = useState("");
+    [notice, setNotice] = useState(""),
+    [permission, setPermission] = useState<string>("unsupported");
+  useEffect(() => {
+    if ("Notification" in window) setPermission(Notification.permission);
+  }, []);
   const apply = async (body: unknown) => {
     setBusy(true);
     setError("");
@@ -61,8 +65,9 @@ export default function AvenSettings({ initial, onSaved }: Props) {
         !initial.publicPushKey
       )
         throw new Error("pushUnavailable");
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") throw new Error("pushPermissionDenied");
+      const granted = await Notification.requestPermission();
+      setPermission(granted);
+      if (granted !== "granted") throw new Error("pushPermissionDenied");
       const registration =
         await navigator.serviceWorker.register("/aven-sw.js");
       const raw = atob(
@@ -79,6 +84,7 @@ export default function AvenSettings({ initial, onSaved }: Props) {
         kind: "subscribe",
         subscription: subscription.toJSON(),
       });
+      setPermission("granted");
       setNotifications((current) => ({ ...current, push: true }));
       setNotice(t("pushEnabled"));
     } catch (error) {
@@ -91,29 +97,29 @@ export default function AvenSettings({ initial, onSaved }: Props) {
     }
   };
   return (
-    <div className="space-y-5">
-      <ComponentCard title={t("settings")}>
-        <form
-          className="space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const aiValue = aiPreferenceSchema.safeParse(ai),
-              notificationValue =
-                notificationPreferenceSchema.safeParse(notifications);
-            if (!aiValue.success || !notificationValue.success) {
-              setError(t("errors.invalidInput"));
-              return;
-            }
-            void apply({
-              kind: "preferences",
-              ai: aiValue.data,
-              notifications: notificationValue.data,
-            });
-          }}
+    <div className="space-y-6">
+      <form
+        className="space-y-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const aiValue = aiPreferenceSchema.safeParse(ai),
+            notificationValue =
+              notificationPreferenceSchema.safeParse(notifications);
+          if (!aiValue.success || !notificationValue.success) {
+            setError(t("errors.invalidInput"));
+            return;
+          }
+          void apply({
+            kind: "preferences",
+            ai: aiValue.data,
+            notifications: notificationValue.data,
+          });
+        }}
+      >
+        <AvenSettingsSection
+          title={t("settingsSections.ai")}
+          description={t("privacyHelp")}
         >
-          <p className="text-secondary dark:text-secondary text-small">
-            {t("privacyHelp")}
-          </p>
           <label className="text-primary dark:text-primary flex items-center gap-2 text-small">
             <Checkbox
               className="!min-h-0 !min-w-0"
@@ -124,6 +130,8 @@ export default function AvenSettings({ initial, onSaved }: Props) {
             />
             {t("settingsFields.consent")}
           </label>
+        </AvenSettingsSection>
+        <AvenSettingsSection title={t("settingsSections.study")}>
           <SelectField
             label={t("settingsFields.coachingStyle")}
             value={ai.coachingStyle}
@@ -185,22 +193,11 @@ export default function AvenSettings({ initial, onSaved }: Props) {
               }))
             }
           />
-          <label className="text-primary dark:text-primary flex items-center gap-2 text-small">
-            <Checkbox
-              className="!min-h-0 !min-w-0"
-              checked={ai.allowResourceContent}
-              onCheckedChange={(checked) =>
-                setAi((current) => ({
-                  ...current,
-                  allowResourceContent: checked === true,
-                }))
-              }
-            />
-            {t("settingsFields.allowResourceContent")}
-          </label>
-          <h3 className="text-primary dark:text-primary pt-3 text-h3">
-            {t("notificationSettings")}
-          </h3>
+        </AvenSettingsSection>
+        <AvenSettingsSection
+          title={t("settingsSections.reminders")}
+          description={t("reminderSetupHelp")}
+        >
           <label className="text-primary dark:text-primary flex items-center gap-2 text-small">
             <Checkbox
               checked={notifications.enabled}
@@ -322,15 +319,14 @@ export default function AvenSettings({ initial, onSaved }: Props) {
             {notifications.snoozedUntil && (
               <p className="text-secondary dark:text-secondary text-small">
                 {t("snoozedUntil", {
-                  date: new Date(notifications.snoozedUntil).toLocaleString("en"),
+                  date: new Date(notifications.snoozedUntil).toLocaleString(
+                    "en",
+                  ),
                 })}
               </p>
             )}
           </details>
           <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={busy}>
-              {t(busy ? "saving" : "saveSettings")}
-            </Button>
             <Button
               variant="outline"
               disabled={busy}
@@ -357,9 +353,23 @@ export default function AvenSettings({ initial, onSaved }: Props) {
               {t("resumeReminders")}
             </Button>
           </div>
-          {initial.pushConfigured && (
+          {!initial.emailConfigured && (
+            <p className="text-muted dark:text-muted text-caption">
+              {t("emailUnavailable")}
+            </p>
+          )}
+        </AvenSettingsSection>
+        <AvenSettingsSection
+          title={t("settingsSections.browser")}
+          description={t("browserHelp")}
+        >
+          <p className="text-secondary dark:text-secondary text-small">
+            {t(`browserPermission.${permission}`)}
+          </p>
+          {initial.pushConfigured && permission !== "unsupported" && (
             <Button
               variant="outline"
+              disabled={permission === "denied"}
               onClick={() => {
                 void push();
               }}
@@ -367,11 +377,26 @@ export default function AvenSettings({ initial, onSaved }: Props) {
               {t("enablePush")}
             </Button>
           )}
-          {!initial.emailConfigured && (
-            <p className="text-muted dark:text-muted text-caption">
-              {t("emailUnavailable")}
-            </p>
-          )}
+        </AvenSettingsSection>
+        <AvenSettingsSection
+          title={t("settingsSections.resources")}
+          description={t("resourceHelp")}
+        >
+          <label className="text-primary dark:text-primary flex items-center gap-2 text-small">
+            <Checkbox
+              className="!min-h-0 !min-w-0"
+              checked={ai.allowResourceContent}
+              onCheckedChange={(checked) =>
+                setAi((current) => ({
+                  ...current,
+                  allowResourceContent: checked === true,
+                }))
+              }
+            />
+            {t("settingsFields.allowResourceContent")}
+          </label>
+        </AvenSettingsSection>
+        <AvenSettingsSection title={t("settingsSections.usage")}>
           <p className="text-muted dark:text-muted text-caption">
             {t("budgetSummary", {
               used: initial.budget.usedUsd.toFixed(2),
@@ -389,6 +414,11 @@ export default function AvenSettings({ initial, onSaved }: Props) {
               cost: (Number(initial.usage.costMicros) / 1e6).toFixed(2),
             })}
           </p>
+        </AvenSettingsSection>
+        <div className="aven-settings-actions">
+          <Button type="submit" disabled={busy}>
+            {t(busy ? "saving" : "saveSettings")}
+          </Button>
           {notice && (
             <p
               role="status"
@@ -405,78 +435,70 @@ export default function AvenSettings({ initial, onSaved }: Props) {
               {error}
             </p>
           )}
-        </form>
-      </ComponentCard>
-      <details className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
-        <summary className="text-primary dark:text-primary cursor-pointer font-medium">
-          {t("memory")}
-        </summary>
-        <ComponentCard title={t("memory")}>
-          <p className="text-secondary dark:text-secondary mb-4 text-small">
-            {t("memoryHelp")}
-          </p>
-          {memory.map((item) => (
-            <form
-              key={item.id}
-              className="mb-4 space-y-2"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void apply({
-                  kind: "memory",
-                  id: item.id,
-                  content: String(
-                    new FormData(event.currentTarget).get("content"),
-                  ),
-                });
-              }}
-            >
-              <TextField
-                label={t("memoryEntry")}
-                name="content"
-                defaultValue={item.content}
-                maxLength={2000}
-                required
-              />
-              <div className="flex gap-2">
-                <Button type="submit" variant="outline" disabled={busy}>
-                  {t("save")}
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={busy}
-                  onClick={() => {
-                    void apply({ kind: "deleteMemory", id: item.id });
-                  }}
-                >
-                  {t("delete")}
-                </Button>
-              </div>
-            </form>
-          ))}
+        </div>
+      </form>
+      <AvenSettingsSection title={t("memory")} description={t("memoryHelp")}>
+        {memory.map((item) => (
           <form
-            className="space-y-2"
+            key={item.id}
+            className="mb-4 space-y-2"
             onSubmit={(event) => {
               event.preventDefault();
-              const form = event.currentTarget;
               void apply({
                 kind: "memory",
-                id: crypto.randomUUID(),
-                content: String(new FormData(form).get("content")),
-              }).then(() => form.reset());
+                id: item.id,
+                content: String(
+                  new FormData(event.currentTarget).get("content"),
+                ),
+              });
             }}
           >
             <TextField
-              label={t("addMemory")}
+              label={t("memoryEntry")}
               name="content"
-              required
+              defaultValue={item.content}
               maxLength={2000}
+              required
             />
-            <Button type="submit" disabled={busy}>
-              {t("addMemory")}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" variant="outline" disabled={busy}>
+                {t("save")}
+              </Button>
+              <Button
+                variant="outline"
+                disabled={busy}
+                onClick={() => {
+                  void apply({ kind: "deleteMemory", id: item.id });
+                }}
+              >
+                {t("delete")}
+              </Button>
+            </div>
           </form>
-        </ComponentCard>
-      </details>
+        ))}
+        <form
+          className="space-y-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            void apply({
+              kind: "memory",
+              id: crypto.randomUUID(),
+              content: String(new FormData(form).get("content")),
+            }).then(() => form.reset());
+          }}
+        >
+          <TextField
+            label={t("addMemory")}
+            name="content"
+            required
+            maxLength={2000}
+          />
+          <Button type="submit" disabled={busy}>
+            {t("addMemory")}
+          </Button>
+        </form>
+      </AvenSettingsSection>
     </div>
   );
 }

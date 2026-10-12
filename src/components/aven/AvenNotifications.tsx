@@ -2,32 +2,23 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useRouter } from "@/i18n/navigation";
 import { featureRequest } from "@/lib/goals/client";
 import type { listAvenNotifications } from "@/lib/aven/notifications";
-import Button from "@/components/ui/button/Button";
-import { Modal } from "@/components/ui/modal";
-import { DateTimePickerField } from "@/components/form/DatePickerField";
-import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
 import Pagination from "@/components/studyflow/Pagination";
-import { wallTime, zonedToUtc } from "@/lib/analytics";
+import NotificationActions from "./NotificationActions";
+import { errorKey } from "./types";
 type NotificationList = Awaited<ReturnType<typeof listAvenNotifications>>;
-export default function AvenNotifications({ timezone }: { timezone: string }) {
+interface Props {
+  timezone: string;
+  onReply: (conversationId: string, notificationId: string) => void;
+}
+export default function AvenNotifications({ timezone, onReply }: Props) {
   const t = useTranslations("aven"),
-    router = useRouter(),
-    [list, setList] = useState<NotificationList>({
-      rows: [],
-      total: 0,
-      page: 1,
-    }),
+    [list, setList] = useState<NotificationList | null>(null),
     [page, setPage] = useState(1),
     [revision, setRevision] = useState(0),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [skipping, setSkipping] = useState<string>(),
-    [rescheduling, setRescheduling] = useState<string>(),
-    [start, setStart] = useState(""),
-    [end, setEnd] = useState("");
+    [replying, setReplying] = useState<string>();
   useEffect(() => {
     const timer = setInterval(() => {
       if (document.visibilityState === "visible")
@@ -43,56 +34,41 @@ export default function AvenNotifications({ timezone }: { timezone: string }) {
       controller.signal,
     )
       .then(setList)
-      .catch((error) => {
+      .catch((failure) => {
         if (!controller.signal.aborted)
-          setError(
-            t.has(`errors.${error.message}`)
-              ? t(`errors.${error.message}`)
-              : t("errors.serviceUnavailable"),
-          );
+          setError(t(errorKey(t, failure.message)));
       });
     return () => controller.abort();
   }, [page, revision, t]);
-  const act = async (
-    id: string,
-    kind: "read" | "skip" | "reschedule" | "reply" | "snooze",
-  ) => {
-    if (busy) return;
-    setBusy(true);
+  const reply = async (id: string) => {
+    if (replying) return;
+    setReplying(id);
     setError("");
     try {
-      const result = await featureRequest<{ conversationId?: string }>(
+      const result = await featureRequest<{ conversationId: string }>(
         "/api/aven/notifications",
-        {
-          id,
-          kind,
-          ...(kind === "reschedule"
-            ? {
-                startsAt: zonedToUtc(start, timezone),
-                endsAt: zonedToUtc(end, timezone),
-              }
-            : {}),
-        },
+        { id, kind: "reply" },
       );
-      if (kind === "reply" && result.conversationId)
-        router.push(
-          `/aven?conversation=${result.conversationId}&notification=${id}`,
-        );
-      setRevision((value) => value + 1);
-      setRescheduling(undefined);
-      return true;
-    } catch (error) {
-      const key = (error as Error).message;
-      setError(
-        t.has(`errors.${key}`)
-          ? t(`errors.${key}`)
-          : t("errors.serviceUnavailable"),
-      );
-      return false;
+      onReply(result.conversationId, id);
+    } catch (failure) {
+      setError(t(errorKey(t, (failure as Error).message)));
     } finally {
-      setBusy(false);
+      setReplying(undefined);
     }
   };
+  const markRead = (id: string) => {
+    void featureRequest("/api/aven/notifications", { id, kind: "read" })
+      .then(() => setRevision((value) => value + 1))
+      .catch(() => setError(t("errors.serviceUnavailable")));
+  };
+  if (!list)
+    return (
+      <div aria-busy="true" className="space-y-3">
+        {[0, 1, 2].map((index) => (
+          <div key={index} className="aven-skeleton h-20" />
+        ))}
+      </div>
+    );
   return (
     <div className="space-y-4">
       {error && (
@@ -103,159 +79,70 @@ export default function AvenNotifications({ timezone }: { timezone: string }) {
           {error}
         </p>
       )}
-      {list.rows.map((item) => (
-        <article
-          key={item.id}
-          className={`rounded-2xl border bg-white p-5 dark:bg-gray-dark ${item.readAt ? "border-gray-200 dark:border-gray-700" : "border-brand-300 dark:border-brand-700"}`}
-        >
-          <h3 className="text-primary dark:text-primary text-h3">
-            {item.title}
-          </h3>
-          <p className="text-secondary dark:text-secondary mt-2 text-body whitespace-pre-wrap">
-            {item.body}
-          </p>
-          <p className="text-muted dark:text-muted mt-3 text-caption">
-            {new Date(item.createdAt).toLocaleString("en", {
-              timeZone: timezone,
-            })}{" "}
-            ·{" "}
-            {item.deliveries
-              .map(
-                (d) =>
-                  `${t(`channels.${d.channel}`)}: ${t(`deliveryStatuses.${d.status}`)}`,
-              )
-              .join(" · ")}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              disabled={busy}
-              onClick={() => {
-                void act(item.id, "reply");
-              }}
-            >
-              {t("reply")}
-            </Button>
-            <Button
-              variant="outline"
-              disabled={busy}
-              onClick={() => {
-                void act(item.id, "snooze");
-              }}
-            >
-              {t("snoozeHour")}
-            </Button>
-            {!item.readAt && (
-              <Button
-                variant="outline"
-                disabled={busy}
-                onClick={() => {
-                  void act(item.id, "read");
+      <ul className="aven-notification-list">
+        {list.rows.map((item) => (
+          <li key={item.id} data-unread={!item.readAt || undefined}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="text-primary dark:text-primary text-body-strong">
+                  {item.title}
+                </h3>
+                <p className="text-secondary dark:text-secondary mt-1 text-small whitespace-pre-wrap">
+                  {item.body}
+                </p>
+                <p className="text-muted dark:text-muted mt-1 text-caption">
+                  <time dateTime={item.createdAt}>
+                    {new Date(item.createdAt).toLocaleString("en", {
+                      timeZone: timezone,
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </time>
+                </p>
+              </div>
+              {!item.readAt && (
+                <button
+                  type="button"
+                  className="aven-text-button shrink-0"
+                  onClick={() => markRead(item.id)}
+                >
+                  {t("markRead")}
+                </button>
+              )}
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <NotificationActions
+                id={item.id}
+                action={item.action}
+                timezone={timezone}
+                onAsk={() => {
+                  void reply(item.id);
                 }}
-              >
-                {t("markRead")}
-              </Button>
-            )}
-            {item.action?.kind === "session" && !item.action.resolved && (
-              <>
-                {item.action.blockId && (
-                  <Link
-                    href={`/study?block=${item.action.blockId}&date=${item.action.date}&subject=${item.action.subjectId ?? ""}&topic=${item.action.topicId ?? ""}`}
-                    className="inline-flex items-center rounded-xl bg-brand-500 px-4 py-2 text-small text-white dark:bg-brand-500 dark:text-white"
-                  >
-                    {t("startNow")}
-                  </Link>
-                )}
-                <Button
-                  variant="outline"
-                  disabled={busy}
-                  onClick={() => {
-                    setRescheduling(item.id);
-                    setStart(wallTime(item.action!.startsAt!, timezone));
-                    setEnd(wallTime(item.action!.endsAt!, timezone));
-                  }}
+                onChanged={() => setRevision((value) => value + 1)}
+              />
+              {item.action?.goalId && (
+                <Link
+                  href={`/goals/${item.action.goalId}`}
+                  className="aven-text-button"
                 >
-                  {t("reschedule")}
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={busy}
-                  onClick={() => {
-                    setSkipping(item.id);
-                  }}
-                >
-                  {t("skip")}
-                </Button>
-              </>
-            )}
-            {item.action?.goalId && (
-              <Link
-                href={`/goals/${item.action.goalId}`}
-                className="inline-flex items-center text-small text-brand-600 dark:text-brand-300"
-              >
-                {t("openGoal")}
-              </Link>
-            )}
-            {item.action?.resolved && (
-              <span className="text-muted dark:text-muted text-small">
-                {t(`notificationResolved.${item.action.resolved}`)}
-              </span>
-            )}
-          </div>
-        </article>
-      ))}
+                  {t("openGoal")}
+                </Link>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
       {!list.rows.length && (
         <p className="text-secondary dark:text-secondary py-10 text-center text-small">
           {t("noNotifications")}
         </p>
       )}
-      <Pagination
-        page={list.page}
-        pages={Math.max(1, Math.ceil(list.total / 20))}
-        onChange={setPage}
-      />
-      <ConfirmDialog
-        isOpen={Boolean(skipping)}
-        onClose={() => setSkipping(undefined)}
-        title={t("skip")}
-        description={t("skipHelp")}
-        onConfirm={async () => {
-          if (!skipping) return false;
-          const saved = await act(skipping, "skip");
-          if (saved) setSkipping(undefined);
-          return Boolean(saved);
-        }}
-      />
-      {rescheduling && (
-        <Modal
-          isOpen
-          onClose={() => setRescheduling(undefined)}
-          title={t("reschedule")}
-        >
-          <form
-            className="space-y-4"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void act(rescheduling, "reschedule");
-            }}
-          >
-            <DateTimePickerField
-              label={t("startsAt")}
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-              required
-            />
-            <DateTimePickerField
-              label={t("endsAt")}
-              value={end}
-              onChange={(e) => setEnd(e.target.value)}
-              required
-            />
-            <Button type="submit" disabled={busy}>
-              {t("save")}
-            </Button>
-          </form>
-        </Modal>
+      {list.total > 20 && (
+        <Pagination
+          page={list.page}
+          pages={Math.ceil(list.total / 20)}
+          onChange={setPage}
+        />
       )}
     </div>
   );

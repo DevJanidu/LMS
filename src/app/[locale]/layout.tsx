@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import "../workspace.css";
+import "../aven.css";
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/constants";
 export const metadata: Metadata = {

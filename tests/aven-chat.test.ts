@@ -5,6 +5,7 @@ vi.mock("@/lib/aven/access", () => ({
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   finish: vi.fn(),
+  keep: vi.fn(),
   usage: vi.fn(),
   tool: vi.fn(),
 }));
@@ -22,6 +23,7 @@ vi.mock("@/lib/aven/preferences", () => ({ getAvenPreferences: vi.fn() }));
 vi.mock("@/lib/aven/conversations", () => ({
   beginConversationTurn: vi.fn(),
   finishConversationTurn: mocks.finish,
+  keepStoppedAnswer: mocks.keep,
 }));
 vi.mock("@/lib/aven/usage", () => ({
   reserveUsage: vi.fn(),
@@ -330,5 +332,72 @@ it("preserves a valid response if optional summarization fails", async () => {
     "complete",
     undefined,
     30,
+  );
+});
+it("emits server-built goal progress cards and saves them with the reply", async () => {
+  const goalId = "8d0f7c56-8a51-4a9e-9a6f-2a1f5d1a7c11";
+  vi.stubGlobal(
+    "fetch",
+    vi
+      .fn()
+      .mockResolvedValueOnce(
+        completed([
+          {
+            type: "function_call",
+            name: "getGoalDetails",
+            arguments: JSON.stringify({ goalId }),
+            call_id: "call",
+          },
+        ]),
+      )
+      .mockResolvedValueOnce(completed([], "You are on track.")),
+  );
+  mocks.tool.mockResolvedValue({
+    goal: { id: goalId, title: "Java", status: "active", targetDate: null },
+    milestones: [],
+    tasks: [],
+    progress: {
+      percent: 50,
+      health: "onTrack",
+      daysRemaining: 3,
+      milestoneProgress: {},
+    },
+  });
+  const events: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    prepared,
+    (event) => events.push(event),
+    new AbortController().signal,
+  );
+  const cards = events.find((event) => event.type === "goalProgress");
+  expect(cards).toMatchObject({
+    cards: [{ id: goalId, title: "Java", percent: 50 }],
+  });
+  const context = mocks.finish.mock.calls.at(-1)?.[7] as {
+    goalCards: string;
+  };
+  expect(JSON.parse(context.goalCards)).toMatchObject([{ id: goalId }]);
+  expect(events.at(-1)).toMatchObject({ type: "done" });
+});
+it("keeps a partial reply when the stop endpoint closed the turn first", async () => {
+  mocks.finish.mockResolvedValue(false);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(completed([], "Partial answer")),
+  );
+  await streamChat(
+    "owner",
+    input,
+    prepared,
+    () => {},
+    new AbortController().signal,
+  );
+  expect(mocks.keep).toHaveBeenCalledWith(
+    "owner",
+    "conversation",
+    "request",
+    "Partial answer",
   );
 });

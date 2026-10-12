@@ -18,13 +18,15 @@ export async function GET(request: Request) {
     const user = await learnerAccount(),
       params = new URL(request.url).searchParams,
       id = params.get("conversation"),
-      before = params.get("before");
+      before = params.get("before"),
+      search = params.get("q")?.trim();
     if (params.get("history") === "true")
       return privateJson({
         ok: true,
         ...(await listConversations(
           user.id,
           before ? z.uuid().parse(before) : undefined,
+          search ? z.string().max(80).parse(search) : undefined,
         )),
       });
     if (params.get("request"))

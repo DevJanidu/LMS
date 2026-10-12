@@ -247,7 +247,22 @@ export const chatSchema = z.object({
   planning: z.boolean().default(false),
   retryRequestId: z.uuid().nullable().optional(),
   notificationId: z.uuid().nullable().optional(),
+  regenerate: z.boolean().optional(),
 });
+/** Server-built goal snapshot rendered as a progress card; never parsed from model text. */
+export const goalCardSchema = z.object({
+  id: z.uuid(),
+  title: z.string().max(200),
+  status: z.string().max(40),
+  targetDate: z.string().max(10).nullable(),
+  percent: z.number().min(0).max(100),
+  health: z.string().max(40),
+  daysRemaining: z.number().int().nullable(),
+  remainingMilestones: z.array(z.string().max(200)).max(5),
+  nextTask: z.string().max(200).nullable(),
+});
+export type GoalCard = z.infer<typeof goalCardSchema>;
+export const goalCardsSchema = z.array(goalCardSchema).max(4);
 export const preferenceMutationSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("enableAven") }),
   z.object({
@@ -268,6 +283,11 @@ export const preferenceMutationSchema = z.discriminatedUnion("kind", [
   }),
   z.object({ kind: z.literal("deleteMemory"), id: z.uuid() }),
   z.object({ kind: z.literal("deleteConversation"), id: z.uuid() }),
+  z.object({
+    kind: z.literal("renameConversation"),
+    id: z.uuid(),
+    title: z.string().trim().min(1).max(80),
+  }),
   z.object({ kind: z.literal("deleteAllMemory") }),
   z.object({
     kind: z.literal("summary"),

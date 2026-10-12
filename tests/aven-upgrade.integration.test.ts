@@ -181,6 +181,114 @@ describe.skipIf(!enabled)(
         conversations.recoverRequestConversation(b, request),
       ).resolves.toEqual({ found: false });
     }, 60000);
+    it("regenerates only the latest reply, supersedes it, and supports rename, search and stopped partial text", async () => {
+      const first = crypto.randomUUID();
+      const turn = await conversations.beginConversationTurn(
+        a,
+        null,
+        null,
+        first,
+        "Plan my Java week",
+      );
+      await conversations.finishConversationTurn(
+        a,
+        turn.id,
+        first,
+        "Original plan",
+        "complete",
+      );
+      const regenerate = crypto.randomUUID();
+      const replay = await conversations.beginConversationTurn(
+        a,
+        turn.id,
+        null,
+        regenerate,
+        "Plan my Java week",
+        first,
+        true,
+      );
+      expect(replay.history.map((item) => item.content)).toEqual([
+        "Plan my Java week",
+      ]);
+      await conversations.finishConversationTurn(
+        a,
+        turn.id,
+        regenerate,
+        "Better plan",
+        "complete",
+      );
+      const saved = await conversations.getConversation(a, turn.id);
+      expect(
+        saved.messages
+          .filter((item) => item.role === "assistant")
+          .map((item) => [item.content, item.status]),
+      ).toEqual([
+        ["Original plan", "superseded"],
+        ["Better plan", "complete"],
+      ]);
+      const second = crypto.randomUUID();
+      await conversations.beginConversationTurn(
+        a,
+        turn.id,
+        null,
+        second,
+        "And next week?",
+      );
+      await conversations.finishConversationTurn(
+        a,
+        turn.id,
+        second,
+        "generationStopped",
+        "cancelled",
+      );
+      await conversations.keepStoppedAnswer(
+        a,
+        turn.id,
+        second,
+        "Partial reply",
+      );
+      await conversations.keepStoppedAnswer(b, turn.id, second, "Injected");
+      expect(
+        (await conversations.getConversation(a, turn.id)).messages.at(-1)
+          ?.content,
+      ).toBe("Partial reply");
+      await expect(
+        conversations.beginConversationTurn(
+          a,
+          turn.id,
+          null,
+          crypto.randomUUID(),
+          "Plan my Java week",
+          first,
+          true,
+        ),
+      ).rejects.toMatchObject({ message: "invalidInput" });
+      const preferences = await import("@/lib/aven/preferences");
+      await preferences.changeAvenPreferences(a, {
+        kind: "renameConversation",
+        id: turn.id,
+        title: "Java weekly plan",
+      });
+      await expect(
+        preferences.changeAvenPreferences(b, {
+          kind: "renameConversation",
+          id: turn.id,
+          title: "Taken",
+        }),
+      ).rejects.toMatchObject({ status: 404 });
+      const found = await conversations.listConversations(
+        a,
+        undefined,
+        "weekly",
+      );
+      expect(found.conversations.map((item) => item.title)).toContain(
+        "Java weekly plan",
+      );
+      expect(
+        (await conversations.listConversations(a, undefined, "100%_"))
+          .conversations,
+      ).toEqual([]);
+    }, 60000);
     it("persists cancellation, releases the lease, and prevents a stale completion", async () => {
       const request = crypto.randomUUID();
       const turn = await conversations.beginConversationTurn(

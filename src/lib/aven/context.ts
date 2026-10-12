@@ -5,7 +5,12 @@ export function boundedHistory<
   const kept: { role: string; content: string }[] = [];
   for (let index = messages.length - 1; index >= 0; index--) {
     const message = messages[index];
-    if (message.status === "error" || message.status === "cancelled") continue;
+    if (
+      message.status === "error" ||
+      message.status === "cancelled" ||
+      message.status === "superseded"
+    )
+      continue;
     const item = {
       role: message.role,
       content: Array.from(message.content).slice(0, 6000).join(""),

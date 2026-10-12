@@ -2,7 +2,11 @@ import "server-only";
 import { localDay } from "@/lib/analytics";
 import { GoalError } from "@/lib/goals/service";
 import { getAvenPreferences } from "./preferences";
-import { beginConversationTurn, finishConversationTurn } from "./conversations";
+import {
+  beginConversationTurn,
+  finishConversationTurn,
+  keepStoppedAnswer,
+} from "./conversations";
 import { reserveUsage, finishUsage } from "./usage";
 import { avenTools, executeAvenTool, isAvenWriteTool } from "./tools";
 import { ambiguousScheduleClock } from "./time-intent";
@@ -10,6 +14,8 @@ import { claimsUnapprovedChange } from "./reply-safety";
 import { responseEvents, type ResponseItem } from "./stream";
 import { readProviderFailure } from "./provider-errors";
 import { boundedHistory } from "./context";
+import { goalCardsFromTool } from "./goal-cards";
+import type { GoalCard } from "./validation";
 import { assertAvenAccess, assertConversationActive } from "./access";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
@@ -78,6 +84,7 @@ export async function prepareChat(
       input.requestId,
       input.message,
       input.retryRequestId,
+      input.regenerate && Boolean(input.retryRequestId),
     );
     return { preferences, reservation, conversation, replyContext };
   } catch (error) {
@@ -130,7 +137,8 @@ export async function streamChat(
     conversation.history,
     MAX_INPUT_BYTES - 8000,
   );
-  const toolResults = new Map<string, unknown>();
+  const toolResults = new Map<string, unknown>(),
+    goalCards = new Map<string, GoalCard>();
   const request = async (
     body: Record<string, unknown>,
     onDelta?: (value: string) => void,
@@ -320,6 +328,14 @@ export async function streamChat(
             );
             toolResults.set(key, output);
           }
+          const cards = goalCardsFromTool(call.name ?? "", output);
+          if (cards.length) {
+            for (const card of cards) goalCards.set(card.id, card);
+            emit({
+              type: "goalProgress",
+              cards: [...goalCards.values()].slice(-4),
+            });
+          }
           if (
             output &&
             typeof output === "object" &&
@@ -412,6 +428,13 @@ export async function streamChat(
       "complete",
       summary,
       conversation.messageCount,
+      ...(goalCards.size
+        ? [
+            {
+              goalCards: JSON.stringify([...goalCards.values()].slice(-4)),
+            },
+          ]
+        : []),
     );
     if (saved === false) throw new GoalError("conversationUnavailable", 503);
     emit({ type: "done", conversationId: conversation.id });
@@ -424,13 +447,23 @@ export async function streamChat(
       : error instanceof GoalError
         ? error.message
         : "aiUnavailable";
-    await finishConversationTurn(
+    const saved = await finishConversationTurn(
       userId,
       conversation.id,
       input.requestId,
       answer || code,
       signal.aborted ? "cancelled" : "error",
-    ).catch(() => {});
+    ).catch(() => undefined);
+    // The stop endpoint may have closed the turn first; keep the text the model actually produced.
+    if (saved === false && answer.trim() && !pendingChanges)
+      try {
+        await keepStoppedAnswer(
+          userId,
+          conversation.id,
+          input.requestId,
+          answer,
+        );
+      } catch {}
     emit({ type: "error", code, conversationId: conversation.id });
   } finally {
     await finishUsage(

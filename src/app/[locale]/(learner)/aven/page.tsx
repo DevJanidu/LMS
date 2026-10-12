@@ -33,6 +33,7 @@ export default async function Page({
       initial={initial}
       references={references}
       timezone={user.timezone}
+      userName={user.name}
       goalId={goalId}
       goalTitle={detail?.goal.title}
       intent={query.intent}
