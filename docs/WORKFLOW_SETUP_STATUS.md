@@ -26,6 +26,24 @@
 
 Vercel currently reports multiple existing Preview/Production GitHub deployment labels. They were not deleted or treated as newly provisioned application environments. Consolidation requires a project/domain audit; this implementation creates no new hosting project.
 
+## Validation evidence
+
+Setup PR: [#2](https://github.com/DevJanidu/LMS/pull/2), feature/environment-workflow into develop. Its GitHub Actions runs provide remote runner evidence; merge only after the current required check succeeds.
+
+Clean-worktree local validation used Node 24, the existing npm lockfile and the workflow's non-live fixtures, with no copied env secrets:
+
+- `npm ci`, ESLint, generated route types and TypeScript: passed.
+- Vitest: **397 passed, 53 explicitly gated tests skipped** across 61 files; infrastructure/audit coverage was not claimed.
+- Node analytics/schedule checks: **13 passed**; English message-reference validation passed.
+- Drizzle migration metadata and workflow YAML/branch trigger validation: passed; no live migration applied.
+- Production Next.js build: passed (56 static route entries).
+- Public Playwright against that production build: **6 passed, 3 authenticated/infrastructure scenarios skipped**. The installed Chromium runner was used; no production server was used for these browser fixtures.
+- Runtime dependency audit: **0 vulnerabilities**; tracked credential-pattern scan: passed. No dependency versions were changed.
+- The legacy shared local credentials were explicitly rejected by the new isolation policy before any connection. Separate provisioning and staging deployment still require verification.
+- Read-only live smoke checks: `/`, `/login`, `/api/health`, `/api/auth/get-session` passed, and `/dashboard` redirected to login. Authenticated customer workflows, provider scope settings and backup recovery were not asserted.
+
+The implementation worktree is clean after commits; the original checkout retains the user's pre-existing authentication/UI edits and the older draft worktree remains untouched.
+
 ## GitHub UI equivalent
 
 Rules are already API-confirmed. To inspect/recreate: repository **Settings > Branches > Add branch protection rule**, exact pattern `main`, then repeat `staging` and `develop`. Enable **Require a pull request before merging** with required approvals off/0; **Require status checks** with `required-ci` from GitHub Actions and **Require branches to be up to date**; **Require conversation resolution**; **Do not allow bypassing the above settings**. Leave **Allow force pushes** and **Allow deletions** off. Do not enable linear history for this merge-commit promotion workflow. Keep Settings > General default branch as `main`.
