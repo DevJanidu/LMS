@@ -1,6 +1,10 @@
 import type { Instrumentation } from "next";
 
 export async function register() {
+  if (process.env.NEXT_RUNTIME === "nodejs" && process.env.NEXT_PHASE !== "phase-production-build") {
+    const { assertEnvironmentIsolation } = await import("@/lib/deployment-policy.mjs");
+    assertEnvironmentIsolation(process.env);
+  }
   if (process.env.NEXT_RUNTIME === "nodejs" && process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== "phase-production-build") {
     try {
       const { getEnv } = await import("@/lib/env");
