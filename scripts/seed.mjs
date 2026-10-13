@@ -8,8 +8,10 @@ import ts from "typescript";
 import { mkdtempSync, readFileSync, writeFileSync, unlinkSync, rmdirSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertEnvironmentIsolation } from "../src/lib/deployment-policy.mjs";
 
 nextEnv.loadEnvConfig(process.cwd());
+assertEnvironmentIsolation(process.env);
 if ((process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") && !process.argv.includes("--allow-production")) {
   throw new Error("Seed refused in production. Use --allow-production only for deliberate account provisioning.");
 }

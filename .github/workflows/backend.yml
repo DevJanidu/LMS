@@ -1,11 +1,16 @@
-name: Backend checks
+name: Acadence CI
 
 on:
   push:
-    branches: [main]
+    branches: [develop, staging, main]
   pull_request:
-    branches: [main]
+    branches: [develop, staging, main]
   workflow_dispatch:
+    inputs:
+      integration:
+        description: Run isolated database integration tests on a trusted develop/staging commit
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -32,6 +37,12 @@ env:
   UPSTASH_REDIS_REST_URL: https://redis.example.com
   UPSTASH_REDIS_REST_TOKEN: fixture-token
   CACHE_NAMESPACE: test
+  APP_ENV: development
+  ENVIRONMENT_ISOLATED: 'true'
+  NONPRODUCTION_JOBS_ENABLED: 'false'
+  OPENAI_API_KEY: ''
+  VAPID_PRIVATE_KEY: ''
+  BILLING_ENFORCEMENT: 'off'
   RESEND_API_KEY: ''
   EMAIL_FROM: ''
   GOOGLE_CLIENT_ID: ''
@@ -41,6 +52,55 @@ env:
   E2E_DATABASE_READY: ''
 
 jobs:
+  release-policy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Validate promotion source and tested release tree
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          case "$BASE:$HEAD_BRANCH" in
+            develop:feature/*|develop:fix/*|develop:hotfix/*|develop:main|develop:staging) ;;
+            staging:develop|staging:release/*|staging:main|staging:hotfix/*) ;;
+            main:staging|main:hotfix/*) ;;
+            *) echo "::error::Unsupported promotion. Use feature/fix -> develop -> staging -> main, or hotfix -> main."; exit 1 ;;
+          esac
+          if [[ "$BASE" != develop && "$HEAD_REPOSITORY" != "$GITHUB_REPOSITORY" ]]; then
+            echo "::error::Release promotions must originate inside this repository."
+            exit 1
+          fi
+          if [[ "$BASE:$HEAD_BRANCH" == main:staging ]]; then
+            git diff --exit-code "$HEAD_SHA" HEAD -- > /dev/null
+          fi
+
+  security:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: package.json
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Scan tracked files for credential patterns
+        run: node scripts/scan-secrets.mjs
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
+
   quality:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -85,18 +145,20 @@ jobs:
           if-no-files-found: ignore
 
   # The Neon driver uses HTTPS/WebSockets; a plain Postgres container is insufficient.
-  # Configure a dedicated empty test parent and CI-only Redis before enabling this job.
+  # Infrastructure credentials are never passed to pull-request code.
+  # CI branches are temporary test resources, not permanent application environments.
   database:
     needs: quality
     if: >-
-      vars.NEON_PROJECT_ID != '' && vars.NEON_TEST_PARENT_BRANCH != '' &&
-      (github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository)
+      github.event_name == 'workflow_dispatch' && inputs.integration &&
+      (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging')
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
       UPSTASH_REDIS_REST_URL: ${{ vars.CI_UPSTASH_REDIS_REST_URL }}
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.CI_UPSTASH_REDIS_REST_TOKEN }}
+      NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+      NEON_TEST_PARENT_BRANCH: ${{ vars.NEON_TEST_PARENT_BRANCH }}
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -118,6 +180,10 @@ jobs:
               exit 1
             fi
           done
+          if [[ -z "$NEON_PROJECT_ID" || -z "$NEON_TEST_PARENT_BRANCH" ]]; then
+            echo "::error::Configure an empty parent in an isolated nonproduction Neon project."
+            exit 1
+          fi
       - name: Install locked dependencies
         run: npm ci
       - name: Set branch expiry
@@ -134,8 +200,9 @@ jobs:
           branch_type: schema-only
           expires_at: ${{ steps.expiry.outputs.expires_at }}
       - name: Apply migrations to disposable branch
-        run: npm run db:migrate
+        run: node scripts/run-environment.mjs development migrate --process-env
         env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
           DATABASE_URL_UNPOOLED: ${{ steps.branch.outputs.db_url }}
       - name: Database integration tests
         run: npm run test:unit
@@ -172,3 +239,20 @@ jobs:
             test-results/
           retention-days: 3
           if-no-files-found: ignore
+
+  required-ci:
+    name: required-ci
+    if: always()
+    needs: [release-policy, security, quality, database]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require all applicable checks
+        env:
+          POLICY_RESULT: ${{ needs.release-policy.result }}
+          SECURITY_RESULT: ${{ needs.security.result }}
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          DATABASE_RESULT: ${{ needs.database.result }}
+        run: |
+          [[ "$POLICY_RESULT" == success && "$SECURITY_RESULT" == success && "$QUALITY_RESULT" == success ]]
+          [[ "$DATABASE_RESULT" == success || "$DATABASE_RESULT" == skipped ]]
