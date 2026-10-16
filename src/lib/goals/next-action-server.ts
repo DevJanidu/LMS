@@ -4,6 +4,7 @@ import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { localDay } from "@/lib/analytics";
 import { aiPreferenceSchema } from "@/lib/aven/validation";
+import { learningRankingContext } from "@/lib/learning/server";
 import { getGoalDetailsBatch } from "./service";
 import { rankNextActions } from "./next-action";
 /** Account-scoped Next Best Action; reads only the learner's own active goals. */
@@ -34,17 +35,27 @@ export async function getNextBestActions(
       .from(s.aiUserPreferences)
       .where(eq(s.aiUserPreferences.userId, userId)),
   ]);
-  const details = await getGoalDetailsBatch(
-    userId,
-    goals.map((goal) => goal.id),
-  );
   const daily = aiPreferenceSchema.safeParse(preferences?.value ?? {});
+  const timezone = user?.timezone ?? "UTC";
+  const [details, learning] = await Promise.all([
+    getGoalDetailsBatch(
+      userId,
+      goals.map((goal) => goal.id),
+    ),
+    // Ranking still works when learning context is unavailable; it only adds reasons.
+    learningRankingContext(
+      userId,
+      daily.success ? daily.data.learningSignals : [],
+      timezone,
+    ).catch(() => ({ difficulty: {}, postponedTopics: {} })),
+  ]);
   return rankNextActions(
     details,
     {
-      today: localDay(Date.now(), user?.timezone ?? "UTC"),
+      today: localDay(Date.now(), timezone),
       now: Date.now(),
       dailyTargetMinutes: daily.success ? daily.data.dailyTargetMinutes : 90,
+      ...learning,
     },
     options.limit ?? 3,
     options.goalId,

@@ -4,6 +4,11 @@ import {
   milestoneSchema,
   taskSchema,
 } from "@/lib/goals/validation";
+import {
+  confidenceLevels,
+  learningSignalSchema,
+  MAX_SIGNALS,
+} from "@/lib/learning/signals";
 const clock = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 export const aiPreferenceSchema = z
   .object({
@@ -23,6 +28,12 @@ export const aiPreferenceSchema = z
     learningPreferences: z.string().trim().max(2000).default(""),
     allowResourceContent: z.boolean().default(false),
     locale: z.preprocess(() => "en", z.literal("en")).default("en"),
+    /** Self-reported difficulty and confidence; one malformed entry never blocks the account. */
+    learningSignals: z
+      .array(learningSignalSchema)
+      .max(MAX_SIGNALS)
+      .default([])
+      .catch([]),
   })
   .refine((v) => v.preferredStudyEnd > v.preferredStudyStart, {
     message: "invalidInput",
@@ -91,6 +102,8 @@ export const scheduleProposalSchema = z.object({
   goalId: z.uuid().nullable(),
   expectedVersion: z.number().int().min(0),
   explanation: z.string().min(1).max(4000),
+  /** Identifies a recommendation so a rejection quiets the same suggestion for a while. */
+  recommendationKey: z.string().max(160).optional(),
   sessions: z
     .array(
       z.object({
@@ -229,6 +242,15 @@ export const proposalSchema = z.discriminatedUnion("kind", [
     kind: z.literal("memory"),
     content: z.string().trim().min(1).max(2000),
   }),
+  z.object({
+    kind: z.literal("learningSignal"),
+    subjectId: z.uuid(),
+    topicId: z.uuid().nullable(),
+    subjectTitle: z.string().max(200),
+    topicTitle: z.string().max(200).nullable(),
+    level: z.enum(confidenceLevels),
+    explanation: z.string().max(4000),
+  }),
   goalPlanSchema,
   scheduleProposalSchema,
   z.object({
@@ -347,13 +369,18 @@ export const nextActionsSchema = z
             z.object({ code: z.literal("inProgress") }),
             z.object({ code: z.literal("highPriority") }),
             z.object({ code: z.literal("goalAtRisk") }),
+            z.object({ code: z.literal("reportedDifficulty") }),
+            z.object({
+              code: z.literal("postponed"),
+              count: z.number().int().min(1),
+            }),
             z.object({
               code: z.literal("fitsToday"),
               minutes: z.number().int().min(0),
             }),
           ]),
         )
-        .max(7),
+        .max(9),
     }),
   )
   .max(5);

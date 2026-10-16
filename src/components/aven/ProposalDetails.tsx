@@ -115,6 +115,24 @@ export default function ProposalDetails({
       {value.kind === "memory" && (
         <p className="whitespace-pre-wrap">{value.content}</p>
       )}
+      {value.kind === "learningSignal" && (
+        <>
+          <p className="text-primary dark:text-primary font-medium">
+            {value.topicTitle
+              ? t("learning.signalTopic", {
+                  subject: value.subjectTitle,
+                  topic: value.topicTitle,
+                })
+              : value.subjectTitle}
+            {" · "}
+            {t(`learning.levels.${value.level}`)}
+          </p>
+          {value.explanation && (
+            <p className="whitespace-pre-wrap">{value.explanation}</p>
+          )}
+          <p>{t("learning.signalsHelp")}</p>
+        </>
+      )}
       {(value.kind === "taskCreate" || value.kind === "taskUpdate") && (
         <>
           <p className="text-primary dark:text-primary font-medium">

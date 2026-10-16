@@ -240,7 +240,9 @@
         "inProgress": "You have already started it.",
         "highPriority": "It is marked high priority.",
         "goalAtRisk": "Its goal needs attention.",
-        "fitsToday": "It fits in your {minutes}-minute daily target."
+        "fitsToday": "It fits in your {minutes}-minute daily target.",
+        "reportedDifficulty": "You said this subject needs more practice.",
+        "postponed": "It has been postponed {count} times recently."
       },
       "towardGoal": "This moves you toward \"{goal}\".",
       "due": "Due {date}",
@@ -379,7 +381,41 @@
         "inactive": "There's no recorded progress on \"{title}\" in the last week.",
         "draftReady": "I drafted a realistic catch-up schedule for you to review here. Nothing changes unless you approve it.",
         "offer": "Want me to help you plan the next step?"
+      },
+      "learningAlert": {
+        "overduePrerequisiteTitle": "A prerequisite is holding things up",
+        "overduePrerequisite": "\"{task}\" in \"{goal}\" is overdue, and \"{next}\" depends on it this week.",
+        "priorityMismatchTitle": "Your study time and priorities have drifted",
+        "priorityMismatch": "You've recorded {minutes} minutes on {subject} this week, while \"{task}\" in \"{goal}\" is overdue with no study time yet.",
+        "postponedTopicTitle": "A topic keeps getting pushed back",
+        "postponedTopic": "You've postponed {topic} ({subject}) {count} times recently.",
+        "missedSessionsTitle": "A few sessions didn't start",
+        "missedSessions": "{count} {subject} sessions this week have no attendance or study recorded.",
+        "reportedDifficultyTitle": "Extra practice you asked for",
+        "reportedDifficulty": "You mentioned {subject} needs more practice, and {topics, plural, one {# topic is} other {# topics are}} still open with no session planned.",
+        "overdueTaskTitle": "An overdue task is waiting",
+        "overdueTask": "\"{task}\" in \"{goal}\" is past its due date{count, plural, one {} other { (# overdue tasks in this goal)}}.",
+        "slotOffer": "I've found a free {minutes}-minute slot on {day} at {time} for {topic}. Want me to use it? Nothing changes unless you approve it.",
+        "practiceExplanation": "One focused practice session on {topic}, placed in a free slot within your study hours and daily target.",
+        "offer": "Want me to help you fit it into your week?"
       }
+    },
+    "learning": {
+      "practiceTitle": "Practice: {topic}",
+      "confidenceQuestion": "How confident do you feel about this topic?",
+      "confidenceHelp": "Optional. Aven uses this to plan extra practice; you can change it any time.",
+      "confidenceSkip": "Skip",
+      "levels": {
+        "needsPractice": "Need more practice",
+        "gettingThere": "Getting there",
+        "confident": "Confident"
+      },
+      "signalTopic": "{subject} · {topic}",
+      "signalsTitle": "Learning check-ins",
+      "signalsHelp": "Your own reports of difficulty and confidence. Reports older than 60 days stop affecting plans.",
+      "signalsEmpty": "No reports yet. You can answer the optional question after a study session.",
+      "removeSignal": "Remove report",
+      "reportedOn": "Reported {date}"
     },
     "settings": "Settings",
     "conversations": "Conversations",
@@ -496,7 +532,8 @@
       "studyPreferences": "Proposed study preferences",
       "reminderPreferences": "Proposed reminder preferences",
       "resourceOrganization": "Proposed library organization",
-      "memory": "Remember a preference"
+      "memory": "Remember a preference",
+      "learningSignal": "Remember how a subject feels"
     },
     "proposalStatuses": {
       "approved": "Approved and saved",

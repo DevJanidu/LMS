@@ -185,6 +185,9 @@ export async function changeAvenPreferences(
         .where(eq(s.aiUserPreferences.userId, userId));
       const aiValue = {
         ...input.ai,
+        // Learning reports have their own controls; the settings form never overwrites them.
+        learningSignals: aiPreferenceSchema.parse(currentAi?.value ?? {})
+          .learningSignals,
         onboardingComplete: Boolean(
           input.ai.onboardingComplete ||
           currentAi?.value.onboardingComplete ||

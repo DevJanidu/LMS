@@ -10,6 +10,7 @@ import {
   type AvenProposal,
 } from "./validation";
 import { applyCalendarProposal } from "./calendar-actions";
+import { saveLearningSignal } from "@/lib/learning/server";
 export const resourceVersion = (resource: typeof s.resources.$inferSelect) =>
   createHash("sha256")
     .update(
@@ -119,6 +120,15 @@ export async function applyExtraProposal(
     await tx
       .insert(s.aiMemory)
       .values({ userId, content: value.content, source: "user" });
+    return {};
+  }
+  if (value.kind === "learningSignal") {
+    await saveLearningSignal(tx, userId, {
+      subjectId: value.subjectId,
+      topicId: value.topicId,
+      level: value.level,
+      source: "chat",
+    });
     return {};
   }
   if (value.kind === "resourceOrganization") {

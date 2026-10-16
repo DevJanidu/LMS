@@ -103,6 +103,7 @@ export function candidateEnabled(kind: string, prefs: NotificationPreferences) {
     missed: "missedSessions",
     goalDeadline: "goalReminders",
     goalAlert: "goalReminders",
+    learningAlert: "goalReminders",
     taskDeadline: "goalReminders",
     morning: "morning",
     evening: "evening",

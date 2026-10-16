@@ -6,6 +6,7 @@ export type AvenIntent =
   | "progress"
   | "nextAction"
   | "recovery"
+  | "struggle"
   | "learn";
 export interface IntentResult {
   intents: AvenIntent[];
@@ -40,6 +41,10 @@ const patterns: [AvenIntent, RegExp][] = [
     /\b(fall(ing|en)? behind|behind (on|schedule)|catch[- ]up|recovery plan|get back on track|missed (my|a|the|several|some) (sessions?|classes|tasks?|deadlines?))\b/i,
   ],
   [
+    "struggle",
+    /\b(i('m| am) (really |so |pretty )?(bad|terrible|weak|awful|struggling|stuck|lost|confused) (at|with|in|on)|struggl(e|ing) with|(don't|do not|can't|cannot) (understand|get|grasp)|need (more|extra) (practice|sessions?|time)|wish i had more time|keep (skipping|avoiding|postponing|putting off)|(not sure|unsure) (if |whether )?i('m| am) (making|getting) (any )?progress|making (no|little) progress)\b/i,
+  ],
+  [
     "learn",
     /\b(explain|teach me|help me (learn|understand)|what is|how does|quiz me)\b/i,
   ],
@@ -61,6 +66,7 @@ export function classifyIntent(message: string): IntentResult {
       multiPart ||
       intents.includes("schedule") ||
       intents.includes("recovery") ||
+      intents.includes("struggle") ||
       (intents.includes("goal") && !intents.includes("progress")),
   };
 }
@@ -76,6 +82,8 @@ const guidance: Record<AvenIntent, string> = {
     "Next-action intent detected. Call getNextBestAction and explain its verified reasons briefly; you may add context but do not reorder its ranking.",
   recovery:
     "Recovery intent detected. Read incomplete work (getGoalDetails) and the calendar, check whether a catch-up draft already exists in this conversation, then use proposeStudySchedule for the goal. Keep the load within the daily target and stay encouraging without guilt.",
+  struggle:
+    "Difficulty or progress concern detected. Treat it as a signal about the plan, not small talk. 1) Resolve the subject and call auditTopicCoverage; call getGoalHealth or getLearningGaps when goals or deadlines are involved. 2) Explain what needs attention, why it matters and the recorded evidence (use tool counts verbatim; completed is not mastery; low study time does not prove poor understanding, and the student's report counts even when completion looks good). 3) If the student asked for more sessions, call proposePracticeSessions with explicitRequest=true; if they only expressed a feeling, offer it in one sentence instead of proposing. 4) Offer recordLearningSignal so future plans account for it; never label a subject weak permanently. Do not change the calendar without an approved proposal, and if there is no free time, present trade-offs instead of inventing time.",
   learn:
     "Learning intent detected. Teach directly; use permitted resources when available and cite only processed sources.",
 };
