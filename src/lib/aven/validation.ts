@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  goalMutationSchema,
   goalSchema,
   milestoneSchema,
   taskSchema,
@@ -10,6 +11,35 @@ import {
   MAX_SIGNALS,
 } from "@/lib/learning/signals";
 import { MAX_MENTIONS, mentionReferenceSchema } from "./commands";
+import { operationSchema } from "@/lib/validation/operations";
+import { preconditionsSchema } from "@/lib/workspace/preconditions";
+const changeSummarySchema = z
+  .array(
+    z.object({
+      action: z.string().max(40),
+      entity: z.string().max(20),
+      title: z.string().max(400),
+    }),
+  )
+  .min(1)
+  .max(60);
+/** Aven may only touch learning content through workspace proposals, never accounts or settings. */
+const workspaceOperationSchema = operationSchema.refine(
+  (operation) =>
+    operation.kind === "subject" ||
+    operation.kind === "topic" ||
+    (operation.kind === "resource" && operation.value.type === "link") ||
+    (operation.kind === "delete" &&
+      ["subject", "topic", "resource"].includes(operation.entity)),
+  { message: "operationNotAllowed" },
+);
+const goalChangeActionSchema = goalMutationSchema.shape.action.refine(
+  (action) =>
+    ["goal", "deleteGoal", "milestone", "deleteMilestone", "task", "deleteTask"].includes(
+      action.kind,
+    ),
+  { message: "operationNotAllowed" },
+);
 const clock = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 export const aiPreferenceSchema = z
   .object({
@@ -242,6 +272,32 @@ export const proposalSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("memory"),
     content: z.string().trim().min(1).max(2000),
+  }),
+  z.object({
+    kind: z.literal("workspace"),
+    explanation: z.string().min(1).max(4000),
+    impact: z.enum(["standard", "high"]),
+    summary: changeSummarySchema,
+    /** Only subject, topic, library-link and their deletions; applied by the workspace service. */
+    operations: z.array(workspaceOperationSchema).min(1).max(40),
+    preconditions: preconditionsSchema,
+  }),
+  z.object({
+    kind: z.literal("goalChanges"),
+    goalId: z.uuid(),
+    expectedVersion: z.number().int().positive(),
+    explanation: z.string().min(1).max(4000),
+    impact: z.enum(["standard", "high"]),
+    summary: changeSummarySchema,
+    actions: z.array(goalChangeActionSchema).min(1).max(60),
+  }),
+  z.object({
+    kind: z.literal("cancelReminders"),
+    explanation: z.string().max(4000),
+    reminders: z
+      .array(z.object({ id: z.uuid(), title: z.string().max(200) }))
+      .min(1)
+      .max(10),
   }),
   z.object({
     kind: z.literal("learningSignal"),

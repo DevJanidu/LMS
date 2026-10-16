@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import type { DbTransaction } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { GoalError, mutateGoal } from "@/lib/goals/service";
@@ -70,6 +70,50 @@ export async function applyExtraProposal(
       tx,
     );
     return { goalId: value.goalId };
+  }
+  if (value.kind === "goalChanges") {
+    // The first step checks the version seen at proposal time; later steps follow it in this transaction.
+    let version = value.expectedVersion;
+    for (const action of value.actions) {
+      await mutateGoal(
+        userId,
+        { operationId: crypto.randomUUID(), goalId: value.goalId, expectedVersion: version, action },
+        tx,
+      );
+      if (action.kind === "deleteGoal") break;
+      const [current] = await tx
+        .select({ version: s.goals.version })
+        .from(s.goals)
+        .where(and(eq(s.goals.id, value.goalId), eq(s.goals.userId, userId)));
+      if (!current) throw new GoalError("persistenceUnavailable", 503);
+      version = current.version;
+    }
+    const deleted = value.actions.some((action) => action.kind === "deleteGoal");
+    const [after] = await tx
+      .select({ id: s.goals.id })
+      .from(s.goals)
+      .where(and(eq(s.goals.id, value.goalId), eq(s.goals.userId, userId)));
+    // Read back before reporting success: the goal exists, or is gone if deletion was approved.
+    if (Boolean(after) === deleted) throw new GoalError("persistenceUnavailable", 503);
+    return deleted ? {} : { goalId: value.goalId };
+  }
+  if (value.kind === "cancelReminders") {
+    const ids = value.reminders.map((item) => item.id);
+    const cancelled = await tx
+      .update(s.scheduledCheckIns)
+      .set({ status: "cancelled" })
+      .where(
+        and(
+          eq(s.scheduledCheckIns.userId, userId),
+          eq(s.scheduledCheckIns.kind, "manual"),
+          eq(s.scheduledCheckIns.status, "pending"),
+          inArray(s.scheduledCheckIns.id, ids),
+        ),
+      )
+      .returning({ id: s.scheduledCheckIns.id });
+    // A reminder already delivered or cancelled elsewhere makes the whole proposal stale.
+    if (cancelled.length !== ids.length) throw new GoalError("conflict", 409);
+    return {};
   }
   if (
     value.kind === "studyPreferences" ||

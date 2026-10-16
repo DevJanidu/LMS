@@ -14,17 +14,18 @@ export const workflowTools: Record<Exclude<AvenWorkflow, "general" | "help">, st
   plan: [
     "proposeGoalHierarchy", "proposeGoal", "proposeGoalPlan", "getGoalDetails", "getTopics",
     "createGoalMilestone", "createGoalTask", "getNextBestAction", "getUpcomingDeadlines",
-    "proposeStudySchedule",
+    "proposeStudySchedule", "scheduleStudySessions", "getGoalHealth",
   ],
   schedule: [
     "createStudySchedule", "proposeStudySchedule", "proposePracticeSessions", "moveStudySessions",
     "cancelStudySessions", "rescheduleStudySession", "getStudySchedule", "getGoalDetails",
-    "getTopics", "auditTopicCoverage",
+    "getTopics", "auditTopicCoverage", "scheduleStudySessions", "createReminder", "listReminders",
+    "cancelReminders",
   ],
   catchup: [
     "getLearningGaps", "getGoalHealth", "getGoalDetails", "proposeStudySchedule",
     "proposePracticeSessions", "getStudySchedule", "getNextBestAction", "moveStudySessions",
-    "auditTopicCoverage",
+    "auditTopicCoverage", "scheduleStudySessions", "manageGoal",
   ],
   review: [
     "getGoalHealth", "getLearningGaps", "getWeeklyAnalytics", "getStudyHistory", "getGoalProgress",
@@ -37,10 +38,11 @@ export const workflowTools: Record<Exclude<AvenWorkflow, "general" | "help">, st
   goals: [
     "getGoalDetails", "getGoalProgress", "getGoalHealth", "getNextBestAction", "completeGoal",
     "createGoalMilestone", "createGoalTask", "updateGoalTask", "proposeGoal", "proposeGoalHierarchy",
+    "manageGoal",
   ],
   subjects: [
     "getTopics", "auditTopicCoverage", "getStudyResources", "organizeLearningResource",
-    "recordLearningSignal",
+    "recordLearningSignal", "manageSubjects", "manageTopics", "manageLibrary",
   ],
   progress: [
     "getWeeklyAnalytics", "getStudyHistory", "getGoalProgress", "getGoalHealth", "getStudyCircles",
@@ -48,7 +50,7 @@ export const workflowTools: Record<Exclude<AvenWorkflow, "general" | "help">, st
   ],
   friends: ["getStudyCircles"],
 };
-const intentWorkflow: Partial<Record<AvenIntent, AvenWorkflow>> = {
+const intentWorkflow: Partial<Record<AvenIntent, AvenWorkflow | AvenWorkflow[]>> = {
   goal: "plan",
   schedule: "schedule",
   reschedule: "schedule",
@@ -57,6 +59,7 @@ const intentWorkflow: Partial<Record<AvenIntent, AvenWorkflow>> = {
   recovery: "catchup",
   struggle: "practice",
   social: "friends",
+  manage: ["subjects", "goals"],
 };
 /** Reading tools that a mentioned record type needs, regardless of workflow. */
 const mentionTools: Record<MentionType, string[]> = {
@@ -104,6 +107,7 @@ export function planTurn(message: string, mentions: MentionType[] = []): TurnPla
       // More specific needs lead: "falling behind on my goal" is catch-up before planning.
       ...intent.intents
         .flatMap((item) => intentWorkflow[item] ?? [])
+        .flat()
         .sort((a, b) => SPECIFICITY.indexOf(a) - SPECIFICITY.indexOf(b)),
     ]),
   ];

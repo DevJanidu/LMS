@@ -17,7 +17,8 @@ import AvenSidebar from "./AvenSidebar";
 import AvenTopBar from "./AvenTopBar";
 import AvenTranscript from "./AvenTranscript";
 import AvenComposer, { type AvenComposerHandle } from "./AvenComposer";
-import { activeMentions, type ComposerMention } from "./composer-model";
+import { activeMentions } from "./composer-model";
+import { useMentionDraft } from "./useMentionDraft";
 import AvenWelcome from "./AvenWelcome";
 import AvenSuggestions from "./AvenSuggestions";
 import AvenOnboarding from "./AvenOnboarding";
@@ -114,7 +115,7 @@ export default function AvenCompanion({
   );
   const { value: input, setValue: setInput } = draft;
   // Structured @ references for the current draft; the server re-checks every one.
-  const [mentions, setMentions] = useState<ComposerMention[]>([]);
+  const [mentions, setMentions] = useMentionDraft(initial.userId, input);
   const setUrl = useCallback(
     (id: string | null) => {
       // Update the address without a server navigation so switching stays instant.

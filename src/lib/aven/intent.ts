@@ -8,6 +8,7 @@ export type AvenIntent =
   | "recovery"
   | "struggle"
   | "social"
+  | "manage"
   | "learn";
 export interface IntentResult {
   intents: AvenIntent[];
@@ -23,7 +24,7 @@ const patterns: [AvenIntent, RegExp][] = [
   ],
   [
     "schedule",
-    /\b(every (day|morning|evening|night|weekday|weekend|monday|tuesday|wednesday|thursday|friday|saturday|sunday)|daily|each (day|week)|(add|schedule|block|book|plan) .{0,40}\b(sessions?|study|from \d|at \d|\d ?(am|pm))|study schedule|timetable|(find|any|have) (some )?(free|available|open) (time|slots?)|free slots?|when can i study)\b/i,
+    /\b(every (day|morning|evening|night|weekday|weekend|monday|tuesday|wednesday|thursday|friday|saturday|sunday)|daily|each (day|week)|(add|schedule|block|book|plan|reserve) .{0,60}\b(sessions?|study|from \d|at \d|after \d|\d ?(am|pm)|hours?|minutes?)|plan (my |the )?(next |this )?(week|weekend|days?)|study schedule|timetable|(find|any|have) (some )?(free|available|open) (time|slots?)|free slots?|when can i study|remind(er|ers)?)\b/i,
   ],
   [
     "reschedule",
@@ -39,15 +40,19 @@ const patterns: [AvenIntent, RegExp][] = [
   ],
   [
     "recovery",
-    /\b(fall(ing|en)? behind|behind (on|schedule)|catch[- ]up|recovery plan|get back on track|missed (my|a|the|several|some|a few|many) (\w+ )?(sessions?|classes|tasks?|deadlines?|topics?|lessons?))\b/i,
+    /\b(fall(ing|en)? behind|behind (on|schedule)|catch[- ]up|recovery plan|get back on track|fix my plan|(missed|skipped) (my|a|the|several|some|a few|many|\w+) (\w+ )?(sessions?|classes|tasks?|deadlines?|topics?|lessons?|days?|weeks?)|(haven't|have not|didn't|did not|still haven't) (finish|complete)(ed)? .{0,40}\b(milestone|goal|tasks?|topics?))\b/i,
   ],
   [
     "struggle",
-    /\b(i('m| am) (really |so |pretty )?(bad|terrible|weak|awful|struggling|stuck|lost|confused) (at|with|in|on)|struggl(e|ing) with|(don't|do not|can't|cannot) (understand|get|grasp)|need (more|extra) (practice|sessions?|time)|wish i had more time|keep (skipping|avoiding|postponing|putting off)|(not sure|unsure) (if |whether )?i('m| am) (making|getting) (any )?progress|making (no|little) progress)\b/i,
+    /\b(i('m| am) (really |so |pretty )?(bad|terrible|weak|awful|struggling|stuck|lost|confused) (at|with|in|on)|struggl(e|ing) with|(don't|do not|can't|cannot) (understand|get|grasp)|need (more|extra) (\w+ )?(practice|sessions?|time|help)|wish i had more time|keep (skipping|avoiding|postponing|putting off)|(not sure|unsure) (if |whether )?i('m| am) (making|getting) (any )?progress|making (no|little) progress)\b/i,
   ],
   [
     "social",
-    /\b(friends?|leaderboard|study (circles?|groups?)|my (group|circle)|ranking|how far behind am i)\b/i,
+    /\b(friends?|leaderboard|study (circles?|groups?)|my (group|circle)|ranking|how far behind am i|who('s| is) (winning|ahead|leading)|winning this week)\b/i,
+  ],
+  [
+    "manage",
+    /\b((create|add|new|rename|delete|remove|archive|restore|update|edit|change|mark|complete|reopen|reorder|cancel) .{0,40}\b(subjects?|topics?|milestones?|tasks?|links?|resources?|reminders?|goal)|mark .{0,40}\b(done|complete|completed|finished)|(add|save) .{0,30}\b(https?:\/\/|link) )/i,
   ],
   [
     "learn",
@@ -89,6 +94,8 @@ const guidance: Record<AvenIntent, string> = {
     "Recovery intent detected. Read incomplete work (getGoalDetails) and the calendar, check whether a catch-up draft already exists in this conversation, then use proposeStudySchedule for the goal. Keep the load within the daily target and stay encouraging without guilt.",
   struggle:
     "Difficulty or progress concern detected. Treat it as a signal about the plan, not small talk. 1) Resolve the subject and call auditTopicCoverage; call getGoalHealth or getLearningGaps when goals or deadlines are involved. 2) Explain what needs attention, why it matters and the recorded evidence (use tool counts verbatim; completed is not mastery; low study time does not prove poor understanding, and the student's report counts even when completion looks good). 3) If the student asked for more sessions, call proposePracticeSessions with explicitRequest=true; if they only expressed a feeling, offer it in one sentence instead of proposing. 4) Offer recordLearningSignal so future plans account for it; never label a subject weak permanently. Do not change the calendar without an approved proposal, and if there is no free time, present trade-offs instead of inventing time.",
+  manage:
+    "Workspace change intent detected. Resolve the exact records first (getSubjects, getTopics, getGoalDetails or @ references; never guess IDs). Use manageSubjects, manageTopics, manageLibrary or manageGoal with every requested change in one proposal. Deletions of subjects or goals need the student's second confirmation on the card; say what will be removed. If a name matches several records, ask which one.",
   social:
     "Study Circles intent detected. Call getStudyCircles and quote only what it returns (verified timer minutes, ranks, gaps). It is the only source about friends and groups; never guess another student's activity, subjects or schedule.",
   learn:

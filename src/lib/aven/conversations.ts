@@ -4,6 +4,12 @@ import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { GoalError, getGoalDetail } from "@/lib/goals/service";
 import { proposalList } from "./proposals";
+import { z } from "zod";
+import {
+  MAX_MENTIONS,
+  mentionReferenceSchema,
+  type MentionReference,
+} from "./commands";
 import { getAvenPreferences } from "./preferences";
 export async function listConversations(
   userId: string,
@@ -188,6 +194,34 @@ export async function recoverRequestConversation(
       }
     : { found: false };
 }
+/** The @ references saved with an earlier user message, re-validated on every use. */
+export async function storedReferences(
+  userId: string,
+  conversationId: string,
+  requestId: string,
+): Promise<MentionReference[]> {
+  const [row] = await getDb()
+    .select({ context: s.aiMessages.context })
+    .from(s.aiMessages)
+    .innerJoin(s.aiConversations, eq(s.aiConversations.id, s.aiMessages.conversationId))
+    .where(
+      and(
+        eq(s.aiConversations.userId, userId),
+        eq(s.aiMessages.conversationId, conversationId),
+        eq(s.aiMessages.requestId, requestId),
+        eq(s.aiMessages.role, "user"),
+      ),
+    );
+  try {
+    const parsed = z
+      .array(mentionReferenceSchema)
+      .max(MAX_MENTIONS)
+      .safeParse(JSON.parse(row?.context?.references ?? "[]"));
+    return parsed.success ? parsed.data : [];
+  } catch {
+    return [];
+  }
+}
 export async function beginConversationTurn(
   userId: string,
   conversationId: string | null,
@@ -196,6 +230,7 @@ export async function beginConversationTurn(
   message: string,
   retryRequestId?: string | null,
   regenerate = false,
+  references: MentionReference[] = [],
 ) {
   if (goalId) await getGoalDetail(userId, goalId);
   return getDb().transaction(async (tx) => {
@@ -303,6 +338,10 @@ export async function beginConversationTurn(
         requestId,
         role: "user",
         content: message,
+        // Structured @ references survive retries, regeneration and reloads.
+        ...(references.length
+          ? { context: { references: JSON.stringify(references) } }
+          : {}),
       });
     await tx
       .update(s.aiConversations)

@@ -26,7 +26,7 @@ it("exposes only registered, validated tools and rejects arbitrary code/query re
   expect(() =>
     validateToolInput("getGoalDetails", { goalId: "invalid" }),
   ).toThrow();
-  expect(avenTools).toHaveLength(38);
+  expect(avenTools).toHaveLength(45);
   expect(avenTools.every((tool) => tool.strict)).toBe(true);
   // Study Circles is read-only and takes no arguments the model could use to name other users.
   expect(isAvenWriteTool("getStudyCircles")).toBe(false);
