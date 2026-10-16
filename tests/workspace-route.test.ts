@@ -9,7 +9,7 @@ vi.mock("@/lib/services/focused-workspace", () => ({ subjectPageWorkspace: mocks
 import { GET, POST } from "@/app/api/workspace/route";
 import { AuthenticationUnavailable } from "@/lib/auth/errors";
 const request = (body: string, origin = "https://study.example") => new Request("https://study.example/api/workspace", { method: "POST", headers: { Origin: origin, "Content-Type": "application/json" }, body });
-beforeEach(() => { vi.clearAllMocks(); mocks.user.mockResolvedValue({ id: "actor", role: "learner" }); mocks.mutate.mockResolvedValue({}); mocks.subjects.mockResolvedValue({ subjects: [], topics: [], subjectStatistics: {} }); });
+beforeEach(() => { vi.clearAllMocks(); mocks.user.mockResolvedValue({ id: "actor", role: "learner", acceptedTermsAt: new Date(), onboardingCompletedAt: new Date() }); mocks.mutate.mockResolvedValue({}); mocks.subjects.mockResolvedValue({ subjects: [], topics: [], subjectStatistics: {} }); });
 it("rejects foreign origins, invalid JSON and anonymous mutations", async () => {
   expect((await POST(request("{}", "https://attacker.example"))).status).toBe(403);
   expect((await POST(request("{"))).status).toBe(400);
@@ -17,6 +17,15 @@ it("rejects foreign origins, invalid JSON and anonymous mutations", async () => 
   mocks.user.mockResolvedValueOnce(null);
   expect((await POST(request("{}"))).status).toBe(401);
   expect(mocks.mutate).not.toHaveBeenCalled();
+});
+it("refuses workspace reads and writes for learners who skipped onboarding", async () => {
+  const operations = [{ kind: "subject", value: { id: crypto.randomUUID(), title: "Subject", description: "", color: "brand", status: "active" } }];
+  mocks.user.mockResolvedValue({ id: "actor", role: "learner", acceptedTermsAt: null, onboardingCompletedAt: null });
+  const write = await POST(request(JSON.stringify({ operations })));
+  expect(write.status).toBe(403);
+  expect(await write.json()).toMatchObject({ error: "onboardingRequired" });
+  expect((await GET(new Request("https://study.example/api/workspace?groups=subjects"))).status).toBe(403);
+  expect(mocks.mutate).not.toHaveBeenCalled(); expect(mocks.subjects).not.toHaveBeenCalled();
 });
 it("confirms a scoped mutation without loading or serializing a workspace", async () => {
   const operations = [{ kind: "subject", value: { id: crypto.randomUUID(), title: "Subject", description: "", color: "brand", status: "active" } }];

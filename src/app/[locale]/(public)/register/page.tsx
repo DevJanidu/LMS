@@ -1,5 +1,6 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import AuthForm from "@/components/auth/AuthForm";
+import { setRequestLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
+/** Google sign-in creates accounts, so the old sign-up URL goes to the same card. */
 export default async function Page({
   params,
 }: {
@@ -7,15 +8,5 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <AuthForm mode="register" />;
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "studyflow" });
-  return { title: t("signUp") };
+  redirect({ href: "/login", locale });
 }

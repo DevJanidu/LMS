@@ -9,7 +9,7 @@ vi.mock("resend", () => ({ Resend: class { emails = { send: mocked.send }; } }))
 vi.mock("@/lib/env", () => ({ getAccountEmailEnv: mocked.getEnv }));
 vi.mock("next/server", () => ({ after: (task: () => Promise<void>) => mocked.tasks.push(task) }));
 vi.mock("next-intl/server", () => ({ getLocale: mocked.getLocale, getTranslations: mocked.getTranslations }));
-import { sendWelcomeEmail, sendAccountEmail } from "@/lib/email";
+import { sendWelcomeEmail } from "@/lib/email";
 import { scheduleWelcomeEmail } from "@/lib/email/welcome";
 
 const env = { RESEND_API_KEY: "fixture-resend-key", EMAIL_FROM: "Acadence <hello@acadence.janidudev.com>", APP_URL: "https://acadence.janidudev.com" };
@@ -61,10 +61,9 @@ it("skips welcome delivery while the Resend API key is pending", async () => {
     expect(mocked.send).not.toHaveBeenCalled();
   } finally { warning.mockRestore(); }
 });
-it("rejects failed or unacknowledged sends for all account email types", async () => {
+it("rejects failed or unacknowledged welcome sends", async () => {
   mocked.send.mockResolvedValue({ data: null, error: { message: "fixture-provider-error" } });
   await expect(sendWelcomeEmail(user)).rejects.toThrow("Welcome email delivery failed.");
-  await expect(sendAccountEmail(user.email, "reset", "https://acadence.janidudev.com/reset-password")).rejects.toThrow("Account email delivery is temporarily unavailable.");
   mocked.send.mockResolvedValue({ data: null, error: null });
-  await expect(sendAccountEmail(user.email, "verify", "https://acadence.janidudev.com/api/auth/verify-email")).rejects.toThrow("Account email delivery is temporarily unavailable.");
+  await expect(sendWelcomeEmail(user)).rejects.toThrow("Welcome email delivery failed.");
 });

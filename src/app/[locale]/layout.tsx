@@ -7,6 +7,10 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import "../workspace.css";
 import "../sidebar.css";
+import "../settings.css";
+import "../billing.css";
+import "../analytics.css";
+import "../circles.css";
 import "../dashboard.css";
 import "../goals.css";
 import "../aven.css";
@@ -14,6 +18,7 @@ import "../marketing.css";
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/constants";
 import ServerActionRecovery from "@/components/common/ServerActionRecovery";
+import { THEME_SCRIPT } from "@/lib/security/csp";
 export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
   description:
@@ -47,6 +52,8 @@ export default async function RootLayout({
 
   return (
     <html
+      // Smooth for in-page anchors and scrollIntoView; Next.js jumps instantly on route changes.
+      data-scroll-behavior="smooth"
       className={`${inter.variable} font-sans`}
       suppressHydrationWarning
       lang="en"
@@ -55,7 +62,7 @@ export default async function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var m=document.cookie.match(/(?:^|; )sf-theme=(dark|light|auto)(?:;|$)/);var v=m?m[1]:'light';var d=v==='dark'||(v==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.setAttribute('data-color-scheme',d?'dark':'light')})()`,
+            __html: THEME_SCRIPT,
           }}
         />
       </head>

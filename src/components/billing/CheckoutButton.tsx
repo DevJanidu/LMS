@@ -31,11 +31,11 @@ export default function CheckoutButton({ plan, primary = false }: Props) {
     setPending(false);
   };
   return (
-    <div className="grid gap-2">
-      <button type="button" className={`mk-btn ${primary ? "mk-btn-primary" : "mk-btn-secondary"}`} onClick={start} disabled={pending} aria-busy={pending}>
+    <div className="grid gap-1.5">
+      <button type="button" className="sf-set-button" data-variant={primary ? "primary" : "secondary"} onClick={start} disabled={pending} aria-busy={pending}>
         {pending ? t("redirecting") : t(`choose.${plan}`)}
       </button>
-      {error && <p role="alert" className="text-small text-error-600 dark:text-error-400">{error}</p>}
+      {error && <p role="alert" className="bl-card-note" data-tone="error">{error}</p>}
     </div>
   );
 }

@@ -42,11 +42,13 @@ import { storeProposal } from "./proposals";
 import { readLearningLink } from "./resource-network";
 import { processPdf } from "./documents";
 import { learnerAnalytics } from "@/lib/analytics/server";
+import { studyCirclesSnapshot } from "@/lib/circles/assistant";
 const empty = z.object({}),
   goalIdSchema = z.object({ goalId: z.uuid() });
 const localTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T[0-2]\d:[0-5]\d$/);
 const schemas = {
   getUserProfile: empty,
+  getStudyCircles: empty,
   getNotificationPreferences: empty,
   getCalendar: z.object({ from: z.iso.date(), to: z.iso.date() }),
   moveStudySessions: z.object({
@@ -249,6 +251,8 @@ export const avenTools = Object.entries(schemas).map(([name, schema]) => ({
       ? "Read the user's actual study sessions in account local time. from is inclusive, to is exclusive, both YYYY-MM-DD. For one day use from=day and to=next day; equal dates also mean that single day. Use this for tomorrow's schedule before proposing a move."
       : name === "getUserGoals"
         ? "Read owned goals with progress. page starts at 1; search filters titles. Follow hasMore with the next page rather than assuming the first page is the whole account."
+        : name === "getStudyCircles"
+          ? "Read the student's Study Circles standing: this week's verified timer time, rank and gap to the next place among friends, the same for each of their study groups, last week's total and the scoring rules. Only data the student can already see in Study Circles."
         : name === "getNextBestAction"
           ? "Rank the most useful next tasks across active goals (or one goal) from deadlines, priority, dependencies, progress, recent activity and the daily target. Reasons are verified; explain them without reordering."
           : `${name}: retrieve authenticated user's verified Acadence records.`,
@@ -319,6 +323,7 @@ async function performAvenTool(
   const proposal = (value: unknown) =>
     storeProposal(userId, conversationId, value);
 
+  if (name === "getStudyCircles") return studyCirclesSnapshot(userId);
   if (name === "getUserProfile") {
     const [[prefs], [timer]] = await Promise.all([
       db.select().from(s.preferences).where(eq(s.preferences.userId, userId)),

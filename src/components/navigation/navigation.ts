@@ -20,16 +20,19 @@ export interface NavItem {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   /** Optional group heading (translation key under `studyflow.redesign`). */
   group?: string;
+  /** Optional short tag beside the label (translation key in `studyflow`). */
+  badgeKey?: string;
 }
 export const learnerNavigation: NavItem[] = [
-  { key: "dashboard", labelKey: "dashboard.navLabel", href: "/dashboard", icon: GridIcon },
+  { key: "dashboard", labelKey: "dashboard.navLabel", href: "/dashboard", icon: GridIcon, group: "workspace" },
   { key: "subjects", href: "/subjects", icon: FolderIcon },
   { key: "study", href: "/study", icon: TimerIcon },
   { key: "calendar", href: "/calendar", icon: CalenderIcon },
-  { key: "analytics", href: "/analytics", icon: PieChartIcon },
-  { key: "resources", href: "/resources", icon: FileIcon },
+  { key: "analytics", href: "/analytics", icon: PieChartIcon, group: "insights" },
   { key: "goals", href: "/goals", icon: TargetIcon },
-  { key: "aven", href: "/aven", icon: SparklesIcon },
+  { key: "circles", href: "/circles", icon: GroupIcon },
+  { key: "resources", href: "/resources", icon: FileIcon, group: "tools" },
+  { key: "aven", href: "/aven", icon: SparklesIcon, badgeKey: "aiBadge" },
 ];
 export const adminNavigation: NavItem[] = [
   { key: "overview", href: "/admin", icon: GridIcon },

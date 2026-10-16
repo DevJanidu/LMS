@@ -111,7 +111,7 @@ export interface ScheduleBlock {
 export interface Notification {
   id: string;
   userId: string;
-  type: "block" | "subjectDeadline" | "topicDeadline";
+  type: "block" | "subjectDeadline" | "topicDeadline" | "circles";
   title: string;
   body: string;
   scheduledFor: string;
@@ -121,7 +121,7 @@ export interface Notification {
 export interface AuditLog {
   id: string;
   actorUserId: string;
-  action: "deactivate" | "reactivate" | "settingsChanged";
+  action: "deactivate" | "reactivate" | "settingsChanged" | "deactivate_age_policy" | "adminSignIn" | "adminGoogleLinked" | "adminLinkAuthorized" | "sessionsRevoked" | "roleGranted" | "roleRevoked";
   targetType: "user" | "settings";
   targetId: string;
   createdAt: string;

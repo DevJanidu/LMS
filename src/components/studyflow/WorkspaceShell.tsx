@@ -15,7 +15,8 @@ import {
   mobileNavigationKeys,
 } from "@/components/navigation/navigation";
 import { getResources, getSubjects, getTopics } from "@/lib/workspace/queries";
-import { useWorkspace } from "@/lib/workspace/store";
+import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
+import { AccountThemeContext } from "@/components/navigation/AccountThemeContext";
 import type { Workspace } from "@/types";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
@@ -32,6 +33,8 @@ interface Props {
   initial: Workspace;
   admin?: boolean;
   details?: ReactNode;
+  /** Sidebar account card, rendered by the layout so its plan badge can stream. */
+  account?: ReactNode;
 }
 const mobileItems = learnerNavigation.filter((item) =>
   mobileNavigationKeys.includes(item.key),
@@ -45,10 +48,10 @@ export default function WorkspaceShell(props: Props) {
     </SidebarSlotProvider>
   );
 }
-function Shell({ children, initial, admin = false, details }: Props) {
+function Shell({ children, initial, admin = false, details, account }: Props) {
   const t = useTranslations("studyflow");
   const path = usePathname();
-  const { isMobileOpen, toggleMobileSidebar, isExpanded } = useSidebar();
+  const { isMobileOpen, toggleMobileSidebar, isExpanded, toggleSidebar } = useSidebar();
   const slotRef = useSidebarSlotRef();
   const data = useWorkspace(initial);
   const search = useModal();
@@ -193,127 +196,136 @@ function Shell({ children, initial, admin = false, details }: Props) {
           item.title.toLowerCase().includes(query.toLowerCase()),
         )
         .slice(0, 12);
+  const saveTheme = (theme: "light" | "dark" | "auto") =>
+    void updateWorkspace(initial, (state) => ({
+      ...state,
+      user: { ...state.user, theme },
+    }));
   return (
-    <div
-      className={`sf-shell ${admin ? "sf-admin" : ""} ${!isExpanded ? "sf-collapsed" : ""} text-primary dark:text-primary min-h-dvh bg-gray-50 dark:bg-gray-950`}
-    >
-      <AccountTimezoneSync initial={data} />
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-99999 focus:rounded-lg focus:bg-brand-500 focus:p-3 focus:text-white"
+    <AccountThemeContext.Provider value={saveTheme}>
+      <div
+        className={`sf-shell ${admin ? "sf-admin" : ""} ${!isExpanded ? "sf-collapsed" : ""} text-primary dark:text-primary min-h-dvh bg-gray-50 dark:bg-gray-950`}
       >
-        {t("skipContent")}
-      </a>
-      {isMobileOpen && (
-        <button
-          aria-label={t("closeMenu")}
-          className="fixed inset-0 z-99 bg-gray-950/50 lg:hidden dark:bg-gray-950/70"
-          onClick={toggleMobileSidebar}
-        />
-      )}
-      <AppSidebar
-        admin={admin}
-        path={path}
-        mobileOpen={isMobileOpen}
-        onCloseMobile={toggleMobileSidebar}
-        pendingHref={pendingHref}
-        sidebarRef={sidebarRef}
-        slotRef={slotRef}
-        onNavigate={(href, active) => {
-          if (!active) setPendingLink({ from: path, href });
-          if (isMobileOpen) toggleMobileSidebar();
-        }}
-      />
-      <div className="sf-main-column">
-        <WorkspaceHeader
-          initial={initial}
-          admin={admin}
-          onSearch={search.openModal}
-        />
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className={`sf-content sf-content-${pageWidth} outline-none`}
+        <AccountTimezoneSync initial={data} />
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-99999 focus:rounded-lg focus:bg-brand-500 focus:p-3 focus:text-white"
         >
-          <div key={path} className="sf-page-enter">
-            {children}
-          </div>
-        </main>
-        <footer className="text-muted dark:text-muted px-4 py-8 text-center text-small sm:px-8">
-          {APP_NAME} · {t("footer")}
-        </footer>
-      </div>
-      <SaveFeedback owner={initial.user.id} />
-      {!admin && <ActiveTimerIndicator initial={initial} />}
-      {!admin && (
-        <nav className="sf-mobile-nav" aria-label={t("learnerNavigation")}>
-          {mobileItems.map(({ key, labelKey = key, href, icon: Icon }) =>
-            key === "study" ? (
-              <FocusLauncher
-                key={key}
-                initial={initial}
-                mobile
-                active={path === "/study" || path.startsWith("/study/")}
-                className="sf-mobile-focus"
-              />
-            ) : (
-              <Link
-                key={href}
-                href={href}
-                prefetch={false}
-                aria-busy={pendingHref === href || undefined}
-                data-pending={pendingHref === href || undefined}
-                aria-current={
-                  path === href || path.startsWith(`${href}/`)
-                    ? "page"
-                    : undefined
-                }
-                onClick={() => {
-                  if (path !== href) setPendingLink({ from: path, href });
-                }}
-              >
-                <Icon className="size-5" />
-                <span>{t(labelKey)}</span>
-              </Link>
-            ),
-          )}
-        </nav>
-      )}
-      <Modal
-        isOpen={search.isOpen}
-        onClose={search.closeModal}
-        title={t("searchWorkspace")}
-      >
-        <Field
-          label={t("search")}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          {t("skipContent")}
+        </a>
+        {isMobileOpen && (
+          <button
+            aria-label={t("closeMenu")}
+            className="fixed inset-0 z-99 bg-gray-950/50 lg:hidden dark:bg-gray-950/70"
+            onClick={toggleMobileSidebar}
+          />
+        )}
+        <AppSidebar
+          admin={admin}
+          path={path}
+          mobileOpen={isMobileOpen}
+          onCloseMobile={toggleMobileSidebar}
+          pendingHref={pendingHref}
+          sidebarRef={sidebarRef}
+          slotRef={slotRef}
+          account={account}
+          collapse={{ expanded: isExpanded, onToggle: toggleSidebar }}
+          onNavigate={(href, active) => {
+            if (!active) setPendingLink({ from: path, href });
+            if (isMobileOpen) toggleMobileSidebar();
+          }}
         />
-        <div className="mt-4 space-y-1">
-          {hits.map((hit) => (
-            <Link
-              key={hit.id}
-              href={hit.href}
-              onClick={search.closeModal}
-              className="flex items-center justify-between gap-3 rounded-lg p-3 text-body hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <span>{hit.title}</span>
-              <span className="text-muted dark:text-muted text-small">
-                {t(hit.type)}
-              </span>
-            </Link>
-          ))}
-          {!hits.length && <EmptyState title={t("noResults")} />}
+        <div className="sf-main-column">
+          <WorkspaceHeader
+            initial={initial}
+            admin={admin}
+            onSearch={search.openModal}
+          />
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className={`sf-content sf-content-${pageWidth} outline-none`}
+          >
+            <div key={path} className="sf-page-enter">
+              {children}
+            </div>
+          </main>
+          <footer className="text-muted dark:text-muted px-4 py-8 text-center text-small sm:px-8">
+            {APP_NAME} · {t("footer")}
+          </footer>
         </div>
-      </Modal>
-      {details}
-      {/* Aven history stays one click away everywhere; the Aven page renders its own live version. */}
-      {!admin && path !== "/aven" && (
-        <AvenHistorySection
-          userId={data.user.id}
-          timezone={data.user.timezone}
-        />
-      )}
-    </div>
+        <SaveFeedback owner={initial.user.id} />
+        {!admin && <ActiveTimerIndicator initial={initial} />}
+        {!admin && (
+          <nav className="sf-mobile-nav" aria-label={t("learnerNavigation")}>
+            {mobileItems.map(({ key, labelKey = key, href, icon: Icon }) =>
+              key === "study" ? (
+                <FocusLauncher
+                  key={key}
+                  initial={initial}
+                  mobile
+                  active={path === "/study" || path.startsWith("/study/")}
+                  className="sf-mobile-focus"
+                />
+              ) : (
+                <Link
+                  key={href}
+                  href={href}
+                  prefetch={false}
+                  aria-busy={pendingHref === href || undefined}
+                  data-pending={pendingHref === href || undefined}
+                  aria-current={
+                    path === href || path.startsWith(`${href}/`)
+                      ? "page"
+                      : undefined
+                  }
+                  onClick={() => {
+                    if (path !== href) setPendingLink({ from: path, href });
+                  }}
+                >
+                  <Icon className="size-5" />
+                  <span>{t(labelKey)}</span>
+                </Link>
+              ),
+            )}
+          </nav>
+        )}
+        <Modal
+          isOpen={search.isOpen}
+          onClose={search.closeModal}
+          title={t("searchWorkspace")}
+        >
+          <Field
+            label={t("search")}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          <div className="mt-4 space-y-1">
+            {hits.map((hit) => (
+              <Link
+                key={hit.id}
+                href={hit.href}
+                onClick={search.closeModal}
+                className="flex items-center justify-between gap-3 rounded-lg p-3 text-body hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <span>{hit.title}</span>
+                <span className="text-muted dark:text-muted text-small">
+                  {t(hit.type)}
+                </span>
+              </Link>
+            ))}
+            {!hits.length && <EmptyState title={t("noResults")} />}
+          </div>
+        </Modal>
+        {details}
+        {/* Aven history stays one click away everywhere; the Aven page renders its own live version. */}
+        {!admin && path !== "/aven" && (
+          <AvenHistorySection
+            userId={data.user.id}
+            timezone={data.user.timezone}
+          />
+        )}
+      </div>
+    </AccountThemeContext.Provider>
   );
 }

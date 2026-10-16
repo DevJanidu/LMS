@@ -58,7 +58,7 @@ export default function MarketingHeader() {
               {t("login")}
             </Link>
             <Link
-              href="/register"
+              href="/login"
               className="mk-btn mk-btn-primary mk-btn-sm mk-desktop-only"
             >
               {t("getStarted")}
@@ -95,7 +95,7 @@ export default function MarketingHeader() {
             ))}
           </nav>
           <div className="mt-6 grid gap-3">
-            <Link href="/register" className="mk-btn mk-btn-primary mk-btn-lg">
+            <Link href="/login" className="mk-btn mk-btn-primary mk-btn-lg">
               {t("getStarted")}
             </Link>
             <Link href="/login" className="mk-btn mk-btn-secondary mk-btn-lg">

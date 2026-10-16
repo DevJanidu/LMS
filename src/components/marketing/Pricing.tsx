@@ -15,7 +15,7 @@ interface Props {
   renderAction?: (plan: PlanId) => ReactNode;
 }
 
-const href = (plan: PlanId) => (plan === "free" ? "/register" : `/billing?plan=${plan}`);
+const href = (plan: PlanId) => (plan === "free" ? "/login" : `/billing?plan=${plan}`);
 
 export default function Pricing({ checkoutAvailable, selected, currentPlan, renderAction }: Props) {
   const t = useTranslations("marketing.pricing");

@@ -1,5 +1,6 @@
 import "server-only";
 import { getCurrentUser } from "@/lib/auth";
+import { learnerAccessFailure } from "@/lib/auth/policy";
 import { getAccountEnv } from "@/lib/env";
 import { GoalError } from "./service";
 import { z } from "zod";
@@ -8,11 +9,12 @@ export const privateJson = (value: unknown, status = 200) =>
     status,
     headers: { "Cache-Control": "private, no-store" },
   });
+/** Onboarded learners only: 401 signed out, 403 for other roles or unfinished onboarding. */
 export async function learnerAccount() {
   const user = await getCurrentUser();
-  if (!user) throw new GoalError("authenticationFailed", 401);
-  if (user.role !== "learner") throw new GoalError("recordUnavailable", 403);
-  return user;
+  const failure = learnerAccessFailure(user);
+  if (failure) throw new GoalError(failure.error, failure.status);
+  return user!;
 }
 export function featureFailure(error: unknown) {
   if (error instanceof z.ZodError)

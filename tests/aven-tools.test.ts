@@ -11,7 +11,7 @@ vi.mock("@/lib/services/calendar", () => ({
   getCalendarBlock: vi.fn(),
   mutateCalendar: vi.fn(),
 }));
-import { avenTools, validateToolInput } from "@/lib/aven/tools";
+import { avenTools, isAvenWriteTool, validateToolInput } from "@/lib/aven/tools";
 import { resolveAvenConfiguration } from "@/lib/aven/configuration";
 import {
   MAX_INPUT_BYTES,
@@ -26,8 +26,12 @@ it("exposes only registered, validated tools and rejects arbitrary code/query re
   expect(() =>
     validateToolInput("getGoalDetails", { goalId: "invalid" }),
   ).toThrow();
-  expect(avenTools).toHaveLength(32);
+  expect(avenTools).toHaveLength(33);
   expect(avenTools.every((tool) => tool.strict)).toBe(true);
+  // Study Circles is read-only and takes no arguments the model could use to name other users.
+  expect(isAvenWriteTool("getStudyCircles")).toBe(false);
+  expect(validateToolInput("getStudyCircles", {})).toEqual({});
+  expect(validateToolInput("getStudyCircles", { userId: "someone-else" })).toEqual({});
 });
 it("marks all changing tools as proposals requiring application approval", () => {
   for (const name of [

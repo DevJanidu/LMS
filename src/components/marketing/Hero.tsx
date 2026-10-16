@@ -18,7 +18,7 @@ export default function Hero() {
         <h1 id="mk-hero-title" className="mk-display mk-gradient-ink mx-auto mt-8 max-w-4xl">{t("title")}</h1>
         <p className="mk-lead mx-auto mt-6 max-w-2xl">{t("description")}</p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link href="/register" className="mk-btn mk-btn-primary mk-btn-lg w-full sm:w-auto">
+          <Link href="/login" className="mk-btn mk-btn-primary mk-btn-lg w-full sm:w-auto">
             {t("primaryCta")}
             <ArrowRightIcon />
           </Link>

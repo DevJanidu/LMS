@@ -31,8 +31,19 @@ beforeEach(() => {
   mocks.user.mockResolvedValue({
     id: "00000000-0000-4000-8000-000000000001",
     role: "learner",
+    acceptedTermsAt: new Date(),
+    onboardingCompletedAt: new Date(),
   });
   mocks.list.mockResolvedValue({ details: [], total: 0 });
+});
+it("refuses learners who have not accepted Terms or finished onboarding, even through direct API calls", async () => {
+  for (const incomplete of [{ acceptedTermsAt: null, onboardingCompletedAt: null }, { acceptedTermsAt: new Date(), onboardingCompletedAt: null }, { acceptedTermsAt: null, onboardingCompletedAt: new Date() }]) {
+    mocks.user.mockResolvedValueOnce({ id: "00000000-0000-4000-8000-000000000001", role: "learner", ...incomplete });
+    const response = await GET(new Request("https://study.example.com/api/goals"));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({ ok: false, error: "onboardingRequired" });
+  }
+  expect(mocks.list).not.toHaveBeenCalled();
 });
 const body = {
   operationId: "00000000-0000-4000-8000-000000000002",
