@@ -288,14 +288,19 @@ export default function AvenCompanion({
     }
     return outcome;
   };
-  const submit = (text = input, nextPlanning = planning) => {
-    const value = text.trim();
+  const submit = (
+    text = input,
+    nextPlanning = planning,
+    attachments: { type: "resource"; id: string }[] = [],
+  ) => {
+    // A message with only attachments still needs words for the conversation.
+    const value = text.trim() || (attachments.length ? t("attachments.defaultMessage") : "");
     if (!value || generating || blocked()) return;
     setInput("");
-    const references = activeMentions(text, mentions).map(({ type, id }) => ({
-      type,
-      id,
-    }));
+    const references = [
+      ...activeMentions(text, mentions).map(({ type, id }) => ({ type, id })),
+      ...attachments,
+    ].slice(0, 10);
     setMentions([]);
     const notificationId = replyNotification;
     setReplyNotification(undefined);
@@ -529,7 +534,8 @@ export default function AvenCompanion({
               onChange={setInput}
               mentions={mentions}
               onMentionsChange={setMentions}
-              onSubmit={() => submit()}
+              onSubmit={(attachments) => submit(undefined, undefined, attachments)}
+              canReadContent={preferences.ai.allowResourceContent}
               onStop={stream.stop}
               generating={generating}
               enabled={ready && !conversation.loading}

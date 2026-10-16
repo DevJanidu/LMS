@@ -1,4 +1,4 @@
-import { avenCommands, type MentionType } from "@/lib/aven/commands";
+import { parseCommand, type MentionType } from "@/lib/aven/commands";
 /** A mention chosen from the menu. The label is what the composer shows after "@". */
 export interface ComposerMention {
   type: MentionType;
@@ -10,13 +10,15 @@ export type Trigger =
   | { kind: "mention"; start: number; query: string };
 const MAX_QUERY = 40;
 /**
- * The autocomplete trigger at the caret: "/word" at the start of the message, or
- * "@words" after whitespace (names may contain spaces, up to 4 words and 40 characters).
+ * The autocomplete trigger at the caret: "/word" at the start or after whitespace
+ * (so "and/or" and URLs never open the menu), or "@words" after whitespace (names may
+ * contain spaces, up to 4 words and 40 characters).
  */
 export function findTrigger(value: string, caret: number): Trigger | null {
   const before = value.slice(0, caret);
-  const command = /^\/([a-z]*)$/i.exec(before);
-  if (command) return { kind: "command", start: 0, query: command[1] };
+  const command = /(^|\s)\/([a-z]*)$/i.exec(before);
+  if (command)
+    return { kind: "command", start: command.index + command[1].length, query: command[2] };
   const at = before.lastIndexOf("@");
   if (at < 0 || (at > 0 && !/\s/.test(before[at - 1]))) return null;
   const query = before.slice(at + 1);
@@ -76,9 +78,9 @@ export interface Segment {
 /** Text split into plain, command and mention segments for the highlight layer. */
 export function highlightSegments(value: string, mentions: ComposerMention[]): Segment[] {
   const marks: { start: number; end: number; kind: Segment["kind"]; type?: MentionType }[] = [];
-  const command = /^\/([a-z]+)(?=\s|$)/i.exec(value);
-  if (command && avenCommands.some((item) => item.name === command[1].toLowerCase()))
-    marks.push({ start: 0, end: command[0].length, kind: "command" });
+  // Highlight exactly the command the server will use (the first registered token).
+  const command = parseCommand(value);
+  if (command.command) marks.push({ start: command.start, end: command.end, kind: "command" });
   const used = new Set<number>();
   for (const mention of activeMentions(value, mentions)) {
     const token = mentionToken(mention.label);

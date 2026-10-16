@@ -75,3 +75,48 @@ getTopics and auditTopicCoverage).
   - references are saved with the user message, so retry and regenerate reuse them
   - picked mentions survive a refresh of the draft (sessionStorage) while their tokens are
     still in the text
+
+## Composer menus ("/", "@", "+")
+
+| Area | Code |
+|---|---|
+| Registry | `src/lib/aven/composer-registry.ts` |
+| Menu | `src/components/aven/composer/ComposerMenu.tsx` |
+| `+` menu | `src/components/aven/composer/PlusMenu.tsx` |
+| Attachments | `composer/useAttachments.ts`, `composer/AttachmentList.tsx` |
+| Dictation | `composer/useDictation.ts` |
+| Placement | `composer/useMenuPlacement.ts` |
+
+Every menu item is a registry entry with an id, an icon, copy, an optional submenu, an
+availability rule and an action. Nothing is mocked:
+
+| Item | Behavior |
+|---|---|
+| Study (submenu) | Guided session → `/study`; Quiz me → `/study Quiz me on …`; Focus timer → `/study` page |
+| Search, Plan, Schedule, Goals, Analyze, Summarize, Practice, Catch up, Progress, Subjects, Friends | Insert the server-routed command; `/search` covers Acadence records only |
+| Dictate | The browser's own speech recognition; disabled with a reason when unsupported. In Chromium browsers, audio may be processed by the browser vendor's speech service |
+| Model | Unavailable: Aven uses one configured model; there's no selector |
+| Feedback | Unavailable: Acadence has no feedback system yet |
+| Help | Shown in the interface; no request |
+| `+` Add photos & files | Existing library upload (server checks type, size, quota and subject ownership), with progress, retry and remove. The file is saved to a subject and attached as a structured `resource` reference. Aven can read PDF and text files when resource access is allowed; other types are stored, and Aven only sees the name |
+| `+` Add from library | Opens the mention picker, limited to library resources |
+| `+` Create study plan, Create goal | Insert `/plan …` |
+| `+` Open study tools | Opens `/study` |
+| `+` Web search | Unavailable: Aven only searches Acadence records |
+| `+` Deep research | Not listed (not implemented) |
+
+**Interaction:**
+- `/` opens at the start of the message or after a space (also mid-text), filtered by
+  prefix, then keyword, then fuzzy match. Only the typed `/query` is replaced; the rest of
+  the message and the caret are kept.
+- **Keys:** ↑/↓ move, Enter or Tab selects, → opens a submenu, ← or Escape goes back,
+  and Escape closes.
+- **Mouse:** hover highlights and click selects, without taking focus from the textarea.
+- **IME:** composition is respected.
+- **`+` menu:** it's a real menu; focus moves into it, arrows, Home and End work, and Escape
+  returns focus to the button. It closes on an outside click or Tab.
+
+**Placement and motion:** menus open above the composer when there's room, otherwise
+below, and are capped to the visible viewport, including when a mobile keyboard is open.
+They use theme tokens for light and dark, fade and lift in 150 ms (140 ms for a nested
+level), and don't animate under `prefers-reduced-motion`.
