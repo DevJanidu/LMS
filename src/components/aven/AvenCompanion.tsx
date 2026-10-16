@@ -17,6 +17,7 @@ import AvenSidebar from "./AvenSidebar";
 import AvenTopBar from "./AvenTopBar";
 import AvenTranscript from "./AvenTranscript";
 import AvenComposer, { type AvenComposerHandle } from "./AvenComposer";
+import { activeMentions, type ComposerMention } from "./composer-model";
 import AvenWelcome from "./AvenWelcome";
 import AvenSuggestions from "./AvenSuggestions";
 import AvenOnboarding from "./AvenOnboarding";
@@ -112,6 +113,8 @@ export default function AvenCompanion({
       : "",
   );
   const { value: input, setValue: setInput } = draft;
+  // Structured @ references for the current draft; the server re-checks every one.
+  const [mentions, setMentions] = useState<ComposerMention[]>([]);
   const setUrl = useCallback(
     (id: string | null) => {
       // Update the address without a server navigation so switching stays instant.
@@ -288,10 +291,15 @@ export default function AvenCompanion({
     const value = text.trim();
     if (!value || generating || blocked()) return;
     setInput("");
+    const references = activeMentions(text, mentions).map(({ type, id }) => ({
+      type,
+      id,
+    }));
+    setMentions([]);
     const notificationId = replyNotification;
     setReplyNotification(undefined);
     setPlanning(false);
-    void run({ text: value, planning: nextPlanning, notificationId });
+    void run({ text: value, planning: nextPlanning, notificationId, references });
   };
   const sourceOf = (message: AvenMessageRecord) => {
     const requestId = message.context?.replyTo ?? message.requestId;
@@ -518,6 +526,8 @@ export default function AvenCompanion({
               ref={composer}
               value={input}
               onChange={setInput}
+              mentions={mentions}
+              onMentionsChange={setMentions}
               onSubmit={() => submit()}
               onStop={stream.stop}
               generating={generating}

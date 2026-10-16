@@ -640,7 +640,44 @@
     "hideConversations": "Hide conversations",
     "noConversations": "Your saved conversations will appear here.",
     "messagePlaceholder": "Message Aven",
-    "composerHelp": "Aven can make mistakes. Changes to your goals and schedule always need your approval.",
+    "composerHelp": "Type @ to mention a subject, goal or friend, or / for commands. Aven can make mistakes; changes always need your approval.",
+    "composerMenu": {
+      "commandsLabel": "Commands",
+      "mentionsLabel": "Mention suggestions",
+      "command": "Command",
+      "searching": "Searching…",
+      "error": "Suggestions are unavailable right now. You can keep typing.",
+      "empty": "No matches. Keep typing, or describe it in your own words.",
+      "more": "Show more results"
+    },
+    "commands": {
+      "plan": { "description": "Create a learning or goal plan" },
+      "schedule": { "description": "Schedule study sessions in your free time" },
+      "catchup": { "description": "Recover overdue learning work" },
+      "review": { "description": "Analyze your study and goal progress" },
+      "practice": { "description": "Get focused practice for a subject or topic" },
+      "goals": { "description": "Review and manage your goals" },
+      "subjects": { "description": "Review subjects and topics" },
+      "progress": { "description": "Summarize your learning activity" },
+      "friends": { "description": "See your permitted Study Circles activity" },
+      "help": { "description": "Show available commands" }
+    },
+    "mentionTypes": {
+      "subject": "Subject",
+      "topic": "Topic",
+      "goal": "Goal",
+      "milestone": "Milestone",
+      "task": "Task",
+      "session": "Session",
+      "resource": "Resource",
+      "friend": "Friend",
+      "circle": "Group"
+    },
+    "commandHelp": {
+      "title": "Commands",
+      "close": "Close commands",
+      "mentions": "Type @ to point Aven at a subject, topic, goal, milestone, task, session, resource, friend or study group. You can always just write in your own words."
+    },
     "reminderSetupHelp": "Get schedule reminders, goal check-ins and supportive daily messages. Quiet hours and your notification preferences still apply.",
     "budgetSummary": "Shared AI budget: ${used} of ${limit} this month",
     "noDailyChatLimit": "No daily chat allowance. Chat stays available within the shared monthly budget.",

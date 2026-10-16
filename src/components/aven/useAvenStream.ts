@@ -13,6 +13,7 @@ import type { GoalCard } from "@/lib/aven/validation";
 import type { ProposalRecord } from "./ProposalCard";
 import { activityCategory } from "./AvenActivity";
 import type { AvenMessageRecord, ConversationResult } from "./types";
+import type { MentionType } from "@/lib/aven/commands";
 export interface SendRequest {
   text: string;
   conversationId: string | null;
@@ -22,6 +23,8 @@ export interface SendRequest {
   /** Request id of a saved user message to answer again instead of creating a new message. */
   retryOf?: string;
   regenerate?: boolean;
+  /** Structured @ references (type and ID only). */
+  references?: { type: MentionType; id: string }[];
 }
 interface StreamEvent {
   type: string;
@@ -137,6 +140,7 @@ export function useAvenStream(options: Options) {
             requestId,
             message: submission,
             planning: request.planning,
+            references: request.references ?? [],
           }),
           signal: controller.signal,
         });
