@@ -1,4 +1,4 @@
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { resourcePageWorkspace } from "@/lib/services/focused-workspace";
 import Resources from "@/components/resources/Resources";
@@ -13,7 +13,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const user = await requireLearner();
+  const user = await requireOnboardedLearner();
   const { add, search } = await searchParams;
   const [workspace, initialPage] = await Promise.all([resourcePageWorkspace(user),
     timed("page.resources.list", () => listResources(user.id, resourceFilterSchema.parse({ search: search?.slice(0, 100) })))]);

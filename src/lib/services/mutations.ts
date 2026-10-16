@@ -15,6 +15,7 @@ import { blockAfterDeletion } from "@/lib/workspace/mutations";
 
 import { recordAttendance } from "@/lib/study/attendance";
 import { GoalError } from "@/lib/goals/service";
+import { closeSegment, creditTimer, openSegment } from "@/lib/circles/tracking";
 
 export class DomainError extends Error {}
 export async function mutate(userId: string, operations: Operation[], preconditions: Precondition[] = []) {
@@ -321,12 +322,18 @@ export async function mutate(userId: string, operations: Operation[], preconditi
               } catch (error) { if (error instanceof GoalError) throw new DomainError(error.message);throw error; }
             }
             await tx.insert(s.activeTimers).values({ userId, subjectId: command.subjectId, topicId: command.topicId, focusGoal: command.focusGoal, startedAt: now, attendanceId });
+            // Study Circles: the first server-observed active span starts with the timer.
+            await openSegment(tx, userId, now, now);
             break;
           }
           if (!timer) throw new DomainError("recordUnavailable");
           const elapsed = timerElapsed({ ...timer, attendanceId: timer.attendanceId ?? undefined, startedAt: timer.startedAt.toISOString(), pausedAt: timer.pausedAt?.toISOString(), topicId: timer.topicId ?? undefined, focusGoal: timer.focusGoal ?? undefined }, now.getTime());
-          if (command.command === "pause" && !timer.pausedAt) await tx.update(s.activeTimers).set({ pausedAt: now }).where(eq(s.activeTimers.userId, userId));
+          if (command.command === "pause" && !timer.pausedAt) {
+            await tx.update(s.activeTimers).set({ pausedAt: now }).where(eq(s.activeTimers.userId, userId));
+            await closeSegment(tx, userId, now);
+          }
           if (command.command === "resume" || command.command === "confirm") {
+            await openSegment(tx, userId, timer.startedAt, now);
             await tx.update(s.activeTimers).set({ pausedAt: null, pausedTotalSeconds: timer.pausedTotalSeconds + (timer.pausedAt ? Math.floor((now.getTime() - timer.pausedAt.getTime()) / 1000) : 0) + (command.command === "confirm" ? Math.max(0, elapsed - timer.confirmedUntilSeconds) : 0), confirmedUntilSeconds: command.command === "confirm" ? Math.min(elapsed, timer.confirmedUntilSeconds) + 21600 : timer.confirmedUntilSeconds, needsConfirmation: false }).where(eq(s.activeTimers.userId, userId));
           }
           if (command.command === "finish" || command.command === "discard") {
@@ -334,9 +341,12 @@ export async function mutate(userId: string, operations: Operation[], preconditi
             if (command.command === "finish" && saved) {
               const [session] = await tx.insert(s.studySessions).values({ userId, subjectId: timer.subjectId, topicId: timer.topicId, startedAt: timer.startedAt, endedAt, durationSeconds, status: "valid", source: "timer", note: command.note }).returning();
               (changes.sessions ??= []).push(sessionRecord(session));
+              // Competition credit comes only from heartbeat-covered spans, never from durationSeconds.
+              await creditTimer(tx, { userId, timerStartedAt: timer.startedAt, sessionId: session.id, subjectId: timer.subjectId }, now);
               timerResult = "saved";
               if (timer.attendanceId) await tx.update(s.scheduleAttendance).set({ status: "completed", completedAt: now, sessionId: session.id, updatedAt: now }).where(and(eq(s.scheduleAttendance.id, timer.attendanceId), eq(s.scheduleAttendance.userId, userId), eq(s.scheduleAttendance.status, "attended")));
             } else timerResult = "discarded";
+            await closeSegment(tx, userId, now);
             await tx.delete(s.activeTimers).where(eq(s.activeTimers.userId, userId));
           }
           break;

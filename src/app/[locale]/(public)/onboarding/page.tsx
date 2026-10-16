@@ -1,6 +1,6 @@
-import { requireLearner } from "@/lib/auth";
+import { requireLearnerAccount } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getOnboardingWorkspace } from "@/lib/services/workspace";
+import { getOnboardingWorkspace, getSettings } from "@/lib/services/workspace";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 export default async function Page({
   params,
@@ -9,8 +9,9 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireLearner();
-  return <OnboardingWizard initial={await getOnboardingWorkspace()} initialStep={0} />;
+  const user = await requireLearnerAccount();
+  const { minimumAge } = await getSettings();
+  return <OnboardingWizard initial={await getOnboardingWorkspace()} initialStep={0} consent={{ accepted: Boolean(user.acceptedTermsAt), dateOfBirth: user.dateOfBirth ?? "", minimumAge: minimumAge ?? 0 }} />;
 }
 
 export async function generateMetadata({

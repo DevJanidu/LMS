@@ -1,4 +1,4 @@
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { studyPageWorkspace } from "@/lib/services/focused-workspace";
 import StudyHistory from "@/components/study/StudyHistory";
@@ -9,7 +9,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const account = await requireLearner();
+  const account = await requireOnboardedLearner();
   return <StudyHistory initial={await studyPageWorkspace(account, true)} />;
 }
 

@@ -2,6 +2,7 @@ import { relations, sql } from "drizzle-orm";
 export * from "./schema-goals";
 export * from "./schema-aven";
 export * from "./schema-billing";
+export * from "./schema-circles";
 import { bigint, boolean, check, date, foreignKey, index, integer, jsonb, pgEnum, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 
 const time = (name: string) => timestamp(name, { withTimezone: true });

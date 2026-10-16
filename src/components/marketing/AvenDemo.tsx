@@ -273,7 +273,7 @@ export default function AvenDemo() {
                   <p className="mt-1 text-small font-medium">{scenario.sessions[0].title} · {scenario.sessions[0].day} {scenario.sessions[0].time}</p>
                 </div>
                 <div className="mt-auto flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
-                  <Link href="/register" className="mk-btn mk-btn-primary">{t("cta")}<ArrowRightIcon /></Link>
+                  <Link href="/login" className="mk-btn mk-btn-primary">{t("cta")}<ArrowRightIcon /></Link>
                   <button type="button" className="mk-btn mk-btn-ghost" onClick={() => choose(scenario.id)}>{t("replay")}</button>
                 </div>
               </div>

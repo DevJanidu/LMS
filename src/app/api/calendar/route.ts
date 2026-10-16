@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
+import { learnerAccessFailure } from "@/lib/auth/policy";
 import { getEnv } from "@/lib/env";
 import { calendarMutationSchema } from "@/lib/validation/calendar";
 import { getScheduleBlocksInRange, rangeSchema } from "@/lib/services/lists";
@@ -12,9 +13,9 @@ const response = (value: unknown, status = 200, timing?: string) => Response.jso
   headers: { "Cache-Control": "private, no-store", ...(timing ? { "Server-Timing": timing } : {}) } });
 async function account() {
   const user = await getCurrentUser();
-  if (!user) throw new CalendarError("authenticationFailed", 401);
-  if (user.role !== "learner") throw new CalendarError("recordUnavailable", 403);
-  return user;
+  const denied = learnerAccessFailure(user);
+  if (denied) throw new CalendarError(denied.error, denied.status);
+  return user!;
 }
 function failure(error: unknown) {
   return response({ ok: false, error: error instanceof CalendarError ? error.message : error instanceof AuthenticationUnavailable ? "authenticationUnavailable" : "databaseUnavailable" }, error instanceof CalendarError ? error.status : 503);

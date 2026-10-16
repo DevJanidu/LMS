@@ -1,6 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { z } from "zod";
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { avenBootstrap } from "@/lib/aven/conversations";
 import { getGoalDetail, goalReferences } from "@/lib/goals/service";
 import AvenCompanion from "@/components/aven/AvenCompanion";
@@ -24,7 +24,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const user = await requireLearner(),
+  const user = await requireOnboardedLearner(),
     query = await searchParams;
   if (billingEnforced()) {
     const { plan } = await getBillingOverview(user.id);

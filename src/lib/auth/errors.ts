@@ -2,23 +2,20 @@ export class AuthenticationUnavailable extends Error {
   constructor(cause: unknown) { super("Authentication service unavailable.", { cause }); this.name = "AuthenticationUnavailable"; }
 }
 /** Map only documented provider codes; never expose provider messages to the browser. */
-export function authFeedback(error: unknown): { error: string; field?: "email" | "password" } {
-  const value = error as { body?: { code?: string }; name?: string; statusCode?: number; fields?: string[] } | null;
-  switch (value?.body?.code) {
-    case "INVALID_EMAIL": return { error: "invalidEmail", field: "email" };
-    case "INVALID_EMAIL_OR_PASSWORD":
-    case "INVALID_PASSWORD": return { error: "invalidCredentials" };
-    case "PASSWORD_TOO_SHORT": return { error: "passwordTooShort", field: "password" };
-    case "PASSWORD_TOO_LONG": return { error: "passwordTooLong", field: "password" };
-    case "INVALID_TOKEN": return { error: "invalidResetLink" };
-    case "EMAIL_NOT_VERIFIED": return { error: "emailNotVerified" };
-    case "ACCOUNT_INACTIVE": return { error: "accountInactive" };
-    case "USER_ALREADY_EXISTS":
-    case "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL": return { error: "emailAlreadyRegistered", field: "email" };
-  }
-  if (value?.name === "AccountEmailUnavailable") return { error: "emailDeliveryFailed" };
-  if (value?.name === "InvalidServerConfiguration" && value.fields?.some(field => ["EMAIL_FROM", "RESEND_API_KEY"].includes(field))) return { error: "emailUnavailable" };
+export function authFeedback(error: unknown): { error: string } {
+  const value = error as { body?: { code?: string } } | null;
+  if (value?.body?.code === "ACCOUNT_INACTIVE") return { error: "accountInactive" };
   return { error: "authenticationUnavailable" };
+}
+/** Map OAuth redirect error codes (`/login?error=…`) to translated messages. */
+export function signInErrorMessage(code: string | undefined): string | undefined {
+  if (!code) return undefined;
+  if (/account[_ ]?inactive|account[_ ]unavailable/i.test(code)) return "accountInactive";
+  if (code === "agePolicy") return "agePolicy";
+  if (code === "EMAIL_NOT_VERIFIED" || code === "account_not_linked") return "emailNotVerified";
+  if (code === "ADMIN_LINK_NOT_AUTHORIZED") return "adminLinkNotAuthorized";
+  if (code === "GOOGLE_IDENTITY_ALREADY_LINKED") return "googleIdentityConflict";
+  return "googleSignInFailed";
 }
 /** Classify without logging cookies, SQL parameters, connection URLs or error text. */
 export function authenticationFailureKind(error: unknown): string {

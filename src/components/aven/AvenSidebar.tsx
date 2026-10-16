@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { PlusIcon, SearchIcon } from "@/icons";
+import { ChevronDownIcon, LockIcon, PlusIcon, SearchIcon, SparklesIcon } from "@/icons";
 import SidebarContextSection from "@/components/navigation/SidebarContextSection";
 import { featureRequest } from "@/lib/goals/client";
 import { useLocalStorage } from "@/hooks/useBrowserState";
@@ -58,7 +58,11 @@ export default function AvenSidebar({
       rows: ConversationSummary[] | null;
       failed: boolean;
     }>({ rows: null, failed: false }),
-    [stored, store] = useLocalStorage("aven-history-collapsed");
+    [stored, store] = useLocalStorage("aven-history-collapsed"),
+    [recentState, storeRecent] = useLocalStorage("aven-recent-collapsed"),
+    [searching, setSearching] = useState(false),
+    historyId = useId();
+  const recentCollapsed = recentState === "closed";
   const closedGroups = useMemo<Group[]>(() => {
     try {
       const saved: unknown = JSON.parse(stored ?? "[]");
@@ -135,6 +139,33 @@ export default function AvenSidebar({
           <PlusIcon className="size-4" />
           {t("newConversation")}
         </button>
+      </div>
+      <div className="aven-recent-head">
+        <button
+          type="button"
+          className="aven-recent-toggle"
+          aria-expanded={!recentCollapsed}
+          aria-controls={historyId}
+          onClick={() => storeRecent(recentCollapsed ? "open" : "closed")}
+        >
+          <ChevronDownIcon className="size-3.5" aria-hidden="true" />
+          {t("recentChats")}
+        </button>
+        <span className="aven-private" tabIndex={0} title={t("privacyShort")} aria-label={t("privacyShort")}>
+          <LockIcon className="size-3.5" aria-hidden="true" />
+        </span>
+        <button
+          type="button"
+          className="aven-icon-button"
+          aria-label={t("searchConversations")}
+          aria-expanded={searching}
+          aria-controls={searchId}
+          onClick={() => { setSearching(value => !value); if (searching) setQuery(""); }}
+        >
+          <SearchIcon className="size-4" aria-hidden="true" />
+        </button>
+      </div>
+      {searching && !recentCollapsed && (
         <div className="aven-search">
           <label htmlFor={searchId} className="sr-only">
             {t("searchConversations")}
@@ -145,12 +176,14 @@ export default function AvenSidebar({
             type="search"
             value={query}
             maxLength={80}
+            autoFocus
             placeholder={t("searchConversations")}
             onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => { if (event.key === "Escape") { setQuery(""); setSearching(false); } }}
           />
         </div>
-      </div>
-      <nav className="aven-history" aria-label={t("conversationHistory")}>
+      )}
+      <nav id={historyId} hidden={recentCollapsed} className="aven-history" aria-label={t("conversationHistory")}>
         {results ? (
           <AvenConversationGroup
             label={t("searchResults")}
@@ -176,7 +209,11 @@ export default function AvenSidebar({
           <p className="aven-history-empty">{t("noSearchResults")}</p>
         )}
         {!results && !conversations.length && (
-          <p className="aven-history-empty">{t("noConversations")}</p>
+          <div className="aven-history-empty-state">
+            <SparklesIcon className="size-5" aria-hidden="true" />
+            <p className="aven-empty-title">{t("noConversationsTitle")}</p>
+            <p className="aven-history-empty">{t("noConversationsHelp")}</p>
+          </div>
         )}
         {!results && hasMore && (
           <button
@@ -189,7 +226,6 @@ export default function AvenSidebar({
           </button>
         )}
       </nav>
-      <p className="aven-sidebar-foot">{t("privacyShort")}</p>
     </SidebarContextSection>
   );
 }

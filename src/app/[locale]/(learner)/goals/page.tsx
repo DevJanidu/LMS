@@ -1,5 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { goalReferences, listGoals } from "@/lib/goals/service";
 import GoalsDashboard from "@/components/goals/GoalsDashboard";
 import NextBestActionCard from "@/components/goals/NextBestActionCard";
@@ -15,7 +15,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const user = await requireLearner();
+  const user = await requireOnboardedLearner();
   const paramsQuery = await searchParams;
   const querySchema = z.object({
     page: z.coerce.number().int().min(1).max(100000).catch(1),

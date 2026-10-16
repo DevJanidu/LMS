@@ -15,6 +15,7 @@ const fixture = {
   OBJECT_STORAGE_ACCESS_KEY_ID: "fixture-key", OBJECT_STORAGE_SECRET_ACCESS_KEY: "fixture-secret",
   UPSTASH_REDIS_REST_URL: "https://redis.example.org", UPSTASH_REDIS_REST_TOKEN: "fixture-token",
   CACHE_NAMESPACE: "production",
+  GOOGLE_CLIENT_ID: "fixture-google-id", GOOGLE_CLIENT_SECRET: "fixture-google-secret",
 };
 
 function run(overrides: Record<string, string>) {

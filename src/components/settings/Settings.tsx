@@ -1,288 +1,135 @@
 "use client";
-import { runServerAction } from "@/lib/client/server-actions";
-import { useMemo, useState } from "react";
-import { deleteMyAccount } from "@/app/[locale]/actions";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { useTheme } from "@/context/ThemeContext";
-import { useModal } from "@/hooks/useModal";
-import {
-  currentWorkspaceTheme,
-  updateWorkspace,
-  useWorkspace,
-} from "@/lib/workspace/store";
-import type { User, Workspace } from "@/types";
-import Button from "@/components/ui/button/Button";
-import ComponentCard from "@/components/common/ComponentCard";
-import PageHeader from "@/components/studyflow/PageHeader";
-import ConfirmDialog from "@/components/studyflow/ConfirmDialog";
-import Field, { SelectField } from "@/components/studyflow/FormFields";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { updateWorkspace, useWorkspace } from "@/lib/workspace/store";
+import { featureRequest } from "@/lib/goals/client";
 import { timezoneOptions } from "@/lib/timezone";
 import useDeviceTimezone from "@/hooks/useDeviceTimezone";
-import ComboboxField from "@/components/form/ComboboxField";
-interface Props {
-  initial: Workspace;
-}
-/** Profile, study preferences and account controls. */
-export default function Settings({ initial }: Props) {
+import type { SettingsOverview } from "@/lib/services/settings-overview";
+import type { NotificationPreferences } from "@/lib/aven/validation";
+import type { Workspace } from "@/types";
+import { BellIcon, CreditCardIcon, DatabaseIcon, LockIcon, ShieldIcon, SlidersIcon, UserCircleIcon } from "@/icons";
+import SettingsNav from "./SettingsNav";
+import ProfileSection from "./ProfileSection";
+import PreferencesSection from "./PreferencesSection";
+import NotificationsSection from "./NotificationsSection";
+import SecuritySection from "./SecuritySection";
+import PlanSection from "./PlanSection";
+import DataSection from "./DataSection";
+import UnsavedChangesBar from "./UnsavedChangesBar";
+import SettingsToast from "./SettingsToast";
+import { draftFrom, notificationsChanged, profileChanged, type SettingsDraft } from "./draft";
+
+interface Props { initial: Workspace; overview: SettingsOverview }
+
+/** Account, workspace and data settings with a single save bar for every editable field. */
+export default function Settings({ initial, overview }: Props) {
+  const t = useTranslations("settings");
+  const names = useTranslations("marketing.pricing.plans");
   const data = useWorkspace(initial);
-  const t = useTranslations("studyflow");
-  const b = useTranslations("billing");
-  const router = useRouter();
-  const { themeMode, setThemeMode } = useTheme();
-  const deletion = useModal();
-  const [timezoneMode, setTimezoneMode] = useState<"device" | "manual">(
-    data.user.timezoneMode ?? "device",
-  );
-  const detectedTimezone = useDeviceTimezone();
-  const zones = useMemo(
-    () => [
-      ...new Set([data.user.timezone, ...timezoneOptions(detectedTimezone)]),
-    ],
-    [detectedTimezone, data.user.timezone],
-  );
-  const [message, setMessage] = useState("");
+  const { setThemeMode } = useTheme();
+  const deviceTimezone = useDeviceTimezone();
+  const [saved, setSaved] = useState(() => draftFrom(data.user, overview.reminders?.notifications ?? null));
+  const [draft, setDraft] = useState(saved);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const save = async (patch: Partial<User>) => {
-    const saved = await updateWorkspace(initial, (state) => ({
-      ...state,
-      user: { ...state.user, ...patch, updatedAt: new Date().toISOString() },
-      users: state.users.map((user) =>
-        user.id === state.user.id ? { ...user, ...patch } : user,
-      ),
-    }));
-    if (saved) {
-      setMessage(t("settingsSaved"));
-      setError("");
-    } else {
-      if (patch.theme !== undefined)
-        setThemeMode(currentWorkspaceTheme(initial));
-      setError(t("saveFailed"));
-    }
+  const [nameError, setNameError] = useState("");
+  const [toast, setToast] = useState("");
+  const zones = useMemo(() => [...new Set([draft.timezone, ...timezoneOptions(deviceTimezone)])], [deviceTimezone, draft.timezone]);
+  const dirty = profileChanged(draft, saved) || notificationsChanged(draft, saved);
+
+  const change = (patch: Partial<SettingsDraft>) => {
+    // Theme previews immediately; Discard restores the saved one.
+    if (patch.theme) setThemeMode(patch.theme);
+    if (patch.name !== undefined) setNameError("");
+    setError("");
+    setDraft(current => ({ ...current, ...patch }));
   };
+  const discard = () => { setThemeMode(saved.theme); setDraft(saved); setError(""); setNameError(""); };
+
+  const save = async () => {
+    const name = draft.name.trim();
+    if (!name) { setNameError(t("profile.nameRequired")); document.getElementById("settings-profile")?.scrollIntoView(); return; }
+    const timezone = draft.timezoneMode === "device" ? deviceTimezone ?? draft.timezone : draft.timezone.trim();
+    try { new Intl.DateTimeFormat("en", { timeZone: timezone }); }
+    catch { setError(t("profile.invalidTimezone")); return; }
+    setSaving(true); setError("");
+    const next = { ...draft, name, timezone };
+    try {
+      if (profileChanged(next, saved)) {
+        const ok = await updateWorkspace(initial, state => ({
+          ...state,
+          user: { ...state.user, name, timezone, timezoneMode: next.timezoneMode, theme: next.theme, weekStartDay: next.weekStartDay, weeklyTargetMinutes: next.weeklyTargetMinutes, reminders: next.reminders, updatedAt: new Date().toISOString() },
+          users: state.users.map(user => user.id === state.user.id ? { ...user, name, timezone, timezoneMode: next.timezoneMode, theme: next.theme } : user),
+        }));
+        if (!ok) { setError(t("saveFailed")); return; }
+      }
+      if (next.notifications && overview.reminders && notificationsChanged(next, saved)) {
+        const result = await featureRequest<{ preferences: { notifications: NotificationPreferences } }>("/api/aven", { kind: "preferences", ai: overview.reminders.ai, notifications: next.notifications });
+        next.notifications = result.preferences.notifications;
+      }
+      setSaved(next); setDraft(next);
+      setToast(t("saved"));
+    } catch { setError(t("saveFailed")); }
+    finally { setSaving(false); }
+  };
+
+  // Leaving with unsaved edits asks first (browser-native prompt).
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+  const clearToast = useCallback(() => setToast(""), []);
+
+  const groups = [
+    { label: t("nav.account"), items: [
+      { id: "settings-profile", label: t("profile.title"), icon: <UserCircleIcon /> },
+      { id: "settings-security", label: t("security.title"), icon: <ShieldIcon /> },
+      { id: "settings-plan", label: t("plan.title"), icon: <CreditCardIcon /> },
+    ] },
+    { label: t("nav.workspace"), items: [
+      { id: "settings-preferences", label: t("preferences.title"), icon: <SlidersIcon /> },
+      { id: "settings-notifications", label: t("notifications.title"), icon: <BellIcon /> },
+    ] },
+    { label: t("nav.data"), items: [{ id: "settings-data", label: t("data.title"), icon: <DatabaseIcon /> }] },
+  ];
   return (
-    <>
-      <PageHeader
-        title={t("settings")}
-        description={t("settingsDescription")}
-      />
-      <div className="sf-settings-layout">
-        <nav className="sf-settings-nav" aria-label={t("settings")}>
-          {["profile", "preferences", "notifications", "dangerZone"].map(
-            (key) => (
-              <a key={key} href={`#settings-${key}`}>
-                {t(key)}
-              </a>
-            ),
-          )}
-          <Link href="/billing">{b("settingsLink")}</Link>
-        </nav>
-        <div className="min-w-0 space-y-8">
-          <section id="settings-profile">
-            <ComponentCard title={t("profile")}>
-              <form
-                className="space-y-4"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  const fields = new FormData(event.currentTarget);
-                  const timezone =
-                    timezoneMode === "device"
-                      ? (detectedTimezone ?? data.user.timezone)
-                      : String(fields.get("timezone")).trim();
-                  const name = String(fields.get("name")).trim();
-                  if (!name) {
-                    setError(t("nameRequired"));
-                    return;
-                  }
-                  try {
-                    new Intl.DateTimeFormat("en", { timeZone: timezone });
-                  } catch {
-                    setError(t("invalidTimezone"));
-                    return;
-                  }
-                  setError("");
-                  save({
-                    name,
-                    email: String(fields.get("email")),
-                    timezone,
-                    timezoneMode,
-                  });
-                }}
-              >
-                <Field
-                  label={t("name")}
-                  name="name"
-                  required
-                  defaultValue={data.user.name}
-                />
-                <Field
-                  label={t("email")}
-                  name="email"
-                  readOnly
-                  type="email"
-                  required
-                  defaultValue={data.user.email}
-                />
-                <SelectField
-                  label={t("timezoneMode")}
-                  value={timezoneMode}
-                  onChange={(event) =>
-                    setTimezoneMode(event.target.value as "device" | "manual")
-                  }
-                >
-                  <option value="device">{t("timezoneDevice")}</option>
-                  <option value="manual">{t("timezoneManual")}</option>
-                </SelectField>
-                <ComboboxField
-                  key={
-                    timezoneMode +
-                    ":" +
-                    (detectedTimezone ?? data.user.timezone)
-                  }
-                  label={t("timezone")}
-                  name="timezone"
-                  required
-                  defaultValue={
-                    timezoneMode === "device"
-                      ? (detectedTimezone ?? data.user.timezone)
-                      : data.user.timezone
-                  }
-                  disabled={timezoneMode === "device"}
-                  options={zones}
-                />
-                {error && (
-                  <p
-                    role="alert"
-                    className="text-body text-error-600 dark:text-error-400"
-                  >
-                    {error}
-                  </p>
-                )}
-                <Button type="submit">{t("saveProfile")}</Button>
-              </form>
-            </ComponentCard>
-          </section>
-          <section id="settings-preferences">
-            <ComponentCard title={t("preferences")}>
-              <SelectField
-                label={t("theme")}
-                value={themeMode}
-                onChange={(event) => {
-                  const mode = event.target.value as User["theme"];
-                  setThemeMode(mode);
-                  save({ theme: mode });
-                }}
-              >
-                {["light", "dark", "auto"].map((mode) => (
-                  <option key={mode} value={mode}>
-                    {t(mode)}
-                  </option>
-                ))}
-              </SelectField>
-              <form
-                className="space-y-4"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  const fields = new FormData(event.currentTarget);
-                  save({
-                    weekStartDay: Number(fields.get("weekStart")) as 0 | 1,
-                    weeklyTargetMinutes: Math.round(
-                      Number(fields.get("goal")) * 60,
-                    ),
-                  });
-                }}
-              >
-                <SelectField
-                  label={t("weekStarts")}
-                  name="weekStart"
-                  defaultValue={data.user.weekStartDay}
-                >
-                  <option value={1}>{t("monday")}</option>
-                  <option value={0}>{t("sunday")}</option>
-                </SelectField>
-                <Field
-                  label={t("weeklyGoalHours")}
-                  name="goal"
-                  type="number"
-                  min={0}
-                  max={168}
-                  step={0.5}
-                  defaultValue={data.user.weeklyTargetMinutes / 60}
-                />
-                <Button type="submit">{t("savePreferences")}</Button>
-              </form>
-            </ComponentCard>
-          </section>
-          <section id="settings-notifications">
-            <ComponentCard title={t("notifications")}>
-              <label className="flex items-center gap-3 text-body">
-                <Checkbox
-                  checked={data.user.reminders}
-                  onCheckedChange={(checked) =>
-                    save({ reminders: checked === true })
-                  }
-                />
-                {t("inAppReminders")}
-              </label>
-              <p className="text-muted dark:text-secondary text-small">
-                {t("remindersDescription")}
-              </p>
-            </ComponentCard>
-          </section>
-          <section id="settings-dangerZone">
-            <ComponentCard title={t("dangerZone")}>
-              <p className="text-muted dark:text-secondary text-body">
-                {t("exportHelp")}
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const link = document.createElement("a");
-                    link.href = "/api/export";
-                    link.download = "acadence-data.json";
-                    link.click();
-                  }}
-                >
-                  {t("exportData")}
-                </Button>
-                <Button variant="outline" onClick={deletion.openModal}>
-                  {t("deleteAccount")}
-                </Button>
-              </div>
-            </ComponentCard>
-          </section>
-          {message && (
-            <p
-              role="status"
-              className="text-body text-success-700 dark:text-success-300"
-            >
-              {message}
-            </p>
-          )}
+    <div className="sf-set-page">
+      <div className="sf-set-layout">
+        <SettingsNav label={t("nav.label")} groups={groups} />
+        {/* The title sits in the content column, so the section nav starts where it sticks and never moves. */}
+        <div className="sf-set-main">
+          <header className="sf-set-header">
+            <div className="min-w-0">
+              <h1 className="sf-set-page-title">{t("title")}</h1>
+              <p className="sf-set-page-subtitle">{t("subtitle")}</p>
+            </div>
+            {overview.plan && (overview.plan.id === "free" ? (
+              <Link href="/billing" className="sf-set-plan-pill">
+                {t("planPill", { plan: names("free.name") })}
+                <span className="sf-set-plan-pill-cta">{t("plan.upgrade")}</span>
+              </Link>
+            ) : (
+              <a href="#settings-plan" className="sf-set-plan-pill">{t("planPill", { plan: names(`${overview.plan.id}.name`) })}</a>
+            ))}
+          </header>
+        <div className="sf-set-sections">
+          <ProfileSection draft={draft} onChange={change} email={data.user.email} account={overview.account} deviceTimezone={deviceTimezone ?? null} zones={zones} nameError={nameError} />
+          <SecuritySection />
+          <PlanSection plan={overview.plan} usage={overview.usage} storageLimitMB={data.settings.storagePerUserMB} />
+          <PreferencesSection draft={draft} onChange={change} />
+          <NotificationsSection draft={draft} onChange={change} emailConfigured={overview.reminders?.emailConfigured ?? false} pushConfigured={overview.reminders?.pushConfigured ?? false} />
+          <DataSection email={data.user.email} />
+          <p className="sf-set-footnote"><LockIcon aria-hidden="true" />{t("footnote")}</p>
+        </div>
         </div>
       </div>
-      <ConfirmDialog
-        background={false}
-        isOpen={deletion.isOpen}
-        onClose={deletion.closeModal}
-        title={t("deleteAccount")}
-        description={t("deleteAccountWarning")}
-        onConfirm={async () => {
-          try {
-            const result = await runServerAction(() => deleteMyAccount());
-            if (!result.ok) {
-              setError(t(result.error));
-              return false;
-            }
-            router.replace("/register");
-          } catch {
-            setError(t("saveFailed"));
-            return false;
-          }
-        }}
-      />
-    </>
+      <UnsavedChangesBar visible={dirty || Boolean(error)} saving={saving} error={error} onDiscard={discard} onSave={() => void save()} />
+      {toast && <SettingsToast message={toast} onDone={clearToast} />}
+    </div>
   );
 }

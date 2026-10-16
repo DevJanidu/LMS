@@ -13,6 +13,7 @@ import type { Workspace } from "@/types";
 import { useState } from "react";
 import { useModal } from "@/hooks/useModal";
 import FinishStudyDialog from "@/components/study/FinishStudyDialog";
+import TimerHeartbeat from "@/components/study/TimerHeartbeat";
 interface Props {
   initial: Workspace;
 }
@@ -31,6 +32,7 @@ export default function ActiveTimerIndicator({ initial }: Props) {
       : 0;
   return (
     <>
+      <TimerHeartbeat running={Boolean(timer && !timer.pausedAt)} />
       {timer && (
         <div className={`sf-timer-dock ${timer.pausedAt ? "is-paused" : ""}`}>
           <span aria-hidden="true" className="sf-live-dot" />

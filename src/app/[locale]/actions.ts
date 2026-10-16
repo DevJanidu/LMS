@@ -1,23 +1,51 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { requireLearner, requireAdmin } from "@/lib/auth";
+import { requireLearnerAccount, requireOnboardedLearner, requireAdmin } from "@/lib/auth";
 import { deleteAccount } from "@/lib/services/mutations";
 import * as reads from "@/lib/services/workspace-reads";
-import { onboardingSchema } from "@/lib/validation/onboarding";
+import { onboardingSchema, onboardingTermsDecision, onboardingTermsSchema } from "@/lib/validation/onboarding";
 
-export async function querySessions(input: unknown) { return reads.querySessions(await requireLearner(), input); }
+export async function querySessions(input: unknown) { return reads.querySessions(await requireOnboardedLearner(), input); }
 
-export async function queryBlocks(input: unknown) { return reads.queryBlocks(await requireLearner(), input); }
+export async function queryBlocks(input: unknown) { return reads.queryBlocks(await requireOnboardedLearner(), input); }
 
 export async function deleteMyAccount() {
-  const user = await requireLearner();
+  const user = await requireLearnerAccount();
   // The client exits the authenticated tree after confirmation. Revalidating
   // that tree here would rerender it using an account that has just been removed.
   try { await deleteAccount(user.id); return { ok: true as const }; }
   catch { return { ok: false as const, error: "saveFailed" }; }
 }
+/** First onboarding step: record Terms acceptance and enforce the age policy. */
+export async function acceptOnboardingTerms(input: unknown) {
+  const user = await requireLearnerAccount();
+  const parsed = onboardingTermsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false as const, error: "invalidBirthDate" };
+  const { getSettings } = await import("@/lib/services/workspace");
+  const { getDb } = await import("@/lib/db");
+  const schema = await import("@/lib/db/schema");
+  const { and, eq } = await import("drizzle-orm");
+  try {
+    const decision = onboardingTermsDecision(parsed.data, (await getSettings()).minimumAge ?? 0);
+    if (decision === "underage") {
+      // Accounts below the configured age are closed, not left signed in.
+      await getDb().transaction(async (tx) => {
+        await tx.update(schema.users).set({ status: "deactivated", updatedAt: new Date() }).where(and(eq(schema.users.id, user.id), eq(schema.users.role, "learner")));
+        await tx.delete(schema.authSessions).where(eq(schema.authSessions.userId, user.id));
+        await tx.insert(schema.auditLogs).values({ actorUserId: user.id, action: "deactivate_age_policy", targetType: "user", targetId: user.id });
+      });
+      return { ok: false as const, error: "agePolicy", signedOut: true };
+    }
+    if (decision !== "accepted") return { ok: false as const, error: decision };
+    const now = new Date();
+    await getDb().update(schema.users).set({ acceptedTermsAt: now, ...(parsed.data.dateOfBirth ? { dateOfBirth: parsed.data.dateOfBirth } : {}), updatedAt: now })
+      .where(and(eq(schema.users.id, user.id), eq(schema.users.status, "active")));
+    return { ok: true as const };
+  } catch { return { ok: false as const, error: "saveFailed" }; }
+}
+
 export async function completeOnboarding(input: unknown) {
-  const user = await requireLearner();
+  const user = await requireLearnerAccount();
   const { getDb } = await import("@/lib/db");
   const schema = await import("@/lib/db/schema");
   const { and, asc, count, eq } = await import("drizzle-orm");
@@ -25,10 +53,11 @@ export async function completeOnboarding(input: unknown) {
   if (!parsed.success) return { ok: false as const, error: "invalidInput" };
   try {
     await getDb().transaction(async (tx) => {
-      const [account] = await tx.select({ id: schema.users.id, status: schema.users.status, role: schema.users.role, onboardingCompletedAt: schema.users.onboardingCompletedAt })
+      const [account] = await tx.select({ id: schema.users.id, status: schema.users.status, role: schema.users.role, onboardingCompletedAt: schema.users.onboardingCompletedAt, acceptedTermsAt: schema.users.acceptedTermsAt })
         .from(schema.users).where(eq(schema.users.id, user.id)).for("update");
       if (!account || account.status !== "active" || account.role !== "learner") throw new Error("accountInactive");
       if (account.onboardingCompletedAt) return;
+      if (!account.acceptedTermsAt) throw new Error("termsRequired");
       const title = parsed.data.subjectTitle.trim();
       let subjectId: string | undefined;
       if (title) {
@@ -54,13 +83,13 @@ export async function completeOnboarding(input: unknown) {
   }
   catch (error) {
     const message = error instanceof Error ? error.message : "saveFailed";
-    return { ok: false as const, error: message === "accountInactive" || message === "invalidInput" || message === "topicLimit" ? message : "saveFailed" };
+    return { ok: false as const, error: ["accountInactive", "invalidInput", "topicLimit", "termsRequired"].includes(message) ? message : "saveFailed" };
   }
 }
-export async function searchWorkspace(input: unknown) { return reads.searchWorkspace(await requireLearner(), input); }
+export async function searchWorkspace(input: unknown) { return reads.searchWorkspace(await requireOnboardedLearner(), input); }
 
-export async function resourceDetail(input: unknown) { return reads.resourceDetail(await requireLearner(), input); }
+export async function resourceDetail(input: unknown) { return reads.resourceDetail(await requireOnboardedLearner(), input); }
 
-export async function queryResources(input: unknown) { return reads.queryResources(await requireLearner(), input); }
+export async function queryResources(input: unknown) { return reads.queryResources(await requireOnboardedLearner(), input); }
 
 export async function queryAdminUsers(input: unknown) { return reads.queryAdminUsers(await requireAdmin(), input); }
