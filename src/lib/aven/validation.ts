@@ -9,6 +9,7 @@ import {
   learningSignalSchema,
   MAX_SIGNALS,
 } from "@/lib/learning/signals";
+import { MAX_MENTIONS, mentionReferenceSchema } from "./commands";
 const clock = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 export const aiPreferenceSchema = z
   .object({
@@ -291,6 +292,8 @@ export const chatSchema = z.object({
   retryRequestId: z.uuid().nullable().optional(),
   notificationId: z.uuid().nullable().optional(),
   regenerate: z.boolean().optional(),
+  /** Structured @ references (type and ID only); resolved and permission-checked on the server. */
+  references: z.array(mentionReferenceSchema).max(MAX_MENTIONS).optional(),
 });
 /** Server-built goal snapshot rendered as a progress card; never parsed from model text. */
 export const goalCardSchema = z.object({
