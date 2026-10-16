@@ -6,7 +6,7 @@
     "node": "24.x"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/run-environment.mjs development dev",
     "build": "next build",
     "build:production": "node scripts/check-production.mjs --build",
     "start": "next start",
@@ -14,9 +14,10 @@
     "test": "node scripts/test-analytics.mjs && vitest run",
     "typecheck": "next typegen && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
-    "db:seed": "node scripts/seed.mjs",
+    "db:migrate": "node scripts/run-environment.mjs development migrate",
+    "db:studio": "node scripts/run-environment.mjs development studio",
+    "db:seed": "node scripts/run-environment.mjs development seed",
+    "check:environment": "node scripts/run-environment.mjs",
     "admin:access": "node scripts/admin-access.mjs",
     "auth:cleanup": "node scripts/auth-cleanup.mjs",
     "test:unit": "vitest run",

@@ -7,9 +7,12 @@ import ts from "typescript";
 import { mkdtempSync, readdirSync, readFileSync, writeFileSync, unlinkSync, rmdirSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertEnvironmentIsolation } from "../../src/lib/deployment-policy.mjs";
 
 export function loadEnvironment(action) {
   nextEnv.loadEnvConfig(process.cwd(), true, { info() {}, error() {} });
+  // Outside production, refuse any production database, storage or credential.
+  assertEnvironmentIsolation(process.env);
   if ((process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") && !process.argv.includes("--allow-production")) {
     throw new Error(`${action} refused in production. Use --allow-production only for a deliberate, approved change.`);
   }

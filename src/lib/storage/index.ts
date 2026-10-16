@@ -2,9 +2,11 @@ import "server-only";
 import { S3Client, PutObjectCommand, GetObjectCommand, HeadObjectCommand, DeleteObjectCommand, CopyObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getEnv } from "@/lib/env";
+import { assertEnvironmentIsolation } from "@/lib/deployment-policy.mjs";
 import { uploadTypes } from "@/lib/validation";
 let client: S3Client | undefined;
 function storage() {
+  assertEnvironmentIsolation(process.env);
   const env = getEnv();
   return client ??= new S3Client({ endpoint: env.OBJECT_STORAGE_ENDPOINT, region: env.OBJECT_STORAGE_REGION, forcePathStyle: true, credentials: { accessKeyId: env.OBJECT_STORAGE_ACCESS_KEY_ID, secretAccessKey: env.OBJECT_STORAGE_SECRET_ACCESS_KEY }, requestChecksumCalculation: "WHEN_REQUIRED", responseChecksumValidation: "WHEN_REQUIRED" });
 }
