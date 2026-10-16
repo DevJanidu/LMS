@@ -1,86 +1,46 @@
 import { expect, test } from "@playwright/test";
+import { neon } from "@neondatabase/serverless";
+import messages from "../../src/messages/en.json";
+import { signInAsNewGoogleLearner } from "./google-session";
 
-test("registration, login, reset allowance, password change and session revocation", async ({ page, context, browser }, testInfo) => {
-  test.skip(process.env.E2E_AUTH_LIFECYCLE !== "1", "Requires the owned fixture account and local capture mailbox.");
-  test.setTimeout(240000);
-  const email = process.env.E2E_AUTH_EMAIL!;
-  const initial = process.env.E2E_AUTH_PASSWORD!;
-  const updated = `${initial}-updated`;
-  const mailbox = process.env.E2E_AUTH_MAILBOX!;
-  const baseURL = process.env.APP_URL!;
-  const messages = async () => (await (await context.request.get(`${mailbox}/messages`)).json()) as { text: string; accepted: boolean }[];
-  const resets = async () => (await messages()).filter(message => message.accepted && message.text.includes("/reset-password?token="));
-  await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/register");
-  await page.getByLabel("Date of birth (optional)").click();
-  const calendar = page.locator(".sf-date-picker-compact");
-  await expect(calendar).toBeVisible();
-  const size = await calendar.boundingBox();
-  expect(size!.width).toBeLessThanOrEqual(260);
-  expect(size!.height).toBeLessThan(350);
-  expect(size!.y).toBeGreaterThanOrEqual(0);
-  expect(size!.y + size!.height).toBeLessThanOrEqual(667);
-  await page.screenshot({ path: testInfo.outputPath("registration-calendar.png") });
-  await calendar.getByRole("combobox", { name: /year/i }).click();
-  await page.getByRole("option", { name: "2000", exact: true }).click();
-  await calendar.getByRole("combobox", { name: /month/i }).click();
-  await page.getByRole("option", { name: "January", exact: true }).click();
-  await calendar.getByRole("button").filter({ hasText: /^15$/ }).click();
-  await expect(calendar).toBeHidden();
-  await page.getByLabel("Name", { exact: true }).fill("Auth Lifecycle Fixture");
-  await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(initial);
-  await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Sign up", exact: true }).click();
+const t = messages.studyflow;
+
+test("Google learner lifecycle: onboarding, consent, role routing, sign-out and deactivation", async ({ page, context, baseURL }) => {
+  test.skip(!process.env.E2E_DATABASE_READY, "Requires a migrated disposable Neon branch and configured app environment.");
+  test.setTimeout(180000);
+  const { userId } = await signInAsNewGoogleLearner(context, baseURL!);
+  const sql = neon(process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL!);
+
+  // A new Google account is a learner without onboarding, whatever returnTo asks for.
+  await page.goto("/login?returnTo=%2Fadmin");
   await expect(page).toHaveURL(/\/onboarding$/);
-  const session = await (await context.request.get(`${baseURL}/api/auth/get-session`)).json();
-  expect(session.user.email).toBe(email);
+  const session = await (await context.request.get("/api/auth/get-session")).json();
   expect(session.user.role).toBe("learner");
-  expect(session.user.dateOfBirth).toBe("2000-01-15");
-  const signOut = await context.request.post(`${baseURL}/api/auth/sign-out`, { headers: { Origin: baseURL }, data: {} });
-  expect(signOut.status()).toBe(200);
+
+  // Terms acceptance is required on the first step and stamped when submitted.
+  await expect(page.getByRole("button", { name: t.skip, exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: t.continue, exact: true }).click();
+  await expect(page.getByRole("alert")).toHaveText(t.termsRequired);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: t.continue, exact: true }).click();
+  await expect(page.getByRole("button", { name: t.skip, exact: true })).toBeVisible();
+  expect((await sql`SELECT accepted_terms_at FROM users WHERE id = ${userId}`)[0].accepted_terms_at).not.toBeNull();
+  for (let step = 1; step < 5; step++) await page.getByRole("button", { name: t.skip, exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+
+  // A returning onboarded learner lands on the dashboard and can never be sent to /admin.
   await page.goto("/login");
-  await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: true }).fill("incorrect-password");
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/email and password do not match/);
-  await expect(page.getByLabel("Email", { exact: true })).toHaveValue(email);
-  await page.getByLabel("Password", { exact: true }).fill(initial);
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/\/onboarding$/);
-  const oldCookies = await context.cookies();
-  await page.goto("/forgot-password");
-  await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByRole("button", { name: "Send reset link", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/could not send the reset email/);
-  for (let index = 0; index < 5; index++) {
-    await page.getByRole("button", { name: "Send reset link", exact: true }).click();
-    await expect.poll(async () => (await resets()).length, { timeout: 30000 }).toBe(index + 1);
-    await expect(page.locator("form").getByRole("status")).toContainText(email);
-  }
-  await page.getByRole("button", { name: "Send reset link", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/five password-reset links in the past seven days/);
-  expect(await resets()).toHaveLength(5);
-  const resetURL = (await resets()).at(-1)!.text.split(/\s+/).find(value => value.includes("/reset-password?token="))!;
-  await page.goto(resetURL);
-  await page.getByLabel("Password", { exact: true }).fill(updated);
-  await page.getByLabel("Confirm password", { exact: true }).fill(updated);
-  await page.getByRole("button", { name: "Reset password", exact: true }).click();
-  await expect(page).toHaveURL(/\/login\?reset=success$/);
-  await expect(page.locator("form").getByRole("status")).toHaveText(/password has been updated/);
-  const oldContext = await browser.newContext({ storageState: { cookies: oldCookies, origins: [] } });
-  try { expect(await (await oldContext.request.get(`${baseURL}/api/auth/get-session`)).json()).toBeNull(); }
-  finally { await oldContext.close(); }
-  await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(initial);
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/email and password do not match/);
-  await page.getByLabel("Password", { exact: true }).fill(updated);
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/\/onboarding$/);
-  await page.goto(resetURL);
-  await page.getByLabel("Password", { exact: true }).fill(`${initial}-replay`);
-  await page.getByLabel("Confirm password", { exact: true }).fill(`${initial}-replay`);
-  await page.getByRole("button", { name: "Reset password", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/missing, invalid, or has expired/);
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto("/login?returnTo=%2Fadmin%2Fusers");
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/dashboard$/);
+
+  // A deactivated account loses access on its existing session.
+  await sql`UPDATE users SET status = 'deactivated' WHERE id = ${userId}`;
+  try {
+    await page.goto("/dashboard");
+    await expect(page).toHaveURL(/\/login/);
+    expect(await (await context.request.get("/api/auth/get-session")).json()).toBeNull();
+  } finally { await sql`DELETE FROM users WHERE id = ${userId}`; }
 });

@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import WorkspaceShellLoading from "@/components/studyflow/WorkspaceShellLoading";
 import ShellDetails from "@/components/studyflow/ShellDetails";
+import SidebarAccountSlot from "@/components/navigation/SidebarAccountSlot";
 
 async function AuthorizedAdminShell({
   children,
@@ -21,7 +22,7 @@ async function AuthorizedAdminShell({
   setRequestLocale(locale);
   const admin = await requireAdmin();
   return (
-    <SidebarProvider initialExpanded={expanded}><WorkspaceShell initial={shellBaseWorkspace(admin)} admin details={<Suspense fallback={null}><ShellDetails /></Suspense>}>
+    <SidebarProvider initialExpanded={expanded}><WorkspaceShell initial={shellBaseWorkspace(admin)} admin account={<SidebarAccountSlot id={admin.id} name={admin.name} email={admin.email} image={admin.image} admin />} details={<Suspense fallback={null}><ShellDetails /></Suspense>}>
       {children}
     </WorkspaceShell></SidebarProvider>
   );

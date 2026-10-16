@@ -1,5 +1,6 @@
 import { querySessions, queryResources, queryAdminUsers, queryBlocks, resourceDetail, searchWorkspace } from "@/lib/services/workspace-reads";
 import { getCurrentUser } from "@/lib/auth";
+import { learnerOnboarded } from "@/lib/auth/policy";
 import { AuthenticationUnavailable } from "@/lib/auth/errors";
 
 /** Reads have their own HTTP lifecycle and never wait behind a mutation action. */
@@ -15,6 +16,7 @@ export async function GET(request: Request) {
     const kind = params.get("kind");
     const authenticated = performance.now();
     if (user.role !== (kind === "users" ? "super_admin" : "learner")) return Response.json({ ok: false, error: "recordUnavailable" }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+    if (user.role === "learner" && !learnerOnboarded(user)) return Response.json({ ok: false, error: "onboardingRequired" }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
     const result = kind === "sessions" ? await querySessions(user, input)
       : kind === "resources" ? await queryResources(user, input)
       : kind === "users" ? await queryAdminUsers(user, input)

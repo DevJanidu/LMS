@@ -1,0 +1,20 @@
+{
+  "verifiedCommit": "f4fd7adb554d33b174a1aceab2974cebdb54f717",
+  "productionDatabaseHost": "dee7af9776f2c48110da158ea6cfaadfffe8f614d49daa7bc22f0f1149edd39c",
+  "productionStorageHost": "375f6ef4b7fe1d859242f6f4402909ea261235f43fc53f9680e665f6b8dc7f67",
+  "productionRedisHost": "07d69ac608e239d3e750ea5d6a73e8dc970ecf7253545941c6296d5a80b77624",
+  "productionOrigin": "https://acadence.janidudev.com",
+  "verifiedAt": "2026-10-13",
+  "productionDeploymentId": "dpl_CmawjZnwNRA7udswUsEZVfnbvjzj",
+  "productionProject": "acadence",
+  "productionCredentialHashes": {
+    "AUTH_SECRET": "c160b968c293fd5ee0fc394fd041e27a07b4f91781475029dc29f5b470d79d58",
+    "CRON_SECRET": "515929db4fa09763c0a5fbf878e61b216ad36ae154063734c55509eea9915ced",
+    "OPENAI_API_KEY": "8335dde695d0726659464998c591c298d57b9ab7a88d520ed88f02e8bb4cd776",
+    "OBJECT_STORAGE_ACCESS_KEY_ID": "46e7001309949073a5e43fae0988b21263e7f9ad1c85b6ad3596d48c0bb68d92",
+    "OBJECT_STORAGE_SECRET_ACCESS_KEY": "936f5b55277ff5c369fe90cf3b5162e96687c6331eecac531de2752a244ccca4",
+    "UPSTASH_REDIS_REST_TOKEN": "d700f5a54cb7e118a38b02df70801b7561eb91024601a51ee7d3ac03298b37a5",
+    "RESEND_API_KEY": "ab3ba261f80f43497162d515020d0b8740825ed666864cb1f97d0a37b86a0c7f",
+    "VAPID_PRIVATE_KEY": "4a97bb3e24a0f6c469a4a8adb7bdf86315d7aabc39b71ce268c80c65a385d6c2"
+  }
+}

@@ -1,11 +1,11 @@
 "use server";
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { uploadSchema, uuidSchema } from "@/lib/validation";
 import { requestUpload, confirmUpload } from "@/lib/services/uploads";
 import { DomainError } from "@/lib/services/mutations";
 import { requestLimit } from "@/lib/rate-limit";
 export async function createUpload(input: unknown) {
-  const user = await requireLearner();
+  const user = await requireOnboardedLearner();
   const parsed = uploadSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "invalidFileType" };
   const limit = await requestLimit(`upload:${user.id}`, 10);
@@ -14,7 +14,7 @@ export async function createUpload(input: unknown) {
   catch (error) { return { ok: false as const, error: error instanceof DomainError ? error.message : "uploadFailed" }; }
 }
 export async function finishUpload(input: unknown) {
-  const user = await requireLearner();
+  const user = await requireOnboardedLearner();
   const parsed = uuidSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "invalidInput" };
   try { const data = await confirmUpload(user.id, parsed.data); return { ok: true as const, data }; }

@@ -5,6 +5,7 @@ import * as s from "@/lib/db/schema";
 import { deleteObject } from "@/lib/storage";
 import { localDay, shiftDay, zonedToUtc } from "@/lib/analytics";
 import { getOccurrences } from "@/lib/schedule";
+import { closeSilentSegments } from "@/lib/circles/tracking";
 import type { ScheduleBlock, SubjectColor } from "@/types";
 
 function groupRows<T>(rows: T[], key: (row: T) => string) {
@@ -20,7 +21,9 @@ export async function sweepTimers() {
   const rows = await getDb().update(s.activeTimers).set({
     pausedAt: sql`${s.activeTimers.startedAt} + (${s.activeTimers.confirmedUntilSeconds} + ${s.activeTimers.pausedTotalSeconds}) * interval '1 second'`, needsConfirmation: true,
   }).where(and(sql`${s.activeTimers.pausedAt} IS NULL`, sql`now() > ${s.activeTimers.startedAt} + (${s.activeTimers.confirmedUntilSeconds} + ${s.activeTimers.pausedTotalSeconds}) * interval '1 second'`)).returning({ id: s.activeTimers.userId });
-  return { swept: rows.length };
+  // Study Circles: spans whose client went silent stop at their last heartbeat plus grace.
+  const silentSegments = await closeSilentSegments();
+  return { swept: rows.length, silentSegments };
 }
 export async function cleanupStorage() {
   const db = getDb();
@@ -41,6 +44,8 @@ export async function retainData() {
   const db = getDb();
   await db.delete(s.calendarMutations).where(lt(s.calendarMutations.createdAt, new Date(Date.now() - 30 * 86400000)));
   await db.delete(s.verifications).where(lt(s.verifications.expiresAt, new Date()));
+  // Study Circles: raw timer spans are only needed until the session is credited; the ledger keeps the record.
+  await db.delete(s.studyTimerSegments).where(and(sql`${s.studyTimerSegments.endedAt} IS NOT NULL`, lt(s.studyTimerSegments.endedAt, new Date(Date.now() - 30 * 86400000))));
   await db.delete(s.authSessions).where(lt(s.authSessions.expiresAt, new Date()));
   await db.delete(s.notifications).where(lt(s.notifications.createdAt, new Date(Date.now() - 90 * 86400000)));
   // Aven check-in history follows the notification retention window; its dedup keys are date-scoped.

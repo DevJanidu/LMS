@@ -1,15 +1,15 @@
 # Acadence
 
-Personal LMS built with Next.js 16, React 19, Tailwind v4, next-intl, Neon Postgres, Drizzle, Better Auth with Argon2id, Resend and private Neon Object Storage. Learner content is private; administrators receive account information and study statistics.
+Personal LMS built with Next.js 16, React 19, Tailwind v4, next-intl, Neon Postgres, Drizzle, Better Auth (Google-only sign-in), Resend and private Neon Object Storage. Learner content is private; administrators receive account information and study statistics.
 
 ## Local setup
 
 Use **Node 24**, the tested backend runtime. Install with `npm ci`.
 
 1. Create a Neon project in a region supporting Object Storage. Create independent development and production branches.
-2. Fill `.env.local` using `.env.example`. Preserve the existing local seed settings and generated secrets if that file already exists. Set the development branch's pooled and direct database URLs.
+2. Fill `.env.local` using `.env.example`. Preserve the existing local seed settings and generated secrets if that file already exists. Set the development branch's pooled and direct database URLs. Run `npm run check:env` to confirm both files define the same variables.
 3. Create a **private** storage bucket on that branch. Copy its actual endpoint, region and S3 credentials from Neon Connect -> Storage. Configure bucket CORS for your app origin; see [operations](docs/OPERATIONS.md).
-4. Configure Resend with a verified sender. Supply the Redis REST URL/token for production LMS mutation rate limiting and caching; account actions use persistent database limits. Set long random AUTH_SECRET and CRON_SECRET values and the actual APP_URL.
+4. Configure Resend with a verified sender. Supply the Redis REST URL/token for production LMS mutation rate limiting and caching; account actions use persistent database limits. Set long random AUTH_SECRET and CRON_SECRET values and the actual APP_URL. Create a Google OAuth client whose authorized redirect URI is `{APP_URL}/api/auth/callback/google` (add local and production origins) and set GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET.
 5. Run:
 
 ```sh
@@ -18,7 +18,7 @@ npm run db:seed
 npm run dev
 ```
 
-Open `/login`. The seeder creates one account from `SEED_USER_EMAIL`, `SEED_USER_PASSWORD`, `SEED_USER_NAME` and `SEED_USER_ROLE`. The role defaults to `super_admin`; choose `learner` for a learner account. This workspace's gitignored local seed configuration contains the account requested by the owner. No dummy subjects, resources or study sessions are inserted.
+Open `/login` and continue with Google. New Google accounts are learners and start at `/onboarding`. The seeder creates one account row (no password) from `SEED_USER_EMAIL`, `SEED_USER_NAME` and `SEED_USER_ROLE`. The role defaults to `super_admin`; choose `learner` for a learner account. An administrator row is never linked to Google by email alone: authorize its first Google sign-in with `npm run admin:access -- authorize-google-link --email <email> --confirm`, or promote an existing Google learner with `npm run admin:access -- promote --user-id <uuid> --confirm`. See [authentication](docs/AUTHENTICATION.md). This workspace's gitignored local seed configuration contains the account requested by the owner. No dummy subjects, resources or study sessions are inserted.
 
 The seed never resets an existing password or changes an existing account's role. It refuses production execution unless explicitly invoked with `npm run db:seed -- --allow-production`. Use a separate strong production credential. Provisioning cannot run until your actual database connection is configured.
 
@@ -28,13 +28,13 @@ The seed never resets an existing password or changes an existing account's role
 | --- | --- |
 | DATABASE_URL / DATABASE_URL_UNPOOLED | Pooled app connection / direct migration and seed connection |
 | AUTH_SECRET / APP_URL | Session signing secret, at least 32 characters / canonical origin |
-| RESEND_API_KEY / EMAIL_FROM | Optional paired email configuration; required for password-reset/verification emails, not login |
-| GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET | Optional provider configuration; new-user Google consent UI is not shipped |
+| RESEND_API_KEY / EMAIL_FROM | Optional paired email configuration for welcome emails; not needed for sign-in |
+| GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET | Required; Google is the only sign-in method |
 | OBJECT_STORAGE_ENDPOINT / OBJECT_STORAGE_REGION / OBJECT_STORAGE_BUCKET | Actual branch storage endpoint, signing region and private bucket |
 | OBJECT_STORAGE_ACCESS_KEY_ID / OBJECT_STORAGE_SECRET_ACCESS_KEY | Branch-scoped S3 key pair |
 | CRON_SECRET | Bearer secret for jobs, at least 32 characters |
 | UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN | LMS mutation rate limits and optional caching; account actions enforce database limits |
-| SEED_USER_EMAIL / SEED_USER_PASSWORD / SEED_USER_NAME / SEED_USER_ROLE | CLI-only account provisioning inputs |
+| SEED_USER_EMAIL / SEED_USER_NAME / SEED_USER_ROLE | CLI-only account provisioning inputs |
 | TEST_DATABASE_URL / TEST_DATABASE_ISOLATED | Disposable test branch connection / explicit test opt-in |
 
 Optional blank values are ignored. Missing application configuration produces a clear error without printing secrets. Never commit environment files or real credentials. There is no fallback to fake users or browser data.
@@ -49,6 +49,7 @@ Optional blank values are ignored. Missing application configuration produces a 
 | `npm run test:e2e` | Playwright route/mobile checks; authenticated flow requires E2E_DATABASE_READY=1 |
 | `npm run db:generate` / `db:migrate` / `db:studio` | Generate SQL / apply migrations / inspect a development database |
 | `npm run db:seed` | Provision the environment-configured account |
+| `npm run check:env` | Confirm `.env.local` defines the same variables as `.env.example` (values are never printed) |
 | `npm run check:connections` | Check live database/storage access, migrations and the seed account without printing secrets |
 | `npm run check:storage` | Verify private upload/copy/download/CORS and remove only temporary diagnostic files |
 

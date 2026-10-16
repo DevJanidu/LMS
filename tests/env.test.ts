@@ -1,32 +1,33 @@
 import { expect, it } from "vitest";
 import { validateEnvironment, validateAccountEnvironment } from "@/lib/env";
 
+const google = { GOOGLE_CLIENT_ID: "fixture-google-id", GOOGLE_CLIENT_SECRET: "fixture-google-secret" };
 const core = {
-  NODE_ENV: "test", DATABASE_URL: "postgresql://fixture:fixture@database.example.com/app", DATABASE_URL_UNPOOLED: "postgresql://fixture:fixture@database.example.com/app",
+  ...google, NODE_ENV: "test", DATABASE_URL: "postgresql://fixture:fixture@database.example.com/app", DATABASE_URL_UNPOOLED: "postgresql://fixture:fixture@database.example.com/app",
   AUTH_SECRET: "fixture-auth-secret-with-at-least-32-characters", APP_URL: "http://localhost:3000", CRON_SECRET: "fixture-cron-secret-with-at-least-32-characters",
   OBJECT_STORAGE_ENDPOINT: "https://storage.example.com", OBJECT_STORAGE_REGION: "us-east-2", OBJECT_STORAGE_BUCKET: "fixture", OBJECT_STORAGE_ACCESS_KEY_ID: "fixture-key", OBJECT_STORAGE_SECRET_ACCESS_KEY: "fixture-secret",
 };
 it("allows account operations with only their own required server settings", () => {
-  const env = validateAccountEnvironment({ NODE_ENV: "production", DATABASE_URL: core.DATABASE_URL, AUTH_SECRET: core.AUTH_SECRET, APP_URL: core.APP_URL });
+  const env = validateAccountEnvironment({ ...google, NODE_ENV: "production", DATABASE_URL: core.DATABASE_URL, AUTH_SECRET: core.AUTH_SECRET, APP_URL: core.APP_URL });
   expect(env.DATABASE_URL).toBe(core.DATABASE_URL);
   expect(validateAccountEnvironment({ ...core, EMAIL_FROM: "invalid sender" }).DATABASE_URL).toBe(core.DATABASE_URL);
   expect(() => validateAccountEnvironment({ DATABASE_URL: core.DATABASE_URL, APP_URL: core.APP_URL })).toThrow("Missing or invalid service configuration");
 });
 it("accepts dashboard-pasted URL/sender quotes without altering signing secrets", () => {
   const secret = '"fixture-secret-that-has-more-than-32-characters"';
-  const result = validateAccountEnvironment({ DATABASE_URL: `"${core.DATABASE_URL}"`, APP_URL: '"https://app.example.com"', AUTH_SECRET: secret, EMAIL_FROM: '"Fixture <fixture@example.com>"' });
+  const result = validateAccountEnvironment({ ...google, DATABASE_URL: `"${core.DATABASE_URL}"`, APP_URL: '"https://app.example.com"', AUTH_SECRET: secret, EMAIL_FROM: '"Fixture <fixture@example.com>"' });
   expect(result.APP_URL).toBe("https://app.example.com");
   expect(result.DATABASE_URL).toBe(core.DATABASE_URL);
   expect(result.EMAIL_FROM).toBe("Fixture <fixture@example.com>");
   expect(result.AUTH_SECRET).toBe(secret);
 });
 it("supports standard Better Auth setting names while preferring explicit app settings", () => {
-  const aliases = { DATABASE_URL: core.DATABASE_URL, BETTER_AUTH_SECRET: core.AUTH_SECRET, BETTER_AUTH_URL: "https://app.example.com" };
+  const aliases = { ...google, DATABASE_URL: core.DATABASE_URL, BETTER_AUTH_SECRET: core.AUTH_SECRET, BETTER_AUTH_URL: "https://app.example.com" };
   expect(validateAccountEnvironment(aliases).AUTH_SECRET).toBe(core.AUTH_SECRET);
   expect(validateAccountEnvironment({ ...aliases, APP_URL: "https://preferred.example.com" }).APP_URL).toBe("https://preferred.example.com");
 });
 it("defaults only the public production origin and never signing secrets", () => {
-  const production = { VERCEL_ENV: "production", DATABASE_URL: core.DATABASE_URL, AUTH_SECRET: core.AUTH_SECRET };
+  const production = { ...google, VERCEL_ENV: "production", DATABASE_URL: core.DATABASE_URL, AUTH_SECRET: core.AUTH_SECRET };
   expect(validateAccountEnvironment(production).APP_URL).toBe("https://acadence.janidudev.com");
   expect(validateAccountEnvironment({ ...production, APP_URL: "https://custom.example.com" }).APP_URL).toBe("https://custom.example.com");
   expect(() => validateAccountEnvironment({ ...production, AUTH_SECRET: "" })).toThrow();

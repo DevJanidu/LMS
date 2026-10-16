@@ -1,0 +1,151 @@
+@reference "./globals.css";
+/* Plan & billing: on laptop and desktop screens the whole page fits one viewport.
+   Spacing and type scale with viewport height; only the comparison table scrolls. */
+
+.bl-page { --bl-gap: clamp(.625rem, 1.6vh, 1rem); --bl-pad: clamp(.875rem, 2vh, 1.25rem); position: relative; display: flex; flex-direction: column; gap: var(--bl-gap); width: 100%; max-width: 80rem; font-feature-settings: "cv11", "ss01"; }
+
+/* Header */
+.bl-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: .5rem 1.5rem; flex-shrink: 0; }
+.bl-title { font-size: clamp(1.375rem, 1.2vh + 1rem, 1.75rem); line-height: 1.2; font-weight: 600; letter-spacing: -0.02em; color: var(--text-primary); }
+.bl-subtitle { @apply text-small; margin-block-start: .125rem; color: var(--text-secondary); }
+.bl-notice { @apply text-caption; display: flex; align-items: flex-start; gap: .5rem; max-width: 34rem; padding: .375rem .75rem; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface); color: var(--text-secondary); font-weight: 400; }
+.bl-notice svg { width: .875rem; height: .875rem; flex-shrink: 0; margin-block-start: .0625rem; color: var(--primary); }
+
+/* Pills */
+.bl-pill { @apply text-caption; display: inline-flex; align-items: center; padding: .0625rem .5rem; border-radius: var(--radius-pill); background: var(--surface-subtle); color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+.bl-pill[data-tone=brand] { background: var(--primary-soft); color: var(--primary-strong); }
+.bl-pill[data-tone=success] { background: var(--success-soft); color: var(--success); }
+.bl-pill[data-tone=warning] { background: var(--warning-soft); color: var(--warning); }
+
+/* Current plan strip */
+.bl-summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .75rem 2rem; flex-shrink: 0; padding: clamp(.75rem, 1.6vh, 1rem) 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow-card); }
+.bl-summary-title { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.bl-summary-title h2 { font-size: 1.0625rem; line-height: 1.5rem; font-weight: 600; color: var(--text-primary); }
+.bl-summary-meta { @apply text-small; margin-block-start: .125rem; color: var(--text-muted); }
+.bl-summary-usage { display: grid; grid-template-columns: repeat(2, minmax(0, 13rem)); gap: 1.5rem; justify-content: center; }
+.bl-summary-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .5rem; }
+.bl-summary-alert { @apply text-small; grid-column: 1 / -1; padding: .5rem .75rem; border-radius: var(--radius-control); background: var(--warning-soft); color: var(--warning); }
+.bl-early { @apply text-caption; display: inline-flex; align-items: center; gap: .375rem; margin-inline-end: .25rem; padding: .25rem .625rem; border-radius: var(--radius-pill); background: var(--success-soft); color: var(--success); cursor: help; }
+.bl-early:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.bl-early svg { width: .875rem; height: .875rem; }
+.bl-meter { display: grid; gap: .375rem; min-width: 0; }
+.bl-meter-head { @apply text-caption; display: flex; justify-content: space-between; gap: .75rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+.bl-meter-head > span:last-child { color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; }
+.bl-meter-track { display: block; height: .3125rem; overflow: hidden; border-radius: var(--radius-pill); background: var(--surface-subtle); }
+.bl-meter-track > span { display: block; height: 100%; border-radius: inherit; background: var(--primary); }
+.bl-meter-track[data-high] > span { background: var(--warning); }
+.bl-meter .sf-set-skeleton { flex: none; height: .75rem; }
+.bl-meter .sf-set-skeleton[data-thin] { height: .3125rem; }
+.bl-meter-note { @apply text-caption; color: var(--text-muted); }
+
+/* Plans and comparison share the remaining height. */
+.bl-plans { display: flex; flex-direction: column; gap: var(--bl-gap); min-height: 0; }
+.bl-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--bl-gap); min-height: 0; padding-block-start: .5rem; }
+
+.bl-card { position: relative; display: flex; flex-direction: column; gap: clamp(.625rem, 1.4vh, .875rem); min-height: 0; padding: var(--bl-pad); border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow-surface); transition: transform 150ms var(--ease-standard), box-shadow 150ms var(--ease-standard), border-color 150ms; }
+.bl-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.bl-card[data-recommended] { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.bl-card[data-recommended]:hover { box-shadow: 0 0 0 1px var(--primary), var(--shadow-card); }
+.bl-card[data-selected]:not([data-recommended]) { border-color: var(--border-strong); }
+.bl-ribbon { position: absolute; inset-block-start: -.625rem; inset-inline-end: 1rem; padding: .125rem .625rem; border-radius: var(--radius-pill); background: var(--action); color: var(--color-white); font-size: .6875rem; line-height: 1rem; font-weight: 600; letter-spacing: .02em; }
+.bl-card-head { display: grid; gap: .125rem; }
+.bl-card-name { display: flex; align-items: center; gap: .5rem; font-size: 1.0625rem; line-height: 1.5rem; font-weight: 600; color: var(--text-primary); }
+.bl-card-tagline { @apply text-small; color: var(--text-muted); }
+.bl-card-price { display: flex; align-items: baseline; gap: .375rem; margin-block-start: clamp(.25rem, .8vh, .5rem); color: var(--text-primary); }
+.bl-card-price > span:first-child { font-size: clamp(1.5rem, 1.6vh + 1rem, 1.875rem); line-height: 1.1; font-weight: 650; letter-spacing: -0.02em; }
+.bl-card-period { @apply text-small; color: var(--text-muted); }
+.bl-card-action { display: grid; }
+.bl-card-action .sf-set-button { width: 100%; }
+.sf-set-button[data-variant=current] { border-color: var(--border); background: var(--surface-subtle); color: var(--text-muted); opacity: 1; }
+.bl-card-note { font-size: .75rem; line-height: 1.05rem; color: var(--text-muted); text-align: center; }
+.bl-card-note[data-tone=error] { color: var(--danger); }
+.bl-card-features { display: grid; grid-template-rows: 1fr; min-height: 0; padding-block-start: clamp(.5rem, 1.2vh, .75rem); border-block-start: 1px solid var(--border); transition: grid-template-rows 280ms var(--ease-standard), padding 280ms var(--ease-standard), border-color 280ms; }
+.bl-card-features > div { min-height: 0; overflow: hidden; }
+.bl-card-includes { margin-block-end: .375rem; color: var(--text-muted); font-size: .75rem; line-height: 1rem; font-weight: 500; }
+.bl-card-features ul { display: grid; gap: clamp(.25rem, .75vh, .5rem); }
+.bl-card-features li { display: flex; align-items: flex-start; gap: .5rem; color: var(--text-secondary); font-size: .8125rem; line-height: 1.125rem; }
+.bl-card-features li svg { width: 1rem; height: 1rem; flex-shrink: 0; color: var(--success); }
+.bl-card-features li[data-excluded] { color: var(--text-muted); }
+.bl-card-features li[data-excluded] svg { color: var(--text-muted); }
+
+/* Comparison accordion */
+.bl-compare { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); overflow: hidden; }
+.bl-compare-toggle { display: flex; align-items: center; gap: .75rem; width: 100%; min-height: 2.75rem; padding-inline: 1.25rem; color: var(--text-primary); font-size: .875rem; font-weight: 600; text-align: start; }
+.bl-compare-toggle:hover { background: var(--surface-hover); }
+.bl-compare-toggle:focus-visible { outline: none; box-shadow: inset var(--focus-ring); }
+.bl-compare-hint { @apply text-caption; margin-inline-start: auto; color: var(--text-muted); font-weight: 400; }
+.bl-compare-toggle svg { width: 1rem; height: 1rem; color: var(--text-muted); transition: transform 280ms var(--ease-standard); }
+.bl-compare-toggle[aria-expanded=true] svg { transform: rotate(180deg); }
+.bl-compare-panel { display: grid; grid-template-rows: 0fr; min-height: 0; transition: grid-template-rows 280ms var(--ease-standard); }
+.bl-compare-scroll { position: relative; min-height: 0; overflow: auto; border-block-start: 1px solid transparent; transition: border-color 280ms; }
+.bl-compare-scroll:focus-visible { outline: none; box-shadow: inset var(--focus-ring); }
+.bl-plans[data-compare=open] .bl-compare-panel { grid-template-rows: 1fr; }
+.bl-plans[data-compare=open] .bl-compare-scroll { border-color: var(--border); }
+
+.bl-table { width: 100%; min-width: 34rem; border-collapse: separate; border-spacing: 0; font-size: .8125rem; line-height: 1.125rem; }
+.bl-table th, .bl-table td { padding: .5rem 1rem; border-block-end: 1px solid var(--border); text-align: start; }
+.bl-table td { width: 16%; text-align: center; color: var(--text-secondary); }
+.bl-table td svg { display: inline-block; width: 1rem; height: 1rem; color: var(--success); }
+.bl-table thead th { position: sticky; top: 0; z-index: 1; background: var(--surface); color: var(--text-primary); font-weight: 600; }
+.bl-table thead th:not(:first-child) { text-align: center; }
+.bl-table tbody th[scope=row] { color: var(--text-secondary); font-weight: 400; }
+.bl-table-group th { padding-block: .625rem .375rem; background: var(--surface-subtle); color: var(--text-muted); font-size: .6875rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.bl-table [data-current] { background: color-mix(in srgb, var(--primary-soft) 55%, transparent); }
+.bl-table thead th[data-current] { background: var(--primary-soft); color: var(--primary-strong); }
+.bl-dash { color: var(--text-muted); }
+
+/* Footer note */
+.bl-foot { display: flex; align-items: center; justify-content: center; gap: .5rem; flex-shrink: 0; color: var(--text-muted); font-size: .75rem; line-height: 1rem; }
+.bl-foot svg { width: .8125rem; height: .8125rem; flex-shrink: 0; }
+
+/* One-viewport layout: laptop and desktop screens with enough height. */
+@media (min-width: 1024px) and (min-height: 600px) {
+  .sf-main-column:has(.bl-page) { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  .sf-main-column:has(.bl-page) > .sf-topbar { flex-shrink: 0; }
+  .sf-main-column:has(.bl-page) > .sf-content { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding-block: clamp(.75rem, 2.2vh, 1.5rem) clamp(.625rem, 1.8vh, 1.25rem); }
+  .sf-main-column:has(.bl-page) > .sf-content > .sf-page-enter { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .sf-main-column:has(.bl-page) > footer { display: none; }
+  .bl-page { flex: 1; min-height: 0; margin-inline: auto; }
+  /* Closed: content height, so the footer note follows the compare bar. Open: fill the rest. */
+  .bl-plans { flex: 0 1 auto; }
+  .bl-plans[data-compare=open] { flex: 1 1 0; }
+  /* Natural height (equal across the row); shrinks only when the viewport is short. */
+  .bl-cards { flex: 0 1 auto; }
+  .bl-compare { flex: 0 0 auto; }
+  .bl-foot { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bl-foot span { overflow: hidden; text-overflow: ellipsis; }
+  /* Open: cards fold to name, price and action; the table takes the rest and scrolls inside. */
+  .bl-plans[data-compare=open] .bl-cards { flex: 0 0 auto; }
+  .bl-plans[data-compare=open] .bl-compare { flex: 1 1 0; }
+  .bl-plans[data-compare=open] .bl-compare-panel { flex: 1; }
+  .bl-plans[data-compare=open] .bl-card-features { grid-template-rows: 0fr; padding-block-start: 0; border-color: transparent; }
+  .bl-plans[data-compare=open] .bl-card-tagline { display: none; }
+}
+
+/* Tablet and phone: stacked, normal page scroll. */
+@media (max-width: 1023px) {
+  .bl-summary { grid-template-columns: minmax(0, 1fr); }
+  .bl-summary-usage { grid-template-columns: repeat(2, minmax(0, 1fr)); justify-content: stretch; }
+  .bl-summary-actions { justify-content: flex-start; }
+  .bl-plans[data-compare=open] .bl-compare-scroll { max-height: 70vh; }
+}
+@media (max-width: 767px) {
+  .bl-cards { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; padding-block-start: .75rem; }
+  .bl-summary-usage { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bl-card, .bl-card-features, .bl-compare-panel, .bl-compare-toggle svg, .bl-compare-scroll { transition: none; }
+  .bl-card:hover { transform: none; }
+}
+
+/* Short laptop screens (about 720-780px tall): tighter rhythm so every feature row stays visible. */
+@media (min-width: 1024px) and (min-height: 600px) and (max-height: 780px) {
+  .bl-page { --bl-gap: .5rem; --bl-pad: .875rem; }
+  .bl-summary { padding-block: .625rem; }
+  .bl-card { gap: .5rem; }
+  .bl-card-features { padding-block-start: .5rem; }
+  .bl-card-features ul { gap: .1875rem; }
+  .bl-card-features li { line-height: 1.0625rem; }
+  .bl-card-includes { margin-block-end: .25rem; }
+  .bl-compare-toggle { min-height: 2.375rem; }
+}

@@ -1,4 +1,4 @@
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { setRequestLocale } from "next-intl/server";
 import { subjectDetailWorkspace, subjectPageWorkspace } from "@/lib/services/focused-workspace";
 import SubjectDetail from "@/components/subjects/SubjectDetail";
@@ -11,7 +11,7 @@ export default async function Page({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const account = await requireLearner();
+  const account = await requireOnboardedLearner();
   if (!uuidSchema.safeParse(id).success) notFound();
   if (!(await subjectPageWorkspace(account)).subjects.some(subject => subject.id === id)) notFound();
   const data = await subjectDetailWorkspace(account, id);

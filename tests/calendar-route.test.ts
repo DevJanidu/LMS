@@ -6,7 +6,7 @@ vi.mock("@/lib/services/lists", async () => ({ ...(await vi.importActual("@/lib/
 vi.mock("@/lib/services/calendar", async () => ({ ...(await vi.importActual("@/lib/services/calendar")), getCalendarBlock: mocks.block, mutateCalendar: mocks.mutate }));
 import { GET, POST } from "@/app/api/calendar/route";
 beforeEach(() => {
-  vi.clearAllMocks(); mocks.user.mockResolvedValue({ id: "owner", role: "learner", timezone: "Asia/Colombo" });
+  vi.clearAllMocks(); mocks.user.mockResolvedValue({ id: "owner", role: "learner", timezone: "Asia/Colombo", acceptedTermsAt: new Date(), onboardingCompletedAt: new Date() });
   mocks.range.mockResolvedValue([]);
 });
 it("requires an active learner session on reads", async () => {

@@ -1,5 +1,11 @@
 # Backend checks: diagnosis and configuration
 
+> The historical CI repair below is superseded for workflow behavior by this section. The workflow now runs PRs and pushes for `develop`, `staging`, and `main`. Required check: **`required-ci`**. It aggregates release source/tree policy, secret-pattern scan, high/critical runtime dependency audit, lint, typecheck, analytics/unit tests, Drizzle metadata, production build and public Playwright checks. Node 24, locked npm dependencies, caching, pinned actions, read-only token permissions and short-lived diagnostic artifacts are retained. The current runtime dependency audit reports zero findings; future high/critical findings block merges. No dependency versions were changed by this setup.
+>
+> Pull requests receive non-live configuration only, including same-repository PRs. Database integration is now **manual dispatch only**, with input `integration=true` on trusted `develop` or `staging`. Configure the five Neon/Redis settings listed below using an isolated nonproduction project and empty parent. Ordinary PRs do not create database branches or run migrations. An explicitly requested integration dispatch fails if these settings are missing, creates a schema-only disposable child, migrates it, runs database/authenticated browser checks, and cleans it up with an expiry fallback. Test-only mocked fixtures are not another permanent environment. The integration parent must be empty, not a schema clone that already contains the app tables without Drizzle's migration ledger.
+>
+> CI does not deploy the app. Vercel's existing external Git integration remains separate; branch protection controls merges. Staging is deliberately disabled in `vercel.json` until [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) is completed. The main required check will remain pending for hotfix branches using the old workflow until the setup is promoted through staging into main; base hotfixes on the installed workflow or include its reviewed CI update. Do not bypass protections to hide this bootstrap dependency.
+
 Audited 11 October 2026 against `main` at `6b24d91`.
 
 ## Architecture discovered

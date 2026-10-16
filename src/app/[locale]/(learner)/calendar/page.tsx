@@ -1,4 +1,4 @@
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { calendarPageWorkspace } from "@/lib/services/focused-workspace";
 import StudyCalendar from "@/components/calendar/StudyCalendar";
@@ -11,7 +11,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const user = await requireLearner();
+  const user = await requireOnboardedLearner();
   const { add } = await searchParams;
   return <StudyCalendar key={user.id + ":" + user.timezone} initial={await calendarPageWorkspace(user)} add={add === "1"} />;
 }

@@ -1,9 +1,9 @@
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { eq, getTableColumns } from "drizzle-orm";
 export async function GET() {
-  const user = await requireLearner(), db = getDb();
+  const user = await requireOnboardedLearner(), db = getDb();
   // Export all owned records, independent of UI batch/page limits. Auth tokens,
   // password hashes and verification/reset values are deliberately excluded.
   const [preferences, subjects, topics, resources, sessions, schedule, exceptions, notifications, timer] = await Promise.all([

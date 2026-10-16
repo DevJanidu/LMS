@@ -6,7 +6,7 @@ import { InvalidServerConfiguration } from "@/lib/env";
 
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); vi.resetAllMocks(); });
 it("keeps public pages available and logs only missing setting names on startup", async () => {
-  vi.stubEnv("NEXT_RUNTIME", "nodejs"); vi.stubEnv("NODE_ENV", "production"); vi.stubEnv("NEXT_PHASE", "phase-production-server");
+  vi.stubEnv("NEXT_RUNTIME", "nodejs"); vi.stubEnv("NODE_ENV", "production"); vi.stubEnv("VERCEL_ENV", "production"); vi.stubEnv("APP_ENV", "production"); vi.stubEnv("NEXT_PHASE", "phase-production-server");
   mocked.getEnv.mockImplementation(() => { throw new InvalidServerConfiguration("private secret value", ["AUTH_SECRET", "RESEND_API_KEY"]); });
   const log = vi.spyOn(console, "error").mockImplementation(() => {});
   await expect(register()).resolves.toBeUndefined();

@@ -13,9 +13,6 @@ export default function PageBreadCrumb({ pageTitle }: Props) {
   if (
     [
       "/login",
-      "/register",
-      "/forgot-password",
-      "/reset-password",
       "/terms",
       "/privacy",
     ].includes(path) ||

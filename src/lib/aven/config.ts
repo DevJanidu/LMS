@@ -1,4 +1,5 @@
 import "server-only";
+import { assertEnvironmentIsolation } from "@/lib/deployment-policy.mjs";
 import {
   resolveAvenConfiguration,
   avenConfigurationStatus,
@@ -13,6 +14,7 @@ export function avenStatus() {
   return avenConfigurationStatus(process.env);
 }
 export function avenConfig(planning = false) {
+  assertEnvironmentIsolation(process.env);
   const result = resolveAvenConfiguration(process.env);
   if (!result.success)
     throw new GoalError(avenStatus().code ?? "aiNotConfigured", 503);
