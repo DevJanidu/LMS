@@ -115,6 +115,34 @@ export default function ProposalDetails({
       {value.kind === "memory" && (
         <p className="whitespace-pre-wrap">{value.content}</p>
       )}
+      {(value.kind === "workspace" || value.kind === "goalChanges") && (
+        <>
+          <ul className="space-y-1">
+            {value.summary.map((item, index) => (
+              <li key={index}>
+                <span className="text-primary dark:text-primary font-medium">
+                  {t(`changeActions.${item.action}`)}{" "}
+                  {t(`changeEntities.${item.entity}`)}
+                </span>
+                {": "}
+                {item.title}
+              </li>
+            ))}
+          </ul>
+          {value.impact === "high" && (
+            <p role="note" className="text-error-600 dark:text-error-400">
+              {t("highImpactNote")}
+            </p>
+          )}
+        </>
+      )}
+      {value.kind === "cancelReminders" && (
+        <ul className="space-y-1">
+          {value.reminders.map((item) => (
+            <li key={item.id}>{item.title}</li>
+          ))}
+        </ul>
+      )}
       {value.kind === "learningSignal" && (
         <>
           <p className="text-primary dark:text-primary font-medium">

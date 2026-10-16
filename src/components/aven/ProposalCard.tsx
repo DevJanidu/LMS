@@ -21,7 +21,12 @@ export interface ProposalRecord {
   value: AvenProposal;
   expiresAt: string;
   createdAt?: string;
-  result?: { goalId?: string; blockIds?: string[]; undo?: unknown } | null;
+  result?: {
+    goalId?: string;
+    blockIds?: string[];
+    records?: { entity: string; id: string }[];
+    undo?: unknown;
+  } | null;
 }
 interface Props {
   proposal: ProposalRecord;
@@ -37,6 +42,14 @@ const approveLabels: Partial<Record<AvenProposal["kind"], string>> = {
   calendarChanges: "confirmChanges",
   reschedule: "confirmChanges",
 };
+/** Where an approved workspace change can be seen: the first created or updated record. */
+function recordLink(records?: { entity: string; id: string }[]) {
+  const first = records?.[0];
+  if (!first) return null;
+  if (first.entity === "subject") return `/subjects/${first.id}`;
+  if (first.entity === "resource") return "/resources";
+  return "/subjects";
+}
 function ProposalCard({
   proposal,
   references,
@@ -61,14 +74,20 @@ function ProposalCard({
       resolvedStatus ??
       (proposal.status === "pending" && expired ? "expired" : proposal.status),
     result = resolvedResult ?? proposal.result;
+  // High-impact changes are confirmed twice: here, and again on the server (confirmHighImpact).
+  const highImpact = "impact" in value && value.impact === "high";
   const destructive =
-    value.kind === "calendarChanges" &&
-    value.changes.some((item) => item.action === "cancel");
+    highImpact ||
+    (value.kind === "calendarChanges" &&
+      value.changes.some((item) => item.action === "cancel"));
   const simpleGoal =
     value.kind === "goalPlan" &&
     !value.tasks.length &&
     !value.milestones.length;
-  const resolve = async (decision: "approve" | "reject" | "undo") => {
+  const resolve = async (
+    decision: "approve" | "reject" | "undo",
+    confirmHighImpact = false,
+  ) => {
     if (busy || locked) return;
     setBusy(decision);
     setError("");
@@ -76,7 +95,11 @@ function ProposalCard({
       const response = await featureRequest<{
         status: string;
         result: ProposalRecord["result"];
-      }>("/api/aven/proposals", { id: proposal.id, decision });
+      }>("/api/aven/proposals", {
+        id: proposal.id,
+        decision,
+        ...(confirmHighImpact ? { confirmHighImpact: true } : {}),
+      });
       setStatus(response.status);
       setResult(response.result);
       onResolved(response.result);
@@ -175,6 +198,15 @@ function ProposalCard({
                   {t("openGoal")}
                 </Link>
               )}
+              {status === "approved" &&
+                recordLink(result?.records) && (
+                  <Link
+                    href={recordLink(result?.records)!}
+                    className="aven-text-button"
+                  >
+                    {t("openRecord")}
+                  </Link>
+                )}
               {(result?.blockIds?.length ||
                 ((value.kind === "calendarChanges" ||
                   value.kind === "calendarCreate") &&
@@ -217,10 +249,12 @@ function ProposalCard({
       <ConfirmDialog
         isOpen={confirming}
         onClose={() => setConfirming(false)}
-        title={t("confirmCancellation")}
-        description={t("confirmCancellationHelp")}
+        title={t(highImpact ? "confirmHighImpact" : "confirmCancellation")}
+        description={t(
+          highImpact ? "confirmHighImpactHelp" : "confirmCancellationHelp",
+        )}
         onConfirm={async () => {
-          await resolve("approve");
+          await resolve("approve", highImpact);
           setConfirming(false);
           return true;
         }}

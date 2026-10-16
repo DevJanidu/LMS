@@ -26,6 +26,7 @@ const mocks = vi.hoisted(() => {
     usage: vi.fn(),
     tool: vi.fn(),
     resolve: vi.fn(),
+    stored: vi.fn(),
   };
 });
 vi.mock("@/lib/aven/access", () => ({
@@ -43,6 +44,7 @@ vi.mock("@/lib/goals/service", () => ({
 vi.mock("@/lib/aven/preferences", () => ({ getAvenPreferences: mocks.preferences }));
 vi.mock("@/lib/aven/conversations", () => ({
   beginConversationTurn: mocks.begin,
+  storedReferences: mocks.stored,
   finishConversationTurn: mocks.finish,
   keepStoppedAnswer: vi.fn(),
 }));
@@ -113,6 +115,25 @@ describe("prepareChat orchestration", () => {
     expect(names).not.toContain("getStudyCircles");
     const reserved = mocks.reserve.mock.calls[0][3];
     expect(reserved).toBeLessThan(Buffer.byteLength(JSON.stringify(mocks.tools)));
+  });
+  it("reuses the references saved with the original message on retry", async () => {
+    mocks.stored.mockResolvedValue([{ type: "subject", id: SUBJECT }]);
+    const conversationId = "00000000-0000-4000-8000-000000000777";
+    const original = "00000000-0000-4000-8000-000000000778";
+    const prepared = await prepareChat("owner", {
+      ...input("/practice @Advanced Java"),
+      conversationId,
+      retryRequestId: original,
+    });
+    expect(mocks.stored).toHaveBeenCalledWith("owner", conversationId, original);
+    expect(mocks.resolve).toHaveBeenCalledWith("owner", [{ type: "subject", id: SUBJECT }]);
+    expect(mocks.begin.mock.calls[0][7]).toEqual([{ type: "subject", id: SUBJECT }]);
+    expect(prepared.mentions.resolved).toHaveLength(1);
+  });
+  it("saves new references with the user message", async () => {
+    await prepareChat("owner", input("/plan @Advanced Java", [{ type: "subject", id: SUBJECT }]));
+    expect(mocks.stored).not.toHaveBeenCalled();
+    expect(mocks.begin.mock.calls[0][7]).toEqual([{ type: "subject", id: SUBJECT }]);
   });
   it("skips resolution when there are no references", async () => {
     const prepared = await prepareChat("owner", input("Find free time next week after 7 PM."));

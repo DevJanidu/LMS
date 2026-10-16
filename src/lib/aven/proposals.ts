@@ -10,6 +10,7 @@ import {
   validateReferences,
 } from "@/lib/goals/service";
 import { mutateCalendar, getCalendarBlock } from "@/lib/services/calendar";
+import { mutate } from "@/lib/services/mutations";
 import { getScheduleBlocksInRange } from "@/lib/services/lists";
 import { getOccurrences } from "@/lib/schedule";
 import { localDay, shiftDay } from "@/lib/analytics";
@@ -123,7 +124,12 @@ export async function resolveProposal(
   userId: string,
   id: string,
   decision: "approve" | "reject" | "undo",
+  options: { confirmHighImpact?: boolean } = {},
 ) {
+  if (decision === "approve") {
+    const applied = await approveWorkspaceProposal(userId, id, options);
+    if (applied) return applied;
+  }
   return getDb().transaction(async (tx) => {
     const [user] = await tx
       .select()
@@ -152,6 +158,13 @@ export async function resolveProposal(
         notificationId?: string;
         undo?: ProposalUndo;
       } = {};
+    if (
+      decision === "approve" &&
+      "impact" in value &&
+      value.impact === "high" &&
+      !options.confirmHighImpact
+    )
+      throw new GoalError("confirmationRequired", 409);
     if (decision === "approve") {
       result.undo = await captureUndo(tx, userId, value);
       const extra = await applyExtraProposal(tx, userId, user.timezone, value);
@@ -606,6 +619,149 @@ export async function resolveProposal(
       .where(eq(s.aiPlanProposals.id, id));
     return { status, result };
   });
+}
+type WorkspaceProposal = Extract<
+  import("./validation").AvenProposal,
+  { kind: "workspace" }
+>;
+/**
+ * Workspace proposals run through the application's own `mutate` service, which takes
+ * the account lock itself. They are therefore applied in three steps:
+ * claim (pending -> applying, so a replay or second tab cannot apply twice),
+ * apply with the proposal-time preconditions, then read back and record the outcome.
+ * A failed apply returns the proposal to pending; nothing partial is kept (mutate is atomic).
+ * Returns null for every other kind, which keeps the single-transaction path.
+ */
+async function approveWorkspaceProposal(
+  userId: string,
+  id: string,
+  options: { confirmHighImpact?: boolean },
+) {
+  const claimed = await getDb().transaction(async (tx) => {
+    const [user] = await tx
+      .select()
+      .from(s.users)
+      .where(eq(s.users.id, userId))
+      .for("update");
+    if (user?.status !== "active" || user.role !== "learner")
+      throw new GoalError("authenticationFailed", 403);
+    const [proposal] = await tx
+      .select()
+      .from(s.aiPlanProposals)
+      .where(
+        and(eq(s.aiPlanProposals.id, id), eq(s.aiPlanProposals.userId, userId)),
+      )
+      .for("update");
+    if (!proposal) throw new GoalError("recordUnavailable", 404);
+    const parsed = proposalSchema.safeParse(proposal.value);
+    if (!parsed.success || parsed.data.kind !== "workspace") return null;
+    if (proposal.status !== "pending")
+      return { done: { status: proposal.status, result: proposal.result } };
+    if (proposal.expiresAt.getTime() < Date.now())
+      throw new GoalError("proposalExpired", 409);
+    if (parsed.data.impact === "high" && !options.confirmHighImpact)
+      throw new GoalError("confirmationRequired", 409);
+    await tx
+      .update(s.aiPlanProposals)
+      .set({ status: "applying" })
+      .where(eq(s.aiPlanProposals.id, id));
+    return { value: parsed.data };
+  });
+  if (!claimed) return null;
+  if ("done" in claimed) return claimed.done;
+  const value: WorkspaceProposal = claimed.value;
+  try {
+    await mutate(userId, value.operations, value.preconditions);
+    await verifyWorkspace(userId, value);
+  } catch (error) {
+    await getDb()
+      .update(s.aiPlanProposals)
+      .set({ status: "pending" })
+      .where(
+        and(
+          eq(s.aiPlanProposals.id, id),
+          eq(s.aiPlanProposals.status, "applying"),
+        ),
+      );
+    if (error instanceof GoalError) throw error;
+    const code = error instanceof Error ? error.message : "";
+    throw code === "recordConflict"
+      ? new GoalError("conflict", 409)
+      : code === "accountInactive"
+        ? new GoalError("authenticationFailed", 403)
+        : new GoalError(code && /^[a-zA-Z]+$/.test(code) ? code : "persistenceUnavailable", 409);
+  }
+  const records = value.operations.flatMap((operation) =>
+    operation.kind === "subject" ||
+    operation.kind === "topic" ||
+    operation.kind === "resource"
+      ? [{ entity: operation.kind, id: operation.value.id }]
+      : [],
+  );
+  const result: NonNullable<(typeof s.aiPlanProposals.$inferSelect)["result"]> =
+    { records };
+  await getDb().transaction(async (tx) => {
+    await tx
+      .insert(s.aiToolApprovals)
+      .values({ proposalId: id, userId, decision: "approve" })
+      .onConflictDoNothing();
+    await tx.insert(s.auditLogs).values({
+      actorUserId: userId,
+      action: "aven.proposal.approve",
+      targetType: "aiProposal",
+      targetId: id,
+      metadata: { kind: value.kind, operations: value.operations.length },
+    });
+    await tx
+      .update(s.aiPlanProposals)
+      .set({ status: "approved", result, resolvedAt: new Date() })
+      .where(eq(s.aiPlanProposals.id, id));
+  });
+  return { status: "approved" as string, result };
+}
+/** Reads every affected record back: created and updated rows exist, deleted rows are gone. */
+async function verifyWorkspace(userId: string, value: WorkspaceProposal) {
+  const db = getDb();
+  const ids = (entity: "subject" | "topic" | "resource", deleted: boolean) =>
+    value.operations.flatMap((operation) =>
+      deleted
+        ? operation.kind === "delete" && operation.entity === entity
+          ? [operation.id]
+          : []
+        : operation.kind === entity
+          ? [operation.value.id]
+          : [],
+    );
+  const count = async (entity: "subject" | "topic" | "resource", list: string[]) => {
+    if (!list.length) return 0;
+    if (entity === "subject")
+      return (
+        await db
+          .select({ id: s.subjects.id })
+          .from(s.subjects)
+          .where(and(eq(s.subjects.userId, userId), inArray(s.subjects.id, list)))
+      ).length;
+    if (entity === "resource")
+      return (
+        await db
+          .select({ id: s.resources.id })
+          .from(s.resources)
+          .where(and(eq(s.resources.userId, userId), inArray(s.resources.id, list)))
+      ).length;
+    return (
+      await db
+        .select({ id: s.topics.id })
+        .from(s.topics)
+        .innerJoin(s.subjects, eq(s.subjects.id, s.topics.subjectId))
+        .where(and(eq(s.subjects.userId, userId), inArray(s.topics.id, list)))
+    ).length;
+  };
+  for (const entity of ["subject", "topic", "resource"] as const) {
+    const saved = ids(entity, false),
+      removed = ids(entity, true);
+    if ((await count(entity, saved)) !== saved.length) throw new GoalError("persistenceUnavailable", 503);
+    if ((await count(entity, removed)) !== 0) throw new GoalError("persistenceUnavailable", 503);
+  }
 }
 export async function proposalList(userId: string, conversationId?: string) {
   return getDb()

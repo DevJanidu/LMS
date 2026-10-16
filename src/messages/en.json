@@ -533,7 +533,10 @@
       "reminderPreferences": "Proposed reminder preferences",
       "resourceOrganization": "Proposed library organization",
       "memory": "Remember a preference",
-      "learningSignal": "Remember how a subject feels"
+      "learningSignal": "Remember how a subject feels",
+      "workspace": "Proposed workspace changes",
+      "goalChanges": "Proposed goal changes",
+      "cancelReminders": "Cancel reminders"
     },
     "proposalStatuses": {
       "approved": "Approved and saved",
@@ -541,7 +544,8 @@
       "expired": "Expired",
       "pending": "Awaiting review",
       "undone": "Change undone.",
-      "superseded": "Replaced by a newer proposal"
+      "superseded": "Replaced by a newer proposal",
+      "applying": "Saving…"
     },
     "channels": {
       "inApp": "In-app",
@@ -623,7 +627,12 @@
       "duplicateGoal": "A goal with a very similar title already exists. Ask Aven to add this plan to that goal instead.",
       "aiOutputLimit": "Aven ran out of room for this answer. Try a more focused request, such as one goal or one week at a time.",
       "planUpgradeRequired": "Aven is included with Pro and Plus. See plans in Billing to upgrade.",
-      "onboardingRequired": "Finish setting up your account to continue."
+      "onboardingRequired": "Finish setting up your account to continue.",
+      "confirmationRequired": "Please confirm this change before it is applied.",
+      "invalidUrl": "Enter a valid http or https link.",
+      "noChanges": "There is nothing to change.",
+      "subjectNotFound": "I couldn’t find that subject. Pick it with @ or check the name.",
+      "subjectRequired": "Choose a subject first."
     },
     "smartTitle": "Create a goal with Aven",
     "smartHelp": "Aven will help you choose a goal and due date. Answer any missing detail, then review and approve the goal.",
@@ -651,16 +660,36 @@
       "more": "Show more results"
     },
     "commands": {
-      "plan": { "description": "Create a learning or goal plan" },
-      "schedule": { "description": "Schedule study sessions in your free time" },
-      "catchup": { "description": "Recover overdue learning work" },
-      "review": { "description": "Analyze your study and goal progress" },
-      "practice": { "description": "Get focused practice for a subject or topic" },
-      "goals": { "description": "Review and manage your goals" },
-      "subjects": { "description": "Review subjects and topics" },
-      "progress": { "description": "Summarize your learning activity" },
-      "friends": { "description": "See your permitted Study Circles activity" },
-      "help": { "description": "Show available commands" }
+      "plan": {
+        "description": "Create a learning or goal plan"
+      },
+      "schedule": {
+        "description": "Schedule study sessions in your free time"
+      },
+      "catchup": {
+        "description": "Recover overdue learning work"
+      },
+      "review": {
+        "description": "Analyze your study and goal progress"
+      },
+      "practice": {
+        "description": "Get focused practice for a subject or topic"
+      },
+      "goals": {
+        "description": "Review and manage your goals"
+      },
+      "subjects": {
+        "description": "Review subjects and topics"
+      },
+      "progress": {
+        "description": "Summarize your learning activity"
+      },
+      "friends": {
+        "description": "See your permitted Study Circles activity"
+      },
+      "help": {
+        "description": "Show available commands"
+      }
     },
     "mentionTypes": {
       "subject": "Subject",
@@ -912,7 +941,30 @@
     "thisTask": "this task",
     "recentChats": "Recent chats",
     "noConversationsTitle": "No conversations yet",
-    "noConversationsHelp": "Ask Aven anything about your studies."
+    "noConversationsHelp": "Ask Aven anything about your studies.",
+    "changeActions": {
+      "create": "Create",
+      "update": "Update",
+      "archive": "Archive",
+      "restore": "Restore",
+      "delete": "Delete",
+      "complete": "Complete",
+      "reopen": "Reopen",
+      "reschedule": "Reschedule",
+      "reorder": "Reorder"
+    },
+    "changeEntities": {
+      "subject": "subject",
+      "topic": "topic",
+      "resource": "link",
+      "goal": "goal",
+      "milestone": "milestone",
+      "task": "task"
+    },
+    "highImpactNote": "This permanently removes records. You will be asked to confirm before anything is deleted.",
+    "confirmHighImpact": "Delete permanently?",
+    "confirmHighImpactHelp": "This removes the listed records and everything inside them, such as topics, sessions or tasks. It cannot be undone from Aven.",
+    "openRecord": "Open"
   },
   "studyflow": {
     "exportUsers": "Export users (CSV)",

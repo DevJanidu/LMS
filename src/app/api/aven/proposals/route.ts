@@ -22,11 +22,15 @@ export async function POST(request: Request) {
         z.object({
           id: z.uuid(),
           decision: z.enum(["approve", "reject", "undo"]),
+          /** Second, explicit confirmation required for destructive or broad changes. */
+          confirmHighImpact: z.boolean().optional(),
         }),
       );
     return privateJson({
       ok: true,
-      ...(await resolveProposal(user.id, input.id, input.decision)),
+      ...(await resolveProposal(user.id, input.id, input.decision, {
+        confirmHighImpact: input.confirmHighImpact === true,
+      })),
     });
   } catch (error) {
     return featureFailure(error);

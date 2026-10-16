@@ -44,6 +44,17 @@ import { processPdf } from "./documents";
 import { learnerAnalytics } from "@/lib/analytics/server";
 import { studyCirclesSnapshot } from "@/lib/circles/assistant";
 import {
+  goalChangesProposal,
+  libraryProposal,
+  manageGoalSchema,
+  manageLibrarySchema,
+  manageSubjectsSchema,
+  manageTopicsSchema,
+  subjectProposal,
+  topicProposal,
+} from "./workspace-actions";
+import { planStudySessions } from "@/lib/learning/slots";
+import {
   loadGoalHealth,
   loadLearningGaps,
   loadTopicCoverage,
@@ -170,6 +181,41 @@ const schemas = {
       .describe("The student's own description of how they feel, not your judgement."),
     explanation: z.string().max(4000),
   }),
+  scheduleStudySessions: z.object({
+    subjects: z
+      .array(
+        z.object({
+          subjectId: z.uuid().nullable(),
+          subjectName: z.string().max(150).nullable(),
+          sessions: z.number().int().min(1).max(7),
+        }),
+      )
+      .min(1)
+      .max(6),
+    minutes: z.number().int().min(15).max(120).describe("Per session; 45-60 is a good default."),
+    from: z.iso.date().describe("First day (account local date)."),
+    to: z.iso.date().describe("Last day, inclusive; at most 14 days after from."),
+    earliest: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+      .nullable()
+      .describe("Earliest start, HH:mm, when the student gave one (\"after 7 PM\" = 19:00); null uses their preferred study hours."),
+    latest: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+      .nullable()
+      .describe("Latest end, HH:mm; null uses their preferred end, or at least three hours after a stated earliest start (until 23:00)."),
+    explanation: z.string().min(1).max(4000),
+  }),
+  manageSubjects: manageSubjectsSchema,
+  manageTopics: manageTopicsSchema,
+  manageLibrary: manageLibrarySchema,
+  manageGoal: manageGoalSchema,
+  listReminders: empty,
+  cancelReminders: z.object({
+    reminderIds: z.array(z.uuid()).min(1).max(10),
+    explanation: z.string().max(4000),
+  }),
   completeGoal: z.object({
     goalId: z.uuid(),
     expectedVersion: z.number().int().positive(),
@@ -254,6 +300,12 @@ const writeTools = new Set<AvenToolName>([
   "rememberPreference",
   "proposePracticeSessions",
   "recordLearningSignal",
+  "scheduleStudySessions",
+  "manageSubjects",
+  "manageTopics",
+  "manageLibrary",
+  "manageGoal",
+  "cancelReminders",
   "proposeGoal",
   "proposeGoalPlan",
   "proposeGoalHierarchy",
@@ -263,11 +315,26 @@ const writeTools = new Set<AvenToolName>([
   "rescheduleStudySession",
   "createReminder",
 ]);
+const writeToolHints: Record<string, string> = {
+  scheduleStudySessions:
+    "Schedule sessions for one or more subjects in a date window (for example Java, SQL and Spring Boot next week after 7 PM). The server finds free slots in the student's calendar: no overlaps, 15-minute breaks, study days and the daily target; it reports unplaced sessions and trade-offs instead of inventing time. Resolve relative dates from the verified local date; don't ask for exact times. ",
+  manageSubjects:
+    "Create, rename, re-date, archive, restore or delete subjects. Deleting a subject removes its topics, resources and sessions and needs a second confirmation. ",
+  manageTopics:
+    "Create, rename, re-date, complete, reopen or delete topics. Completing a topic records completion, not mastery. ",
+  manageLibrary:
+    "Add http(s) links to a subject's library or delete resources. Use organizeLearningResource to move or rename existing resources. ",
+  manageGoal:
+    "Update or delete a goal, update, delete or reorder milestones, and complete, reopen, reschedule, update or delete tasks. Use createGoalMilestone/createGoalTask to add items. Deleting a goal needs a second confirmation. ",
+  cancelReminders: "Cancel pending reminders listed by listReminders. ",
+};
 const learningToolDescriptions = {
   auditTopicCoverage:
     "Audit one subject's topics from database records: required, completed, remaining, overdue, never scheduled, planned but unfinished, repeatedly postponed, upcoming coverage and prerequisite gaps. Use its counts verbatim; never compute them yourself. Completed is not mastery.",
   getGoalHealth:
     "Explainable health (onTrack, needsAttention, atRisk) for active goals or one goal, with the rule-based reasons and metrics behind it: milestones, overdue work, blockers, remaining versus available minutes and trend.",
+  listReminders:
+    "List the student's pending one-off reminders (title, due time, ID) so a specific one can be cancelled.",
   getLearningGaps:
     "Deterministic findings across the account, ranked critical > high > medium > low: overdue prerequisites, overdue milestones and tasks, postponed topics, missed sessions, time spent elsewhere while important work waits, reported difficulty without practice, inactive goals.",
 } as const;
@@ -300,7 +367,7 @@ export const avenTools = Object.entries(schemas).map(([name, schema]) => ({
   name,
   strict: true,
   description: writeTools.has(name as AvenToolName)
-    ? `${name}: create a reviewable proposal only. Never execute a change; the user must approve it in the application.`
+    ? `${name}: ${writeToolHints[name] ?? ""}Create a reviewable proposal only. Never execute a change; the user must approve it in the application.`
     : name === "getCalendar"
       ? "Read the user's actual study sessions in account local time. from is inclusive, to is exclusive, both YYYY-MM-DD. For one day use from=day and to=next day; equal dates also mean that single day. Use this for tomorrow's schedule before proposing a move."
       : name === "getUserGoals"
@@ -747,6 +814,140 @@ async function performAvenTool(
       topicTitle: topic?.title ?? null,
       level: value.level,
       explanation: value.explanation,
+    });
+  }
+  if (name === "scheduleStudySessions") {
+    const value = args as {
+      subjects: { subjectId: string | null; subjectName: string | null; sessions: number }[];
+      minutes: number;
+      from: string;
+      to: string;
+      earliest: string | null;
+      latest: string | null;
+      explanation: string;
+    };
+    if (value.to < value.from || Date.parse(value.to) - Date.parse(value.from) > 14 * 86400000)
+      throw new GoalError("invalidInput");
+    const subjects: { subjectId: string; title: string; sessions: number }[] = [];
+    for (const item of value.subjects) {
+      const subject = await resolveOwnedSubject(userId, item.subjectId, item.subjectName);
+      if (!subjects.some((other) => other.subjectId === subject.id))
+        subjects.push({ subjectId: subject.id, title: subject.title, sessions: item.sessions });
+    }
+    const { ai } = await getAvenPreferences(userId);
+    const earliest = value.earliest ?? ai.preferredStudyStart;
+    // A stated start ("after 7 PM") opens at least three hours (until 23:00 at most),
+    // or the usual study end when that is later; the student's words outrank habits.
+    const [hour, minute] = earliest.split(":").map(Number);
+    const extended = `${String(Math.min(23, hour + 3)).padStart(2, "0")}:${String(hour + 3 >= 23 ? 0 : minute).padStart(2, "0")}`;
+    const latest =
+      value.latest ??
+      (value.earliest
+        ? [ai.preferredStudyEnd, extended].sort().at(-1)!
+        : ai.preferredStudyEnd);
+    if (latest <= earliest) throw new GoalError("invalidInput");
+    const commitments = getOccurrences(
+      await getScheduleBlocksInRange(userId, { from: value.from, to: shiftDay(value.to, 1) }, timezone),
+      value.from,
+      value.to,
+    ).map((item) => ({
+      blockId: item.block.id,
+      date: item.date,
+      title: item.title,
+      startsAt: item.startsAt,
+      endsAt: item.endsAt,
+    }));
+    const plan = planStudySessions({
+      subjects,
+      minutes: value.minutes,
+      from: value.from,
+      to: value.to,
+      earliest,
+      latest,
+      studyDays: ai.studyDays,
+      dailyTargetMinutes: ai.dailyTargetMinutes,
+      commitments,
+      timezone,
+      now: Date.now(),
+    });
+    const facts = {
+      window: { from: value.from, to: value.to, earliest, latest, studyDays: ai.studyDays },
+      dailyTargetMinutes: ai.dailyTargetMinutes,
+      unplaced: plan.unplaced,
+      constraint: plan.constraint,
+      tradeoffs: plan.tradeoffs.map((item) => ({
+        title: item.title,
+        localStartsAt: wallTime(item.startsAt, timezone),
+      })),
+    };
+    if (!plan.sessions.length)
+      return {
+        proposalCreated: false,
+        ...facts,
+        next: "No free time fits. Never invent time or remove sessions; offer the trade-offs (another window, shorter sessions, fewer sessions, a higher daily target or moving a listed session) and ask one question.",
+      };
+    return {
+      ...(await proposal({
+        kind: "schedule",
+        goalId: null,
+        expectedVersion: 0,
+        explanation: value.explanation,
+        sessions: plan.sessions.map((item) => ({
+          title: item.title,
+          taskId: null,
+          subjectId: item.subjectId,
+          topicId: null,
+          startsAt: item.startsAt,
+          endsAt: item.endsAt,
+        })),
+      })),
+      ...facts,
+      sessions: plan.sessions.map((item) => ({
+        subject: item.title,
+        localStartsAt: wallTime(item.startsAt, timezone),
+        localEndsAt: wallTime(item.endsAt, timezone),
+      })),
+    };
+  }
+  if (name === "manageSubjects")
+    return proposal(await subjectProposal(userId, args as z.infer<typeof manageSubjectsSchema>));
+  if (name === "manageTopics")
+    return proposal(await topicProposal(userId, args as z.infer<typeof manageTopicsSchema>));
+  if (name === "manageLibrary")
+    return proposal(await libraryProposal(userId, args as z.infer<typeof manageLibrarySchema>));
+  if (name === "manageGoal")
+    return proposal(await goalChangesProposal(userId, args as z.infer<typeof manageGoalSchema>));
+  if (name === "listReminders" || name === "cancelReminders") {
+    const rows = await db
+      .select({
+        id: s.scheduledCheckIns.id,
+        dueAt: s.scheduledCheckIns.dueAt,
+        value: s.scheduledCheckIns.value,
+      })
+      .from(s.scheduledCheckIns)
+      .where(
+        and(
+          eq(s.scheduledCheckIns.userId, userId),
+          eq(s.scheduledCheckIns.kind, "manual"),
+          eq(s.scheduledCheckIns.status, "pending"),
+        ),
+      )
+      .orderBy(s.scheduledCheckIns.dueAt)
+      .limit(50);
+    const reminders = rows.map((row) => ({
+      id: row.id,
+      title: (row.value.title ?? "").slice(0, 200),
+      localDueAt: wallTime(row.dueAt.toISOString(), timezone),
+    }));
+    if (name === "listReminders") return { reminders, total: reminders.length };
+    const value = args as { reminderIds: string[]; explanation: string };
+    const chosen = reminders.filter((item) => value.reminderIds.includes(item.id));
+    if (chosen.length !== new Set(value.reminderIds).size)
+      throw new GoalError("recordUnavailable", 404);
+    return proposal({
+      kind: "cancelReminders",
+      explanation: value.explanation,
+      reminders: chosen.map(({ id, title }) => ({ id, title })),
     });
   }
   if (name === "completeGoal" || name === "createGoalMilestone") {

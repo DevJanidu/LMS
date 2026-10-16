@@ -129,6 +129,8 @@ export const aiPlanProposals = pgTable(
       goalId?: string;
       blockIds?: string[];
       notificationId?: string;
+      /** Records created or updated by an approved workspace proposal, for links in the card. */
+      records?: { entity: string; id: string }[];
       undo?: import("@/lib/aven/undo").ProposalUndo;
     }>(),
     expiresAt: time("expires_at").notNull(),

@@ -1,5 +1,6 @@
-import { localDay, shiftDay, zonedToUtc } from "@/lib/analytics";
-import { committedMinutes, overlaps } from "@/lib/aven/planning";
+import { localDay, shiftDay } from "@/lib/analytics";
+import { committedMinutes } from "@/lib/aven/planning";
+import { firstFreeSlot } from "./slots";
 import type { AiPreferences } from "@/lib/aven/validation";
 import type { TopicCoverageAudit } from "./coverage";
 import type { SubjectAttention } from "./signals";
@@ -35,7 +36,6 @@ export interface PracticeRequest {
   minutes: number;
   horizonDays: number;
 }
-const BUFFER = 15 * 60000;
 export function choosePracticeTopics(
   audit: TopicCoverageAudit,
   attention: SubjectAttention,
@@ -128,38 +128,15 @@ export function planPracticeSessions(input: {
     const day = shiftDay(today, offset);
     if (!preferences.studyDays.includes(new Date(`${day}T12:00:00Z`).getUTCDay()))
       continue;
-    const windowEnd = Date.parse(
-      zonedToUtc(`${day}T${preferences.preferredStudyEnd}`, timezone),
-    );
-    let cursor = Math.max(
-      // Leave time to prepare; round to the next quarter hour.
-      Math.ceil((now + 30 * 60000) / (15 * 60000)) * 15 * 60000,
-      Date.parse(zonedToUtc(`${day}T${preferences.preferredStudyStart}`, timezone)),
-    );
-    const length = request.minutes * 60000;
-    let slot: { startsAt: string; endsAt: string } | null = null;
-    while (cursor + length <= windowEnd) {
-      const candidate = {
-        startsAt: new Date(cursor).toISOString(),
-        endsAt: new Date(cursor + length).toISOString(),
-      };
-      const conflict = input.commitments
-        .filter((item) =>
-          overlaps(
-            {
-              startsAt: new Date(cursor - BUFFER).toISOString(),
-              endsAt: new Date(cursor + length + BUFFER).toISOString(),
-            },
-            item,
-          ),
-        )
-        .sort((a, b) => b.endsAt.localeCompare(a.endsAt))[0];
-      if (!conflict) {
-        slot = candidate;
-        break;
-      }
-      cursor = Date.parse(conflict.endsAt) + BUFFER;
-    }
+    const slot = firstFreeSlot({
+      day,
+      start: preferences.preferredStudyStart,
+      end: preferences.preferredStudyEnd,
+      minutes: request.minutes,
+      commitments: input.commitments,
+      timezone,
+      now,
+    });
     if (!slot) continue;
     const load =
       committedMinutes(day, timezone, input.commitments) + request.minutes;
