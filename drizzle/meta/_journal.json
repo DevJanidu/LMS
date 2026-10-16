@@ -85,6 +85,13 @@
       "when": 1791832276786,
       "tag": "0011_billing_subscriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792157039000,
+      "tag": "0012_study_circles",
+      "breakpoints": true
     }
   ]
 }

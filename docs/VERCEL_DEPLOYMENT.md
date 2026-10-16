@@ -1,5 +1,7 @@
 # Vercel production configuration
 
+> Historical audit below. The current three-environment setup and isolation requirements are in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). The legacy shared local/production credentials described here were preserved but must no longer be used for development or staging. Hosted staging remains disabled until its own services and variable scopes are configured.
+
 Audited on 10 October 2026. The production domain is https://acadence.janidudev.com. Database, storage, Redis, auth and cron credentials are reused from `.env.local` at the owner's request. `.env.production` is the private, gitignored import file. Never commit its contents.
 
 ## Environment inventory

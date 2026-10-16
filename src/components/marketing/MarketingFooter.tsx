@@ -17,7 +17,7 @@ export default function MarketingFooter() {
     { key: "product", links: [{ key: "features", href: "/#features" }, { key: "aven", href: "/#aven" }, { key: "pricing", href: "/pricing" }] },
     { key: "company", links: [{ key: "howItWorks", href: "/#how-it-works" }, { key: "faq", href: "/#faq" }, ...(contactEmail ? [{ key: "contact", href: `mailto:${contactEmail}` }] : [])] },
     { key: "legal", links: [{ key: "privacy", href: "/privacy" }, { key: "terms", href: "/terms" }, { key: "cancellation", href: "/pricing#faq-cancel" }] },
-    { key: "account", links: [{ key: "login", href: "/login" }, { key: "signup", href: "/register" }] },
+    { key: "account", links: [{ key: "login", href: "/login" }, { key: "signup", href: "/login" }] },
   ];
   return (
     <footer className="mk-footer">

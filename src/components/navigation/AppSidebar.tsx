@@ -1,16 +1,11 @@
 "use client";
-import type { Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { CloseIcon, SettingsIcon } from "@/icons";
+import { CloseIcon, PanelIcon } from "@/icons";
 import BrandLogo from "@/components/studyflow/BrandLogo";
-import SidebarNavigation, { SidebarLink } from "./SidebarNavigation";
-import {
-  homeHref,
-  isActiveRoute,
-  navigationFor,
-  settingsHref,
-} from "./navigation";
+import SidebarNavigation from "./SidebarNavigation";
+import { homeHref, navigationFor } from "./navigation";
 interface Props {
   admin: boolean;
   path: string;
@@ -21,10 +16,14 @@ interface Props {
   sidebarRef?: Ref<HTMLElement>;
   /** Receives the contextual area so pages can portal sections into it. */
   slotRef?: (node: HTMLElement | null) => void;
+  /** Account card (avatar, plan, settings and sign-out menu) pinned to the bottom. */
+  account?: ReactNode;
+  /** Desktop collapse control; absent in the loading shell, which has no sidebar state. */
+  collapse?: { expanded: boolean; onToggle: () => void };
 }
 /**
- * The single application sidebar: fixed brand and navigation, a scrollable
- * contextual area (e.g. Aven conversations), and settings pinned to the bottom.
+ * The single application sidebar: brand and collapse control, grouped navigation,
+ * a scrollable contextual area (e.g. Aven conversations), and the account card.
  */
 export default function AppSidebar({
   admin,
@@ -35,9 +34,10 @@ export default function AppSidebar({
   onNavigate,
   sidebarRef,
   slotRef,
+  account,
+  collapse,
 }: Props) {
   const t = useTranslations("studyflow");
-  const settings = settingsHref(admin);
   return (
     <aside
       id="app-sidebar"
@@ -52,6 +52,17 @@ export default function AppSidebar({
             <BrandLogo className="sf-sidebar-brand-full" />
             <BrandLogo variant="mark" className="sf-sidebar-brand-mark" />
           </Link>
+          {collapse && <button
+            type="button"
+            onClick={collapse.onToggle}
+            aria-label={t("redesign.collapse")}
+            aria-expanded={collapse.expanded}
+            aria-controls="app-sidebar"
+            data-tooltip={t("redesign.collapse")}
+            className="sf-sidebar-collapse"
+          >
+            <PanelIcon className="size-4" />
+          </button>}
           {onCloseMobile && (
             <button
               type="button"
@@ -73,17 +84,7 @@ export default function AppSidebar({
         />
       </div>
       <div ref={slotRef} className="sf-sidebar-context" />
-      <div className="sf-sidebar-footer">
-        <SidebarLink
-          href={settings}
-          label={t("settings")}
-          active={isActiveRoute(path, settings)}
-          pending={pendingHref === settings}
-          onClick={() => onNavigate?.(settings, isActiveRoute(path, settings))}
-        >
-          <SettingsIcon className="size-5" />
-        </SidebarLink>
-      </div>
+      {account && <div className="sf-sidebar-footer">{account}</div>}
     </aside>
   );
 }

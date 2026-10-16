@@ -1,7 +1,14 @@
 import { loadEnvConfig } from "@next/env";
 import { defineConfig } from "drizzle-kit";
+import { assertEnvironmentIsolation, deploymentEnvironment } from "./src/lib/deployment-policy.mjs";
 
 loadEnvConfig(process.cwd());
+if (process.argv.some(arg => ["migrate", "push", "studio", "pull"].includes(arg))) {
+  assertEnvironmentIsolation(process.env);
+  if (deploymentEnvironment(process.env) === "production" && process.env.ACADENCE_MIGRATION_APPROVED !== "true") {
+    throw new Error("Use the reviewed production migration command in docs/DEPLOYMENT_GUIDE.md.");
+  }
+}
 
 export default defineConfig({
   dialect: "postgresql",

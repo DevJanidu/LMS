@@ -1,27 +1,25 @@
 import { expect, test } from "@playwright/test";
 import messages from "../../src/messages/en.json";
+import { signInAsNewGoogleLearner } from "./google-session";
 
 test("public pages and unauthenticated route protection", async ({ page }) => {
   await page.goto("/dashboard"); await expect(page).toHaveURL(/\/login\?returnTo=%2Fdashboard$/);
-  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: messages.studyflow.continueWithGoogle, exact: true })).toBeVisible();
   await page.goto("/admin"); await expect(page).toHaveURL(/\/login\?returnTo=%2Fadmin$/);
-  await page.goto("/register"); await expect(page.getByLabel("Date of birth (optional)")).toBeVisible();
+  await page.goto("/register"); await expect(page).toHaveURL(/\/login$/);
   await page.setViewportSize({ width: 360, height: 780 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.goto("/privacy"); await expect(page.getByText(/Owner policy placeholder:/)).toBeVisible();
 });
 
-test("filled onboarding recovers from a failed final save without duplicating records", async ({ page, context }) => {
+test("filled onboarding recovers from a failed final save without duplicating records", async ({ page, context, baseURL }) => {
   test.setTimeout(180000);
   test.skip(!process.env.E2E_DATABASE_READY, "Requires the configured test database.");
   const t = messages.studyflow;
-  await page.goto("/register");
-  await page.getByLabel("Name", { exact: true }).fill("Onboarding Fixture");
-  await page.getByLabel("Email", { exact: true }).fill(`e2e-${crypto.randomUUID()}@example.com`);
-  await page.getByLabel("Password", { exact: true }).fill("fixture-password-only");
-  await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Sign up", exact: true }).click();
+  await signInAsNewGoogleLearner(context, baseURL!, "Onboarding Fixture");
+  await page.goto("/login");
   await expect(page).toHaveURL(/\/onboarding$/);
+  await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: t.continue, exact: true }).click();
   await page.getByRole("button", { name: t.continue, exact: true }).click();
   await page.getByLabel(t.subjectTitle, { exact: true }).fill("Filled onboarding fixture");
@@ -44,21 +42,19 @@ test("filled onboarding recovers from a failed final save without duplicating re
   await page.goto("/settings");
   await page.getByRole("button", { name: t.deleteAccount, exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: t.confirm, exact: true }).click();
-  await expect(page).toHaveURL(/\/register$/);
+  await expect(page).toHaveURL(/\/login$/);
 });
 
-test("learner registration, topics, server timer refresh and history", async ({ page }) => {
+test("learner registration, topics, server timer refresh and history", async ({ page, context, baseURL }) => {
   test.setTimeout(300000);
   test.skip(!process.env.E2E_DATABASE_READY, "Requires a migrated disposable Neon branch and configured app environment.");
-  const email = `e2e-${crypto.randomUUID()}@example.com`;
-  await page.goto("/register");
-  await page.getByLabel("Name", { exact: true }).fill("Integration Learner");
-  await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: true }).fill("fixture-password-only");
-  await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Sign up", exact: true }).click();
+  await signInAsNewGoogleLearner(context, baseURL!, "Integration Learner");
+  await page.goto("/login");
   await expect(page).toHaveURL(/\/onboarding$/);
-  for (let step = 0; step < 5; step++) await page.getByRole("button", { name: "Skip", exact: true }).click();
+  // Consent has no skip; the remaining steps can be skipped.
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  for (let step = 1; step < 5; step++) await page.getByRole("button", { name: "Skip", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await page.goto("/subjects?add=1");
   await page.getByLabel("Title", { exact: true }).fill("E2E Subject");
@@ -91,7 +87,7 @@ test("learner registration, topics, server timer refresh and history", async ({ 
   await page.goto("/settings");
   await page.getByRole("button", { name: "Delete my account", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm", exact: true }).click();
-  await expect(page).toHaveURL(/\/register$/);
+  await expect(page).toHaveURL(/\/login$/);
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login\?returnTo=%2Fdashboard$/);
 });

@@ -1,7 +1,6 @@
 import { config } from "dotenv";
 import { neon } from "@neondatabase/serverless";
 import { S3Client, ListBucketsCommand } from "@aws-sdk/client-s3";
-import { verify } from "@node-rs/argon2";
 
 config({ path: ".env.local", quiet: true });
 const report = (check, result) => process.stdout.write(`${JSON.stringify({ check, ...result })}\n`);
@@ -14,11 +13,11 @@ try {
   const pooled = neon(process.env.DATABASE_URL);
   const [pooledResult] = await pooled`select 1 as reachable`;
   report("pooled_database", { ok: pooledResult.reachable === 1 });
-  if (tables.some(row => row.tablename === "users") && process.env.SEED_USER_EMAIL && process.env.SEED_USER_PASSWORD) {
-    const [user] = await sql`select u.role, u.status, a.password from users u join accounts a on a.user_id = u.id where u.email = ${process.env.SEED_USER_EMAIL.toLowerCase()} and a.provider_id = 'credential'`;
-    const passwordMatches = Boolean(user?.password && await verify(user.password, process.env.SEED_USER_PASSWORD));
-    report("seed_user", { ok: passwordMatches, role: user?.role, status: user?.status, passwordMatches, hashAlgorithm: user?.password?.startsWith("$argon2id$") ? "argon2id" : "other" });
-    if (!passwordMatches) failed = true;
+  if (tables.some(row => row.tablename === "users") && process.env.SEED_USER_EMAIL) {
+    // Google is the only sign-in method: report whether the seeded account can sign in with it.
+    const [user] = await sql`select u.role, u.status, exists(select 1 from accounts a where a.user_id = u.id and a.provider_id = 'google') as google from users u where u.email = ${process.env.SEED_USER_EMAIL.toLowerCase()}`;
+    report("seed_user", { ok: Boolean(user), role: user?.role, status: user?.status, googleLinked: Boolean(user?.google) });
+    if (!user) failed = true;
     const [migration] = await sql`select count(*)::int as applied from drizzle.__drizzle_migrations`;
     report("migrations", { ok: true, applied: migration.applied });
   }

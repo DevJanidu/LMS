@@ -2,8 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
 import en from "@/messages/en.json";
+vi.mock("@/app/[locale]/auth-actions", () => ({ signOut: vi.fn() }));
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/dashboard",
+  useRouter: () => ({ replace: vi.fn() }),
   Link: ({
     href,
     children,
@@ -42,6 +44,12 @@ vi.mock("@/icons", () => {
       "SearchIcon",
       "CommandIcon",
       "ArrowRightIcon",
+      "PanelIcon",
+      "MoreIcon",
+      "LogOutIcon",
+      "CreditCardIcon",
+      "SunIcon",
+      "MonitorIcon",
     ].map((name) => [name, Icon]),
   );
 });
@@ -49,6 +57,8 @@ vi.mock("@/components/studyflow/BrandLogo", () => ({
   default: () => <span>Acadence</span>,
 }));
 import AppSidebar from "@/components/navigation/AppSidebar";
+import SidebarAccount from "@/components/navigation/SidebarAccount";
+import { ThemeProvider } from "@/context/ThemeContext";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 vi.mock("@/components/calendar/PlannerLoading", () => ({ default: () => null }));
 vi.mock("@/components/studyflow/LoadingSkeleton", () => ({ default: () => null }));
@@ -62,7 +72,15 @@ import {
 const render = (path: string, admin = false) =>
   renderToStaticMarkup(
     <NextIntlClientProvider locale="en" messages={en} timeZone="UTC">
-      <AppSidebar admin={admin} path={path} mobileOpen={false} />
+      <ThemeProvider>
+        <AppSidebar
+          admin={admin}
+          path={path}
+          mobileOpen={false}
+          collapse={{ expanded: true, onToggle: () => {} }}
+          account={<SidebarAccount name="Nimali Perera" email="nimali@example.com" image={null} admin={admin} planName={admin ? undefined : "Free"} showUpgrade={!admin} />}
+        />
+      </ThemeProvider>
     </NextIntlClientProvider>,
   );
 describe("unified application sidebar", () => {
@@ -86,7 +104,7 @@ describe("unified application sidebar", () => {
     expect(onError).not.toHaveBeenCalled();
     expect(html).toMatch(/sf-mobile-nav[\s\S]*href="\/dashboard"[\s\S]*<span>Home<\/span>/);
   });
-  it("renders one sidebar with every destination, a contextual area and settings at the bottom", () => {
+  it("renders one sidebar with every destination, a contextual area and the account card at the bottom", () => {
     const html = render("/aven");
     expect(html.match(/<aside/g)).toHaveLength(1);
     for (const label of [
@@ -98,7 +116,6 @@ describe("unified application sidebar", () => {
       "Library",
       "Goals",
       "Aven AI",
-      "Settings",
     ])
       expect(html).toContain(`aria-label="${label}"`);
     const order = [
@@ -107,9 +124,16 @@ describe("unified application sidebar", () => {
       "sf-sidebar-footer",
     ].map((name) => html.indexOf(name));
     expect([...order].sort((a, b) => a - b)).toEqual(order);
+    // Settings, billing and sign-out live in the account menu in the footer.
     expect(html.indexOf('href="/settings"')).toBeGreaterThan(
       html.indexOf("sf-sidebar-footer"),
     );
+    expect(html).toContain('aria-label="Account menu for Nimali Perera"');
+    expect(html).toMatch(/role="menu"[^>]*hidden/);
+    expect(html).toContain('href="/billing"');
+    for (const group of ["Workspace", "Insights", "Tools"]) expect(html).toContain(">" + group + "<");
+    expect(html).toMatch(/aria-label="Aven AI"[\s\S]*?sf-nav-badge[^>]*>AI</);
+    expect(html).toContain('aria-label="Collapse or expand navigation"');
   });
   it("highlights exactly the active section, including nested routes", () => {
     const html = render("/goals/8d0f7c56-8a51-4a9e-9a6f-2a1f5d1a7c11");

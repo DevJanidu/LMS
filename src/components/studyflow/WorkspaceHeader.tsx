@@ -33,7 +33,7 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
   const locale = useLocale();
   const [loggingOut, setLoggingOut] = useState(false), [logoutError, setLogoutError] = useState("");
   const data = useWorkspace(initial);
-  const { isMobileOpen, toggleMobileSidebar, isExpanded, toggleSidebar } =
+  const { isMobileOpen, toggleMobileSidebar } =
     useSidebar();
   const notifications = getNotifications(data);
   const themeSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -80,14 +80,6 @@ export default function WorkspaceHeader({ initial, admin, onSearch }: Props) {
     <header className="sf-topbar">
       <div className="sf-header-grid">
         <div className="sf-header-left">
-          <button
-            onClick={toggleSidebar}
-            aria-label={t("redesign.collapse")}
-            aria-expanded={isExpanded}
-            className="sf-icon-button sf-desktop-menu"
-          >
-            <ListIcon />
-          </button>
           <button
             onClick={toggleMobileSidebar}
             aria-label={t("openMenu")}

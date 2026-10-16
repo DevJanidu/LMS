@@ -202,3 +202,21 @@ button.aven-history-label:hover { color: var(--text-secondary); }
 }
 /* Declared last: these classes share elements with display-setting Aven classes, which are unlayered and would otherwise beat Tailwind utilities. */
 @media (min-width: 1024px) { .aven-mobile-only { display: none; } }
+
+/* Sidebar conversations: gradient call to action, collapsible recent list, quiet privacy hint. */
+.aven-new-chat { justify-content: center; border-color: transparent; border-radius: var(--radius-control); background: var(--action); color: var(--color-white); box-shadow: var(--shadow-surface); transition: background-color var(--motion-fast), transform var(--motion-fast); }
+.aven-new-chat:hover:not(:disabled) { border-color: transparent; background: var(--action-hover); }
+.aven-new-chat:active:not(:disabled) { transform: scale(.98); }
+.aven-sidebar-tools { background: var(--sidebar-surface); }
+.aven-recent-head { display: flex; align-items: center; gap: .25rem; padding-inline-start: .25rem; }
+.aven-recent-toggle { display: flex; flex: 1; align-items: center; gap: .375rem; min-height: 2rem; color: var(--text-muted); font-size: .6875rem; line-height: 1rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.aven-recent-toggle:hover { color: var(--text-secondary); }
+.aven-recent-toggle svg { transition: transform var(--motion-fast); }
+.aven-recent-toggle[aria-expanded=false] svg { transform: rotate(-90deg); }
+[dir=rtl] .aven-recent-toggle[aria-expanded=false] svg { transform: rotate(90deg); }
+.aven-private { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: var(--radius-sm); color: var(--text-muted); }
+.aven-private:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.aven-recent-head .aven-icon-button { width: 2rem; height: 2rem; min-height: 2rem; }
+.aven-history-empty-state { display: grid; justify-items: center; gap: .25rem; padding: 1.25rem .75rem; text-align: center; color: var(--primary); }
+.aven-empty-title { @apply text-small; color: var(--text-primary); font-weight: 600; }
+.aven-history-empty-state .aven-history-empty { padding: 0; }

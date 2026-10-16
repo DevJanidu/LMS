@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
+import { learnerOnboarded } from "@/lib/auth/policy";
 import { getEnv } from "@/lib/env";
 import { operationsSchema } from "@/lib/validation/operations";
 import { DomainError, mutate } from "@/lib/services/mutations";
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) return respond({ ok: false, error: "authenticationFailed" }, 401);
+    if (user.role === "learner" && !learnerOnboarded(user)) return respond({ ok: false, error: "onboardingRequired" }, 403);
     const text = await request.text();
     if (text.length > 1048576) return respond({ ok: false, error: "invalidInput" }, 413);
     const parsed = inputSchema.safeParse(JSON.parse(text));
@@ -49,6 +51,7 @@ export async function GET(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) return respond({ ok: false, error: "authenticationFailed" }, 401);
+    if (user.role === "learner" && !learnerOnboarded(user)) return respond({ ok: false, error: "onboardingRequired" }, 403);
     const parsed = groupsSchema.safeParse(new URL(request.url).searchParams.get("groups")?.split(",") ?? ["shell"]);
     if (!parsed.success) return respond({ ok: false, error: "invalidInput" }, 400);
     const groups = [...new Set(parsed.data)];

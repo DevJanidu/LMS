@@ -1,7 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { z } from "zod";
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { getGoalDetail, goalReferences, GoalError } from "@/lib/goals/service";
 import GoalDetailView from "@/components/goals/GoalDetailView";
 export default async function Page({
@@ -11,7 +11,7 @@ export default async function Page({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const user = await requireLearner();
+  const user = await requireOnboardedLearner();
   if (!z.uuid().safeParse(id).success) notFound();
   const [initial, references] = await Promise.all([
     getGoalDetail(user.id, id),

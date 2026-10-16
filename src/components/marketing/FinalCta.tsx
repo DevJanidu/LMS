@@ -11,7 +11,7 @@ export default function FinalCta() {
           <h2 id="mk-cta-title" className="mk-title mx-auto max-w-2xl">{t("title")}</h2>
           <p className="mk-lead mx-auto mt-4 max-w-xl">{t("description")}</p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/register" className="mk-btn mk-btn-primary mk-btn-lg w-full sm:w-auto">{t("primary")}<ArrowRightIcon /></Link>
+            <Link href="/login" className="mk-btn mk-btn-primary mk-btn-lg w-full sm:w-auto">{t("primary")}<ArrowRightIcon /></Link>
             <Link href="/pricing" className="mk-btn mk-btn-secondary mk-btn-lg w-full sm:w-auto">{t("secondary")}</Link>
           </div>
           <p className="mt-5 text-small mk-muted">{t("trust")}</p>

@@ -2,6 +2,7 @@ import "server-only";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { getDatabaseEnv } from "@/lib/env";
+import { assertEnvironmentIsolation } from "@/lib/deployment-policy.mjs";
 import * as schema from "./schema";
 import { recordQuery } from "./metrics";
 neonConfig.poolQueryViaFetch = true;
@@ -9,6 +10,7 @@ neonConfig.poolQueryViaFetch = true;
 /** WebSocket driver supports interactive transactions for timers and ordering. */
 let database: ReturnType<typeof drizzle<typeof schema>> | undefined;
 export function getDb() {
+  assertEnvironmentIsolation(process.env);
   if (database) return database;
   const pool = new Pool({ connectionString: getDatabaseEnv().DATABASE_URL, max: 10, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000 });
   // The driver discards disconnected idle clients. Handle its error event so a

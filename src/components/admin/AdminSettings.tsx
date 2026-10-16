@@ -8,6 +8,7 @@ import Button from "@/components/ui/button/Button";
 import PageHeader from "@/components/studyflow/PageHeader";
 import Field from "@/components/studyflow/FormFields";
 import ComponentCard from "@/components/common/ComponentCard";
+import SecuritySection from "@/components/settings/SecuritySection";
 import EmptyState from "@/components/studyflow/EmptyState";
 import {
   Table,
@@ -144,6 +145,7 @@ export default function AdminSettings({ initial }: Props) {
             <EmptyState title={t("noAudit")} />
           )}
         </ComponentCard>
+        <SecuritySection />
       </div>
     </>
   );

@@ -19,8 +19,8 @@ const environmentSchema = z.object({
     const address = value.includes("<") ? /^[^<>]+<([^<>]+)>$/.exec(value)?.[1] : value;
     return z.email().safeParse(address).success;
   }, "Use an email address or Name <email@domain>.").optional(),
-  GOOGLE_CLIENT_ID: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
   OBJECT_STORAGE_ENDPOINT: z.string().url(),
   OBJECT_STORAGE_REGION: z.string().min(1),
   OBJECT_STORAGE_BUCKET: z.string().min(1),
@@ -31,27 +31,40 @@ const environmentSchema = z.object({
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   CACHE_NAMESPACE: z.enum(["development", "preview", "production", "test"]).default("development"),
   SEED_USER_EMAIL: z.email().optional(),
-  SEED_USER_PASSWORD: z.string().min(8).max(128).optional(),
   SEED_USER_NAME: z.string().trim().min(1).optional(),
   SEED_USER_ROLE: z.enum(["learner", "super_admin"]).optional(),
+  VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
 }).superRefine((env, ctx) => {
+  deploymentSafety(env, ctx);
   if (env.RESEND_API_KEY && !env.EMAIL_FROM) {
     ctx.addIssue({ code: "custom", path: ["EMAIL_FROM"], message: "Set both email variables to enable delivery; a sender alone is allowed while the API key is pending." });
-  }
-  if (Boolean(env.GOOGLE_CLIENT_ID) !== Boolean(env.GOOGLE_CLIENT_SECRET)) {
-    ctx.addIssue({ code: "custom", path: ["GOOGLE_CLIENT_ID"], message: "Set both Google OAuth variables or neither." });
   }
 });
 
 export type Environment = z.infer<typeof environmentSchema>;
 
-const accountSchema = z.object({
+/** The canonical public origin. Only the production deployment may use it. */
+export const PRODUCTION_ORIGIN = "https://acadence.janidudev.com";
+const accountFields = z.object({
   DATABASE_URL: z.string().url(), AUTH_SECRET: z.string().min(32), APP_URL: z.string().url(),
   RESEND_API_KEY: z.string().optional(), EMAIL_FROM: z.string().optional(),
-  GOOGLE_CLIENT_ID: z.string().optional(), GOOGLE_CLIENT_SECRET: z.string().optional(),
+  // Google is the only sign-in method, so both OAuth settings are required.
+  GOOGLE_CLIENT_ID: z.string().min(1), GOOGLE_CLIENT_SECRET: z.string().min(1),
+  VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
 });
-const databaseSchema = accountSchema.pick({ DATABASE_URL: true });
-const accountEmailSchema = accountSchema.extend({ RESEND_API_KEY: environmentSchema.shape.RESEND_API_KEY, EMAIL_FROM: environmentSchema.shape.EMAIL_FROM });
+/**
+ * OAuth redirect URIs and cookies derive from APP_URL. Hosted deployments must use
+ * HTTPS, and a preview (staging) deployment must not present itself as production,
+ * which would send Google callbacks and sessions to the production origin.
+ */
+function deploymentSafety(env: { APP_URL: string; VERCEL_ENV?: string }, ctx: z.RefinementCtx) {
+  const origin = new URL(env.APP_URL).origin;
+  if (env.VERCEL_ENV && !origin.startsWith("https://")) ctx.addIssue({ code: "custom", path: ["APP_URL"], message: "Hosted deployments require an https APP_URL." });
+  if (env.VERCEL_ENV === "preview" && origin === PRODUCTION_ORIGIN) ctx.addIssue({ code: "custom", path: ["APP_URL"], message: "Preview deployments need their own staging APP_URL." });
+}
+const accountSchema = accountFields.superRefine(deploymentSafety);
+const databaseSchema = accountFields.pick({ DATABASE_URL: true });
+const accountEmailSchema = accountFields.extend({ RESEND_API_KEY: environmentSchema.shape.RESEND_API_KEY, EMAIL_FROM: environmentSchema.shape.EMAIL_FROM }).superRefine(deploymentSafety);
 const cacheSchema = z.object({
   DATABASE_URL: z.string().url(), UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
@@ -70,7 +83,7 @@ function normalizedEnvironment(input: Record<string, string | undefined>) {
   }));
   normalized.CACHE_NAMESPACE ??= input.VERCEL_ENV;
   // The public canonical origin is safe to default; secrets never have fallbacks.
-  if (input.VERCEL_ENV === "production" && !z.string().url().safeParse(normalized.APP_URL).success) normalized.APP_URL = "https://acadence.janidudev.com";
+  if (input.VERCEL_ENV === "production" && !z.string().url().safeParse(normalized.APP_URL).success) normalized.APP_URL = PRODUCTION_ORIGIN;
   return normalized;
 }
 function scopedEnvironment<T extends z.ZodType>(schema: T, input: Record<string, string | undefined>): z.infer<T> {

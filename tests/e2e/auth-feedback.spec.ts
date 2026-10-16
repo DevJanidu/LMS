@@ -1,84 +1,52 @@
 import { expect, test } from "@playwright/test";
+import messages from "../../src/messages/en.json";
+
+const t = messages.studyflow;
 
 for (const theme of ["light", "dark"] as const) {
-test(`registration birth-date calendar fits a small viewport and selects an earlier year (${theme})`, async ({ page, context }, testInfo) => {
+test(`sign-in offers only Google and keeps the legal footer (${theme})`, async ({ page, context }, testInfo) => {
   await context.addCookies([{ name: "sf-theme", value: theme, url: testInfo.project.use.baseURL! }]);
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/register");
-  await page.getByLabel("Date of birth (optional)").click();
-  const calendar = page.locator(".sf-date-picker-compact");
-  await expect(calendar).toBeVisible();
-  const size = await calendar.boundingBox();
-  expect(size!.width).toBeLessThanOrEqual(260);
-  expect(size!.y).toBeGreaterThanOrEqual(0);
-  expect(size!.y + size!.height).toBeLessThanOrEqual(667);
-  await calendar.getByRole("combobox", { name: /year/i }).click();
-  const menu = page.getByRole("listbox");
-  await expect(menu).toBeVisible();
-  const menuSize = await menu.boundingBox();
-  expect(menuSize!.x).toBeGreaterThanOrEqual(0);
-  expect(menuSize!.y).toBeGreaterThanOrEqual(0);
-  expect(menuSize!.x + menuSize!.width).toBeLessThanOrEqual(375);
-  expect(menuSize!.y + menuSize!.height).toBeLessThanOrEqual(667);
-  expect(await menu.evaluate(element => getComputedStyle(element).backgroundColor)).toBe(
-    await calendar.evaluate(element => getComputedStyle(element.closest('[role="dialog"]')!).backgroundColor),
-  );
-  await page.screenshot({ path: testInfo.outputPath(`birth-date-year-${theme}.png`) });
-  await page.getByRole("option", { name: "2000", exact: true }).click();
-  await expect(calendar).toBeVisible();
-  await calendar.getByRole("combobox", { name: /month/i }).click();
-  await page.keyboard.press("Home");
-  await expect(page.getByRole("option", { name: "January", exact: true })).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(calendar.getByRole("combobox", { name: /month/i })).toHaveText("January");
-  await calendar.getByRole("button").filter({ hasText: /^15$/ }).click();
-  await expect(page.locator('input[name="dob"]')).toHaveValue("2000-01-15");
-  await expect(calendar).toBeHidden();
+  await page.goto("/login");
+  await expect(page.getByRole("button", { name: t.continueWithGoogle, exact: true })).toBeVisible();
+  await expect(page.locator('input[type="email"], input[type="password"]')).toHaveCount(0);
+  await expect(page.getByRole("link", { name: t.terms, exact: true })).toHaveAttribute("href", "/terms");
+  await expect(page.getByRole("link", { name: t.privacy, exact: true })).toHaveAttribute("href", "/privacy");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath(`google-sign-in-${theme}.png`) });
 });
 }
 
-test("login explains invalid emails and missing passwords next to the field", async ({ page }) => {
-  await page.goto("/login");
-  await page.getByLabel("Email", { exact: true }).fill("not-an-email");
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/valid email address/);
-  await expect(page.getByLabel("Email", { exact: true })).toBeFocused();
-  await expect(page.getByLabel("Email", { exact: true })).toHaveAttribute("aria-invalid", "true");
-  await expect(page.getByLabel("Email", { exact: true })).toHaveValue("not-an-email");
-  await page.getByLabel("Email", { exact: true }).fill("fixture@example.com");
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText("Please enter your password.");
-  await expect(page.getByLabel("Password", { exact: true })).toBeFocused();
+test("Google redirect errors show fixed copy without echoing provider text", async ({ page }) => {
+  await page.goto("/login?error=ACCOUNT_INACTIVE");
+  await expect(page.locator(".sf-auth-form").getByRole("alert")).toHaveText(t.accountInactive);
+  await page.goto(`/login?error=${encodeURIComponent("<b>provider text</b>")}`);
+  await expect(page.locator(".sf-auth-form").getByRole("alert")).toHaveText(t.googleSignInFailed);
 });
 
-test("invalid reset links offer recovery and valid-shaped links validate new passwords", async ({ page, request }) => {
-  const resetPage = await page.goto("/reset-password?error=INVALID_TOKEN");
-  expect(resetPage?.headers()["referrer-policy"]).toBe("no-referrer");
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/missing, invalid, or has expired/);
-  await expect(page.getByRole("link", { name: "Send me a new reset link" })).toHaveAttribute("href", "/forgot-password");
-  await expect(page.getByRole("button", { name: "Reset password", exact: true })).toHaveCount(0);
-  await page.goto("/reset-password?error=AUTHENTICATION_UNAVAILABLE");
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/account service is temporarily unavailable/);
-  const response = await request.get("/api/auth/reset-password/fixture-token?callbackURL=https://attacker.example.com", { maxRedirects: 0 });
-  expect(response.status()).toBe(303);
-  expect(response.headers().location).toContain("/reset-password?token=fixture-token");
-  expect(response.headers().location).not.toContain("attacker.example.com");
-  await page.goto("/reset-password?token=fixture-token");
-  await page.getByLabel("Password", { exact: true }).fill("short");
-  await page.getByRole("button", { name: "Reset password", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/at least 8 characters/);
-  await page.getByLabel("Password", { exact: true }).fill("fixture-password-only");
-  await page.getByLabel("Confirm password", { exact: true }).fill("different-password");
-  await page.getByRole("button", { name: "Reset password", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText("Those passwords don't match. Try again.");
-  await expect(page.getByLabel("Confirm password", { exact: true })).toBeFocused();
+test("retired password pages and endpoints are unavailable", async ({ page, request }) => {
+  await page.goto("/register");
+  await expect(page).toHaveURL(/\/login$/);
+  for (const path of ["/forgot-password", "/reset-password", "/verify-email"]) expect((await request.get(path)).status(), path).toBe(404);
+  const origin = new URL(page.url()).origin;
+  for (const path of ["sign-in/email", "sign-up/email", "request-password-reset"]) {
+    const response = await request.post(`/api/auth/${path}`, { headers: { Origin: origin }, data: { email: "fixture@example.com", password: "fixture-password-only" } });
+    expect(response.ok(), path).toBe(false);
+  }
 });
 
-test("password-reset service failures show recovery advice instead of claiming delivery", async ({ page }) => {
-  test.skip(Boolean(process.env.RESEND_API_KEY), "Requires the public CI fixture with email delivery disabled.");
-  await page.goto("/forgot-password");
-  await page.getByLabel("Email", { exact: true }).fill("fixture@example.com");
-  await page.getByRole("button", { name: "Send reset link", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toHaveText(/temporarily unavailable/);
-  await expect(page.locator("form").getByRole("status")).toHaveCount(0);
+test("starting Google sign-in carries a validated returnTo through the callback URL", async ({ page }) => {
+  let body: { provider?: string; callbackURL?: string } | undefined;
+  await page.route("**/api/auth/sign-in/social", async route => {
+    body = route.request().postDataJSON();
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ url: "about:blank", redirect: false }) });
+  });
+  await page.goto("/login?returnTo=%2Fsubjects%2Fabc");
+  await page.getByRole("button", { name: t.continueWithGoogle, exact: true }).click();
+  await expect.poll(() => body?.provider).toBe("google");
+  expect(body!.callbackURL).toBe("/login?returnTo=%2Fsubjects%2Fabc");
+  body = undefined;
+  await page.goto("/login?returnTo=https%3A%2F%2Fattacker.example.com");
+  await page.getByRole("button", { name: t.continueWithGoogle, exact: true }).click();
+  await expect.poll(() => body?.callbackURL).toBe("/login");
 });

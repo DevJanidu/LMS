@@ -48,6 +48,21 @@
   --icon-md: 1.25rem;
   --icon-lg: 1.5rem;
   --sidebar-width: 15.5rem;
+  /* Settings and navigation surfaces: soft depth, one accent gradient, tinted states. */
+  /* Solid brand fill for primary actions, matching the existing Start Studying button. */
+  --action: var(--color-brand-500);
+  --action-hover: var(--color-brand-600);
+  --primary-strong: #3a48b0;
+  --sidebar-surface: #fbfbfe;
+  --success-soft: #16a34a0f;
+  --warning-soft: #d977060f;
+  --danger-soft: #dc26260d;
+  --danger-border: #dc262633;
+  --radius-card: 1rem;
+  --radius-control: .625rem;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px #0f172a0a, 0 8px 24px -12px #0f172a14;
+  --focus-ring: 0 0 0 1px var(--primary), 0 0 0 3px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 .dark {
   --background: #11151f;
@@ -70,6 +85,14 @@
   --info: #9ac9f3;
   --shadow-surface: 0 2px 6px #0000000a;
   --shadow-float: 0 12px 40px #00000035;
+  --primary-strong: #c3caff;
+  --action-hover: var(--color-brand-400);
+  --sidebar-surface: #141925;
+  --success-soft: #22c55e14;
+  --warning-soft: #f59e0b14;
+  --danger-soft: #f8717112;
+  --danger-border: #f8717140;
+  --shadow-card: 0 1px 2px #0000002e, 0 8px 24px -12px #00000066;
   color-scheme: dark;
 }
 @theme inline {
@@ -83,6 +106,31 @@
   --color-muted: var(--text-muted);
 }
 html { scroll-behavior: smooth; scroll-padding-top: 6rem; scrollbar-gutter: stable; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* Scrollbars: a slim rounded thumb on an invisible track, darker on hover, brand while dragging.
+   Chromium and Safari use ::-webkit-scrollbar (setting scrollbar-width/-color would disable it);
+   Firefox gets the standard properties. */
+:root {
+  --scrollbar-size: 12px;
+  --scrollbar-thumb: color-mix(in srgb, var(--text-muted) 34%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--text-muted) 58%, transparent);
+}
+::-webkit-scrollbar { width: var(--scrollbar-size); height: var(--scrollbar-size); }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { min-height: 2.5rem; border: 3px solid transparent; border-radius: 999px; background-color: var(--scrollbar-thumb); background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover); }
+::-webkit-scrollbar-thumb:active { background-color: var(--primary); }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
+}
+/* Nested scroll areas: narrower, shown only while the pointer is over them, and they keep
+   their own scroll (no chaining into the page when they reach an end). */
+.sf-sidebar-context, .sf-header-popover, .sf-subject-topics, .bl-compare-scroll, .aven-history, .custom-scrollbar, [role=listbox] { overscroll-behavior: contain; }
+:is(.sf-sidebar, .sf-sidebar-context, .sf-header-popover, .sf-subject-topics, .bl-compare-scroll, .custom-scrollbar, [role=listbox])::-webkit-scrollbar { width: 8px; height: 8px; }
+:is(.sf-sidebar, .sf-sidebar-context, .sf-header-popover, .sf-subject-topics, .bl-compare-scroll, .custom-scrollbar, [role=listbox])::-webkit-scrollbar-thumb { border-width: 2px; }
+.sf-sidebar-context:not(:hover):not(:focus-within)::-webkit-scrollbar-thumb { background-color: transparent; }
 
 :focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
 /* Select options use Radix's highlighted row as their keyboard focus indicator. */
@@ -94,8 +142,10 @@ html.dark { color-scheme: dark; }
 button, a, input, select, textarea, summary { -webkit-tap-highlight-color: transparent; }
 button, a, summary { transition: transform var(--motion-fast); }
 button:disabled { cursor: not-allowed; }
-button, summary { min-height: var(--space-11); }
-label:has(input[type=checkbox]), label:has(input[type=radio]) { min-height: var(--space-11); }
+/* Default 44px targets. :where() keeps specificity at zero even after the minifier merges
+   these rules into one :is(), so component classes can still set their own height. */
+:where(button, summary) { min-height: var(--space-11); }
+:where(label:has(input[type=checkbox]), label:has(input[type=radio])) { min-height: var(--space-11); }
 input:not([type=checkbox]):not([type=radio]), select, textarea { background-color: var(--surface); color: var(--text-primary); border-color: var(--border-strong); border-radius: var(--radius-sm); min-height: 2.75rem; }
 input::placeholder, textarea::placeholder { color: var(--text-muted); }
 .sf-shell, .sf-public { background: var(--background); color: var(--text-primary); }
@@ -111,11 +161,6 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); }
 .sf-segments { display: flex; flex-wrap: wrap; padding: 0.25rem; border: 1px solid var(--border); background: var(--surface-subtle); border-radius: var(--radius-sm); }
 .sf-segments button { @apply text-body-strong; padding: 0.5rem 0.75rem; border-radius: .35rem; color: var(--text-secondary);  }
 .sf-segments button[aria-pressed=true] { background: var(--surface); color: var(--primary); box-shadow: var(--shadow-surface); }
-.sf-settings-layout { display: grid; gap: 2rem; }
-.sf-settings-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; align-content: start; }
-.sf-settings-nav a { @apply text-body-strong; display: block; padding: 0.75rem 1rem; border-radius: var(--radius-sm); color: var(--text-secondary);  }
-.sf-settings-nav a:hover { background: var(--surface-hover); color: var(--primary); }
-@media (min-width:1024px) { .sf-settings-layout { grid-template-columns: 12rem minmax(0,42rem); } .sf-settings-nav { display: block; position: sticky; top: 6rem; align-self: start; } }
 .sf-topbar { position: sticky; top: 0; z-index: 99; height: var(--header-height); background: var(--background); border-bottom: 1px solid var(--border); }
 .sf-header-grid { --search-width: clamp(23.75rem, calc((100vw - var(--sidebar-width)) * .34),32.5rem); display: grid; grid-template-columns: minmax(0,1fr) var(--search-width) minmax(0,1fr); align-items: center; height: 100%; padding-inline: var(--page-gutter); gap: var(--space-3); }
 .sf-header-left { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
@@ -154,7 +199,7 @@ summary::-webkit-details-marker { display: none; }
 .sf-main-column { transition: margin var(--motion-normal); }
 .sf-content { width: 100%; margin-inline: auto; padding: var(--space-8) var(--page-gutter) var(--space-16); }
 .sf-content-wide { max-width: none; }
-.sf-content-standard { max-width: 76rem; margin-inline-start: 0; }
+.sf-content-standard { max-width: 76rem; }
 .sf-content-focus { max-width: none; min-height: calc(100dvh - var(--header-height) - 5rem); display: flex; flex-direction: column; }
 .sf-content-focus > .sf-page-enter { display: flex; flex-direction: column; flex: 1; min-width: 0; }
 .sf-content-focus .sf-focus { width: 100%; margin-block: auto; }
@@ -396,7 +441,6 @@ dialog[open] { animation: page-enter var(--motion-fast) var(--ease-standard); ba
 .sf-stat, .sf-filter-bar, .sf-focus .sf-panel { padding: var(--space-6); }
 .sf-panel-heading { padding-top: var(--space-6); padding-bottom: var(--space-4); }
 .sf-subject-collection, .sf-continue-grid { gap: var(--space-8); }
-.sf-settings-layout > div { gap: var(--space-8); }
 .sf-chart { min-width: 0; max-width: 100%; overflow-x: clip; }
 .sf-chart .apexcharts-canvas { max-width: 100%; }
 .sf-chart :is(.apexcharts-text, .apexcharts-tooltip, .apexcharts-tooltip-title, .apexcharts-xaxistooltip-text, .apexcharts-yaxistooltip-text, .apexcharts-legend-text) { font-family: inherit !important; }
@@ -411,96 +455,57 @@ dialog[open] { animation: page-enter var(--motion-fast) var(--ease-standard); ba
 .sf-subject-footer a { @apply text-body-strong; }
 
 /* Account pages fill the viewport; long public documents keep their normal flow. */
-html:has(.sf-public [data-auth-mode="login"], .sf-public [data-auth-mode="register"]) {
+html:has(.sf-public [data-auth-mode="login"]) {
   overflow: hidden;
   scrollbar-gutter: auto;
 }
-.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) {
+.sf-public:has([data-auth-mode="login"]) {
   height: 100vh;
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
 }
-.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) > header {
+.sf-public:has([data-auth-mode="login"]) > header {
   flex-shrink: 0;
   padding-block: var(--space-3);
 }
-.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) > footer {
+.sf-public:has([data-auth-mode="login"]) > footer {
   flex-shrink: 0;
   padding-block: var(--space-2);
 }
-.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-main {
+.sf-public:has([data-auth-mode="login"]) .sf-public-main {
   min-height: 0;
   grid-template-rows: minmax(0, 1fr);
   padding-block: var(--space-3);
   gap: var(--space-6);
 }
-.sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-form {
+.sf-public:has([data-auth-mode="login"]) .sf-public-form {
   min-height: 0;
   max-height: 100%;
   padding: var(--space-6);
   /* Preserve access when zoom or the on-screen keyboard reduces available space. */
   overflow-y: auto;
 }
-.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-logo {
+.sf-auth-form[data-auth-mode="login"] .sf-auth-logo {
   width: calc(var(--space-16) * 2);
   margin-bottom: var(--space-3);
 }
-.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-page-header {
-  margin-bottom: var(--space-4);
-}
-.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) form > * { margin-block: 0; }
-.sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-fields { gap: var(--space-3); }
-.sf-auth-form[data-auth-mode="register"] .sf-auth-fields {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: end;
-}
-.sf-auth-form[data-auth-mode="register"] .sf-auth-fields > * { min-width: 0; }
-.sf-auth-form[data-auth-mode="register"] form > label { min-height: 0; }
-.sf-auth-form[data-auth-mode="register"] button[role="checkbox"] { min-height: 0; }
-.sf-auth-form[data-auth-mode="register"] .sf-auth-fields button[aria-haspopup="dialog"] {
-  gap: var(--space-2);
-  padding-inline: var(--space-3);
-  border-radius: var(--radius-sm);
-}
-.sf-auth-form[data-auth-mode="register"] .sf-auth-fields button[aria-haspopup="dialog"] > span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 @media (max-width: 1023px) {
-  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-story,
-  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) > header { display: none; }
-  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-form {
+  .sf-public:has([data-auth-mode="login"]) .sf-public-story,
+  .sf-public:has([data-auth-mode="login"]) > header { display: none; }
+  .sf-public:has([data-auth-mode="login"]) .sf-public-form {
     width: 100%;
     max-width: 34rem;
     justify-self: center;
   }
 }
 @media (max-width: 639px), (max-height: 740px) {
-  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) .sf-public-form { padding: var(--space-4); }
-  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) form,
-  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-fields { gap: var(--space-2); }
-  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-page-header { margin-bottom: var(--space-3); }
-  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-fields label { margin-bottom: var(--space-1); }
+  .sf-public:has([data-auth-mode="login"]) .sf-public-form { padding: var(--space-4); }
 }
 @media (max-height: 740px) {
-  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-auth-logo {
+  .sf-auth-form[data-auth-mode="login"] .sf-auth-logo {
     width: var(--space-16);
     margin-bottom: var(--space-2);
   }
-  .sf-auth-form:is([data-auth-mode="login"], [data-auth-mode="register"]) .sf-page-header p {
-    @apply text-small;
-    margin-top: var(--space-1);
-  }
-  .sf-public:has([data-auth-mode="login"], [data-auth-mode="register"]) > footer { padding-block: var(--space-1); }
-}
-@media (max-width: 639px) and (min-height: 741px) {
-  .sf-auth-form[data-auth-mode="register"] .sf-auth-fields { grid-template-columns: minmax(0, 1fr); }
+  .sf-public:has([data-auth-mode="login"]) > footer { padding-block: var(--space-1); }
 }

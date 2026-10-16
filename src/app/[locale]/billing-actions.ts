@@ -1,6 +1,6 @@
 "use server";
 import { z } from "zod";
-import { requireLearner } from "@/lib/auth";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { getBillingProvider } from "@/lib/billing/provider";
 import { getAccountEnv } from "@/lib/env";
 
@@ -13,7 +13,7 @@ const checkoutSchema = z.object({ plan: z.enum(["pro", "plus"]) });
 export async function startCheckout(input: unknown): Promise<{ status: "redirect"; url: string } | { status: "unavailable" } | { status: "invalid" }> {
   const parsed = checkoutSchema.safeParse(input);
   if (!parsed.success) return { status: "invalid" };
-  const user = await requireLearner();
+  const user = await requireOnboardedLearner();
   const provider = getBillingProvider();
   if (!provider) return { status: "unavailable" };
   const base = getAccountEnv().APP_URL;

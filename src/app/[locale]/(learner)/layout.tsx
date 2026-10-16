@@ -1,5 +1,4 @@
-import { requireLearner } from "@/lib/auth";
-import { redirect } from "@/i18n/navigation";
+import { requireOnboardedLearner } from "@/lib/auth";
 import { setRequestLocale } from "next-intl/server";
 import WorkspaceShell from "@/components/studyflow/WorkspaceShell";
 import { shellBaseWorkspace } from "@/lib/services/workspace";
@@ -8,6 +7,7 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import WorkspaceShellLoading from "@/components/studyflow/WorkspaceShellLoading";
 import ShellDetails from "@/components/studyflow/ShellDetails";
+import SidebarAccountSlot from "@/components/navigation/SidebarAccountSlot";
 
 async function AuthorizedShell({
   children,
@@ -20,9 +20,9 @@ async function AuthorizedShell({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const user = await requireLearner();
-  if (!user.onboardingCompletedAt) redirect({ href: "/onboarding", locale });
-  return <SidebarProvider initialExpanded={expanded}><WorkspaceShell initial={shellBaseWorkspace(user)} details={<Suspense fallback={null}><ShellDetails /></Suspense>}>{children}</WorkspaceShell></SidebarProvider>;
+  const user = await requireOnboardedLearner();
+  const account = <SidebarAccountSlot id={user.id} name={user.name} email={user.email} image={user.image} admin={false} />;
+  return <SidebarProvider initialExpanded={expanded}><WorkspaceShell initial={shellBaseWorkspace(user)} account={account} details={<Suspense fallback={null}><ShellDetails /></Suspense>}>{children}</WorkspaceShell></SidebarProvider>;
 }
 
 export default async function LearnerLayout(props: {
