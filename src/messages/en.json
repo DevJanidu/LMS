@@ -689,6 +689,18 @@
       },
       "help": {
         "description": "Show available commands"
+      },
+      "study": {
+        "description": "Start a guided learning session"
+      },
+      "search": {
+        "description": "Search your Acadence records"
+      },
+      "analyze": {
+        "description": "Analyze your learning progress"
+      },
+      "summarize": {
+        "description": "Summarize selected learning content"
       }
     },
     "mentionTypes": {
@@ -964,7 +976,149 @@
     "highImpactNote": "This permanently removes records. You will be asked to confirm before anything is deleted.",
     "confirmHighImpact": "Delete permanently?",
     "confirmHighImpactHelp": "This removes the listed records and everything inside them, such as topics, sessions or tasks. It cannot be undone from Aven.",
-    "openRecord": "Open"
+    "openRecord": "Open",
+    "composerItems": {
+      "study": {
+        "label": "Study",
+        "description": "Start a guided learning session"
+      },
+      "studyGuided": {
+        "label": "Guided session",
+        "description": "Aven teaches a topic step by step"
+      },
+      "studyQuiz": {
+        "label": "Quiz me",
+        "description": "Check what you remember with questions"
+      },
+      "studyTimer": {
+        "label": "Focus timer",
+        "description": "Open the study timer"
+      },
+      "search": {
+        "label": "Search",
+        "description": "Search your subjects, topics, goals and library"
+      },
+      "plan": {
+        "label": "Plan",
+        "description": "Create or manage a study plan"
+      },
+      "schedule": {
+        "label": "Schedule",
+        "description": "Find free time and add study sessions"
+      },
+      "goals": {
+        "label": "Goals",
+        "description": "Work with learning goals"
+      },
+      "analyze": {
+        "label": "Analyze",
+        "description": "Analyze learning progress"
+      },
+      "summarize": {
+        "label": "Summarize",
+        "description": "Summarize selected learning content"
+      },
+      "practice": {
+        "label": "Practice",
+        "description": "Focused practice for weak topics"
+      },
+      "catchup": {
+        "label": "Catch up",
+        "description": "Recover missed and overdue work"
+      },
+      "progress": {
+        "label": "Progress",
+        "description": "Summarize your study activity"
+      },
+      "subjects": {
+        "label": "Subjects",
+        "description": "Review subjects and topics"
+      },
+      "friends": {
+        "label": "Friends",
+        "description": "Permitted Study Circles activity"
+      },
+      "dictate": {
+        "label": "Dictate",
+        "description": "Speak and Aven types for you"
+      },
+      "model": {
+        "label": "Model",
+        "description": "Choose an AI model"
+      },
+      "feedback": {
+        "label": "Feedback",
+        "description": "Send feedback about Aven"
+      },
+      "help": {
+        "label": "Help",
+        "description": "Show every command"
+      },
+      "attachFiles": {
+        "label": "Add photos & files",
+        "description": "Upload to your library and attach"
+      },
+      "addFromLibrary": {
+        "label": "Add from library",
+        "description": "Attach a file or link you already saved"
+      },
+      "webSearch": {
+        "label": "Web search",
+        "description": "Search the internet"
+      },
+      "createPlan": {
+        "label": "Create study plan",
+        "description": "Plan your learning with Aven"
+      },
+      "createGoal": {
+        "label": "Create goal",
+        "description": "Turn an intention into a goal"
+      },
+      "studyTools": {
+        "label": "Open study tools",
+        "description": "Timer and study history"
+      },
+      "reasons": {
+        "speechUnsupported": "Your browser does not support speech input.",
+        "modelFixed": "Aven uses one configured model; choosing a model is not available yet.",
+        "feedbackUnavailable": "Feedback is not available in Acadence yet.",
+        "webSearchUnavailable": "Aven only searches your Acadence records; web search is not available.",
+        "uploadsUnavailable": "Uploads are unavailable right now."
+      },
+      "unavailable": "Unavailable",
+      "back": "Back",
+      "submenu": "Opens more options",
+      "commandsLabel": "Commands",
+      "toolsLabel": "Add to your message",
+      "openTools": "Add files and more",
+      "noCommands": "No matching commands"
+    },
+    "attachments": {
+      "label": "Attachments",
+      "subject": "Save to subject",
+      "noSubject": "Create a subject first to upload files.",
+      "uploading": "Uploading {percent}%",
+      "saved": "Saved to your library",
+      "remove": "Remove {name}",
+      "retry": "Try again",
+      "readable": "Aven can read PDF and text files.",
+      "notReadable": "Saved to your library. Aven can’t read this file type, only its name.",
+      "contentOff": "Turn on resource access in Aven settings so Aven can read it.",
+      "errors": {
+        "invalidFileType": "Choose a PDF, Office document, text file, PNG or JPEG.",
+        "fileTooLargeGeneric": "This file is larger than the upload limit.",
+        "storageLimit": "Your library storage is full.",
+        "tooManyRequests": "Too many uploads. Wait a minute and try again.",
+        "uploadFailed": "The upload failed. Try again.",
+        "recordUnavailable": "That subject is no longer available."
+      },
+      "defaultMessage": "I attached a file. Please take a look."
+    },
+    "dictation": {
+      "listening": "Listening…",
+      "stop": "Stop dictation",
+      "error": "Speech input stopped. Check microphone permission and try again."
+    }
   },
   "studyflow": {
     "exportUsers": "Export users (CSV)",

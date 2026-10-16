@@ -33,6 +33,9 @@ export type AvenWorkflow =
   | "progress"
   | "friends"
   | "help"
+  | "study"
+  | "search"
+  | "summarize"
   | "general";
 export interface AvenCommand {
   name: string;
@@ -41,10 +44,14 @@ export interface AvenCommand {
   mentions: readonly MentionType[];
 }
 export const avenCommands = [
+  { name: "study", workflow: "study", mentions: ["topic", "subject", "resource"] },
+  { name: "search", workflow: "search", mentions: [] },
   { name: "plan", workflow: "plan", mentions: ["goal", "subject"] },
   { name: "schedule", workflow: "schedule", mentions: ["subject", "topic", "goal", "session"] },
   { name: "catchup", workflow: "catchup", mentions: ["goal", "subject"] },
   { name: "review", workflow: "review", mentions: ["goal", "subject"] },
+  { name: "analyze", workflow: "review", mentions: ["goal", "subject"] },
+  { name: "summarize", workflow: "summarize", mentions: ["resource", "topic"] },
   { name: "practice", workflow: "practice", mentions: ["subject", "topic"] },
   { name: "goals", workflow: "goals", mentions: ["goal", "milestone", "task"] },
   { name: "subjects", workflow: "subjects", mentions: ["subject", "topic", "resource"] },
@@ -53,15 +60,21 @@ export const avenCommands = [
   { name: "help", workflow: "help", mentions: [] },
 ] as const satisfies readonly AvenCommand[];
 export type AvenCommandName = (typeof avenCommands)[number]["name"];
-/** A leading "/name" (case-insensitive) followed by whitespace or the end of the message. */
+const COMMAND_TOKEN = /(^|\s)\/([a-z]+)(?=\s|$)/gi;
+/**
+ * The first registered "/name" token: at the start or after whitespace, followed by
+ * whitespace or the end. "and/or", URLs and unknown names stay ordinary text.
+ */
 export function parseCommand(message: string) {
-  const match = /^\s*\/([a-z]+)(?=\s|$)/i.exec(message);
-  const command = match
-    ? avenCommands.find((item) => item.name === match[1].toLowerCase())
-    : undefined;
-  return command
-    ? { command, rest: message.slice(match![0].length).trim() }
-    : { command: null, rest: message.trim() };
+  for (const match of message.matchAll(COMMAND_TOKEN)) {
+    const command = avenCommands.find((item) => item.name === match[2].toLowerCase());
+    if (!command) continue;
+    const start = match.index + match[1].length;
+    const end = start + match[2].length + 1;
+    const rest = `${message.slice(0, start)} ${message.slice(end)}`.replace(/\s+/g, " ").trim();
+    return { command, rest, start, end };
+  }
+  return { command: null, rest: message.trim(), start: -1, end: -1 };
 }
 export function matchCommands(query: string) {
   const wanted = query.toLowerCase();

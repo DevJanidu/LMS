@@ -49,6 +49,12 @@ export const workflowTools: Record<Exclude<AvenWorkflow, "general" | "help">, st
     "auditTopicCoverage",
   ],
   friends: ["getStudyCircles"],
+  study: [
+    "getTopics", "auditTopicCoverage", "getStudyResources", "recordLearningSignal",
+    "getStudyHistory", "proposePracticeSessions",
+  ],
+  search: ["getTopics", "getStudyResources", "getGoalDetails", "getUpcomingDeadlines"],
+  summarize: ["getStudyResources", "getTopics"],
 };
 const intentWorkflow: Partial<Record<AvenIntent, AvenWorkflow | AvenWorkflow[]>> = {
   goal: "plan",
@@ -76,7 +82,7 @@ const mentionTools: Record<MentionType, string[]> = {
 const SPECIFICITY: AvenWorkflow[] = [
   "catchup", "practice", "schedule", "review", "progress", "friends", "plan", "goals", "subjects",
 ];
-const PLANNING: AvenWorkflow[] =["plan", "schedule", "catchup", "practice"];
+const PLANNING: AvenWorkflow[] = ["plan", "schedule", "catchup", "practice"];
 const commandGuidance: Partial<Record<AvenWorkflow, string>> = {
   plan: "Command /plan: build a learning or goal plan. Check getUserGoals for duplicates, then propose a goal hierarchy (or extend the mentioned goal).",
   schedule: "Command /schedule: schedule study sessions from real availability. Use reasonable defaults for unspecified dates or durations; never overlap commitments.",
@@ -87,7 +93,10 @@ const commandGuidance: Partial<Record<AvenWorkflow, string>> = {
   subjects: "Command /subjects: review subjects and topics with auditTopicCoverage; organize resources only through proposals.",
   progress: "Command /progress: summarize recent verified learning activity and compare with last week only when both weeks have records.",
   friends: "Command /friends: summarize permitted Study Circles activity using getStudyCircles only.",
-  help: "Command /help: briefly list the slash commands (/plan, /schedule, /catchup, /review, /practice, /goals, /subjects, /progress, /friends, /help) and explain that @ mentions point to subjects, topics, goals, milestones, tasks, sessions, resources, friends and study groups. Mention that plain language works too.",
+  study: "Command /study: run a short guided learning session on the mentioned topic or subject (ask which one only if none is given). Teach in small steps, check understanding with one question per step, use permitted resources and cite only processed sources. At the end, offer recordLearningSignal for how confident the student feels.",
+  search: "Command /search: search the student's own Acadence records (subjects, topics, goals, resources, deadlines) for the words given and list matches with where to open them. This is not a web search; say so if they ask for the internet.",
+  summarize: "Command /summarize: summarize the mentioned resource or topic with getStudyResources. Use only processed content; if resource access is off or the format can't be read, say so instead of guessing from the title.",
+  help: "Command /help: briefly list the slash commands (/study, /search, /plan, /schedule, /catchup, /review, /analyze, /summarize, /practice, /goals, /subjects, /progress, /friends, /help) and explain that @ mentions point to subjects, topics, goals, milestones, tasks, sessions, resources, friends and study groups. Mention that plain language works too.",
 };
 export interface TurnPlan {
   command: string | null;

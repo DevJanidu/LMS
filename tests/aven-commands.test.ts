@@ -22,26 +22,29 @@ const javaGoal: ComposerMention = { type: "goal", id: "00000000-0000-4000-8000-0
 const sql: ComposerMention = { type: "subject", id: "00000000-0000-4000-8000-000000000003", label: "SQL" };
 
 describe("command registry and discovery", () => {
-  it("registers the ten commands with copy for each", () => {
+  it("registers every command with copy", () => {
     expect(avenCommands.map((c) => c.name)).toEqual([
-      "plan", "schedule", "catchup", "review", "practice", "goals", "subjects", "progress", "friends", "help",
+      "study", "search", "plan", "schedule", "catchup", "review", "analyze", "summarize", "practice",
+      "goals", "subjects", "progress", "friends", "help",
     ]);
     for (const command of avenCommands)
       expect(en.aven.commands[command.name].description).toBeTruthy();
   });
   it("discovers commands by prefix", () => {
-    expect(matchCommands("").length).toBe(10);
+    expect(matchCommands("").length).toBe(avenCommands.length);
     expect(matchCommands("p").map((c) => c.name)).toEqual(["plan", "practice", "progress"]);
+    expect(matchCommands("stu").map((c) => c.name)).toEqual(["study"]);
     expect(matchCommands("sch").map((c) => c.name)).toEqual(["schedule"]);
     expect(matchCommands("zzz")).toEqual([]);
   });
-  it("parses only a leading, registered command", () => {
+  it("parses the first registered command token, at the start or mid-text", () => {
     expect(parseCommand("/schedule @Advanced Java next week")).toMatchObject({
       command: { name: "schedule" },
       rest: "@Advanced Java next week",
     });
     expect(parseCommand("/SCHEDULE")).toMatchObject({ command: { name: "schedule" }, rest: "" });
-    expect(parseCommand("please /schedule this").command).toBeNull();
+    expect(parseCommand("please /schedule this")).toMatchObject({ command: { name: "schedule" }, rest: "please this" });
+    expect(parseCommand("a/schedule b").command).toBeNull();
     expect(parseCommand("/scheduled things").command).toBeNull();
     expect(parseCommand("/unknown thing").command).toBeNull();
   });
@@ -126,9 +129,10 @@ describe("turn planning", () => {
 });
 
 describe("composer: autocomplete triggers and keyboard", () => {
-  it("opens commands only at the start of the message", () => {
+  it("opens commands at the start or after whitespace", () => {
     expect(findTrigger("/sch", 4)).toEqual({ kind: "command", start: 0, query: "sch" });
-    expect(findTrigger("hi /sch", 7)).toBeNull();
+    expect(findTrigger("hi /sch", 7)).toEqual({ kind: "command", start: 3, query: "sch" });
+    expect(findTrigger("hi/sch", 6)).toBeNull();
     expect(findTrigger("/schedule ", 10)).toBeNull();
   });
   it("opens mentions after whitespace, allowing names with spaces", () => {
