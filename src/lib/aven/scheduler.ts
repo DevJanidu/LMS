@@ -31,6 +31,48 @@ import { deliverNotifications } from "./delivery";
 import { appendProactiveMessage } from "./proactive-conversations";
 import { attendanceList } from "@/lib/study/attendance";
 import { attendanceFor } from "@/lib/study/attendance-model";
+import type { GoalDetail } from "@/lib/goals/model";
+import {
+  loadLearningGaps,
+  planSubjectPractice,
+  practiceRecommendationKey,
+  recentlyDeclined,
+} from "@/lib/learning/server";
+import type { LearningFinding } from "@/lib/learning/gaps";
+/** Findings that become learning alerts; goal alerts already cover the goal-level ones. */
+const LEARNING_ALERTS = new Set<LearningFinding["code"]>([
+  "overduePrerequisite",
+  "priorityMismatch",
+  "postponedTopic",
+  "missedSessions",
+  "reportedDifficulty",
+  "overdueTask",
+]);
+function learningAlertValues(
+  finding: LearningFinding,
+): Record<string, string | number> {
+  switch (finding.code) {
+    case "overduePrerequisite":
+      return { task: finding.task, goal: finding.goalTitle, next: finding.blocks[0] ?? "" };
+    case "priorityMismatch":
+      return {
+        task: finding.task,
+        goal: finding.goalTitle,
+        subject: finding.busySubject,
+        minutes: finding.busyMinutes,
+      };
+    case "postponedTopic":
+      return { topic: finding.topic, subject: finding.subject, count: finding.postponements };
+    case "missedSessions":
+      return { subject: finding.subject, count: finding.count };
+    case "reportedDifficulty":
+      return { subject: finding.subject, topics: finding.openTopics };
+    case "overdueTask":
+      return { task: finding.task, goal: finding.goalTitle, count: finding.count };
+    default:
+      return {};
+  }
+}
 interface Candidate {
   kind: string;
   key: string;
@@ -533,6 +575,44 @@ export async function processAvenUser(userId: string, now: number) {
           : dailyAction,
       });
   }
+  const tLearning = await getTranslations({
+    locale: aiPrefs.locale,
+    namespace: "aven.learning",
+  });
+  /** A private catch-up draft for a goal, unless the learner recently declined one. */
+  const recoveryDraft = async (detail: GoalDetail, days: number) => {
+    const recommendationKey = `recovery:${detail.goal.id}`;
+    if (await recentlyDeclined(userId, recommendationKey)) return undefined;
+    const horizon = shiftDay(today, 7);
+    const commitments = getOccurrences(
+      await getScheduleBlocksInRange(
+        userId,
+        { from: today, to: horizon },
+        user.timezone,
+      ),
+      today,
+      horizon,
+    );
+    const plan = proposeAdaptiveSchedule(
+      detail,
+      aiPrefs,
+      commitments,
+      user.timezone,
+      now,
+      days,
+    );
+    if (!("kind" in plan)) return undefined;
+    const { unscheduledTasks, ...value } = plan;
+    return {
+      ...value,
+      recommendationKey,
+      explanation: t("recoveryDraftExplanation", {
+        sessions: value.sessions.length,
+        remaining: unscheduledTasks,
+        minutes: aiPrefs.dailyTargetMinutes,
+      }),
+    };
+  };
   // Goal monitoring: at most one alert per goal and kind each week, after the morning briefing.
   if (
     prefs.goalReminders &&
@@ -550,38 +630,10 @@ export async function processAvenUser(userId: string, now: number) {
     );
     if (alert) {
       const detail = details.find((item) => item.goal.id === alert.goalId)!;
-      let draft: unknown;
-      if (alert.recoverable && alert.kind !== "blocked") {
-        const horizon = shiftDay(today, 7);
-        const commitments = getOccurrences(
-          await getScheduleBlocksInRange(
-            userId,
-            { from: today, to: horizon },
-            user.timezone,
-          ),
-          today,
-          horizon,
-        );
-        const plan = proposeAdaptiveSchedule(
-          detail,
-          aiPrefs,
-          commitments,
-          user.timezone,
-          now,
-          Math.max(1, Math.min(7, alert.daysLeft + 1)),
-        );
-        if ("kind" in plan) {
-          const { unscheduledTasks, ...value } = plan;
-          draft = {
-            ...value,
-            explanation: t("recoveryDraftExplanation", {
-              sessions: value.sessions.length,
-              remaining: unscheduledTasks,
-              minutes: aiPrefs.dailyTargetMinutes,
-            }),
-          };
-        }
-      }
+      const draft =
+        alert.recoverable && alert.kind !== "blocked"
+          ? await recoveryDraft(detail, Math.max(1, Math.min(7, alert.daysLeft + 1)))
+          : undefined;
       candidates.push({
         kind: "goalAlert",
         key: `goalAlert:${alert.goalId}:${alert.kind}:${weekKey(today)}`,
@@ -593,6 +645,90 @@ export async function processAvenUser(userId: string, now: number) {
           milestone: alert.milestoneTitle ?? "",
         })} ${t(draft ? "goalAlert.draftReady" : "goalAlert.offer")}`,
         action: { kind: "goals", goalId: alert.goalId },
+        draft,
+      });
+    }
+  }
+  // Learning accountability (deterministic layer A): overdue prerequisites, priority mismatches,
+  // postponed topics, missed sessions and reported difficulty. At most one a day, never on a
+  // goal-alert day, and each distinct state is announced once (fingerprint dedup key).
+  if (
+    prefs.goalReminders &&
+    !sentToday.has("goalAlert") &&
+    !sentToday.has("learningAlert") &&
+    !candidates.some((item) => item.kind === "goalAlert") &&
+    dueLocalTime(now, user.timezone, shiftClock(prefs.morningTime, 150), 15)
+  ) {
+    const gaps = await loadLearningGaps(userId, now).catch(() => null);
+    const finding = gaps?.findings.find(
+      (item) =>
+        LEARNING_ALERTS.has(item.code) &&
+        item.severity !== "low" &&
+        // Goals with reminders turned off stay quiet.
+        (!item.goalId || goals.some((goal) => goal.id === item.goalId)),
+    );
+    if (finding) {
+      const detail = finding.goalId
+        ? (
+            await getGoalDetailsBatch(userId, [finding.goalId]).catch(() => [])
+          )[0]
+        : undefined;
+      let draft: unknown, slot: string | undefined;
+      if (detail && finding.taskId) draft = await recoveryDraft(detail, 3);
+      else if (
+        finding.subjectId &&
+        !(await recentlyDeclined(
+          userId,
+          practiceRecommendationKey(finding.subjectId),
+        ))
+      ) {
+        const practice = await planSubjectPractice(userId, finding.subjectId, {
+          sessions: 1,
+          minutes: 45,
+          horizonDays: 3,
+        }).catch(() => null);
+        const session = practice?.plan.sessions[0];
+        if (session) {
+          draft = {
+            kind: "schedule",
+            goalId: null,
+            expectedVersion: 0,
+            recommendationKey: practiceRecommendationKey(finding.subjectId),
+            explanation: t("learningAlert.practiceExplanation", {
+              topic: session.topicTitle,
+            }),
+            sessions: [
+              {
+                title: tLearning("practiceTitle", { topic: session.topicTitle }),
+                taskId: null,
+                subjectId: finding.subjectId,
+                topicId: session.topicId,
+                startsAt: session.startsAt,
+                endsAt: session.endsAt,
+              },
+            ],
+          };
+          slot = t("learningAlert.slotOffer", {
+            topic: session.topicTitle,
+            minutes: 45,
+            day: new Intl.DateTimeFormat("en", {
+              weekday: "long",
+              timeZone: user.timezone,
+            }).format(new Date(session.startsAt)),
+            time: wallTime(session.startsAt, user.timezone).slice(11, 16),
+          });
+        }
+      }
+      candidates.push({
+        kind: "learningAlert",
+        key: `learningAlert:${finding.fingerprint}`,
+        title: t(`learningAlert.${finding.code}Title`),
+        body: `${t(`learningAlert.${finding.code}`, learningAlertValues(finding))} ${
+          slot ?? t(draft ? "goalAlert.draftReady" : "learningAlert.offer")
+        }`,
+        action: finding.goalId
+          ? { kind: "goals", goalId: finding.goalId }
+          : { kind: "learning", subjectId: finding.subjectId, topicId: finding.topicId },
         draft,
       });
     }

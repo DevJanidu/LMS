@@ -43,6 +43,15 @@ import { readLearningLink } from "./resource-network";
 import { processPdf } from "./documents";
 import { learnerAnalytics } from "@/lib/analytics/server";
 import { studyCirclesSnapshot } from "@/lib/circles/assistant";
+import {
+  loadGoalHealth,
+  loadLearningGaps,
+  loadTopicCoverage,
+  planSubjectPractice,
+  practiceRecommendationKey,
+  recentlyDeclined,
+  resolveOwnedSubject,
+} from "@/lib/learning/server";
 const empty = z.object({}),
   goalIdSchema = z.object({ goalId: z.uuid() });
 const localTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T[0-2]\d:[0-5]\d$/);
@@ -126,6 +135,41 @@ const schemas = {
     goalId: z.uuid().nullable(),
     limit: z.number().int().min(1).max(5),
   }),
+  auditTopicCoverage: z.object({
+    subjectId: z.uuid().nullable(),
+    subjectName: z
+      .string()
+      .max(150)
+      .nullable()
+      .describe("Subject named by the student; matched to an existing subject."),
+    goalId: z.uuid().nullable(),
+    from: z.iso.date().nullable().describe("Window start; default 60 days ago."),
+    to: z.iso.date().nullable().describe("Window end; default 28 days ahead."),
+  }),
+  getGoalHealth: z.object({ goalId: z.uuid().nullable() }),
+  getLearningGaps: empty,
+  proposePracticeSessions: z.object({
+    subjectId: z.uuid().nullable(),
+    subjectName: z.string().max(150).nullable(),
+    sessions: z.number().int().min(1).max(5),
+    minutes: z.number().int().min(15).max(120),
+    horizonDays: z.number().int().min(1).max(14),
+    explicitRequest: z
+      .boolean()
+      .describe(
+        "True only when the student asked for more sessions in this conversation. False when you are suggesting them yourself.",
+      ),
+    explanation: z.string().min(1).max(4000),
+  }),
+  recordLearningSignal: z.object({
+    subjectId: z.uuid().nullable(),
+    subjectName: z.string().max(150).nullable(),
+    topicId: z.uuid().nullable(),
+    level: z
+      .enum(["needsPractice", "gettingThere", "confident"])
+      .describe("The student's own description of how they feel, not your judgement."),
+    explanation: z.string().max(4000),
+  }),
   completeGoal: z.object({
     goalId: z.uuid(),
     expectedVersion: z.number().int().positive(),
@@ -208,6 +252,8 @@ const writeTools = new Set<AvenToolName>([
   "updateReminderPreferences",
   "organizeLearningResource",
   "rememberPreference",
+  "proposePracticeSessions",
+  "recordLearningSignal",
   "proposeGoal",
   "proposeGoalPlan",
   "proposeGoalHierarchy",
@@ -217,6 +263,14 @@ const writeTools = new Set<AvenToolName>([
   "rescheduleStudySession",
   "createReminder",
 ]);
+const learningToolDescriptions = {
+  auditTopicCoverage:
+    "Audit one subject's topics from database records: required, completed, remaining, overdue, never scheduled, planned but unfinished, repeatedly postponed, upcoming coverage and prerequisite gaps. Use its counts verbatim; never compute them yourself. Completed is not mastery.",
+  getGoalHealth:
+    "Explainable health (onTrack, needsAttention, atRisk) for active goals or one goal, with the rule-based reasons and metrics behind it: milestones, overdue work, blockers, remaining versus available minutes and trend.",
+  getLearningGaps:
+    "Deterministic findings across the account, ranked critical > high > medium > low: overdue prerequisites, overdue milestones and tasks, postponed topics, missed sessions, time spent elsewhere while important work waits, reported difficulty without practice, inactive goals.",
+} as const;
 export const isAvenWriteTool = (name: string) =>
   writeTools.has(name as AvenToolName);
 export function validateToolInput(name: string, raw: unknown) {
@@ -254,7 +308,9 @@ export const avenTools = Object.entries(schemas).map(([name, schema]) => ({
         : name === "getStudyCircles"
           ? "Read the student's Study Circles standing: this week's verified timer time, rank and gap to the next place among friends, the same for each of their study groups, last week's total and the scoring rules. Only data the student can already see in Study Circles."
         : name === "getNextBestAction"
-          ? "Rank the most useful next tasks across active goals (or one goal) from deadlines, priority, dependencies, progress, recent activity and the daily target. Reasons are verified; explain them without reordering."
+          ? "Rank the most useful next tasks across active goals (or one goal) from deadlines, priority, dependencies, progress, reported difficulty, postponements, recent activity and the daily target. Reasons are verified; explain them without reordering."
+          : name in learningToolDescriptions
+            ? learningToolDescriptions[name as keyof typeof learningToolDescriptions]
           : `${name}: retrieve authenticated user's verified Acadence records.`,
   parameters: strictSchema(schema),
 }));
@@ -529,6 +585,169 @@ async function performAvenTool(
               "No unblocked open tasks in active goals. Suggest adding tasks or a goal.",
           }),
     };
+  }
+  if (name === "auditTopicCoverage") {
+    const value = args as {
+      subjectId: string | null;
+      subjectName: string | null;
+      goalId: string | null;
+      from: string | null;
+      to: string | null;
+    };
+    const subject = await resolveOwnedSubject(
+      userId,
+      value.subjectId,
+      value.subjectName,
+    );
+    const { audit, attention, window } = await loadTopicCoverage(
+      userId,
+      subject.id,
+      value,
+    );
+    return {
+      ...audit,
+      topics: audit.topics.slice(0, 80),
+      topicsTruncated: audit.topics.length > 80,
+      window,
+      selfReported: attention,
+    };
+  }
+  if (name === "getGoalHealth") {
+    const { goalId } = args as { goalId: string | null };
+    return { goals: (await loadGoalHealth(userId, goalId)).healths };
+  }
+  if (name === "getLearningGaps") {
+    const { findings } = await loadLearningGaps(userId);
+    return {
+      findings: findings.slice(0, 15),
+      total: findings.length,
+      ...(findings.length
+        ? {}
+        : { empty: "No overdue, missed, postponed or neglected work found." }),
+    };
+  }
+  if (name === "proposePracticeSessions") {
+    const value = args as {
+      subjectId: string | null;
+      subjectName: string | null;
+      sessions: number;
+      minutes: number;
+      horizonDays: number;
+      explicitRequest: boolean;
+      explanation: string;
+    };
+    const subject = await resolveOwnedSubject(
+      userId,
+      value.subjectId,
+      value.subjectName,
+    );
+    const recommendationKey = practiceRecommendationKey(subject.id);
+    // A recent "no" is respected: no repeated pressure unless the student asks again.
+    if (
+      !value.explicitRequest &&
+      (await recentlyDeclined(userId, recommendationKey))
+    )
+      return {
+        proposalCreated: false,
+        declinedRecently: true,
+        next: "The student declined extra practice for this subject recently. Do not propose it again unless they ask.",
+      };
+    const { plan, audit, attention } = await planSubjectPractice(
+      userId,
+      subject.id,
+      value,
+    );
+    const summary = {
+      counts: audit.counts,
+      selfReported: attention,
+      skippedBlocked: plan.skippedBlocked,
+    };
+    if (plan.nothingToPractice)
+      return {
+        proposalCreated: false,
+        nothingToPractice: true,
+        ...summary,
+        next: "Every topic is complete and no difficulty is reported. Ask which topic feels weak before planning.",
+      };
+    if (!plan.sessions.length)
+      return {
+        proposalCreated: false,
+        availableCapacity: false,
+        constraint: plan.constraint,
+        tradeoffs: plan.tradeoffs.map((item) => ({
+          ...item,
+          localStartsAt: wallTime(item.startsAt, timezone),
+        })),
+        ...summary,
+        next: "There is no free time within the student's study hours and daily target. Do not invent time or delete sessions. Offer the trade-offs (move or shorten a listed session, extend the window, or raise the daily target) and ask one question.",
+      };
+    const t = await getTranslations({ locale: "en", namespace: "aven.learning" });
+    const created = await proposal({
+      kind: "schedule",
+      goalId: null,
+      expectedVersion: 0,
+      recommendationKey,
+      explanation: value.explanation,
+      sessions: plan.sessions.map((item) => ({
+        title: t("practiceTitle", { topic: item.topicTitle }),
+        taskId: null,
+        subjectId: subject.id,
+        topicId: item.topicId,
+        startsAt: item.startsAt,
+        endsAt: item.endsAt,
+      })),
+    });
+    return {
+      ...created,
+      ...summary,
+      sessions: plan.sessions.map((item) => ({
+        topic: item.topicTitle,
+        reason: item.reason,
+        localStartsAt: wallTime(item.startsAt, timezone),
+        localEndsAt: wallTime(item.endsAt, timezone),
+      })),
+      shortfall: plan.shortfall,
+      constraint: plan.constraint,
+      tradeoffs: plan.tradeoffs.map((item) => ({
+        ...item,
+        localStartsAt: wallTime(item.startsAt, timezone),
+      })),
+    };
+  }
+  if (name === "recordLearningSignal") {
+    const value = args as {
+      subjectId: string | null;
+      subjectName: string | null;
+      topicId: string | null;
+      level: "needsPractice" | "gettingThere" | "confident";
+      explanation: string;
+    };
+    const subject = await resolveOwnedSubject(
+      userId,
+      value.subjectId,
+      value.subjectName,
+    );
+    const [topic] = value.topicId
+      ? await db
+          .select({ title: s.topics.title })
+          .from(s.topics)
+          .where(
+            and(
+              eq(s.topics.id, value.topicId),
+              eq(s.topics.subjectId, subject.id),
+            ),
+          )
+      : [];
+    if (value.topicId && !topic) throw new GoalError("recordUnavailable", 404);
+    return proposal({
+      kind: "learningSignal",
+      subjectId: subject.id,
+      topicId: value.topicId,
+      subjectTitle: subject.title,
+      topicTitle: topic?.title ?? null,
+      level: value.level,
+      explanation: value.explanation,
+    });
   }
   if (name === "completeGoal" || name === "createGoalMilestone") {
     const value = args as {

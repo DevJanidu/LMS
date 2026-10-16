@@ -46,6 +46,8 @@ export default function NextBestActionCard({
         });
       case "fitsToday":
         return t("reasons.fitsToday", { minutes: item.minutes });
+      case "postponed":
+        return t("reasons.postponed", { count: item.count });
       default:
         return t(`reasons.${item.code}`);
     }

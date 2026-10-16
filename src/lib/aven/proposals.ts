@@ -521,6 +521,18 @@ export async function resolveProposal(
               });
             result.blockIds.push(blockId);
           }
+          // Success is reported only after every session reads back from the database.
+          const saved = await tx
+            .select({ id: s.scheduleBlocks.id })
+            .from(s.scheduleBlocks)
+            .where(
+              and(
+                eq(s.scheduleBlocks.userId, userId),
+                inArray(s.scheduleBlocks.id, result.blockIds),
+              ),
+            );
+          if (saved.length !== result.blockIds.length)
+            throw new GoalError("persistenceUnavailable", 503);
         }
       } else if (value.kind === "reminder") {
         if (Date.parse(value.scheduledFor) < Date.now())

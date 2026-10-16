@@ -10,6 +10,8 @@ export type NextActionReason =
   | { code: "inProgress" }
   | { code: "highPriority" }
   | { code: "goalAtRisk" }
+  | { code: "reportedDifficulty" }
+  | { code: "postponed"; count: number }
   | { code: "fitsToday"; minutes: number };
 export interface NextAction {
   goalId: string;
@@ -29,6 +31,10 @@ export interface NextActionContext {
   today: string;
   now: number;
   dailyTargetMinutes: number;
+  /** Current self-reported difficulty by subject (see lib/learning/signals). */
+  difficulty?: Record<string, "needsPractice" | "gettingThere">;
+  /** Postponements per topic over the last 30 days. */
+  postponedTopics?: Record<string, number>;
 }
 const ACTIVE = new Set(["active", "planned", "missedTarget"]);
 const days = (from: string, to: string) =>
@@ -103,6 +109,21 @@ function goalCandidates(detail: GoalDetail, context: NextActionContext) {
       if (progress.health === "atRisk" || progress.health === "overdue") {
         score += 10;
         reasons.push({ code: "goalAtRisk" });
+      }
+      // The learner's own report of difficulty, and work repeatedly put off, move a task up.
+      const difficulty = task.subjectId
+        ? context.difficulty?.[task.subjectId]
+        : undefined;
+      if (difficulty) {
+        score += difficulty === "needsPractice" ? 8 : 4;
+        reasons.push({ code: "reportedDifficulty" });
+      }
+      const postponed = task.topicId
+        ? (context.postponedTopics?.[task.topicId] ?? 0)
+        : 0;
+      if (postponed >= 2) {
+        score += 6;
+        reasons.push({ code: "postponed", count: postponed });
       }
       const remainingMinutes = Math.max(
         0,

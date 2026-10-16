@@ -9,6 +9,7 @@ import Field, {
 } from "@/components/studyflow/FormFields";
 import Button from "@/components/ui/button/Button";
 import AvenSettingsSection from "./AvenSettingsSection";
+import LearningSignalsSection from "./LearningSignalsSection";
 import { subscribeToPush } from "./browserPush";
 import RepeatWeekdays from "@/components/calendar/RepeatWeekdays";
 import { featureRequest } from "@/lib/goals/client";
@@ -476,6 +477,7 @@ export default function AvenSettings({ initial, onSaved }: Props) {
           </Button>
         </form>
       </AvenSettingsSection>
+      <LearningSignalsSection />
     </div>
   );
 }
