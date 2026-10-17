@@ -12,7 +12,13 @@ export const HEARTBEAT_MS = 8000;
 /** No bytes for this long means the connection is dead even if the socket looks open. */
 export const STREAM_IDLE_TIMEOUT_MS = 25000;
 export type StreamEventBody =
-  | { type: "message-start"; conversationId: string; requestId: string }
+  | {
+      type: "message-start";
+      conversationId: string;
+      requestId: string;
+      /** The model and reasoning that answer this turn (what the label will show). */
+      model?: { key: string; label: string; reasoning: string; effort: string };
+    }
   /** A user-safe status for the current step (never model reasoning). */
   | { type: "reasoning-status"; status: ActivityCategory }
   | { type: "text-delta"; text: string }

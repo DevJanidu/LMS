@@ -8,11 +8,14 @@
 //   [checklist] [quiz] [diagram] [flashcards] [targets]
 //           an introduction plus the matching show* presentation call in one response
 //   other   a short immediate reply
-// GET /stats returns how many model requests each marker produced (duplicate detection).
+// GET /stats returns how many model requests each marker produced (duplicate detection);
+// GET /requests returns the model, effort, verbosity and cache key each request carried.
 import { createServer } from "node:http";
 
 const port = Number(process.argv[2] ?? 4010);
 const stats = {};
+/** Parameters of recent requests (no message content), for verifying model routing. */
+const requests = [];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const SLOW = [
   "## Your Advanced Java week\n\n",
@@ -116,8 +119,13 @@ createServer(async (request, response) => {
     response.writeHead(200, { "Content-Type": "application/json" });
     return response.end(JSON.stringify(stats));
   }
+  if (request.method === "GET" && request.url === "/requests") {
+    response.writeHead(200, { "Content-Type": "application/json" });
+    return response.end(JSON.stringify(requests));
+  }
   if (request.method === "POST" && request.url === "/stats/reset") {
     for (const key of Object.keys(stats)) delete stats[key];
+    requests.length = 0;
     response.writeHead(204);
     return response.end();
   }
@@ -142,6 +150,8 @@ createServer(async (request, response) => {
           : (block ?? "quick");
   const toolDone = Array.isArray(body.input) && body.input.some((item) => item?.type === "function_call_output");
   stats[marker] = (stats[marker] ?? 0) + 1;
+  requests.push({ marker, model: body.model, effort: body.reasoning?.effort ?? null, verbosity: body.text?.verbosity ?? null, promptCacheKey: body.prompt_cache_key ?? null, tools: (body.tools ?? []).map((tool) => tool.name) });
+  if (requests.length > 200) requests.shift();
   let closed = false;
   response.on("close", () => {
     closed = true;

@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import * as s from "@/lib/db/schema";
 import { GoalError, getGoalDetail } from "@/lib/goals/service";
@@ -377,30 +377,37 @@ export async function beginConversationTurn(
         .update(s.aiMessages)
         .set({ context: { ...original.context, latestRetryId: requestId } })
         .where(eq(s.aiMessages.id, original.id));
-    } else
-      await tx.insert(s.aiMessages).values({
-        conversationId: id,
-        requestId,
-        role: "user",
-        content: message,
-        // Structured @ references survive retries, regeneration and reloads.
-        ...(references.length
-          ? { context: { references: JSON.stringify(references) } }
-          : {}),
-      });
+    }
     // The reply row doubles as the durable generation record: queued now, then streaming
     // snapshots, then complete/error/cancelled. Reconnecting clients read it, never memory.
-    await tx.insert(s.aiMessages).values({
-      conversationId: id,
-      requestId,
-      role: "assistant",
-      content: "",
-      status: "streaming",
-      context: { phase: "queued", seq: "0", updatedAt: new Date().toISOString() },
-      // now() is fixed for the transaction, so the user message above shares it; the wall
-      // clock keeps the reply strictly after the message it answers.
-      createdAt: sql`clock_timestamp()`,
-    });
+    // One statement writes the message and its reply row (one round trip, not two).
+    await tx.insert(s.aiMessages).values([
+      ...(retryRequestId
+        ? []
+        : [
+            {
+              conversationId: id,
+              requestId,
+              role: "user",
+              content: message,
+              // Structured @ references survive retries, regeneration and reloads.
+              ...(references.length
+                ? { context: { references: JSON.stringify(references) } }
+                : {}),
+            },
+          ]),
+      {
+        conversationId: id,
+        requestId,
+        role: "assistant",
+        content: "",
+        status: "streaming",
+        context: { phase: "queued", seq: "0", updatedAt: new Date().toISOString() },
+        // now() is fixed for the transaction, so the user message shares it; the wall clock
+        // (plus a microsecond) keeps the reply strictly after the message it answers.
+        createdAt: sql`clock_timestamp() + interval '1 microsecond'`,
+      },
+    ]);
     await tx
       .update(s.aiConversations)
       .set({
@@ -410,21 +417,17 @@ export async function beginConversationTurn(
         updatedAt: new Date(),
       })
       .where(eq(s.aiConversations.id, id));
+    // Recent history and the total message count in one read.
     const history = await tx
-      .select()
+      .select({
+        ...getTableColumns(s.aiMessages),
+        total: sql<number>`(SELECT count(*)::int FROM ai_messages counted WHERE counted.conversation_id = ${id}::uuid AND counted.status <> 'streaming')`,
+      })
       .from(s.aiMessages)
       .where(eq(s.aiMessages.conversationId, id))
       .orderBy(desc(s.aiMessages.createdAt), desc(s.aiMessages.id))
       .limit(12);
-    const [{ count }] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(s.aiMessages)
-      .where(
-        and(
-          eq(s.aiMessages.conversationId, id),
-          sql`${s.aiMessages.status} <> 'streaming'`,
-        ),
-      );
+    const count = Number(history[0]?.total ?? 0);
     // A regenerated reply must not see the answer it replaces.
     const replaced = (row: (typeof history)[number]) =>
       regenerate &&

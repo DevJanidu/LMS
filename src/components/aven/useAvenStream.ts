@@ -20,6 +20,7 @@ import { knownActivity, type ActivityCategory } from "@/lib/aven/activity";
 import type { ProposalRecord } from "./ProposalCard";
 import type { AvenMessageRecord, ConversationResult } from "./types";
 import type { MentionType } from "@/lib/aven/commands";
+import type { DetailLevel, ModelKey, ReasoningMode } from "@/lib/aven/model-options";
 export interface SendRequest {
   text: string;
   conversationId: string | null;
@@ -31,6 +32,11 @@ export interface SendRequest {
   regenerate?: boolean;
   /** Structured @ references (type and ID only). */
   references?: { type: MentionType; id: string }[];
+  /** Model controls; the server validates them and maps them to API settings. */
+  model?: ModelKey;
+  reasoning?: ReasoningMode;
+  detail?: DetailLevel;
+  interactive?: boolean;
 }
 interface Options {
   setMessages: Dispatch<SetStateAction<AvenMessageRecord[]>>;
@@ -200,6 +206,10 @@ export function useAvenStream(options: Options) {
             message: submission,
             planning: request.planning,
             references: request.references ?? [],
+            model: request.model,
+            reasoning: request.reasoning,
+            detail: request.detail,
+            interactive: request.interactive,
           }),
           signal: controller.signal,
         });
@@ -230,6 +240,17 @@ export function useAvenStream(options: Options) {
             active.current = { conversationId, requestId };
             optionsRef.current.onAccepted(event.conversationId, submission);
             patch(setMessages, requestId, () => ({ status: "complete" }));
+            // Label the reply with the model that is actually answering.
+            if (event.model)
+              patch(setMessages, assistantId, (message) => ({
+                context: {
+                  ...message.context,
+                  model: event.model!.key,
+                  modelLabel: event.model!.label,
+                  reasoning: event.model!.reasoning,
+                  effort: event.model!.effort,
+                },
+              }));
           } else if (event.type === "reasoning-status")
             setActivity(knownActivity(event.status));
           else if (event.type === "tool-start")

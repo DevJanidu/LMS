@@ -37,8 +37,21 @@ export async function getBillingOverview(userId: string) {
   return { state, plan: effectivePlan(state), enforced: billingEnforced() };
 }
 
+/**
+ * Aven allowance for model selection and budgets. null = no plan restriction (billing off),
+ * so learners keep today's access until a payment provider is live.
+ */
+export async function aiAllowance(userId: string): Promise<{
+  models: PlanEntitlements["aiModels"] | null;
+  monthlyBudgetUsd: number | null;
+}> {
+  if (!billingEnforced()) return { models: null, monthlyBudgetUsd: null };
+  const entitlements = entitlementsFor(await getSubscription(userId));
+  return { models: entitlements.aiModels, monthlyBudgetUsd: entitlements.aiMonthlyBudgetUsd };
+}
+
 /** Server-side gate. Hidden buttons are never the only protection. */
-export async function assertEntitlement(userId: string, feature: keyof Omit<PlanEntitlements, "aiMonthlyBudgetUsd" | "proactive">) {
+export async function assertEntitlement(userId: string, feature: keyof Omit<PlanEntitlements, "aiMonthlyBudgetUsd" | "proactive" | "aiModels">) {
   if (!billingEnforced()) return;
   const entitlements = entitlementsFor(await getSubscription(userId));
   if (!entitlements[feature]) throw new GoalError("planUpgradeRequired", 402);

@@ -1,6 +1,7 @@
 vi.mock("@/lib/aven/access", () => ({
   assertAvenAccess: vi.fn().mockResolvedValue(undefined),
   assertConversationActive: vi.fn().mockResolvedValue(undefined),
+  assertTurnActive: vi.fn().mockResolvedValue(undefined),
 }));
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
@@ -37,7 +38,7 @@ vi.mock("@/lib/aven/tools", () => ({
   isAvenWriteTool: (name: string) => name.startsWith("create"),
 }));
 import { streamChat } from "@/lib/aven/chat";
-import { assertAvenAccess } from "@/lib/aven/access";
+import { assertAvenAccess, assertTurnActive } from "@/lib/aven/access";
 type Prepared = Parameters<typeof streamChat>[2];
 const prepared = {
   preferences: { ai: { consent: true, locale: "en" }, memory: [] },
@@ -75,6 +76,7 @@ beforeEach(() => {
   mocks.usage.mockResolvedValue(undefined);
   mocks.snapshot.mockResolvedValue(true);
   vi.mocked(assertAvenAccess).mockResolvedValue(undefined);
+  vi.mocked(assertTurnActive).mockResolvedValue(undefined);
 });
 it("terminates an empty successful provider stream with a retryable saved error", async () => {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(completed([])));
@@ -133,7 +135,7 @@ it("persists timed-out generation as cancelled and ends the stream", async () =>
   );
 });
 it("does not transmit another provider request after live consent is revoked", async () => {
-  vi.mocked(assertAvenAccess).mockRejectedValue(new Error("revoked"));
+  vi.mocked(assertTurnActive).mockRejectedValue(new Error("revoked"));
   const fetch = vi.fn();
   vi.stubGlobal("fetch", fetch);
   await streamChat(

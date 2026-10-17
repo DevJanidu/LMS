@@ -7,7 +7,11 @@ export interface ResponseEvent {
     status: string;
     incomplete_details?: { reason?: string } | null;
     output: ResponseItem[];
-    usage?: { input_tokens: number; output_tokens: number };
+    usage?: {
+      input_tokens: number;
+      output_tokens: number;
+      input_tokens_details?: { cached_tokens?: number };
+    };
   };
 }
 export interface ResponseItem {

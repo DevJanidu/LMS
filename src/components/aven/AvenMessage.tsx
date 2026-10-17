@@ -32,7 +32,8 @@ function AvenMessage({
   onRegenerate,
   onAsk,
 }: Props) {
-  const t = useTranslations("aven");
+  const t = useTranslations("aven"),
+    m = useTranslations("aven.models");
   // Live cards (with placeholders) while streaming; saved, re-validated cards afterwards.
   const components = useMemo(
     () => message.components ?? storedComponents(message.context),
@@ -137,6 +138,14 @@ function AvenMessage({
             <time dateTime={message.createdAt} className="aven-message-meta">
               {time}
             </time>
+          )}
+          {message.context?.modelLabel && (
+            <span className="aven-message-meta aven-message-model" title={message.context.apiModel}>
+              {message.context.modelLabel}
+              {message.context.reasoning && message.context.reasoning !== "auto"
+                ? ` · ${m(`modes.${message.context.reasoning}.label`)}`
+                : ""}
+            </span>
           )}
         </div>
       )}

@@ -1,6 +1,7 @@
 vi.mock("@/lib/aven/access", () => ({
   assertAvenAccess: vi.fn().mockResolvedValue(undefined),
   assertConversationActive: vi.fn().mockResolvedValue(undefined),
+  assertTurnActive: vi.fn().mockResolvedValue(undefined),
 }));
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";

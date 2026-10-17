@@ -9,10 +9,12 @@ import {
   type preferenceMutationSchema,
 } from "./validation";
 import { avenStatus, avenConfig } from "./config";
+import { modelOptions } from "./models";
+import { aiAllowance } from "@/lib/billing/entitlements";
 import type { z } from "zod";
 export async function getAvenPreferences(userId: string) {
   const db = getDb();
-  const [[ai], [notifications], memory, usage, [account], globalUsage] =
+  const [[ai], [notifications], memory, usage, [account], globalUsage, allowance] =
     await Promise.all([
       db
         .select()
@@ -42,6 +44,7 @@ export async function getAvenPreferences(userId: string) {
       db.execute<{ costMicros: number }>(
         sql`SELECT coalesce(sum(cost_micros),0)::bigint AS "costMicros" FROM ai_usage_records WHERE day>=date_trunc('month',now())::date`,
       ),
+      aiAllowance(userId),
     ]);
   const status = avenStatus(),
     config = status.configured ? avenConfig() : null;
@@ -67,6 +70,8 @@ export async function getAvenPreferences(userId: string) {
     },
     configured: avenStatus().configured,
     configurationError: avenStatus().code,
+    /** Model choices for the selector: keys, labels and availability only. */
+    models: modelOptions(process.env, allowance.models),
     pushConfigured: Boolean(
       process.env.VAPID_PUBLIC_KEY &&
       process.env.VAPID_PRIVATE_KEY &&
@@ -77,6 +82,55 @@ export async function getAvenPreferences(userId: string) {
     ),
     publicPushKey: process.env.VAPID_PUBLIC_KEY ?? "",
   };
+}
+/**
+ * Everything a chat turn needs about the student, in one database round trip: account
+ * status and role, AI preferences (consent, model controls), timezone, the five most
+ * recent memories and up to five active goals. The settings page keeps using
+ * getAvenPreferences; the chat path skips its usage totals and whole-table budget sum.
+ */
+const CHAT_CONTEXT_SQL = `
+  SELECT u.role, u.status, u.timezone, p.value AS ai,
+    COALESCE((SELECT json_agg(json_build_object('id', m.id, 'content', m.content, 'source', m.source) ORDER BY m.updated_at DESC)
+      FROM (SELECT id, content, source, updated_at FROM ai_memory WHERE user_id = u.id ORDER BY updated_at DESC LIMIT 5) m), '[]'::json) AS memory,
+    COALESCE((SELECT json_agg(json_build_object('id', g.id, 'title', g.title, 'targetDate', g.target_date, 'status', g.status) ORDER BY g.target_date)
+      FROM (SELECT id, title, target_date, status FROM goals WHERE user_id = u.id AND status IN ('active','planned','missedTarget') ORDER BY target_date LIMIT 5) g), '[]'::json) AS goals,
+    EXISTS(SELECT 1 FROM ai_usage_records r WHERE r.user_id = u.id) AS "hadUsage"
+  FROM users u LEFT JOIN ai_user_preferences p ON p.user_id = u.id
+  WHERE u.id = $1::uuid`;
+interface ChatContextRow {
+  role: string;
+  status: string;
+  timezone: string;
+  ai: Record<string, unknown> | null;
+  memory: { id: string; content: string; source: string }[];
+  goals: { id: string; title: string; targetDate: string | null; status: string }[];
+  hadUsage: boolean;
+}
+export async function getChatContext(userId: string) {
+  // On a pooled WebSocket connection, not the HTTP fetch path: the reservation and turn
+  // transactions that follow need that connection anyway, so a cold turn pays for one
+  // connection setup instead of two, and a warm one pays for none (measured: ~2 s per
+  // cold HTTPS setup from a distant client; 0.15 ms server execution).
+  const [rows, allowance] = await Promise.all([
+    (async () => {
+      const client = await getDb().$client.connect();
+      try {
+        return (await client.query<ChatContextRow>(CHAT_CONTEXT_SQL, [userId])).rows;
+      } finally {
+        client.release();
+      }
+    })(),
+    aiAllowance(userId),
+  ]);
+  const row = rows[0];
+  if (!row || row.status !== "active" || row.role !== "learner")
+    throw new GoalError("authenticationFailed", 403);
+  const ai = aiPreferenceSchema.parse({
+    ...row.ai,
+    onboardingComplete: Boolean(row.ai?.onboardingComplete || row.ai?.consent || row.hadUsage),
+  });
+  return { timezone: row.timezone ?? "UTC", ai, memory: row.memory, goals: row.goals, allowance };
 }
 export async function changeAvenPreferences(
   userId: string,
@@ -152,6 +206,25 @@ export async function changeAvenPreferences(
             },
           });
       }
+    } else if (input.kind === "modelSettings") {
+      const [existing] = await tx
+        .select()
+        .from(s.aiUserPreferences)
+        .where(eq(s.aiUserPreferences.userId, userId));
+      const value = aiPreferenceSchema.parse({
+        ...existing?.value,
+        model: input.model,
+        reasoning: input.reasoning,
+        detail: input.detail,
+        interactive: input.interactive,
+      });
+      await tx
+        .insert(s.aiUserPreferences)
+        .values({ userId, value })
+        .onConflictDoUpdate({
+          target: s.aiUserPreferences.userId,
+          set: { value, updatedAt: new Date() },
+        });
     } else if (input.kind === "enableReminders") {
       const [existing] = await tx
         .select()
@@ -183,11 +256,15 @@ export async function changeAvenPreferences(
         .select()
         .from(s.aiUserPreferences)
         .where(eq(s.aiUserPreferences.userId, userId));
+      const current = aiPreferenceSchema.parse(currentAi?.value ?? {});
       const aiValue = {
         ...input.ai,
-        // Learning reports have their own controls; the settings form never overwrites them.
-        learningSignals: aiPreferenceSchema.parse(currentAi?.value ?? {})
-          .learningSignals,
+        // Learning reports and the model controls have their own UI; this form never overwrites them.
+        learningSignals: current.learningSignals,
+        model: current.model,
+        reasoning: current.reasoning,
+        detail: current.detail,
+        interactive: current.interactive,
         onboardingComplete: Boolean(
           input.ai.onboardingComplete ||
           currentAi?.value.onboardingComplete ||

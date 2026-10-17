@@ -29,6 +29,8 @@ export interface PlanEntitlements {
   goalCoaching: boolean;
   /** Monthly Aven allowance in USD of model spend; 0 = no AI access. */
   aiMonthlyBudgetUsd: number;
+  /** Aven models the plan may use (keys from aven/model-options); empty = none. */
+  aiModels: readonly ("sol" | "luna")[];
 }
 
 export interface Plan {
@@ -57,6 +59,7 @@ export const PLANS: Record<PlanId, Plan> = {
       weeklyReviews: false,
       goalCoaching: false,
       aiMonthlyBudgetUsd: 0,
+      aiModels: [],
     },
   },
   pro: {
@@ -73,6 +76,7 @@ export const PLANS: Record<PlanId, Plan> = {
       weeklyReviews: false,
       goalCoaching: false,
       aiMonthlyBudgetUsd: 3,
+      aiModels: ["sol", "luna"],
     },
   },
   plus: {
@@ -89,6 +93,7 @@ export const PLANS: Record<PlanId, Plan> = {
       weeklyReviews: true,
       goalCoaching: true,
       aiMonthlyBudgetUsd: 6,
+      aiModels: ["sol", "luna"],
     },
   },
 };
