@@ -8,7 +8,8 @@ export function boundedHistory<
     if (
       message.status === "error" ||
       message.status === "cancelled" ||
-      message.status === "superseded"
+      message.status === "superseded" ||
+      message.status === "streaming"
     )
       continue;
     const item = {

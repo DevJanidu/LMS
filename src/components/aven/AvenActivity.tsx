@@ -1,32 +1,12 @@
 "use client";
 import { useTranslations } from "next-intl";
-/** Maps real backend tool events to user-facing phrases; tool arguments are never shown. */
-const categories: Record<string, string> = {
-  getUserGoals: "goals",
-  getGoalDetails: "goals",
-  getGoalProgress: "goals",
-  getCalendar: "calendar",
-  getStudySchedule: "calendar",
-  getUpcomingDeadlines: "calendar",
-  getAssignments: "calendar",
-  getStudyHistory: "history",
-  getWeeklyAnalytics: "history",
-  getSubjects: "resources",
-  getTopics: "resources",
-  getStudyResources: "resources",
-  getUserProfile: "preferences",
-  getNotificationPreferences: "preferences",
-  proposeStudySchedule: "studyPlan",
-  proposeGoalPlan: "studyPlan",
-  proposeGoalHierarchy: "studyPlan",
-  getNextBestAction: "goals",
-  createStudySchedule: "studyPlan",
-  moveStudySessions: "conflicts",
-  rescheduleStudySession: "conflicts",
-  cancelStudySessions: "conflicts",
-};
-export const activityCategory = (tool: string) =>
-  categories[tool] ?? (tool === "working" ? "working" : "changes");
+/** The category mapping lives with the server, which sends only categories, never tool names. */
+export { activityCategory } from "@/lib/aven/activity";
+/**
+ * The current real backend step (from tool-start / reasoning-status events). The label is
+ * keyed so a new step cross-fades in once; screen readers get it from the companion's
+ * polite live region instead, so it is hidden here.
+ */
 export default function AvenActivity({ name }: { name: string }) {
   const t = useTranslations("aven.activity");
   return (
@@ -36,7 +16,9 @@ export default function AvenActivity({ name }: { name: string }) {
         <span />
         <span />
       </span>
-      <span>{t(name)}</span>
+      <span key={name} className="aven-activity-label">
+        {t.has(name) ? t(name) : t("working")}
+      </span>
     </div>
   );
 }

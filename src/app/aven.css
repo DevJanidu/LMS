@@ -242,6 +242,53 @@ button.aven-history-label:hover { color: var(--text-secondary); }
 .aven-change-diff [data-previous] { color: var(--text-muted); text-decoration: line-through; }
 .aven-change-label { @apply text-caption; min-width: 4.5rem; color: var(--text-muted); }
 
+/* Streaming text: typography refinements, nested and checklist lists, math, streaming caret */
+.aven-prose h5 { @apply text-body-strong; margin-top: .25rem; }
+.aven-prose li > ul, .aven-prose li > ol { margin-top: .375rem; }
+.aven-prose ul ul { list-style: circle; }
+.aven-prose ul[data-checklist] { list-style: none; padding-inline-start: .25rem; }
+.aven-prose li[data-checked] { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; }
+.aven-prose li[data-checked="true"] > span { color: var(--text-muted); text-decoration: line-through; }
+.aven-prose li[data-checked] > :is(ul, ol) { flex-basis: 100%; }
+.aven-check { width: 1rem; height: 1rem; flex-shrink: 0; translate: 0 .125rem; accent-color: var(--primary); }
+.aven-prose del { color: var(--text-muted); }
+.aven-math, .aven-math-block { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.aven-math { @apply text-small; padding: .0625rem .25rem; border-radius: .3125rem; background: var(--surface-subtle); }
+.aven-math-block { @apply text-small; overflow-x: auto; padding: .75rem .875rem; border-radius: var(--radius-md); background: var(--surface-subtle); text-align: center; white-space: pre-wrap; }
+.aven-code[data-open] .aven-code-bar { color: var(--primary); }
+/* A quiet caret at the end of the text that is still arriving. */
+.aven-prose[data-streaming] > :is(p, h3, h4, h5, blockquote):last-child::after { content: ""; display: inline-block; width: .45em; height: 1.05em; margin-inline-start: .15em; vertical-align: -.15em; border-radius: 2px; background: var(--primary); opacity: .5; animation: aven-caret 1s ease-in-out infinite; }
+
+/* Motion: new messages and cards ease in; cards grow smoothly as their data arrives. */
+.aven-message[data-enter] { animation: aven-rise 200ms var(--ease-standard) both; }
+.aven-message[data-role="user"][data-enter] { animation-duration: 160ms; }
+.aven-card-enter { animation: aven-rise 240ms var(--ease-standard) both; }
+.aven-reveal { overflow: clip; overflow-clip-margin: .375rem; transition: height 260ms var(--ease-standard); }
+.aven-card[data-loading] { border-style: dashed; }
+.aven-activity-label { animation: aven-fade 180ms var(--ease-standard) both; }
+.aven-transcript { overflow-anchor: none; }
+@keyframes aven-rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes aven-fade { from { opacity: 0; } }
+@keyframes aven-caret { 50% { opacity: .15; } }
+@media (prefers-reduced-motion: reduce) {
+  .aven-message[data-enter], .aven-card-enter, .aven-activity-label { animation: none; }
+  .aven-reveal { transition: none; }
+  .aven-prose[data-streaming] > :last-child::after { animation: none; }
+  .aven-activity-dots span, .aven-skeleton { animation: none; }
+}
+
+/* Generative UI card details */
+.aven-task-title { display: flex; align-items: baseline; gap: .5rem; min-width: 0; }
+.aven-task-dot { width: .5rem; height: .5rem; flex-shrink: 0; border: 1.5px solid var(--border-strong); border-radius: 999px; translate: 0 -.0625rem; }
+.aven-task-dot[data-status="inProgress"] { border-color: var(--primary); background: var(--primary-soft); }
+.aven-task-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.aven-rank { display: flex; align-items: center; gap: .625rem; min-width: 0; }
+.aven-rank-number { @apply text-caption; display: inline-grid; place-items: center; min-width: 1.5rem; height: 1.5rem; border-radius: 999px; background: var(--surface-subtle); color: var(--text-secondary); }
+.aven-card-list li[data-me] { font-weight: 600; }
+.aven-card-list li[data-me] .aven-rank-number { background: var(--primary-soft); color: var(--primary); }
+.aven-delta[data-tone="up"] { color: var(--success); }
+.aven-delta[data-tone="down"] { color: var(--text-secondary); }
+
 /* Notification center and settings dialogs */
 .aven-notification-list { display: flex; flex-direction: column; }
 .aven-notification-list > li { position: relative; padding-block: 1rem; padding-inline-start: 1rem; border-bottom: 1px solid var(--border); }

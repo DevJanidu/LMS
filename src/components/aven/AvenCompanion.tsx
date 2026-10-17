@@ -19,6 +19,7 @@ import AvenTranscript from "./AvenTranscript";
 import AvenComposer, { type AvenComposerHandle } from "./AvenComposer";
 import { activeMentions } from "./composer-model";
 import { useMentionDraft } from "./useMentionDraft";
+import { useGenerationFollow } from "./useGenerationFollow";
 import AvenWelcome from "./AvenWelcome";
 import AvenSuggestions from "./AvenSuggestions";
 import AvenOnboarding from "./AvenOnboarding";
@@ -163,6 +164,7 @@ export default function AvenCompanion({
     setProposals,
     reload,
     onAccepted: (id, text) => {
+      notifyTabs(id, "start");
       if (!selected) {
         draft.adopt(id);
         adopt(id);
@@ -182,7 +184,37 @@ export default function AvenCompanion({
       upsertConversation({ id: value.conversation.id });
     },
   });
-  const { generating, activity, streamingKey } = stream;
+  // The server is the source of truth: a reply may be running from before a navigation,
+  // a refresh, a dropped connection or another tab, with no live stream in this tab.
+  const follow = useGenerationFollow({
+    userId: initial.userId,
+    conversationId: selected,
+    generation: conversation.generation,
+    streaming: stream.generating,
+    setMessages,
+    setGeneration: conversation.setGeneration,
+    reload,
+  });
+  const notifyTabs = follow.notify,
+    following = follow.following;
+  const generating = stream.generating || following;
+  const streamingKey = stream.streamingKey ?? follow.followedKey;
+  const activity = stream.generating ? stream.activity : follow.activity;
+  /** Stop works for a reply streaming here or one only being followed. */
+  const stop = () => {
+    const remote = conversation.generation;
+    if (stream.generating) stream.stop();
+    else if (following && selected && remote?.requestId)
+      void featureRequest("/api/aven/chat/cancel", {
+        conversationId: selected,
+        requestId: remote.requestId,
+      })
+        .then(() => {
+          notifyTabs(selected, "end");
+          return reload(selected);
+        })
+        .catch(() => {});
+  };
   const { switchTo } = draft;
   /** Show a conversation, its draft and its address without a page navigation. */
   const show = useCallback(
@@ -280,6 +312,10 @@ export default function AvenCompanion({
       conversationId: selected,
       goalId: conversation.activeGoal,
     });
+    // Switched away mid-reply: the server finishes it and the conversation restores it.
+    if (outcome.detached) return outcome;
+    if (outcome.accepted && (selected ?? outcome.conversationId))
+      notifyTabs((selected ?? outcome.conversationId)!, "end");
     if (outcome.ok) setAnnouncement(t("replyReady"));
     else if (outcome.code && outcome.code !== "generationStopped") {
       if (!outcome.accepted && !request.retryOf)
@@ -376,7 +412,8 @@ export default function AvenCompanion({
     [selected, reload, router],
   );
   const startNew = () => {
-    if (generating) return;
+    // A reply in progress keeps running on the server; this tab only stops listening.
+    stream.detach();
     reset();
     setUrl(null);
     switchTo(null);
@@ -386,7 +423,7 @@ export default function AvenCompanion({
     requestAnimationFrame(() => composer.current?.focus());
   };
   const select = (id: string) => {
-    if (generating) return;
+    if (id !== selected) stream.detach();
     setError("");
     setReplyNotification(undefined);
     if (id !== selected) show(id);
@@ -470,7 +507,7 @@ export default function AvenCompanion({
         hasMore={bootstrap.hasMoreConversations}
         loadingMore={loadingMore}
         selected={selected}
-        disabled={generating}
+        disabled={false}
         timezone={timezone}
         onNew={startNew}
         onSelect={select}
@@ -483,7 +520,7 @@ export default function AvenCompanion({
           title={title}
           goalTitle={conversation.contextTitle}
           sidebarOpen={isMobileOpen || isExpanded}
-          disabled={generating}
+          disabled={false}
           onToggleSidebar={() => {
             // Phones open the drawer; desktop expands or collapses the shared sidebar.
             if (matchMedia("(min-width: 1024px)").matches) toggleSidebar();
@@ -536,7 +573,7 @@ export default function AvenCompanion({
               onMentionsChange={setMentions}
               onSubmit={(attachments) => submit(undefined, undefined, attachments)}
               canReadContent={preferences.ai.allowResourceContent}
-              onStop={stream.stop}
+              onStop={stop}
               generating={generating}
               enabled={ready && !conversation.loading}
               consent={preferences.ai.consent}

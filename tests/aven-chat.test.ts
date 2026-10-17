@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   keep: vi.fn(),
   usage: vi.fn(),
   tool: vi.fn(),
+  snapshot: vi.fn(),
 }));
 vi.mock("@/lib/goals/service", () => ({
   GoalError: class GoalError extends Error {
@@ -24,6 +25,7 @@ vi.mock("@/lib/aven/conversations", () => ({
   beginConversationTurn: vi.fn(),
   finishConversationTurn: mocks.finish,
   keepStoppedAnswer: mocks.keep,
+  saveStreamingSnapshot: mocks.snapshot,
 }));
 vi.mock("@/lib/aven/usage", () => ({
   reserveUsage: vi.fn(),
@@ -71,6 +73,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.finish.mockResolvedValue(undefined);
   mocks.usage.mockResolvedValue(undefined);
+  mocks.snapshot.mockResolvedValue(true);
   vi.mocked(assertAvenAccess).mockResolvedValue(undefined);
 });
 it("terminates an empty successful provider stream with a retryable saved error", async () => {
@@ -159,8 +162,8 @@ it("streams text, persists the assistant reply and accounts for actual usage", a
     (event) => events.push(event),
     new AbortController().signal,
   );
-  expect(events.some((event) => event.type === "delta")).toBe(true);
-  expect(events.at(-1)?.type).toBe("done");
+  expect(events.some((event) => event.type === "text-delta")).toBe(true);
+  expect(events.at(-1)?.type).toBe("message-complete");
   expect(mocks.finish).toHaveBeenCalledWith(
     "owner",
     "conversation",
@@ -256,11 +259,11 @@ it("buffers a pending action reply and uses a real correction request before exp
   expect(
     events.some(
       (event) =>
-        event.type === "delta" && String(event.text).includes("I created"),
+        event.type === "text-delta" && String(event.text).includes("I created"),
     ),
   ).toBe(false);
-  expect(events).toContainEqual({ type: "replace", text: corrected });
-  expect(events.at(-1)?.type).toBe("done");
+  expect(events).toContainEqual(expect.objectContaining({ type: "text-replace", text: corrected }));
+  expect(events.at(-1)?.type).toBe("message-complete");
 });
 it("persists failures and retains conservative reservations only for uncertain upstream usage", async () => {
   vi.stubGlobal(
@@ -371,15 +374,43 @@ it("emits server-built goal progress cards and saves them with the reply", async
     (event) => events.push(event),
     new AbortController().signal,
   );
-  const cards = events.find((event) => event.type === "goalProgress");
-  expect(cards).toMatchObject({
-    cards: [{ id: goalId, title: "Java", percent: 50 }],
+  // A placeholder holds the card's slot while the tool runs, then the validated card replaces it.
+  const cards = events.filter((event) => event.type === "ui-component");
+  expect(cards[0]).toMatchObject({
+    component: { id: "goal_progress", status: "loading" },
   });
+  expect(
+    cards.find(
+      (event) => (event.component as { status: string }).status === "ready",
+    ),
+  ).toMatchObject({
+    component: {
+      id: "goal_progress",
+      type: "goal_progress",
+      version: 1,
+      status: "ready",
+      data: { goals: [{ id: goalId, title: "Java", percent: 50 }] },
+    },
+  });
+  // No open tasks: the task list placeholder is withdrawn, never left loading or invented.
+  expect(cards).toContainEqual(
+    expect.objectContaining({
+      component: expect.objectContaining({ id: "task_list", status: "removed" }),
+    }),
+  );
   const context = mocks.finish.mock.calls.at(-1)?.[7] as {
-    goalCards: string;
+    components: string;
   };
-  expect(JSON.parse(context.goalCards)).toMatchObject([{ id: goalId }]);
-  expect(events.at(-1)).toMatchObject({ type: "done" });
+  expect(JSON.parse(context.components)).toMatchObject([
+    { type: "goal_progress", data: { goals: [{ id: goalId }] } },
+  ]);
+  expect(events).toContainEqual(
+    expect.objectContaining({ type: "tool-start", activity: "goals" }),
+  );
+  expect(events).toContainEqual(
+    expect.objectContaining({ type: "tool-result", activity: "goals", ok: true }),
+  );
+  expect(events.at(-1)).toMatchObject({ type: "message-complete" });
 });
 it("keeps a partial reply when the stop endpoint closed the turn first", async () => {
   mocks.finish.mockResolvedValue(false);
@@ -472,7 +503,7 @@ it("retries one transient provider failure, then gives up without looping", asyn
     new AbortController().signal,
   );
   expect(fetch).toHaveBeenCalledTimes(2);
-  expect(events.at(-1)).toMatchObject({ type: "done" });
+  expect(events.at(-1)).toMatchObject({ type: "message-complete" });
   const failing = vi
     .fn()
     .mockResolvedValue(new Response("{}", { status: 500 }));
@@ -487,4 +518,74 @@ it("retries one transient provider failure, then gives up without looping", asyn
   );
   expect(failing).toHaveBeenCalledTimes(2);
   expect(failed.at(-1)).toMatchObject({ type: "error", code: "aiUnavailable" });
+});
+
+it("keeps generating and saves the reply after the viewer's stream is cancelled", async () => {
+  const { createEventRelay } = await import("@/lib/aven/stream-relay");
+  const relay = createEventRelay(60000);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(completed([], "Saved even though nobody watched.")),
+  );
+  // The browser navigated away before the reply started.
+  await relay.stream.cancel();
+  await streamChat("owner", input, prepared, relay.emit, new AbortController().signal);
+  expect(mocks.finish).toHaveBeenCalledWith(
+    "owner",
+    "conversation",
+    "request",
+    "Saved even though nobody watched.",
+    "complete",
+    undefined,
+    1,
+  );
+  // Recovery snapshots carry the stream sequence they include.
+  expect(mocks.snapshot).toHaveBeenCalledWith(
+    "owner",
+    "conversation",
+    "request",
+    "",
+    expect.objectContaining({ phase: "running", seq: "1" }),
+  );
+});
+it("stops promptly when the lease is lost (stopped from another tab) and keeps the text", async () => {
+  mocks.snapshot.mockResolvedValue(false);
+  const encoder = new TextEncoder();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((_url: string, init: { signal: AbortSignal }) =>
+      Promise.resolve(
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(sink) {
+              sink.enqueue(
+                encoder.encode(
+                  `data: ${JSON.stringify({ type: "response.output_text.delta", delta: "Partial" })}\n\n`,
+                ),
+              );
+              // The provider keeps streaming until the generation is aborted.
+              init.signal.addEventListener("abort", () => sink.error(init.signal.reason));
+            },
+          }),
+          { headers: { "Content-Type": "text/event-stream" } },
+        ),
+      ),
+    ),
+  );
+  const events: Record<string, unknown>[] = [];
+  await streamChat(
+    "owner",
+    input,
+    prepared,
+    (event) => events.push(event),
+    new AbortController().signal,
+  );
+  expect(events.at(-1)).toMatchObject({ type: "error", code: "generationStopped" });
+  expect(mocks.finish).toHaveBeenCalledWith(
+    "owner",
+    "conversation",
+    "request",
+    "Partial",
+    "cancelled",
+  );
 });

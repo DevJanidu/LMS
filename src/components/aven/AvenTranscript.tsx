@@ -68,6 +68,37 @@ export default function AvenTranscript({
     const last = visible.at(-1);
     return last?.role === "assistant" ? messageKey(last) : undefined;
   }, [visible]);
+  // Messages present when a conversation opens render instantly (no replayed animation);
+  // only messages that arrive afterwards animate in.
+  const baseline = useMemo(
+    () => (loading ? null : new Set(visible.map(messageKey))),
+    // Captured once per opened conversation, deliberately not on every new message.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [conversationKey, loading],
+  );
+  const lastKey = visible.length ? messageKey(visible[visible.length - 1]) : undefined,
+    lastRole = visible.at(-1)?.role;
+  // Sending a message always brings the conversation to the latest content.
+  useLayoutEffect(() => {
+    if (lastRole === "user" && lastKey && baseline && !baseline.has(lastKey)) {
+      following.current = true;
+      setShowJump(false);
+    }
+  }, [lastKey, lastRole, baseline]);
+  // Content can grow without new messages (cards loading, a card expanding, smoothed text);
+  // stay pinned to the bottom only while the reader follows.
+  const thread = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const node = scroller.current,
+      content = thread.current;
+    if (!node || !content || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      if (following.current) node.scrollTop = node.scrollHeight;
+      anchor.current.height = node.scrollHeight;
+    });
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
   // Restore the reader's place when returning to a conversation.
   useLayoutEffect(() => {
     const node = scroller.current;
@@ -142,11 +173,12 @@ export default function AvenTranscript({
     if (message.role === "user") flush(time(message.createdAt));
     const key = messageKey(message);
     const streaming = key === streamingKey;
+    // An empty reply still waiting for text or cards is represented by the activity line.
     if (
       streaming &&
       !message.content &&
-      !message.context?.goalCards &&
-      !message.context?.nextActions
+      !message.components?.length &&
+      !message.context?.components
     )
       continue;
     items.push(
@@ -157,6 +189,7 @@ export default function AvenTranscript({
         streaming={streaming}
         latest={key === latestKey && !generating}
         disabled={generating}
+        enter={Boolean(baseline && !baseline.has(key))}
         onRetry={onRetry}
         onRegenerate={onRegenerate}
         onAsk={onAsk}
@@ -172,7 +205,7 @@ export default function AvenTranscript({
         className="aven-transcript custom-scrollbar"
         aria-busy={loading || generating}
       >
-        <div className="aven-column aven-thread">
+        <div ref={thread} className="aven-column aven-thread">
           {hasOlder && !loading && (
             <button
               type="button"
@@ -192,7 +225,7 @@ export default function AvenTranscript({
           ) : (
             items
           )}
-          {generating && activity && <AvenActivity name={activity} />}
+          {generating && activity && <AvenActivity key="activity" name={activity} />}
         </div>
       </div>
       {showJump && (

@@ -4,6 +4,7 @@ import { featureRequest } from "@/lib/goals/client";
 import type { ProposalRecord } from "./ProposalCard";
 import {
   messageKey,
+  messageSeq,
   type AvenMessageRecord,
   type ConversationResult,
 } from "./types";
@@ -12,7 +13,11 @@ const same = (a: AvenMessageRecord, b: AvenMessageRecord) =>
   a.status === b.status &&
   a.createdAt === b.createdAt &&
   JSON.stringify(a.context ?? null) === JSON.stringify(b.context ?? null);
-/** Reuse unchanged message objects so memoized rows skip re-rendering after a refresh. */
+/**
+ * Reuse unchanged message objects so memoized rows skip re-rendering after a refresh.
+ * A reply still streaming keeps whichever copy is newer by stream sequence, so a saved
+ * snapshot never rolls back text this tab already received (no flicker, no duplication).
+ */
 export function reconcile(
   previous: AvenMessageRecord[],
   next: AvenMessageRecord[],
@@ -20,7 +25,14 @@ export function reconcile(
   const byKey = new Map(previous.map((item) => [messageKey(item), item]));
   return next.map((item) => {
     const existing = byKey.get(messageKey(item));
-    return existing && same(existing, item) ? existing : item;
+    if (!existing) return item;
+    if (
+      existing.status === "streaming" &&
+      item.status === "streaming" &&
+      messageSeq(item) <= messageSeq(existing)
+    )
+      return existing;
+    return same(existing, item) ? existing : item;
   });
 }
 interface Options {
@@ -36,7 +48,8 @@ export function useAvenConversation({ goalId, goalTitle, onError }: Options) {
     [activeGoal, setActiveGoal] = useState(goalId),
     [contextTitle, setContextTitle] = useState(goalTitle),
     [loading, setLoading] = useState(false),
-    [loadingOlder, setLoadingOlder] = useState(false);
+    [loadingOlder, setLoadingOlder] = useState(false),
+    [generation, setGeneration] = useState<ConversationResult["generation"]>();
   const cache = useRef(new Map<string, ConversationResult>()),
     pending = useRef<AbortController | null>(null),
     current = useRef<string | null>(null),
@@ -44,7 +57,8 @@ export function useAvenConversation({ goalId, goalTitle, onError }: Options) {
   useEffect(() => {
     errorRef.current = onError;
   }, [onError]);
-  useEffect(() => () => pending.current?.abort(), []);
+  // No abort on unmount: React's dev double-mount would cancel the only load and leave the
+  // conversation on its skeleton. Switching conversations still aborts the previous load.
   const apply = useCallback((value: ConversationResult) => {
     cache.current.set(value.conversation.id, value);
     setHasOlder(value.hasOlder);
@@ -64,6 +78,7 @@ export function useAvenConversation({ goalId, goalTitle, onError }: Options) {
       return [...older, ...next];
     });
     setProposals(value.proposals);
+    setGeneration(value.generation);
     setActiveGoal(value.conversation.goalId);
     setContextTitle(value.conversation.goalTitle ?? undefined);
   }, []);
@@ -91,6 +106,7 @@ export function useAvenConversation({ goalId, goalTitle, onError }: Options) {
         apply(cached);
         setLoading(false);
       } else {
+        setGeneration(undefined);
         setMessages([]);
         setProposals([]);
         setHasOlder(false);
@@ -125,6 +141,7 @@ export function useAvenConversation({ goalId, goalTitle, onError }: Options) {
     pending.current?.abort();
     current.current = null;
     setSelected(null);
+    setGeneration(undefined);
     setMessages([]);
     setProposals([]);
     setHasOlder(false);
@@ -159,6 +176,8 @@ export function useAvenConversation({ goalId, goalTitle, onError }: Options) {
   }, [messages, loadingOlder]);
   return {
     selected,
+    generation,
+    setGeneration,
     messages,
     setMessages,
     proposals,

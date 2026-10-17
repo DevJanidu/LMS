@@ -7,6 +7,7 @@ import {
   storedReferences,
   finishConversationTurn,
   keepStoppedAnswer,
+  saveStreamingSnapshot,
 } from "./conversations";
 import { reserveUsage, finishUsage } from "./usage";
 import { avenTools, executeAvenTool, isAvenWriteTool } from "./tools";
@@ -18,12 +19,12 @@ import { boundedHistory, contextBytes } from "./context";
 import { intentGuidance } from "./intent";
 import { planTurn } from "./orchestration";
 import { mentionContext, resolveMentions } from "./mentions";
-import { goalCardsFromTool } from "./goal-cards";
-import {
-  nextActionsSchema,
-  type GoalCard,
-  type NextActionCard,
-} from "./validation";
+import type { GoalCard } from "./validation";
+import { activityCategory, type ActivityCategory } from "./activity";
+import { componentTypesForTool, componentsFromTool } from "./ui-builders";
+import type { UiComponent } from "./ui-components";
+import type { StreamEventBody } from "./stream-protocol";
+import { OPENAI_RESPONSES_URL } from "./configuration";
 import { assertAvenAccess, assertConversationActive } from "./access";
 import { and, eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
@@ -36,6 +37,8 @@ import {
 import type { chatSchema } from "./validation";
 import type { z } from "zod";
 type InputItem = Record<string, unknown>;
+/** How often a running reply is saved for reconnecting clients. */
+const SNAPSHOT_INTERVAL_MS = 700;
 /** The turn's tool schemas: the planned subset, or every tool when no workflow was recognized. */
 function selectTools(names: string[] | null) {
   return names ? avenTools.filter((tool) => names.includes(tool.name)) : avenTools;
@@ -166,9 +169,17 @@ export async function streamChat(
   userId: string,
   input: z.infer<typeof chatSchema>,
   prepared: Awaited<ReturnType<typeof prepareChat>>,
-  emit: (event: Record<string, unknown>) => void,
-  signal: AbortSignal,
+  sendEvent: (event: StreamEventBody) => number | void,
+  outerSignal: AbortSignal,
 ) {
+  // The turn stops on timeout, on an explicit stop (lease lost), never because a viewer left.
+  const stopped = new AbortController(),
+    signal = AbortSignal.any([outerSignal, stopped.signal]);
+  let lastSeq = 0;
+  const emit = (event: StreamEventBody) => {
+    const seq = sendEvent(event);
+    lastSeq = typeof seq === "number" ? seq : lastSeq + 1;
+  };
   const { reservation, conversation, preferences } = prepared;
   const planning = prepared.planning ?? input.planning,
     turnGuidance =
@@ -192,6 +203,57 @@ export async function streamChat(
     uncertain = false,
     inFlight = false;
   const metrics = { toolCalls: 0, toolFailures: 0, outcome: "error" };
+  // Recovery snapshots: the visible reply so far, the current step and the cards shown,
+  // tagged with the stream sequence they include, for clients that reconnect.
+  let shown = "",
+    activity: ActivityCategory = "working",
+    lastSnapshot = 0,
+    snapshotDirty = false,
+    finished = false,
+    snapshotting: Promise<void> | null = null;
+  const components = new Map<string, UiComponent>();
+  const readyComponents = () =>
+    [...components.values()].filter((item) => item.status === "ready");
+  const snapshot = (force = false) => {
+    snapshotDirty = true;
+    if (snapshotting || signal.aborted) return;
+    if (!force && Date.now() - lastSnapshot < SNAPSHOT_INTERVAL_MS) return;
+    lastSnapshot = Date.now();
+    snapshotDirty = false;
+    const ready = readyComponents();
+    snapshotting = Promise.resolve()
+      .then(() =>
+        saveStreamingSnapshot(userId, conversation.id, input.requestId, shown, {
+          phase: "running",
+          activity,
+          seq: String(lastSeq),
+          updatedAt: new Date().toISOString(),
+          ...(ready.length ? { components: JSON.stringify(ready) } : {}),
+        }),
+      )
+      .then((active) => {
+        // Stopped from another tab or by the stop button: end this run promptly.
+        if (active === false)
+          stopped.abort(new DOMException("Generation stopped", "AbortError"));
+      })
+      .catch(() => {})
+      .finally(() => {
+        snapshotting = null;
+        // Changes made while the write was in flight are saved on the next opportunity.
+        if (snapshotDirty && !signal.aborted && !finished)
+          setTimeout(() => snapshotDirty && snapshot(), SNAPSHOT_INTERVAL_MS);
+      });
+  };
+  const showComponent = (component: UiComponent) => {
+    if (component.status === "removed") components.delete(component.id);
+    else components.set(component.id, component);
+    emit({ type: "ui-component", component });
+  };
+  /** The validated cards saved with the reply (versioned), as finishConversationTurn's context. */
+  const savedComponents = (): [Record<string, string>] | [] => {
+    const ready = readyComponents();
+    return ready.length ? [{ components: JSON.stringify(ready) }] : [];
+  };
   const baseInstructions = `${instructions}\nThe current user message replies to this notification (snapshot; verify current records): ${JSON.stringify(prepared.replyContext ?? null)}\nFor explicit schedule creation use createStudySchedule (repeat=daily for every day; give subjectName when the student names a subject). It checks conflicts before proposing: report any conflicts and only pass skipConflicts=true after the student agrees to skip those dates. For moving sessions use moveStudySessions with scope 'one' unless the student explicitly asked for future occurrences ('future') or the whole series ('all'); when a recurring session is mentioned and the scope is unclear, ask first. Read getCalendar first. If the time lacks AM/PM, or several sessions cannot all start together, ask one short clarification before proposing. Keep session durations, use account local time, and propose sequential sessions only after the user confirms. Preference and resource changes also need approval cards. No assignments or exams module is available; explain this limitation and offer tasks or goals.\nPrior notification event context (owned snapshots, not current schedule state; re-read records before changes): ${JSON.stringify(
     conversation.history
       .filter((message) => message.context?.notificationId)
@@ -207,7 +269,6 @@ export async function streamChat(
   );
   const toolResults = new Map<string, unknown>(),
     goalCards = new Map<string, GoalCard>();
-  let nextActions: NextActionCard[] = [];
   const request = async (
     body: Record<string, unknown>,
     onDelta?: (value: string) => void,
@@ -249,7 +310,7 @@ export async function streamChat(
       throw new GoalError("contextTooLarge");
     const send = () => {
       inFlight = true;
-      return fetch("https://api.openai.com/v1/responses", {
+      return fetch(reservation.config.url ?? OPENAI_RESPONSES_URL, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${reservation.config.key}`,
@@ -346,7 +407,12 @@ export async function streamChat(
     return result;
   };
   try {
-    emit({ type: "conversation", id: conversation.id });
+    emit({
+      type: "message-start",
+      conversationId: conversation.id,
+      requestId: input.requestId,
+    });
+    snapshot(true);
     const needsSummary =
       conversation.messageCount >= 20 &&
       conversation.messageCount - conversation.summaryMessageCount >= 10;
@@ -357,6 +423,11 @@ export async function streamChat(
       round < MAX_TOOL_ROUNDS - (needsSummary ? 1 : 0);
       round++
     ) {
+      // After tool work the model composes again; say so instead of showing a stale step.
+      if (round > 0) {
+        activity = "working";
+        emit({ type: "reasoning-status", status: activity });
+      }
       const result = await request(
         {
           instructions:
@@ -373,7 +444,11 @@ export async function streamChat(
         },
         (delta) => {
           answer += delta;
-          if (!pendingChanges) emit({ type: "delta", text: delta });
+          if (!pendingChanges) {
+            shown += delta;
+            emit({ type: "text-delta", text: delta });
+          }
+          snapshot();
         },
       );
       context.push(...(result.output as unknown as InputItem[]));
@@ -397,9 +472,16 @@ export async function streamChat(
           (call.arguments?.length ?? 0) > 65536
         )
           throw new GoalError("toolLimit", 503);
-        let output: unknown;
+        let output: unknown,
+          ok = false;
+        const name = call.name ?? "",
+          callId = String(call.call_id ?? `call-${toolCallCount}`).slice(0, 80),
+          placeholders: string[] = [];
+        activity = activityCategory(name);
         try {
-          emit({ type: "tool", name: call.name });
+          // A real backend event: the user sees the step category, never arguments.
+          emit({ type: "tool-start", callId, activity });
+          snapshot(true);
           metrics.toolCalls++;
           // Only tools offered for this turn may run, whatever the model asks for.
           if (
@@ -407,37 +489,29 @@ export async function streamChat(
             !turnTools.some((tool) => tool.name === call.name)
           )
             throw new GoalError("invalidTool");
-          if (ambiguousClock && isAvenWriteTool(call.name ?? ""))
+          if (ambiguousClock && isAvenWriteTool(name))
             throw new GoalError("clarificationRequired");
+          // A placeholder holds the card's place while its data loads; it never shows data.
+          for (const type of componentTypesForTool(name))
+            if (!components.has(type)) {
+              placeholders.push(type);
+              showComponent({ id: type, type, version: 1, status: "loading" });
+            }
           const key = `${call.name}:${call.arguments}`;
           if (toolResults.has(key)) output = toolResults.get(key);
           else {
             output = await executeAvenTool(
               userId,
               conversation.id,
-              call.name ?? "",
+              name,
               JSON.parse(call.arguments ?? "{}"),
             );
             toolResults.set(key, output);
           }
-          const cards = goalCardsFromTool(call.name ?? "", output);
-          if (cards.length) {
-            for (const card of cards) goalCards.set(card.id, card);
-            emit({
-              type: "goalProgress",
-              cards: [...goalCards.values()].slice(-4),
-            });
-          }
-          // Ranked actions come from the deterministic engine; validate before showing or saving them.
-          if (call.name === "getNextBestAction") {
-            const parsed = nextActionsSchema.safeParse(
-              (output as { actions?: unknown } | null)?.actions,
-            );
-            if (parsed.success && parsed.data.length) {
-              nextActions = parsed.data;
-              emit({ type: "nextActions", actions: nextActions });
-            }
-          }
+          ok = !(output && typeof output === "object" && "error" in output);
+          // Cards are built from the verified tool result and validated by the registry.
+          for (const component of componentsFromTool(name, output, goalCards))
+            showComponent(component);
           if (
             output &&
             typeof output === "object" &&
@@ -445,7 +519,10 @@ export async function streamChat(
             "id" in output
           ) {
             pendingChanges = true;
-            emit({ type: "proposal", proposal: output });
+            emit({
+              type: "proposal",
+              proposal: output as Record<string, unknown>,
+            });
             output = {
               ...output,
               changeApplied: false,
@@ -460,6 +537,14 @@ export async function streamChat(
             changeApplied: false,
           };
         }
+        // Placeholders that received no valid data are withdrawn rather than left loading.
+        for (const id of placeholders)
+          if (components.get(id)?.status === "loading") {
+            const type = components.get(id)!.type;
+            showComponent({ id, type, version: 1, status: "removed" });
+          }
+        emit({ type: "tool-result", callId, activity, ok });
+        snapshot(true);
         const raw = JSON.stringify(output);
         context.push({
           type: "function_call_output",
@@ -492,7 +577,8 @@ export async function streamChat(
         if (!answer.trim() || claimsUnapprovedChange(answer))
           throw new GoalError("actionConfirmationRequired", 503);
       }
-      emit({ type: "replace", text: answer });
+      shown = answer;
+      emit({ type: "text-replace", text: answer });
     }
     let summary: string | undefined;
     if (needsSummary && providerRequests < MAX_TOOL_ROUNDS) {
@@ -523,6 +609,9 @@ export async function streamChat(
         console.warn(JSON.stringify({ event: "aven_summary_deferred" }));
       }
     }
+    // An in-flight snapshot settles first so the final write is the last one.
+    finished = true;
+    if (snapshotting) await snapshotting;
     const saved = await finishConversationTurn(
       userId,
       conversation.id,
@@ -531,26 +620,11 @@ export async function streamChat(
       "complete",
       summary,
       conversation.messageCount,
-      ...(goalCards.size || nextActions.length
-        ? [
-            {
-              ...(goalCards.size
-                ? {
-                    goalCards: JSON.stringify(
-                      [...goalCards.values()].slice(-4),
-                    ),
-                  }
-                : {}),
-              ...(nextActions.length
-                ? { nextActions: JSON.stringify(nextActions) }
-                : {}),
-            },
-          ]
-        : []),
+      ...savedComponents(),
     );
     if (saved === false) throw new GoalError("conversationUnavailable", 503);
     metrics.outcome = pendingChanges ? "proposal" : "answer";
-    emit({ type: "done", conversationId: conversation.id });
+    emit({ type: "message-complete", conversationId: conversation.id });
   } catch (error) {
     uncertain ||= inFlight;
     const code = signal.aborted
@@ -560,12 +634,19 @@ export async function streamChat(
       : error instanceof GoalError
         ? error.message
         : "aiUnavailable";
+    // An in-flight snapshot settles first so the final write is the last one.
+    finished = true;
+    if (snapshotting) await snapshotting;
     const saved = await finishConversationTurn(
       userId,
       conversation.id,
       input.requestId,
-      answer || code,
+      // Held text after a proposal was never shown; only the visible reply is kept.
+      (pendingChanges ? shown : answer) || code,
       signal.aborted ? "cancelled" : "error",
+      ...((readyComponents().length
+        ? [undefined, undefined, ...savedComponents()]
+        : []) as [undefined?, undefined?, Record<string, string>?]),
     ).catch(() => undefined);
     // The stop endpoint may have closed the turn first; keep the text the model actually produced.
     if (saved === false && answer.trim() && !pendingChanges)

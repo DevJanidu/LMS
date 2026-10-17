@@ -50,10 +50,13 @@ describe("Aven Markdown parser", () => {
       "code",
       "paragraph",
     ]);
-    expect(blocks[1]).toMatchObject({ ordered: false, items: ["one", "two"] });
+    expect(blocks[1]).toMatchObject({
+      ordered: false,
+      items: [{ text: "one" }, { text: "two" }],
+    });
     expect(blocks[2]).toMatchObject({
       ordered: true,
-      items: ["first", "second"],
+      items: [{ text: "first" }, { text: "second" }],
     });
     expect(blocks[3]).toMatchObject({
       header: ["Day", "Task"],
