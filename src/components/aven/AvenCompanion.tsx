@@ -3,9 +3,11 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
+import type { BlockEnvironment } from "./generative-ui/BlockContext";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { featureRequest } from "@/lib/goals/client";
@@ -411,6 +413,25 @@ export default function AvenCompanion({
     },
     [selected, reload, router],
   );
+  const blocks = useMemo<BlockEnvironment>(
+    () => ({
+      conversationId: selected,
+      timezone,
+      onProposals: (add, retire = []) =>
+        setProposals((current) => [
+          ...current
+            .filter((item) => !add.some((next) => next.id === item.id))
+            .map((item) => (retire.includes(item.id) ? { ...item, status: "superseded" } : item)),
+          ...add,
+        ]),
+      onCompose: onModify,
+      // Other tabs on this conversation refresh to show the saved state.
+      onSaved: () => {
+        if (selected) notifyTabs(selected, "end");
+      },
+    }),
+    [selected, timezone, setProposals, onModify, notifyTabs],
+  );
   const startNew = () => {
     // A reply in progress keeps running on the server; this tab only stops listening.
     stream.detach();
@@ -555,6 +576,7 @@ export default function AvenCompanion({
             onAsk={onAsk}
             onProposalResolved={onProposalResolved}
             onModify={onModify}
+            blocks={blocks}
           />
         )}
         <div className="aven-dock" data-empty={empty || undefined}>

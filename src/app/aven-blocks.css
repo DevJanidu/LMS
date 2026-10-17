@@ -1,0 +1,98 @@
+@reference "./globals.css";
+/* Aven interactive blocks (generative UI). Theme tokens only; dark mode follows workspace.css. */
+.aven-field-label { @apply text-small; display: flex; align-items: center; justify-content: space-between; gap: .75rem; color: var(--text-secondary); font-weight: 500; }
+.aven-input { @apply text-small; min-height: 2.25rem; padding: .375rem .625rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-primary); }
+.aven-input:focus-visible { outline: none; border-color: var(--border-strong); box-shadow: 0 0 0 3px var(--primary-soft); }
+.aven-inline-form { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.aven-block-error { @apply text-small; color: var(--danger); }
+.aven-save-status { @apply text-caption; color: var(--text-muted); }
+.aven-save-status:is([data-tone="error"], [data-tone="conflict"]) { color: var(--warning); }
+.aven-card-footer .aven-save-status { margin-inline-start: auto; }
+
+/* Checklist */
+.aven-checklist { display: flex; flex-direction: column; gap: .5rem; }
+.aven-checklist-section { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.aven-checklist-heading { @apply text-body-strong; display: flex; align-items: center; gap: .5rem; width: 100%; min-height: 2.75rem; padding: .5rem .75rem; text-align: start; background: var(--surface-subtle); }
+.aven-checklist-heading svg { transition: transform var(--motion-fast) var(--ease-standard); }
+.aven-checklist-heading[aria-expanded="false"] svg { transform: rotate(-90deg); }
+.aven-checklist-heading:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
+.aven-checklist-items { display: flex; flex-direction: column; padding: .25rem; }
+.aven-checklist-item { display: flex; align-items: flex-start; gap: .75rem; min-height: 2.75rem; padding: .5rem; border-radius: var(--radius-sm); cursor: pointer; transition: background-color var(--motion-fast); }
+.aven-checklist-item:hover { background: var(--surface-hover); }
+.aven-checkbox { width: 1.125rem; height: 1.125rem; margin-top: .125rem; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
+.aven-checklist-label { @apply text-body; transition: color var(--motion-fast); }
+li[data-done] .aven-checklist-label { color: var(--text-muted); text-decoration: line-through; text-decoration-color: var(--border-strong); }
+
+/* Quiz, radio options and choices */
+.aven-quiz { display: flex; flex-direction: column; gap: 1rem; }
+.aven-quiz-question { display: flex; flex-direction: column; gap: .625rem; padding: .875rem; border: 1px solid var(--border); border-radius: var(--radius-md); }
+.aven-quiz-question[data-result="correct"] { border-color: color-mix(in srgb, var(--success) 45%, var(--border)); }
+.aven-quiz-question[data-result="incorrect"] { border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+.aven-quiz-question fieldset { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.aven-quiz-prompt { @apply text-body-strong; display: flex; flex-direction: column; gap: .125rem; margin-bottom: .25rem; }
+.aven-quiz-options, .aven-choice-options { display: flex; flex-direction: column; gap: .375rem; }
+.aven-choice-options { flex-direction: row; flex-wrap: wrap; }
+.aven-option { @apply text-small; display: flex; align-items: center; gap: .625rem; min-height: 2.75rem; padding: .5rem .75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: border-color var(--motion-fast), background-color var(--motion-fast); }
+.aven-option:hover { border-color: var(--border-strong); }
+.aven-option:has(input:checked), .aven-option[data-state="selected"] { border-color: var(--primary); background: var(--primary-soft); }
+.aven-option:has(input:focus-visible) { box-shadow: 0 0 0 3px var(--primary-soft); }
+.aven-option input { accent-color: var(--primary); }
+.aven-option[data-state="correct"] { border-color: var(--success); background: color-mix(in srgb, var(--success) 10%, var(--surface)); }
+.aven-option[data-state="incorrect"] { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 10%, var(--surface)); }
+fieldset:disabled .aven-option { cursor: default; }
+.aven-quiz-feedback { @apply text-small; display: flex; flex-direction: column; gap: .25rem; padding: .625rem .75rem; border-radius: var(--radius-sm); background: var(--surface-subtle); color: var(--text-secondary); animation: aven-fade 180ms var(--ease-standard) both; }
+.aven-quiz-feedback strong { color: var(--text-primary); }
+.aven-choice { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.aven-select { display: flex; flex-direction: column; gap: .375rem; }
+
+/* Sliders */
+.aven-slider { display: flex; flex-direction: column; gap: .375rem; }
+.aven-slider-value { @apply text-body-strong; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.aven-slider input[type="range"] { width: 100%; min-height: 1.75rem; accent-color: var(--primary); cursor: pointer; }
+.aven-slider input[type="range"]:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--primary-soft); border-radius: 999px; }
+
+/* Flashcards */
+.aven-flashcard-stage { perspective: 60rem; }
+.aven-flashcard { position: relative; display: grid; width: 100%; min-height: 10rem; border: 0; background: none; transform-style: preserve-3d; transition: transform 420ms var(--ease-standard); }
+.aven-flashcard[data-flipped] { transform: rotateY(180deg); }
+.aven-flashcard:focus-visible { outline: none; }
+.aven-flashcard:focus-visible .aven-flashcard-face { box-shadow: 0 0 0 3px var(--primary-soft); border-color: var(--primary); }
+.aven-flashcard-face { grid-area: 1 / 1; display: flex; flex-direction: column; justify-content: center; gap: .5rem; padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-subtle); text-align: center; backface-visibility: hidden; }
+.aven-flashcard-face[data-back] { transform: rotateY(180deg); background: var(--surface); }
+.aven-flashcard-text { @apply text-h3; overflow-wrap: anywhere; }
+.aven-flashcard-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.aven-flashcard-assess { display: flex; gap: .5rem; margin-inline-start: auto; }
+
+/* Diagram */
+.aven-diagram { position: relative; display: flex; flex-direction: column; gap: 3rem; padding: .75rem 2.5rem; }
+.aven-diagram-lines { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.aven-diagram-edge { fill: none; stroke: var(--border-strong); stroke-width: 1.5; transition: stroke var(--motion-fast); }
+.aven-diagram-arrow { fill: var(--border-strong); }
+[data-active] > .aven-diagram-edge { stroke: var(--primary); stroke-width: 2; }
+.aven-diagram-edge-label { font-size: .6875rem; fill: var(--text-muted); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; }
+.aven-diagram-row { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; }
+.aven-diagram-node { @apply text-small; position: relative; min-width: 7rem; max-width: 12rem; min-height: 2.75rem; padding: .5rem .875rem; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface); color: var(--text-primary); font-weight: 500; text-align: center; box-shadow: var(--shadow-surface); transition: border-color var(--motion-fast), background-color var(--motion-fast), transform var(--motion-fast); }
+.aven-diagram-node:hover { transform: translateY(-1px); }
+.aven-diagram-node:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--primary-soft); }
+.aven-diagram-node[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.aven-diagram-node[data-group="0"] { border-top: 3px solid var(--primary); }
+.aven-diagram-node[data-group="1"] { border-top: 3px solid var(--success); }
+.aven-diagram-node[data-group="2"] { border-top: 3px solid var(--warning); }
+.aven-diagram-node[data-group="3"] { border-top: 3px solid var(--color-orange-500); }
+.aven-diagram-node[data-group="4"] { border-top: 3px solid var(--color-theme-purple-500); }
+.aven-diagram-detail { @apply text-small; padding: .75rem .875rem; border-radius: var(--radius-md); background: var(--surface-subtle); color: var(--text-secondary); animation: aven-fade 180ms var(--ease-standard) both; }
+.aven-diagram-detail strong { color: var(--text-primary); }
+.aven-diagram-connections summary { @apply text-small; cursor: pointer; color: var(--text-secondary); }
+.aven-diagram-connections ul { @apply text-small; display: flex; flex-direction: column; gap: .25rem; margin-top: .5rem; padding-inline-start: 1rem; list-style: disc; color: var(--text-secondary); }
+
+/* Daily bars */
+.aven-bars ol { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; align-items: end; gap: .375rem; height: 7rem; }
+.aven-bars li { display: flex; flex-direction: column; align-items: center; gap: .25rem; height: 100%; }
+.aven-bar-track { display: flex; align-items: flex-end; width: 100%; max-width: 2rem; flex: 1; }
+.aven-bar { width: 100%; min-block-size: 2px; border-radius: .375rem .375rem .125rem .125rem; background: var(--primary); transition: block-size var(--motion-slow) var(--ease-standard); }
+.aven-bar-label { @apply text-caption; color: var(--text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aven-flashcard, .aven-bar, .aven-checklist-heading svg, .aven-diagram-node { transition: none; }
+  .aven-quiz-feedback, .aven-diagram-detail { animation: none; }
+}

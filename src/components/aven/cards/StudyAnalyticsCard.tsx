@@ -4,6 +4,37 @@ import { Link } from "@/i18n/navigation";
 import type { UiComponentData } from "@/lib/aven/ui-components";
 import ActionCard, { CardFact } from "./ActionCard";
 type Analytics = UiComponentData<"study_analytics">;
+/** Verified minutes per day as bars; values come from server-side aggregation only. */
+function DailyBars({
+  daily,
+  label,
+  format,
+}: {
+  daily: { date: string; minutes: number }[];
+  label: string;
+  format: (minutes: number) => string;
+}) {
+  const peak = Math.max(1, ...daily.map((day) => day.minutes));
+  const weekday = (date: string) =>
+    new Intl.DateTimeFormat("en", { weekday: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
+  return (
+    <figure className="aven-bars" aria-label={label}>
+      <ol>
+        {daily.map((day) => (
+          <li key={day.date} title={`${day.date}: ${format(day.minutes)}`}>
+            <span className="aven-bar-track">
+              <span className="aven-bar" style={{ blockSize: `${Math.round((day.minutes / peak) * 100)}%` }} />
+            </span>
+            <span className="aven-bar-label" aria-hidden="true">
+              {weekday(day.date)}
+            </span>
+            <span className="sr-only">{`${weekday(day.date)} ${day.date}: ${format(day.minutes)}`}</span>
+          </li>
+        ))}
+      </ol>
+    </figure>
+  );
+}
 export default function StudyAnalyticsCard({ data }: { data: Analytics }) {
   const t = useTranslations("aven.cards");
   const duration = (total: number) =>
@@ -38,6 +69,9 @@ export default function StudyAnalyticsCard({ data }: { data: Analytics }) {
           </CardFact>
         )}
       </dl>
+      {data.daily && data.daily.length > 1 && (
+        <DailyBars daily={data.daily} label={t("dailyChart")} format={duration} />
+      )}
       {!data.previous && <p className="aven-card-note">{t("noComparison")}</p>}
     </ActionCard>
   );

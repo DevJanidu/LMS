@@ -1,6 +1,8 @@
 export interface ResponseEvent {
   type: string;
   delta?: string;
+  /** For response.output_item.added: the item that started (e.g. a function call). */
+  item?: { type: string; name?: string; call_id?: string };
   response?: {
     status: string;
     incomplete_details?: { reason?: string } | null;

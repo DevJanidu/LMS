@@ -14,6 +14,7 @@ import AvenMessage from "./AvenMessage";
 import AvenActivity from "./AvenActivity";
 import ProposalCard, { type ProposalRecord } from "./ProposalCard";
 import { messageKey, type AvenMessageRecord } from "./types";
+import { BlockProvider, type BlockEnvironment } from "./generative-ui/BlockContext";
 interface Props {
   conversationKey: string;
   messages: AvenMessageRecord[];
@@ -32,6 +33,8 @@ interface Props {
   onAsk: (notificationId: string) => void;
   onProposalResolved: (result?: ProposalRecord["result"]) => void;
   onModify: (prompt: string) => void;
+  /** Interactive blocks: their conversation and how they reach the rest of the page. */
+  blocks: BlockEnvironment;
 }
 const FOLLOW_THRESHOLD = 80;
 const positions = new Map<string, number>();
@@ -54,6 +57,7 @@ export default function AvenTranscript({
   onAsk,
   onProposalResolved,
   onModify,
+  blocks,
 }: Props) {
   const t = useTranslations("aven");
   const scroller = useRef<HTMLDivElement>(null),
@@ -151,7 +155,8 @@ export default function AvenTranscript({
   };
   // Proposals belong to the turn that created them, so they render before the next user message.
   const items: ReactNode[] = [];
-  const queue = [...proposals].sort(
+  // A replaced draft (edited plan, re-planned schedule) is history, not an action.
+  const queue = proposals.filter((proposal) => proposal.status !== "superseded").sort(
     (a, b) => time(a.createdAt) - time(b.createdAt),
   );
   const flush = (before: number) => {
@@ -198,6 +203,7 @@ export default function AvenTranscript({
   }
   flush(Infinity);
   return (
+    <BlockProvider value={blocks}>
     <div className="aven-transcript-frame">
       <div
         ref={scroller}
@@ -239,5 +245,6 @@ export default function AvenTranscript({
         </button>
       )}
     </div>
+    </BlockProvider>
   );
 }

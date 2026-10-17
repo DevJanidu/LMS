@@ -1,5 +1,14 @@
 import { z } from "zod";
 import { goalCardSchema, nextActionsSchema } from "./validation";
+import {
+  checklistSchema,
+  diagramSchema,
+  flashcardsSchema,
+  quizSchema,
+  studyPlannerSchema,
+  studyTargetsSchema,
+  MAX_BLOCK_BYTES,
+} from "./ui-blocks";
 /**
  * Generative UI registry. Aven never sends markup or code: each component is an approved
  * `type` with a versioned, validated payload built on the server from verified tool output.
@@ -46,6 +55,11 @@ export const uiComponentSchemas = {
           sessions: z.number().int().min(0),
         })
         .nullable(),
+      /** Verified minutes per local day, oldest first; optional so earlier saves still parse. */
+      daily: z
+        .array(z.object({ date: day, minutes: z.number().int().min(0).max(1440) }))
+        .max(31)
+        .optional(),
     }),
   },
   task_list: {
@@ -90,6 +104,14 @@ export const uiComponentSchemas = {
         .max(10),
     }),
   },
+  // Authored by the model through presentation tools (see presentation-tools.ts).
+  checklist: { version: 1, schema: checklistSchema },
+  quiz: { version: 1, schema: quizSchema },
+  flashcards: { version: 1, schema: flashcardsSchema },
+  diagram: { version: 1, schema: diagramSchema },
+  study_targets: { version: 1, schema: studyTargetsSchema },
+  // Built by the server from a real scheduling proposal.
+  study_planner: { version: 1, schema: studyPlannerSchema },
 } as const;
 export type UiComponentType = keyof typeof uiComponentSchemas;
 export type UiComponentData<T extends UiComponentType> = z.infer<
@@ -125,6 +147,8 @@ export function parseUiComponent(raw: unknown): UiComponent | null {
   const { id, type, version, status } = parsed.data;
   const entry = uiComponentSchemas[type];
   if (version > entry.version) return null;
+  if (status === "ready" && JSON.stringify(parsed.data.data ?? null).length > MAX_BLOCK_BYTES)
+    return null;
   if (status !== "ready") return { id, type, version, status } as UiComponent;
   const data = entry.schema.safeParse(parsed.data.data);
   return data.success
@@ -186,4 +210,32 @@ export function applyUiComponent(list: UiComponent[], next: UiComponent) {
   const copy = [...list];
   copy[index] = next;
   return copy;
+}
+/** Saved interaction state for a component, stored with its reply as `ui:<id>`. */
+export interface SavedState<T = unknown> {
+  /** Monotonic version used for compare-and-set writes across tabs. */
+  v: number;
+  data: T;
+}
+export const STATE_PREFIX = "ui:",
+  SECRET_PREFIX = "secret:";
+export function savedState<T = unknown>(
+  context: Record<string, string> | null | undefined,
+  id: string,
+): SavedState<T> | null {
+  const raw = context?.[`${STATE_PREFIX}${id}`];
+  if (!raw) return null;
+  try {
+    const value = JSON.parse(raw) as SavedState<T>;
+    return Number.isInteger(value?.v) && value.v > 0 ? value : null;
+  } catch {
+    return null;
+  }
+}
+/** Server-only values (quiz answer keys) never leave the server. */
+export function withoutSecrets<T extends Record<string, string> | null | undefined>(context: T): T {
+  if (!context) return context;
+  return Object.fromEntries(
+    Object.entries(context).filter(([key]) => !key.startsWith(SECRET_PREFIX)),
+  ) as T;
 }
