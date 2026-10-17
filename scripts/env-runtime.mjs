@@ -1,10 +1,10 @@
-import nextEnv from "@next/env";
+import { loadAppEnv } from "./lib/env-file.mjs";
 import ts from "typescript";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { assertEnvironmentIsolation } from "../src/lib/deployment-policy.mjs";
-nextEnv.loadEnvConfig(process.cwd());
+loadAppEnv();
 assertEnvironmentIsolation(process.env);
 mkdirSync(".audit-local", { recursive: true });
 const path = resolve(".audit-local/env-runtime.mjs");

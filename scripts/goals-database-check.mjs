@@ -1,6 +1,6 @@
-import nextEnv from "@next/env";
+import { loadAppEnv } from "./lib/env-file.mjs";
 import { spawn } from "node:child_process";
-nextEnv.loadEnvConfig(process.cwd());
+loadAppEnv();
 if (
   !process.argv.includes("--acknowledge-current-test-database") ||
   process.env.VERCEL_ENV === "production"

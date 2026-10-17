@@ -1,9 +1,10 @@
 import { createHmac, randomBytes, randomUUID } from "node:crypto";
-import { loadEnvConfig } from "@next/env";
+import { loadAppEnv } from "../../scripts/lib/env-file.mjs";
 import { neon } from "@neondatabase/serverless";
 import type { BrowserContext } from "@playwright/test";
 
-loadEnvConfig(process.cwd());
+// Database-backed specs use the development environment (.env.develop) unless APP_ENV says otherwise.
+loadAppEnv();
 
 /**
  * Google's consent screen cannot be automated, so database-backed specs create

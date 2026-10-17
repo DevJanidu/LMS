@@ -1,6 +1,6 @@
-import nextEnv from "@next/env";
+import { loadAppEnv } from "./lib/env-file.mjs";
 import { spawn } from "node:child_process";
-nextEnv.loadEnvConfig(process.cwd());
+loadAppEnv();
 const provider = process.argv.includes("--provider");
 const database = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 if (!database || (provider && !process.env.OPENAI_API_KEY)) {

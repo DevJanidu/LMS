@@ -1,6 +1,6 @@
 // Shared CLI database access: loads env, refuses production unless explicitly
 // allowed, and compiles the Drizzle schema with the installed TypeScript.
-import nextEnv from "@next/env";
+import { loadAppEnv } from "./env-file.mjs";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import ts from "typescript";
@@ -10,7 +10,7 @@ import { pathToFileURL } from "node:url";
 import { assertEnvironmentIsolation } from "../../src/lib/deployment-policy.mjs";
 
 export function loadEnvironment(action) {
-  nextEnv.loadEnvConfig(process.cwd(), true, { info() {}, error() {} });
+  loadAppEnv();
   // Outside production, refuse any production database, storage or credential.
   assertEnvironmentIsolation(process.env);
   if ((process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") && !process.argv.includes("--allow-production")) {

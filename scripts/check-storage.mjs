@@ -1,10 +1,10 @@
-import { config } from "dotenv";
+import { envFileFor, loadAppEnv } from "./lib/env-file.mjs";
 import { S3Client, HeadBucketCommand, CreateBucketCommand, PutObjectCommand, HeadObjectCommand, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand, GetBucketCorsCommand, PutBucketCorsCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 
-config({ path: ".env.local", quiet: true });
+loadAppEnv();
 const client = new S3Client({ endpoint: process.env.OBJECT_STORAGE_ENDPOINT, region: process.env.OBJECT_STORAGE_REGION, forcePathStyle: true, credentials: { accessKeyId: process.env.OBJECT_STORAGE_ACCESS_KEY_ID, secretAccessKey: process.env.OBJECT_STORAGE_SECRET_ACCESS_KEY }, requestChecksumCalculation: "WHEN_REQUIRED", responseChecksumValidation: "WHEN_REQUIRED" });
 const report = (check, result) => process.stdout.write(`${JSON.stringify({ check, ...result })}\n`);
 const prefix = `_diagnostics/${randomUUID()}`;
@@ -71,7 +71,7 @@ try {
   if (!preflight.ok || (allowed !== origin && allowed !== "*")) throw new Error("CorsPreflightFailed");
   report("browser_cors", { ok: true, origin });
 
-  const path = ".env.local";
+  const path = envFileFor();
   let content = readFileSync(path, "utf8");
   for (const name of ["OBJECT_STORAGE_BUCKET", "AWS_S3_BUCKET"]) {
     const line = `${name}=${JSON.stringify(bucket)}`, pattern = new RegExp(`^${name}=.*$`, "m");

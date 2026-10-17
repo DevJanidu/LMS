@@ -5,7 +5,7 @@ import { environment } from './env-runtime.mjs';
 import assert from 'node:assert/strict';
 
 if (!process.argv.includes('--acknowledge-current-test-database') || process.env.VERCEL_ENV === 'production') throw new Error('Fixture-only database acknowledgement required; production refused');
-// env-runtime loads .env.local, whose APP_URL may target a development server.
+// env-runtime loads .env.develop, whose APP_URL may target a development server.
 // Audit the explicitly selected local production server, independently of it.
 const baseURL=process.argv.find(arg=>arg.startsWith('--url='))?.slice(6)??'http://localhost:3100';
 const sql=neon(environment.DATABASE_URL), browser=await chromium.launch({channel:'chrome',headless:true});

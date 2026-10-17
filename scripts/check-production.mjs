@@ -8,7 +8,7 @@ import ts from "typescript";
 
 // Deliberately read one file: never fall back to development credentials.
 const args = process.argv.slice(2);
-const file = args.find(arg => arg.startsWith("--env="))?.slice(6) ?? ".env.production";
+const file = args.find(arg => arg.startsWith("--env="))?.slice(6) ?? ".env.prod";
 let failed = false;
 const report = (check, ok, detail) => {
   if (!ok) failed = true;
@@ -99,7 +99,7 @@ if (args.includes("--connections")) {
 }
 console.log(JSON.stringify({ check: "scope", info: "Vercel project settings, live deployment, email delivery, signed uploads and restore procedures require separate verification." }));
 if (args.includes("--build") && !failed) {
-  // process.env has higher priority than .env.local in Next.js.
+  // process.env has higher priority than the env file.
   const build = spawnSync(process.execPath, ["node_modules/next/dist/bin/next", "build"], {
     env: { ...process.env, ...env, NODE_ENV: "production" }, stdio: "inherit", windowsHide: true,
   });
