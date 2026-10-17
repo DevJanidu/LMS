@@ -9,9 +9,15 @@ import {
 } from "react";
 import { featureRequest } from "@/lib/goals/client";
 import { responseEvents } from "@/lib/aven/stream";
-import type { GoalCard } from "@/lib/aven/validation";
+import {
+  STREAM_IDLE_TIMEOUT_MS,
+  createSequenceGuard,
+  isStreamEvent,
+  type StreamEvent,
+} from "@/lib/aven/stream-protocol";
+import { applyUiComponent, parseUiComponent } from "@/lib/aven/ui-components";
+import { knownActivity, type ActivityCategory } from "@/lib/aven/activity";
 import type { ProposalRecord } from "./ProposalCard";
-import { activityCategory } from "./AvenActivity";
 import type { AvenMessageRecord, ConversationResult } from "./types";
 import type { MentionType } from "@/lib/aven/commands";
 export interface SendRequest {
@@ -26,16 +32,6 @@ export interface SendRequest {
   /** Structured @ references (type and ID only). */
   references?: { type: MentionType; id: string }[];
 }
-interface StreamEvent {
-  type: string;
-  id?: string;
-  text?: string;
-  code?: string;
-  name?: string;
-  proposal?: ProposalRecord;
-  cards?: GoalCard[];
-  actions?: unknown[];
-}
 interface Options {
   setMessages: Dispatch<SetStateAction<AvenMessageRecord[]>>;
   setProposals: Dispatch<SetStateAction<ProposalRecord[]>>;
@@ -47,6 +43,10 @@ export interface SendOutcome {
   ok: boolean;
   accepted: boolean;
   code?: string;
+  /** The conversation the turn was saved to, once the server accepted it. */
+  conversationId?: string | null;
+  /** The viewer left (navigation, switching chats); the server keeps generating. */
+  detached?: boolean;
 }
 const patch = (
   setMessages: Options["setMessages"],
@@ -58,13 +58,57 @@ const patch = (
       message.id === id ? { ...message, ...change(message) } : message,
     ),
   );
+export class StreamIdle extends Error {
+  constructor() {
+    super("streamIdle");
+  }
+}
+/**
+ * Reads the protocol from a response body and aborts when no bytes (not even a heartbeat)
+ * arrive for STREAM_IDLE_TIMEOUT_MS: a frozen tab or a half-open connection otherwise
+ * leaves `read()` pending forever and the UI stuck in "generating".
+ */
+export async function* watchedEvents(
+  body: ReadableStream<Uint8Array>,
+  controller: AbortController,
+  idleMs: number,
+): AsyncGenerator<StreamEvent> {
+  let timer: ReturnType<typeof setTimeout> | undefined,
+    idle = false;
+  const arm = () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      idle = true;
+      controller.abort();
+    }, idleMs);
+  };
+  const counted = body.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, sink) {
+        arm();
+        sink.enqueue(chunk);
+      },
+    }),
+  );
+  arm();
+  try {
+    for await (const raw of responseEvents(counted))
+      if (isStreamEvent(raw)) yield raw;
+  } catch (failure) {
+    throw idle ? new StreamIdle() : failure;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+  if (idle) throw new StreamIdle();
+}
 export function useAvenStream(options: Options) {
   const [generating, setGenerating] = useState(false),
-    [activity, setActivity] = useState<string>(),
+    [activity, setActivity] = useState<ActivityCategory>(),
     [streamingKey, setStreamingKey] = useState<string>();
   const optionsRef = useRef(options),
     abort = useRef<AbortController | null>(null),
     stopped = useRef(false),
+    detached = useRef(false),
     active = useRef<{
       conversationId: string | null;
       requestId: string;
@@ -72,7 +116,15 @@ export function useAvenStream(options: Options) {
   useEffect(() => {
     optionsRef.current = options;
   });
-  useEffect(() => () => abort.current?.abort(), []);
+  // Leaving the page only detaches this tab from the stream; the server keeps generating
+  // and the reply is restored from durable state when the chat is shown again.
+  useEffect(
+    () => () => {
+      detached.current = true;
+      abort.current?.abort();
+    },
+    [],
+  );
   const send = useCallback(
     async (request: SendRequest): Promise<SendOutcome> => {
       if (active.current) return { ok: false, accepted: false };
@@ -86,9 +138,11 @@ export function useAvenStream(options: Options) {
         completed = false;
       active.current = { conversationId, requestId };
       stopped.current = false;
+      detached.current = false;
       setGenerating(true);
       setActivity("working");
       setStreamingKey(`assistant:${requestId}`);
+      // The message appears immediately; the server confirms it with message-start.
       setMessages((current) => [
         ...current.filter((message) => message.status !== "notSent"),
         ...(request.retryOf
@@ -110,23 +164,28 @@ export function useAvenStream(options: Options) {
           content: "",
           status: "streaming",
           createdAt: startedAt,
+          seq: 0,
         },
       ]);
       // Deltas arrive faster than the screen refreshes; append them once per frame.
       let buffer = "",
+        bufferSeq = 0,
         frame = 0;
       const flush = () => {
         if (frame) cancelAnimationFrame(frame);
         frame = 0;
         if (!buffer) return;
-        const text = buffer;
+        const text = buffer,
+          seq = bufferSeq;
         buffer = "";
         patch(setMessages, assistantId, (message) => ({
           content: message.content + text,
+          seq,
         }));
       };
       const controller = new AbortController();
       abort.current = controller;
+      const guard = createSequenceGuard();
       try {
         const response = await fetch("/api/aven/chat", {
           method: "POST",
@@ -148,32 +207,49 @@ export function useAvenStream(options: Options) {
           const value = await response.json().catch(() => ({}));
           throw new Error(value.error ?? "aiUnavailable");
         }
-        for await (const raw of responseEvents(response.body)) {
-          const event = raw as unknown as StreamEvent;
-          if (event.type === "delta" && event.text) {
+        for await (const event of watchedEvents(
+          response.body,
+          controller,
+          STREAM_IDLE_TIMEOUT_MS,
+        )) {
+          // Sequence numbers make delivery idempotent: a repeated or stale event is ignored.
+          if (!guard.accept(event.seq)) continue;
+          if (event.type === "heartbeat") continue;
+          if (event.type === "text-delta") {
             buffer += event.text;
+            bufferSeq = event.seq;
             frame ||= requestAnimationFrame(flush);
             setActivity(undefined);
             continue;
           }
           flush();
-          if (event.type === "conversation" && event.id) {
-            conversationId = event.id;
+          const seq = event.seq;
+          if (event.type === "message-start") {
+            conversationId = event.conversationId;
             accepted = true;
             active.current = { conversationId, requestId };
-            optionsRef.current.onAccepted(event.id, submission);
+            optionsRef.current.onAccepted(event.conversationId, submission);
             patch(setMessages, requestId, () => ({ status: "complete" }));
-          } else if (event.type === "tool")
-            setActivity(activityCategory(event.name ?? "working"));
-          else if (event.type === "replace") {
+          } else if (event.type === "reasoning-status")
+            setActivity(knownActivity(event.status));
+          else if (event.type === "tool-start")
+            setActivity(knownActivity(event.activity));
+          else if (event.type === "text-replace") {
             setActivity(undefined);
-            patch(setMessages, assistantId, () => ({
-              content: event.text ?? "",
-            }));
-          } else if (event.type === "proposal" && event.proposal) {
+            patch(setMessages, assistantId, () => ({ content: event.text, seq }));
+          } else if (event.type === "ui-component") {
+            const component = parseUiComponent(event.component);
+            if (component)
+              patch(setMessages, assistantId, (message) => ({
+                components: applyUiComponent(message.components ?? [], component),
+                seq,
+              }));
+          } else if (event.type === "proposal") {
             const proposal = {
-              ...event.proposal,
-              createdAt: event.proposal.createdAt ?? new Date().toISOString(),
+              ...(event.proposal as unknown as ProposalRecord),
+              createdAt:
+                (event.proposal.createdAt as string | undefined) ??
+                new Date().toISOString(),
             };
             setProposals((current) => [
               ...current.filter((item) => item.id !== proposal.id),
@@ -181,23 +257,8 @@ export function useAvenStream(options: Options) {
             ]);
             // The server holds further text until it verifies no change is claimed as applied.
             setActivity("changes");
-          } else if (event.type === "goalProgress" && event.cards)
-            patch(setMessages, assistantId, (message) => ({
-              context: {
-                ...message.context,
-                goalCards: JSON.stringify(event.cards),
-              },
-            }));
-          else if (event.type === "nextActions" && event.actions)
-            patch(setMessages, assistantId, (message) => ({
-              context: {
-                ...message.context,
-                nextActions: JSON.stringify(event.actions),
-              },
-            }));
-          else if (event.type === "error")
-            throw new Error(event.code ?? "aiUnavailable");
-          else if (event.type === "done") completed = true;
+          } else if (event.type === "error") throw new Error(event.code);
+          else if (event.type === "message-complete") completed = true;
         }
         flush();
         if (!completed) throw new Error("generationInterrupted");
@@ -205,12 +266,16 @@ export function useAvenStream(options: Options) {
         setActivity(undefined);
         if (conversationId)
           await optionsRef.current.reload(conversationId).catch(() => {});
-        return { ok: true, accepted };
+        return { ok: true, accepted, conversationId };
       } catch (failure) {
         flush();
+        if (detached.current)
+          return { ok: false, accepted, conversationId, detached: true };
         const code = stopped.current
           ? "generationStopped"
-          : (failure as Error).message || "aiUnavailable";
+          : failure instanceof StreamIdle
+            ? "generationInterrupted"
+            : (failure as Error).message || "aiUnavailable";
         // The server may have saved the message before the stream broke; find its conversation.
         let recovered = false;
         if (!conversationId)
@@ -225,17 +290,28 @@ export function useAvenStream(options: Options) {
             }
           } catch {}
         if (stopped.current) {
+          // Stopped before the server confirmed the turn: the stop request could not name the
+          // conversation yet, and closing the stream alone no longer ends a generation.
+          if (recovered && conversationId)
+            await featureRequest("/api/aven/chat/cancel", {
+              conversationId,
+              requestId,
+            })
+              .then(() => optionsRef.current.reload(conversationId!))
+              .catch(() => {});
           // Keep the partial reply in place; the server keeps the same text where it can.
           if (!recovered)
             patch(setMessages, assistantId, (message) => ({
               status: "cancelled",
               content: message.content || "generationStopped",
             }));
-          return { ok: false, accepted, code };
+          return { ok: false, accepted, code, conversationId };
         }
+        // An accepted turn lives on the server: the refresh shows its saved state, and a
+        // reply still running there is followed from durable snapshots, not restarted.
         if (accepted && conversationId) {
           await optionsRef.current.reload(conversationId).catch(() => {});
-          return { ok: false, accepted, code };
+          return { ok: false, accepted, code, conversationId };
         }
         setMessages((current) =>
           current
@@ -246,7 +322,7 @@ export function useAvenStream(options: Options) {
                 : message,
             ),
         );
-        return { ok: false, accepted, code };
+        return { ok: false, accepted, code, conversationId };
       } finally {
         if (frame) cancelAnimationFrame(frame);
         active.current = null;
@@ -269,5 +345,11 @@ export function useAvenStream(options: Options) {
       }).catch(() => {});
     abort.current?.abort();
   }, []);
-  return { generating, activity, streamingKey, send, stop };
+  /** Stop listening without stopping the generation (e.g. switching conversations). */
+  const detach = useCallback(() => {
+    if (!active.current) return;
+    detached.current = true;
+    abort.current?.abort();
+  }, []);
+  return { generating, activity, streamingKey, send, stop, detach };
 }

@@ -5,6 +5,7 @@ import {
   avenConfigurationStatus,
   isReasoningModel,
   outputTokenLimit,
+  providerUrl,
 } from "./configuration";
 import { GoalError } from "@/lib/goals/service";
 export function avenConfigured() {
@@ -24,6 +25,7 @@ export function avenConfig(planning = false) {
     : value.OPENAI_CHAT_MODEL;
   return {
     key: value.OPENAI_API_KEY,
+    url: providerUrl(process.env),
     model,
     reasoningEffort: isReasoningModel(model)
       ? planning

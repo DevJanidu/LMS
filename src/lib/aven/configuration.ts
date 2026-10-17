@@ -84,6 +84,31 @@ export function avenConfigurationStatus(
       };
 }
 
+export const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
+/**
+ * Responses endpoint. AVEN_PROVIDER_URL lets local browser tests run the real stack against
+ * a deterministic mock model; it is ignored in production builds and for any host other
+ * than the local machine, so it can never send traffic or credentials elsewhere.
+ */
+export function providerUrl(env: Record<string, string | undefined>) {
+  const raw = env.AVEN_PROVIDER_URL?.trim();
+  if (
+    !raw ||
+    env.NODE_ENV === "production" ||
+    env.VERCEL_ENV ||
+    env.APP_ENV === "production"
+  )
+    return OPENAI_RESPONSES_URL;
+  try {
+    const url = new URL(raw);
+    return url.protocol === "http:" &&
+      ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)
+      ? url.toString()
+      : OPENAI_RESPONSES_URL;
+  } catch {
+    return OPENAI_RESPONSES_URL;
+  }
+}
 /** Output budget per provider request. Reasoning tokens count toward it, so reasoning models need headroom. */
 export function outputTokenLimit(
   model: string,

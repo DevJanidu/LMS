@@ -11,6 +11,7 @@ import {
   type MentionReference,
 } from "./commands";
 import { getAvenPreferences } from "./preferences";
+import { describeGeneration, holdsLease } from "./generation-state";
 export async function listConversations(
   userId: string,
   before?: string,
@@ -124,10 +125,36 @@ export async function getConversation(
           and(eq(s.goals.id, conversation.goalId), eq(s.goals.userId, userId)),
         )
     : [];
+  // The newest reply row is the latest generation; pending proposals after it mean approval.
+  const latestReply = page.findLast((message) => message.role === "assistant");
+  const generation = latestReply
+    ? describeGeneration(
+        latestReply,
+        conversation,
+        proposals.filter(
+          (proposal) =>
+            proposal.status === "pending" &&
+            proposal.createdAt &&
+            new Date(proposal.createdAt) >= latestReply.createdAt,
+        ).length,
+      )
+    : null;
   return {
     conversation: { ...conversation, goalTitle: goal?.title ?? null },
+    generation,
     hasOlder: messages.length > 100,
     messages: page.map((message) => {
+      // A snapshot whose run no longer holds the lease was interrupted (crash or timeout).
+      if (
+        message.status === "streaming" &&
+        !holdsLease(conversation, message.requestId)
+      )
+        return {
+          ...message,
+          status: "error",
+          content: message.content || "generationInterrupted",
+          context: { ...message.context, interrupted: "true" },
+        };
       const outcome = message.context?.notificationId
         ? resolved.get(message.context.notificationId)
         : undefined;
@@ -277,7 +304,15 @@ export async function beginConversationTurn(
           content: "generationInterrupted",
           status: "error",
         })
-        .onConflictDoNothing();
+        // A partial snapshot from the interrupted run is kept, marked as an error.
+        .onConflictDoUpdate({
+          target: [s.aiMessages.conversationId, s.aiMessages.requestId, s.aiMessages.role],
+          set: {
+            status: "error",
+            content: sql`CASE WHEN length(${s.aiMessages.content}) > 0 THEN ${s.aiMessages.content} ELSE 'generationInterrupted' END`,
+          },
+          setWhere: eq(s.aiMessages.status, "streaming"),
+        });
     }
     if (retryRequestId) {
       const prior = await tx
@@ -343,6 +378,19 @@ export async function beginConversationTurn(
           ? { context: { references: JSON.stringify(references) } }
           : {}),
       });
+    // The reply row doubles as the durable generation record: queued now, then streaming
+    // snapshots, then complete/error/cancelled. Reconnecting clients read it, never memory.
+    await tx.insert(s.aiMessages).values({
+      conversationId: id,
+      requestId,
+      role: "assistant",
+      content: "",
+      status: "streaming",
+      context: { phase: "queued", seq: "0", updatedAt: new Date().toISOString() },
+      // now() is fixed for the transaction, so the user message above shares it; the wall
+      // clock keeps the reply strictly after the message it answers.
+      createdAt: sql`clock_timestamp()`,
+    });
     await tx
       .update(s.aiConversations)
       .set({
@@ -361,7 +409,12 @@ export async function beginConversationTurn(
     const [{ count }] = await tx
       .select({ count: sql<number>`count(*)::int` })
       .from(s.aiMessages)
-      .where(eq(s.aiMessages.conversationId, id));
+      .where(
+        and(
+          eq(s.aiMessages.conversationId, id),
+          sql`${s.aiMessages.status} <> 'streaming'`,
+        ),
+      );
     // A regenerated reply must not see the answer it replaces.
     const replaced = (row: (typeof history)[number]) =>
       regenerate &&
@@ -374,9 +427,96 @@ export async function beginConversationTurn(
       summary: conversation.summary,
       summaryMessageCount: conversation.summaryMessageCount,
       messageCount: count,
-      history: history.reverse().filter((row) => !replaced(row)),
+      history: history
+        .reverse()
+        .filter((row) => row.status !== "streaming" && !replaced(row)),
     };
   });
+}
+/**
+ * Saves the reply streamed so far, so a reconnecting client (another tab, a refresh,
+ * a return after navigation) can show it. The write succeeds only while this request
+ * still holds the conversation lease; false means the turn was stopped or finished
+ * elsewhere and the generation should stop.
+ */
+export async function saveStreamingSnapshot(
+  userId: string,
+  id: string,
+  requestId: string,
+  content: string,
+  context: Record<string, string>,
+) {
+  const rows = await getDb()
+    .update(s.aiMessages)
+    .set({ content, context })
+    .where(
+      and(
+        eq(s.aiMessages.conversationId, id),
+        eq(s.aiMessages.requestId, requestId),
+        eq(s.aiMessages.role, "assistant"),
+        eq(s.aiMessages.status, "streaming"),
+        sql`EXISTS (SELECT 1 FROM ai_conversations c WHERE c.id = ${id}::uuid AND c.user_id = ${userId}::uuid AND c.active_request_id = ${requestId}::uuid)`,
+      ),
+    )
+    .returning({ id: s.aiMessages.id });
+  return rows.length > 0;
+}
+/**
+ * The latest generation of a conversation (or one request), read from durable records only.
+ * Cheap enough to poll: one owned conversation row, one reply row and a proposal count.
+ */
+export async function getGenerationStatus(
+  userId: string,
+  conversationId: string,
+  requestId?: string,
+) {
+  const [conversation] = await getDb()
+    .select({
+      activeRequestId: s.aiConversations.activeRequestId,
+      lockedUntil: s.aiConversations.lockedUntil,
+    })
+    .from(s.aiConversations)
+    .where(
+      and(
+        eq(s.aiConversations.id, conversationId),
+        eq(s.aiConversations.userId, userId),
+      ),
+    );
+  if (!conversation) throw new GoalError("recordUnavailable", 404);
+  const [row] = await getDb()
+    .select({
+      requestId: s.aiMessages.requestId,
+      status: s.aiMessages.status,
+      content: s.aiMessages.content,
+      context: s.aiMessages.context,
+      createdAt: s.aiMessages.createdAt,
+    })
+    .from(s.aiMessages)
+    .where(
+      and(
+        eq(s.aiMessages.conversationId, conversationId),
+        eq(s.aiMessages.role, "assistant"),
+        requestId ? eq(s.aiMessages.requestId, requestId) : undefined,
+      ),
+    )
+    .orderBy(desc(s.aiMessages.createdAt), desc(s.aiMessages.id))
+    .limit(1);
+  if (!row) return { generation: null };
+  const [{ pending }] = await getDb()
+    .select({ pending: sql<number>`count(*)::int` })
+    .from(s.aiPlanProposals)
+    .where(
+      and(
+        eq(s.aiPlanProposals.conversationId, conversationId),
+        eq(s.aiPlanProposals.userId, userId),
+        eq(s.aiPlanProposals.status, "pending"),
+        sql`${s.aiPlanProposals.createdAt} >= ${row.createdAt}`,
+      ),
+    );
+  return {
+    generation: describeGeneration(row, conversation, pending),
+    proposalCount: pending,
+  };
 }
 export async function finishConversationTurn(
   userId: string,
@@ -425,7 +565,17 @@ export async function finishConversationTurn(
               }
             : null,
       })
-      .onConflictDoNothing();
+      // Replaces the in-progress snapshot. A stopped turn keeps the text already streamed.
+      .onConflictDoUpdate({
+        target: [s.aiMessages.conversationId, s.aiMessages.requestId, s.aiMessages.role],
+        set: {
+          status,
+          content: sql`CASE WHEN excluded.status = 'cancelled' AND length(${s.aiMessages.content}) > 0 THEN ${s.aiMessages.content} ELSE excluded.content END`,
+          // A stop from another request has no context of its own; keep the cards shown so far.
+          context: sql`COALESCE(excluded.context, ${s.aiMessages.context})`,
+        },
+        setWhere: eq(s.aiMessages.status, "streaming"),
+      });
     // A completed retry or regeneration supersedes earlier replies to the same message.
     if (retrySource && status === "complete")
       await tx

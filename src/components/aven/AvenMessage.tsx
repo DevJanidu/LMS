@@ -2,12 +2,12 @@
 import { memo, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { RefreshIcon, SparklesIcon } from "@/icons";
-import { goalCardsSchema, nextActionsSchema } from "@/lib/aven/validation";
-import NextBestActionCard from "@/components/goals/NextBestActionCard";
+import { storedComponents } from "@/lib/aven/ui-components";
 import AvenMarkdown from "./AvenMarkdown";
 import AvenCopyButton from "./AvenCopyButton";
-import GoalProgressCard from "./cards/GoalProgressCard";
+import AvenGenerativeUI from "./AvenGenerativeUI";
 import NotificationActions from "./NotificationActions";
+import { useSmoothText } from "./useSmoothText";
 import type { AvenMessageRecord } from "./types";
 interface Props {
   message: AvenMessageRecord;
@@ -15,21 +15,11 @@ interface Props {
   streaming: boolean;
   latest: boolean;
   disabled: boolean;
+  /** New in this session (not restored history), so it animates in. */
+  enter?: boolean;
   onRetry: (message: AvenMessageRecord) => void;
   onRegenerate: (message: AvenMessageRecord) => void;
   onAsk: (notificationId: string) => void;
-}
-function parseJson<T>(
-  raw: string | undefined,
-  schema: { safeParse: (value: unknown) => { success: boolean; data?: T } },
-): T | [] {
-  if (!raw) return [];
-  try {
-    const parsed = schema.safeParse(JSON.parse(raw));
-    return parsed.success && parsed.data ? parsed.data : [];
-  } catch {
-    return [];
-  }
 }
 function AvenMessage({
   message,
@@ -37,19 +27,18 @@ function AvenMessage({
   streaming,
   latest,
   disabled,
+  enter,
   onRetry,
   onRegenerate,
   onAsk,
 }: Props) {
   const t = useTranslations("aven");
-  const cards = useMemo(
-    () => parseJson(message.context?.goalCards, goalCardsSchema),
-    [message.context?.goalCards],
+  // Live cards (with placeholders) while streaming; saved, re-validated cards afterwards.
+  const components = useMemo(
+    () => message.components ?? storedComponents(message.context),
+    [message.components, message.context],
   );
-  const actions = useMemo(
-    () => parseJson(message.context?.nextActions, nextActionsSchema),
-    [message.context?.nextActions],
-  );
+  const text = useSmoothText(message.content, streaming);
   const time = message.createdAt
     ? new Date(message.createdAt).toLocaleTimeString("en", {
         hour: "numeric",
@@ -59,7 +48,7 @@ function AvenMessage({
     : null;
   if (message.role === "user")
     return (
-      <div className="aven-message" data-role="user">
+      <div className="aven-message" data-role="user" data-enter={enter || undefined}>
         <div className="aven-user-bubble">{message.content}</div>
         {message.status === "notSent" && (
           <p className="aven-message-meta" data-tone="error">
@@ -77,6 +66,8 @@ function AvenMessage({
       className="aven-message"
       data-role="assistant"
       data-latest={latest || undefined}
+      data-streaming={streaming || undefined}
+      data-enter={enter || undefined}
     >
       {notificationId && (
         <p className="aven-message-eyebrow">
@@ -84,7 +75,7 @@ function AvenMessage({
           {t("proactiveLabel")}
         </p>
       )}
-      {!code && message.content && <AvenMarkdown text={message.content} />}
+      {!code && text && <AvenMarkdown text={text} streaming={streaming} />}
       {failed && (
         <div
           className="aven-message-error"
@@ -113,16 +104,7 @@ function AvenMessage({
           )}
         </div>
       )}
-      {cards.length > 0 && (
-        <div className="aven-card-stack">
-          {cards.map((goal) => (
-            <GoalProgressCard key={goal.id} goal={goal} />
-          ))}
-        </div>
-      )}
-      {actions.length > 0 && (
-        <NextBestActionCard actions={actions} askAven={false} />
-      )}
+      <AvenGenerativeUI components={components} />
       {notificationId && (
         <NotificationActions
           id={notificationId}
