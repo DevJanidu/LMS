@@ -1,8 +1,8 @@
-import { config } from "dotenv";
+import { loadAppEnv } from "./lib/env-file.mjs";
 import { neon } from "@neondatabase/serverless";
 import { S3Client, ListBucketsCommand } from "@aws-sdk/client-s3";
 
-config({ path: ".env.local", quiet: true });
+loadAppEnv();
 const report = (check, result) => process.stdout.write(`${JSON.stringify({ check, ...result })}\n`);
 let failed = false;
 try {

@@ -43,7 +43,18 @@ Use scale-to-zero Neon compute where available, local Next.js development, one p
 | `NEXT_DEPLOYMENT_ID` | Only if self-hosted | Vercel manages identity | Vercel manages identity |
 | `CONTACT_EMAIL` | Optional public contact | Optional test contact | Approved public contact |
 
-The launcher neutralizes all listed variables before selecting a private file, so Next.js cannot fill missing settings from the legacy `.env.local`. Runtime guards reject known production endpoint/key fingerprints in nonproduction before opening database/storage/AI clients. Fingerprints contain no secret values; refresh them during a planned production credential rotation. They detect known resources, not every possible hostname alias or compromised credential; independent provider access controls remain necessary. Do not spoof `APP_ENV=production` locally to bypass isolation.
+### Local env files
+
+| File | `APP_ENV` | Used by |
+| --- | --- | --- |
+| `.env.example` | — | Committed. Variable names only, no values. |
+| `.env.develop` | `development` | Local tools on every branch, including `feature/*` (`npm run dev`, migrations, seeds, checks, e2e helpers) |
+| `.env.staging` | `staging` | Only when asked for explicitly: `node scripts/run-environment.mjs staging …` or `APP_ENV=staging` |
+| `.env.prod` | `production` | Only when asked for explicitly with the reviewed production commands below |
+
+All three hold secrets and are ignored by git (`.env.*` except `.env.example`). Never commit them: the repository is public. `scripts/lib/env-file.mjs` is the only place that maps an environment to its file. Checking out `main` or `staging` never switches local tools to that environment. Deployed branches read their variables from Vercel (Production for `main`, Preview with a `staging` branch override), not from these files. `npm run check:env` checks every present file against `.env.example`.
+
+The launcher neutralizes all listed variables before selecting a private file, so Next.js cannot fill missing settings from another env file. Runtime guards reject known production endpoint/key fingerprints in nonproduction before opening database/storage/AI clients. Fingerprints contain no secret values; refresh them during a planned production credential rotation. They detect known resources, not every possible hostname alias or compromised credential; independent provider access controls remain necessary. Do not spoof `APP_ENV=production` locally to bypass isolation.
 
 ```powershell
 npm run check:environment -- development

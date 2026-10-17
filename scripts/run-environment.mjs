@@ -3,11 +3,12 @@ import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { parse } from "dotenv";
 import { assertEnvironmentIsolation } from "../src/lib/deployment-policy.mjs";
+import { ENV_FILES } from "./lib/env-file.mjs";
 
 const args = process.argv.slice(2);
 const environment = args[0];
 const command = args[1] || "check";
-const file = args.find(arg => arg.startsWith("--env="))?.slice(6) || `.env.${environment}.local`;
+const file = args.find(arg => arg.startsWith("--env="))?.slice(6) || ENV_FILES[environment];
 const fromProcess = args.includes("--process-env");
 try {
   if (!["development", "staging", "production"].includes(environment)) throw new Error("Choose development, staging or production.");
@@ -19,14 +20,14 @@ try {
   if (environment === "production" && command === "studio") throw new Error("Production database studio is disabled.");
   const values = fromProcess ? { ...process.env } : parse(readFileSync(file, "utf8"));
   if (values.APP_ENV !== environment) throw new Error("The selected file must declare the matching APP_ENV.");
-  // Neutralize every documented app variable: Next must not fill gaps from .env.local.
+  // Neutralize every documented app variable: Next must not fill gaps from another env file.
   const names = Object.keys(parse(readFileSync(".env.example", "utf8")));
   const env = { ...process.env, ...Object.fromEntries(names.map(key => [key, ""])), ...values, APP_ENV: environment,
     NODE_ENV: environment === "production" ? "production" : "development",
     ACADENCE_MIGRATION_APPROVED: environment === "production" && command === "migrate" ? "true" : "" };
   assertEnvironmentIsolation(env);
-  if (environment !== "production" && existsSync(".env.production")) {
-    const production = parse(readFileSync(".env.production", "utf8"));
+  if (environment !== "production" && existsSync(ENV_FILES.production)) {
+    const production = parse(readFileSync(ENV_FILES.production, "utf8"));
     for (const key of ["AUTH_SECRET", "CRON_SECRET", "OPENAI_API_KEY", "OBJECT_STORAGE_ACCESS_KEY_ID", "OBJECT_STORAGE_SECRET_ACCESS_KEY", "UPSTASH_REDIS_REST_TOKEN", "RESEND_API_KEY", "GOOGLE_CLIENT_SECRET", "VAPID_PRIVATE_KEY"]) {
       if (values[key] && values[key] === production[key]) throw new Error(`Nonproduction credentials must differ from production: ${key}.`);
     }

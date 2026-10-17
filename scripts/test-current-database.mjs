@@ -1,7 +1,7 @@
-import nextEnv from "@next/env";
+import { loadAppEnv } from "./lib/env-file.mjs";
 import { spawn } from "node:child_process";
 import { environment } from "./env-runtime.mjs";
-nextEnv.loadEnvConfig(process.cwd());
+loadAppEnv();
 if (!process.argv.includes("--acknowledge-current-test-database") || process.env.VERCEL_ENV === "production") throw new Error("Explicit current-test-database acknowledgement required; production refused.");
 console.info("Running UUID fixture-only tests on the acknowledged current database; this does not verify a throwaway branch or reset existing data.");
 const performance = process.argv.includes("--performance");

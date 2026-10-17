@@ -1,4 +1,4 @@
-import nextEnv from "@next/env";
+import { loadAppEnv } from "./lib/env-file.mjs";
 import { parse } from "dotenv";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -23,7 +23,7 @@ if (selectedFile) {
     process.exit(1);
   }
 } else {
-  nextEnv.loadEnvConfig(process.cwd());
+  loadAppEnv();
 }
 mkdirSync(".audit-local", { recursive: true });
 const runtime = resolve(".audit-local/aven-configuration.mjs");

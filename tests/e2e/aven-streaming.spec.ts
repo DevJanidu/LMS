@@ -1,10 +1,10 @@
 import { createHmac, randomBytes, randomUUID } from "node:crypto";
-import { loadEnvConfig } from "@next/env";
+import { loadAppEnv } from "../../scripts/lib/env-file.mjs";
 import { neon } from "@neondatabase/serverless";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import messages from "../../src/messages/en.json";
 
-loadEnvConfig(process.cwd());
+loadAppEnv();
 /**
  * Real stack, mocked model: the dev server runs with AVEN_PROVIDER_URL pointing at
  * scripts/mock-openai-provider.mjs, so routing, after(), durable snapshots, status polling,

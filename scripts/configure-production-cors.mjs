@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { parse } from "dotenv";
 import { S3Client, GetBucketCorsCommand, PutBucketCorsCommand } from "@aws-sdk/client-s3";
 
-const env = parse(readFileSync(".env.production", "utf8"));
+const env = parse(readFileSync(".env.prod", "utf8"));
 const app = new URL(env.APP_URL);
 if (app.protocol !== "https:" || app.origin !== env.APP_URL) throw new Error("Set APP_URL to the final HTTPS origin first.");
 const client = new S3Client({ endpoint: env.OBJECT_STORAGE_ENDPOINT, region: env.OBJECT_STORAGE_REGION, forcePathStyle: true, credentials: { accessKeyId: env.OBJECT_STORAGE_ACCESS_KEY_ID, secretAccessKey: env.OBJECT_STORAGE_SECRET_ACCESS_KEY }, maxAttempts: 1 });
