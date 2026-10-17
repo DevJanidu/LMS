@@ -12,6 +12,14 @@ import {
 } from "./commands";
 import { getAvenPreferences } from "./preferences";
 import { describeGeneration, holdsLease } from "./generation-state";
+import { withoutSecrets } from "./ui-components";
+/**
+ * Interaction state (`ui:*`) a student saved on a reply while it was still streaming.
+ * Snapshot and final writes replace the reply's context, so they merge this back in.
+ */
+const savedStateOf = sql`COALESCE((SELECT jsonb_object_agg(e.key, e.value) FROM jsonb_each(COALESCE(${s.aiMessages.context}, '{}'::jsonb)) AS e WHERE e.key LIKE 'ui:%'), '{}'::jsonb)`;
+const withSavedState = (context: Record<string, string>) =>
+  sql`${JSON.stringify(context)}::jsonb || ${savedStateOf}`;
 export async function listConversations(
   userId: string,
   before?: string,
@@ -158,9 +166,11 @@ export async function getConversation(
       const outcome = message.context?.notificationId
         ? resolved.get(message.context.notificationId)
         : undefined;
+      // Answer keys and other server-only values never leave the server.
+      const context = withoutSecrets(message.context);
       return outcome
-        ? { ...message, context: { ...message.context, resolved: outcome } }
-        : message;
+        ? { ...message, context: { ...context, resolved: outcome } }
+        : { ...message, context };
     }),
     proposals,
   };
@@ -448,7 +458,7 @@ export async function saveStreamingSnapshot(
 ) {
   const rows = await getDb()
     .update(s.aiMessages)
-    .set({ content, context })
+    .set({ content, context: withSavedState(context) })
     .where(
       and(
         eq(s.aiMessages.conversationId, id),
@@ -572,7 +582,7 @@ export async function finishConversationTurn(
           status,
           content: sql`CASE WHEN excluded.status = 'cancelled' AND length(${s.aiMessages.content}) > 0 THEN ${s.aiMessages.content} ELSE excluded.content END`,
           // A stop from another request has no context of its own; keep the cards shown so far.
-          context: sql`COALESCE(excluded.context, ${s.aiMessages.context})`,
+          context: sql`COALESCE(excluded.context, ${s.aiMessages.context}) || ${savedStateOf}`,
         },
         setWhere: eq(s.aiMessages.status, "streaming"),
       });

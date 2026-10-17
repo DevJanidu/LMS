@@ -32,6 +32,11 @@ const categories: Record<string, string> = {
   moveStudySessions: "conflicts",
   rescheduleStudySession: "conflicts",
   cancelStudySessions: "conflicts",
+  showChecklist: "composing",
+  showQuiz: "composing",
+  showFlashcards: "composing",
+  showDiagram: "composing",
+  showStudyTargets: "composing",
 };
 export const ACTIVITY_CATEGORIES = [
   "working",
@@ -43,6 +48,7 @@ export const ACTIVITY_CATEGORIES = [
   "studyPlan",
   "conflicts",
   "changes",
+  "composing",
 ] as const;
 export type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number];
 export const activityCategory = (tool: string): ActivityCategory =>

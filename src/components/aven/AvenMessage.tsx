@@ -104,7 +104,12 @@ function AvenMessage({
           )}
         </div>
       )}
-      <AvenGenerativeUI components={components} />
+      <AvenGenerativeUI
+        components={components}
+        requestId={message.requestId}
+        context={message.context}
+        persist={Boolean(message.requestId)}
+      />
       {notificationId && (
         <NotificationActions
           id={notificationId}

@@ -106,7 +106,13 @@ export interface TurnPlan {
   /** null means every tool (no workflow recognized). */
   tools: string[] | null;
   guidance: string;
+  /** The words ask for something an interactive block shows best; offer presentation tools. */
+  presentation: boolean;
 }
+/** Requests an interactive block serves better than prose. Plain questions stay text-only. */
+const PRESENTATION =
+  /\b(check\s?list|to-?do list|quiz|test me|practice questions?|flash\s?cards?|diagram|flow\s?chart|architecture|road\s?map|visuali[sz]e|mind\s?map|concept map|(study|weekly|daily) (targets?|goals? for hours)|set (my )?targets?|how many hours)\b/i;
+export const wantsPresentation = (message: string) => PRESENTATION.test(message);
 export function planTurn(message: string, mentions: MentionType[] = []): TurnPlan {
   const { command, rest } = parseCommand(message);
   const intent = classifyIntent(rest || message);
@@ -146,5 +152,7 @@ export function planTurn(message: string, mentions: MentionType[] = []): TurnPla
       command && commandGuidance[command.workflow]
         ? `\n${commandGuidance[command.workflow]}`
         : "",
+    presentation:
+      !helpOnly && (wantsPresentation(rest || message) || command?.workflow === "study"),
   };
 }

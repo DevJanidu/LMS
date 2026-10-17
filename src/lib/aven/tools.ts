@@ -53,7 +53,8 @@ import {
   subjectProposal,
   topicProposal,
 } from "./workspace-actions";
-import { planStudySessions } from "@/lib/learning/slots";
+import { planSubjectSessions, scheduleProposal } from "./study-planner";
+import { strictSchema } from "./tool-schema";
 import {
   loadGoalHealth,
   loadLearningGaps,
@@ -345,22 +346,6 @@ export function validateToolInput(name: string, raw: unknown) {
   const result = schemas[name as AvenToolName].safeParse(raw);
   if (!result.success) throw new GoalError("invalidToolInput");
   return result.data;
-}
-function strictSchema(schema: z.ZodType) {
-  const value = z.toJSONSchema(schema, { io: "output" });
-  const clean = (node: unknown): void => {
-    if (!node || typeof node !== "object") return;
-    if (Array.isArray(node)) {
-      node.forEach(clean);
-      return;
-    }
-    const object = node as Record<string, unknown>;
-    delete object.$schema;
-    delete object.default;
-    Object.values(object).forEach(clean);
-  };
-  clean(value);
-  return value;
 }
 export const avenTools = Object.entries(schemas).map(([name, schema]) => ({
   type: "function",
@@ -846,40 +831,14 @@ async function performAvenTool(
         ? [ai.preferredStudyEnd, extended].sort().at(-1)!
         : ai.preferredStudyEnd);
     if (latest <= earliest) throw new GoalError("invalidInput");
-    const commitments = getOccurrences(
-      await getScheduleBlocksInRange(userId, { from: value.from, to: shiftDay(value.to, 1) }, timezone),
-      value.from,
-      value.to,
-    ).map((item) => ({
-      blockId: item.block.id,
-      date: item.date,
-      title: item.title,
-      startsAt: item.startsAt,
-      endsAt: item.endsAt,
-    }));
-    const plan = planStudySessions({
+    const { plan, facts } = await planSubjectSessions(userId, timezone, {
       subjects,
       minutes: value.minutes,
       from: value.from,
       to: value.to,
       earliest,
       latest,
-      studyDays: ai.studyDays,
-      dailyTargetMinutes: ai.dailyTargetMinutes,
-      commitments,
-      timezone,
-      now: Date.now(),
     });
-    const facts = {
-      window: { from: value.from, to: value.to, earliest, latest, studyDays: ai.studyDays },
-      dailyTargetMinutes: ai.dailyTargetMinutes,
-      unplaced: plan.unplaced,
-      constraint: plan.constraint,
-      tradeoffs: plan.tradeoffs.map((item) => ({
-        title: item.title,
-        localStartsAt: wallTime(item.startsAt, timezone),
-      })),
-    };
     if (!plan.sessions.length)
       return {
         proposalCreated: false,
@@ -887,20 +846,7 @@ async function performAvenTool(
         next: "No free time fits. Never invent time or remove sessions; offer the trade-offs (another window, shorter sessions, fewer sessions, a higher daily target or moving a listed session) and ask one question.",
       };
     return {
-      ...(await proposal({
-        kind: "schedule",
-        goalId: null,
-        expectedVersion: 0,
-        explanation: value.explanation,
-        sessions: plan.sessions.map((item) => ({
-          title: item.title,
-          taskId: null,
-          subjectId: item.subjectId,
-          topicId: null,
-          startsAt: item.startsAt,
-          endsAt: item.endsAt,
-        })),
-      })),
+      ...(await proposal(scheduleProposal(value.explanation, plan))),
       ...facts,
       sessions: plan.sessions.map((item) => ({
         subject: item.title,
@@ -1132,9 +1078,30 @@ async function performAvenTool(
               ),
             )
         : [];
+    // Authoritative per-day totals in the account's timezone, for charts (up to 31 days).
+    const daily =
+      days <= 31
+        ? await db
+            .select({
+              date: sql<string>`to_char((${s.studySessions.startedAt} AT TIME ZONE ${timezone})::date, 'YYYY-MM-DD')`,
+              minutes: sql<number>`round(coalesce(sum(${s.studySessions.durationSeconds}),0) / 60.0)::int`,
+            })
+            .from(s.studySessions)
+            .where(
+              and(
+                eq(s.studySessions.userId, userId),
+                eq(s.studySessions.status, "valid"),
+                sql`${s.studySessions.startedAt} >= ${from}`,
+              ),
+            )
+            .groupBy(sql`1`)
+            .orderBy(sql`1`)
+        : [];
     return {
       period: { from: from.toISOString(), to: new Date().toISOString() },
       summary,
+      daily,
+      localRange: { from: localDay(from.getTime(), timezone), to: today },
       ...(previousWeek
         ? {
             previousWeek: {

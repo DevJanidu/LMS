@@ -14,8 +14,26 @@ const producers: Record<string, UiComponentType[]> = {
   getWeeklyAnalytics: ["study_analytics"],
   getStudyHistory: ["study_analytics"],
   getStudyCircles: ["circle_leaderboard"],
+  scheduleStudySessions: ["study_planner"],
 };
 export const componentTypesForTool = (name: string) => producers[name] ?? [];
+/** Every local day in the range, with zero for days without verified study (≤31 days). */
+export function dailySeries(
+  daily: { date: string; minutes: number }[],
+  range: { from: string; to: string },
+) {
+  const totals = new Map(daily.map((item) => [item.date, item.minutes]));
+  const series: { date: string; minutes: number }[] = [];
+  for (
+    let day = new Date(`${range.from}T00:00:00Z`);
+    day.toISOString().slice(0, 10) <= range.to && series.length < 31;
+    day = new Date(day.getTime() + 864e5)
+  ) {
+    const date = day.toISOString().slice(0, 10);
+    series.push({ date, minutes: Math.min(1440, Math.max(0, totals.get(date) ?? 0)) });
+  }
+  return series;
+}
 const minutes = (hours: unknown) =>
   Math.max(0, Math.round((Number(hours) || 0) * 60));
 const days = (period: { from?: string; to?: string } | undefined) =>
@@ -34,6 +52,41 @@ export function componentsFromTool(
 ): ReadyUiComponent[] {
   if (!output || typeof output !== "object" || "error" in output) return [];
   const result: (ReadyUiComponent | null)[] = [];
+  if (name === "scheduleStudySessions") {
+    const plan = output as {
+      id?: string;
+      status?: string;
+      value?: { sessions?: unknown[] };
+      window?: { from: string; to: string; earliest: string; latest: string; studyDays: number[] };
+      subjects?: { subjectId: string; title: string; sessions: number }[];
+      minutes?: number;
+      dailyTargetMinutes?: number;
+      unplaced?: { missing: number }[];
+      tradeoffs?: { title: string; localStartsAt: string }[];
+    };
+    // Only a real pending proposal gets controls; "no free time" stays a text answer.
+    if (plan.id && plan.status === "pending" && plan.window && plan.subjects && plan.minutes)
+      result.push(
+        readyComponent(
+          "study_planner",
+          {
+            proposalId: plan.id,
+            from: plan.window.from,
+            to: plan.window.to,
+            earliest: plan.window.earliest,
+            latest: plan.window.latest,
+            window: "requested",
+            minutes: Math.min(120, Math.max(15, Math.round(plan.minutes / 5) * 5)),
+            dailyTargetMinutes: plan.dailyTargetMinutes ?? 0,
+            studyDays: plan.window.studyDays,
+            subjects: plan.subjects.map((subject) => ({ ...subject, title: subject.title.slice(0, 150) })),
+            placed: plan.value?.sessions?.length ?? 0,
+            unplaced: (plan.unplaced ?? []).reduce((sum, item) => sum + item.missing, 0),
+            tradeoffs: (plan.tradeoffs ?? []).slice(0, 10),
+          },
+        ),
+      );
+  }
   const cards = goalCardsFromTool(name, output);
   if (cards.length) {
     for (const card of cards) {
@@ -114,6 +167,8 @@ export function componentsFromTool(
       period?: { from?: string; to?: string };
       summary?: { hours: number; count: number };
       previousWeek?: { hours: number; count: number; comparable: boolean };
+      daily?: { date: string; minutes: number }[];
+      localRange?: { from: string; to: string };
     };
     if (history.summary)
       result.push(
@@ -128,6 +183,9 @@ export function componentsFromTool(
                 sessions: history.previousWeek.count,
               }
             : null,
+          ...(history.daily && history.localRange
+            ? { daily: dailySeries(history.daily, history.localRange) }
+            : {}),
         }),
       );
   }
