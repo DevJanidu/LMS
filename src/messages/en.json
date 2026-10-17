@@ -199,6 +199,8 @@
       "aiRateLimited": "The AI provider is temporarily busy. Try again later.",
       "rateLimited": "Please wait before sending another message.",
       "usageLimit": "Your AI usage budget has been reached.",
+      "modelUnavailable": "That model isn't available on your plan or isn't configured. Choose another model.",
+      "reasoningUnsupported": "The selected model doesn't support that reasoning level. Choose another level.",
       "duplicateRequest": "This message was already submitted. Reload the conversation to check its result.",
       "conversationBusy": "A response is already in progress in this conversation.",
       "contextTooLarge": "This conversation is too long for this request. Start a new conversation with a specific question.",
@@ -590,6 +592,8 @@
       "aiRateLimited": "The AI provider is temporarily busy. Try again later.",
       "rateLimited": "Please wait before sending another message.",
       "usageLimit": "Your AI usage budget has been reached.",
+      "modelUnavailable": "That model isn't available on your plan or isn't configured. Choose another model.",
+      "reasoningUnsupported": "The selected model doesn't support that reasoning level. Choose another level.",
       "duplicateRequest": "This message was already submitted. Reload the conversation to check its result.",
       "conversationBusy": "A response is already in progress in this conversation.",
       "contextTooLarge": "This conversation is too long for this request. Start a new conversation with a specific question.",
@@ -864,6 +868,48 @@
       "unsupported": "This browser does not support push notifications."
     },
     "resourceHelp": "Aven only reads the contents of your resources when you allow it. Titles and organization are always available.",
+    "models": {
+      "menuLabel": "Model and response settings",
+      "triggerLabel": "Model: {model}, reasoning: {reasoning}. Change model settings",
+      "model": "Model",
+      "recommended": "Recommended",
+      "unavailable": {
+        "notConfigured": "Not available right now",
+        "plan": "Not included in your plan"
+      },
+      "reasoning": "Reasoning",
+      "notSupported": "Not supported by {model}",
+      "modes": {
+        "auto": { "label": "Auto", "description": "Adapts effort to each request" },
+        "quick": { "label": "Quick", "description": "Fastest, for simple questions" },
+        "balanced": { "label": "Balanced", "description": "Good for everyday tutoring" },
+        "deep": { "label": "Deep", "description": "Thorough multi-step problem-solving" },
+        "extended": { "label": "Extended", "description": "Most effort, for genuinely hard problems" }
+      },
+      "detail": "Response detail",
+      "details": {
+        "concise": "Concise",
+        "balanced": "Balanced",
+        "detailed": "Detailed"
+      },
+      "detailHints": {
+        "concise": "Direct answers and short examples.",
+        "balanced": "Clear explanations with a relevant example.",
+        "detailed": "Step by step, with examples, diagrams and practice questions."
+      },
+      "capabilities": "Capabilities",
+      "workspace": "Acadence workspace",
+      "workspaceHelp": "Your goals, subjects, calendar and study records, read with your permission scope.",
+      "alwaysOn": "On",
+      "resources": "Learning resources",
+      "resourcesOn": "Aven may read processed resource content.",
+      "resourcesOff": "Off: Aven sees resource titles only.",
+      "change": "Change",
+      "interactive": "Interactive responses",
+      "interactiveHelp": "Checklists, quizzes, flashcards and diagrams.",
+      "footnote": "Uses {model}. Applies to your next message.",
+      "saveFailed": "Couldn't save your choice. Your previous settings are back."
+    },
     "blocks": {
       "checklist": "Checklist",
       "doneCount": "{done} of {total} done",

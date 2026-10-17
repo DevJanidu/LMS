@@ -10,14 +10,27 @@ import {
   MAX_INSTRUCTION_BYTES,
   MAX_TOOL_ROUNDS,
 } from "./config";
+import type { ModelChoice } from "./models";
+export interface ReserveOptions {
+  /** The student's resolved model settings; their model, effort and prices apply. */
+  choice?: ModelChoice;
+  /** The plan's monthly AI allowance (USD), enforced when billing is on. */
+  planBudgetUsd?: number | null;
+}
 export async function reserveUsage(
   userId: string,
   requestId: string,
   planning: boolean,
   schemaBytes = 20000,
   measuredInputTokens?: number,
+  options: ReserveOptions = {},
 ) {
-  const config = avenConfig(planning),
+  const base = avenConfig(planning, options.choice);
+  // A plan allowance can only lower the operator's per-account cap, never raise it.
+  const config =
+    typeof options.planBudgetUsd === "number"
+      ? { ...base, monthlyBudget: Math.min(base.monthlyBudget, options.planBudgetUsd) }
+      : base,
     inputBound =
       measuredInputTokens ??
       MAX_INPUT_BYTES + schemaBytes + MAX_INSTRUCTION_BYTES,
@@ -28,37 +41,30 @@ export async function reserveUsage(
         (inputBound * config.inputPrice +
           config.maxOutputTokens * config.outputPrice),
     );
+  // Three statements inside the transaction (was six): every round trip to the database is
+  // paid before the student sees a word, so the checks are combined, not removed.
   return getDb().transaction(async (tx) => {
-    // Global lock precedes account locks so concurrent learners cannot overspend the shared cap.
+    // Global lock precedes the account lock (scalar subqueries run in order) so concurrent
+    // learners cannot overspend the shared cap.
     await tx.execute(
-      sql`SELECT pg_advisory_xact_lock(hashtext('aven-global-budget'))`,
+      sql`SELECT (SELECT pg_advisory_xact_lock(hashtext('aven-global-budget'))) AS global, (SELECT pg_advisory_xact_lock(hashtext(${`aven-usage:${userId}`}))) AS account`,
     );
-    await tx.execute(
-      sql`SELECT pg_advisory_xact_lock(hashtext(${`aven-usage:${userId}`}))`,
-    );
-    const existing = await tx
-      .select()
-      .from(s.aiUsageRecords)
-      .where(
-        sql`${s.aiUsageRecords.userId}=${userId}::uuid AND ${s.aiUsageRecords.requestId}=${requestId}::uuid`,
-      );
-    if (existing.length) throw new GoalError("duplicateRequest", 409);
     const usage = await tx.execute<{
+      duplicate: boolean;
       dayCost: number;
       monthCost: number;
       dayTokens: number;
       monthTokens: number;
       recent: number;
+      globalCost: number;
     }>(
-      sql`SELECT coalesce(sum(cost_micros) FILTER(WHERE day=current_date),0)::int AS "dayCost", coalesce(sum(cost_micros),0)::int AS "monthCost", coalesce(sum(CASE WHEN status='reserved' THEN reserved_tokens ELSE input_tokens+output_tokens END) FILTER(WHERE day=current_date),0)::int AS "dayTokens", coalesce(sum(CASE WHEN status='reserved' THEN reserved_tokens ELSE input_tokens+output_tokens END),0)::int AS "monthTokens", count(*) FILTER(WHERE created_at>now()-interval '1 minute')::int AS recent FROM ai_usage_records WHERE user_id=${userId}::uuid AND day>=date_trunc('month',now())::date`,
+      sql`SELECT EXISTS(SELECT 1 FROM ai_usage_records WHERE user_id=${userId}::uuid AND request_id=${requestId}::uuid) AS duplicate, coalesce(sum(cost_micros) FILTER(WHERE day=current_date),0)::int AS "dayCost", coalesce(sum(cost_micros),0)::int AS "monthCost", coalesce(sum(CASE WHEN status='reserved' THEN reserved_tokens ELSE input_tokens+output_tokens END) FILTER(WHERE day=current_date),0)::int AS "dayTokens", coalesce(sum(CASE WHEN status='reserved' THEN reserved_tokens ELSE input_tokens+output_tokens END),0)::int AS "monthTokens", count(*) FILTER(WHERE created_at>now()-interval '1 minute')::int AS recent, (SELECT coalesce(sum(cost_micros),0) FROM ai_usage_records WHERE day>=date_trunc('month',now())::date)::bigint AS "globalCost" FROM ai_usage_records WHERE user_id=${userId}::uuid AND day>=date_trunc('month',now())::date`,
     );
     const row = usage.rows[0];
-    const global = await tx.execute<{ cost: number }>(
-      sql`SELECT coalesce(sum(cost_micros),0)::bigint AS cost FROM ai_usage_records WHERE day>=date_trunc('month',now())::date`,
-    );
+    if (row.duplicate) throw new GoalError("duplicateRequest", 409);
     if (row.recent >= 5) throw new GoalError("rateLimited", 429);
     const failure = budgetFailure(
-      { ...row, globalCost: Number(global.rows[0].cost) },
+      { ...row, globalCost: Number(row.globalCost) },
       costMicros,
       tokens,
       config,
@@ -78,14 +84,30 @@ export async function reserveUsage(
     return { id: reservation.id, config };
   });
 }
+/** Actual cost in micro-USD; cached input tokens are billed at the cached price. */
+export function usageCostMicros(
+  config: { inputPrice: number; cachedInputPrice?: number; outputPrice: number },
+  inputTokens: number,
+  outputTokens: number,
+  cachedTokens = 0,
+) {
+  const cached = Math.max(0, Math.min(cachedTokens, inputTokens));
+  return Math.ceil(
+    (inputTokens - cached) * config.inputPrice +
+      cached * (config.cachedInputPrice ?? config.inputPrice) +
+      outputTokens * config.outputPrice,
+  );
+}
 export async function finishUsage(
   id: string,
   inputTokens: number,
   outputTokens: number,
   planning: boolean,
   uncertain = false,
+  /** The reservation's own config (model and prices) and the cached input tokens. */
+  options: { config?: ReturnType<typeof avenConfig>; cachedTokens?: number } = {},
 ) {
-  const config = avenConfig(planning);
+  const config = options.config ?? avenConfig(planning);
   // Unknown upstream usage keeps the conservative reservation charged.
   await getDb()
     .update(s.aiUsageRecords)
@@ -96,10 +118,7 @@ export async function finishUsage(
         ? {}
         : {
             status: "complete",
-            costMicros: Math.ceil(
-              inputTokens * config.inputPrice +
-                outputTokens * config.outputPrice,
-            ),
+            costMicros: usageCostMicros(config, inputTokens, outputTokens, options.cachedTokens),
           }),
     })
     .where(eq(s.aiUsageRecords.id, id));

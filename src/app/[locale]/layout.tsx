@@ -15,6 +15,7 @@ import "../dashboard.css";
 import "../goals.css";
 import "../aven.css";
 import "../aven-blocks.css";
+import "../aven-models.css";
 import "../marketing.css";
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/constants";

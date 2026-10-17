@@ -7,6 +7,7 @@ import {
 import { chatSchema } from "@/lib/aven/validation";
 import { prepareChat, streamChat } from "@/lib/aven/chat";
 import { createEventRelay } from "@/lib/aven/stream-relay";
+import { createLatencyTimer } from "@/lib/aven/latency";
 export const runtime = "nodejs",
   maxDuration = 120;
 /** Hard ceiling for one generation, below maxDuration so the turn can still be saved. */
@@ -18,11 +19,13 @@ const GENERATION_TIMEOUT_MS = 110000;
  * the invocation alive until it settles. Only an explicit stop or the timeout ends it.
  */
 export async function POST(request: Request) {
+  const timer = createLatencyTimer();
   try {
-    const user = await learnerAccount(),
-      input = await validatedBody(request, chatSchema),
-      prepared = await prepareChat(user.id, input);
+    const user = await timer.time("auth", () => learnerAccount()),
+      input = await timer.time("validate", () => validatedBody(request, chatSchema)),
+      prepared = await prepareChat(user.id, input, timer);
     const relay = createEventRelay();
+    timer.mark("responseReturned");
     const generation = streamChat(
       user.id,
       input,

@@ -32,6 +32,7 @@ const mocks = vi.hoisted(() => {
 vi.mock("@/lib/aven/access", () => ({
   assertAvenAccess: vi.fn().mockResolvedValue(undefined),
   assertConversationActive: vi.fn().mockResolvedValue(undefined),
+  assertTurnActive: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock("@/lib/db", () => ({ getDb: () => ({ select: () => mocks.chain() }) }));
 vi.mock("@/lib/goals/service", () => ({
@@ -41,7 +42,7 @@ vi.mock("@/lib/goals/service", () => ({
     }
   },
 }));
-vi.mock("@/lib/aven/preferences", () => ({ getAvenPreferences: mocks.preferences }));
+vi.mock("@/lib/aven/preferences", () => ({ getAvenPreferences: mocks.preferences, getChatContext: mocks.preferences }));
 vi.mock("@/lib/aven/conversations", () => ({
   beginConversationTurn: mocks.begin,
   storedReferences: mocks.stored,
@@ -86,9 +87,11 @@ const stream = (output: unknown[], text?: string) =>
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.preferences.mockResolvedValue({
-    ai: { consent: true, locale: "en" },
+    ai: { consent: true, locale: "en", model: "luna", reasoning: "auto", detail: "balanced", interactive: true },
     memory: [],
+    goals: [],
     timezone: "UTC",
+    allowance: { models: null, monthlyBudgetUsd: null },
   });
   mocks.reserve.mockResolvedValue({ id: "reservation", config: { key: "k", model: "m" } });
   mocks.begin.mockResolvedValue(conversation);

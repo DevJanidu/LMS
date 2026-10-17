@@ -26,6 +26,8 @@ import AvenWelcome from "./AvenWelcome";
 import AvenSuggestions from "./AvenSuggestions";
 import AvenOnboarding from "./AvenOnboarding";
 import AvenSettings from "./AvenSettings";
+import AvenModelMenu from "./AvenModelMenu";
+import { useModelSettings } from "./useModelSettings";
 import AvenNotifications from "./AvenNotifications";
 import { useAvenConversation } from "./useAvenConversation";
 import { useAvenStream, type SendRequest } from "./useAvenStream";
@@ -287,6 +289,16 @@ export default function AvenCompanion({
       document.removeEventListener("visibilitychange", refresh);
     };
   }, []);
+  // Model controls: saved per student, applied to every following message.
+  const models = useModelSettings(
+    {
+      model: initial.preferences.ai.model,
+      reasoning: initial.preferences.ai.reasoning,
+      detail: initial.preferences.ai.detail,
+      interactive: initial.preferences.ai.interactive,
+    },
+    initial.preferences.models,
+  );
   const preferences = bootstrap.preferences,
     ready = preferences.configured && preferences.ai.consent;
   // On phones the sidebar is a drawer: close it after choosing or starting a conversation.
@@ -313,6 +325,10 @@ export default function AvenCompanion({
       ...request,
       conversationId: selected,
       goalId: conversation.activeGoal,
+      model: models.settings.model,
+      reasoning: models.settings.reasoning,
+      detail: models.settings.detail,
+      interactive: models.settings.interactive,
     });
     // Switched away mid-reply: the server finishes it and the conversation restores it.
     if (outcome.detached) return outcome;
@@ -550,6 +566,16 @@ export default function AvenCompanion({
           onNew={startNew}
           onNotifications={() => setDialog("notifications")}
           onSettings={openSettings}
+          controls={
+            <AvenModelMenu
+              options={initial.preferences.models}
+              settings={models.settings}
+              onChange={models.update}
+              resourceAccess={preferences.ai.allowResourceContent}
+              onOpenSettings={openSettings}
+              saveFailed={models.error}
+            />
+          }
         />
         {empty ? (
           <AvenWelcome name={userName} timezone={timezone}>

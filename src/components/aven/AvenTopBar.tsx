@@ -1,4 +1,5 @@
 "use client";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   BellIcon,
@@ -16,6 +17,8 @@ interface Props {
   onNew: () => void;
   onNotifications: () => void;
   onSettings: () => void;
+  /** Model and reasoning controls. */
+  controls?: ReactNode;
 }
 export default function AvenTopBar({
   title,
@@ -26,6 +29,7 @@ export default function AvenTopBar({
   onNew,
   onNotifications,
   onSettings,
+  controls,
 }: Props) {
   const t = useTranslations("aven");
   return (
@@ -62,6 +66,7 @@ export default function AvenTopBar({
           </span>
         )}
       </div>
+      {controls}
       <button
         type="button"
         className="aven-icon-button"

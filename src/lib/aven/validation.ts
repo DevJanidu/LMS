@@ -10,6 +10,12 @@ import {
   learningSignalSchema,
   MAX_SIGNALS,
 } from "@/lib/learning/signals";
+import {
+  DEFAULT_MODEL_KEY,
+  DETAIL_LEVELS,
+  MODEL_KEYS,
+  REASONING_MODES,
+} from "./model-options";
 import { MAX_MENTIONS, mentionReferenceSchema } from "./commands";
 import { operationSchema } from "@/lib/validation/operations";
 import { preconditionsSchema } from "@/lib/workspace/preconditions";
@@ -58,6 +64,11 @@ export const aiPreferenceSchema = z
       .default([1, 2, 3, 4, 5]),
     learningPreferences: z.string().trim().max(2000).default(""),
     allowResourceContent: z.boolean().default(false),
+    /** Model and reasoning controls (keys only; the server maps them to API settings). */
+    model: z.enum(MODEL_KEYS).default(DEFAULT_MODEL_KEY).catch(DEFAULT_MODEL_KEY),
+    reasoning: z.enum(REASONING_MODES).default("auto").catch("auto"),
+    detail: z.enum(DETAIL_LEVELS).default("balanced").catch("balanced"),
+    interactive: z.boolean().default(true).catch(true),
     locale: z.preprocess(() => "en", z.literal("en")).default("en"),
     /** Self-reported difficulty and confidence; one malformed entry never blocks the account. */
     learningSignals: z
@@ -350,6 +361,11 @@ export const chatSchema = z.object({
   regenerate: z.boolean().optional(),
   /** Structured @ references (type and ID only); resolved and permission-checked on the server. */
   references: z.array(mentionReferenceSchema).max(MAX_MENTIONS).optional(),
+  /** The student's current model controls; missing values fall back to saved preferences. */
+  model: z.enum(MODEL_KEYS).optional(),
+  reasoning: z.enum(REASONING_MODES).optional(),
+  detail: z.enum(DETAIL_LEVELS).optional(),
+  interactive: z.boolean().optional(),
 });
 /** Server-built goal snapshot rendered as a progress card; never parsed from model text. */
 export const goalCardSchema = z.object({
@@ -367,6 +383,13 @@ export type GoalCard = z.infer<typeof goalCardSchema>;
 export const goalCardsSchema = z.array(goalCardSchema).max(4);
 export const preferenceMutationSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("enableAven") }),
+  z.object({
+    kind: z.literal("modelSettings"),
+    model: z.enum(MODEL_KEYS),
+    reasoning: z.enum(REASONING_MODES),
+    detail: z.enum(DETAIL_LEVELS),
+    interactive: z.boolean(),
+  }),
   z.object({
     kind: z.literal("onboard"),
     /** Each permission is a separate choice; only AI processing consent is implied by finishing. */
